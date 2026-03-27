@@ -1,0 +1,23 @@
+<h2>Invitar usuario</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label for="em">Correo del invitado</label>
+  <input id="em" type="email" formControlName="email" autocomplete="email" />
+
+  <label for="rh">Rol sugerido</label>
+  <select id="rh" formControlName="role_hint">
+    <option value="admin">admin</option>
+    <option value="operator">operator</option>
+    <option value="viewer">viewer</option>
+  </select>
+
+  <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
+  <p class="ok" *ngIf="vm.state() === 'success'">Invitación enviada.</p>
+
+  <button
+    type="submit"
+    [disabled]="form.invalid || vm.state() === 'submitting' || cooldownActive()"
+  >
+    {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar invitación' }}
+  </button>
+</form>

@@ -1,0 +1,22 @@
+﻿<h2>{{ title }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <label for="code">CÃ³digo OTP</label>
+  <input
+    id="code"
+    type="text"
+    inputmode="numeric"
+    autocomplete="one-time-code"
+    maxlength="6"
+    formControlName="code"
+  />
+
+  <p class="error" *ngIf="errorMessage as error" aria-live="polite">{{ error }}</p>
+
+  <button type="submit" [disabled]="form.invalid || submitting">
+    {{ submitting ? 'Verificando...' : 'Verificar' }}
+  </button>
+</form>
+
+<a routerLink="/onboarding/party/customer/register">Volver al registro</a>
+

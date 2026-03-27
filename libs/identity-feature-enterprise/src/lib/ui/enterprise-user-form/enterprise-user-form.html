@@ -1,0 +1,30 @@
+<h2>Alta de usuario en empresa</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label for="e">Correo</label>
+  <input id="e" type="email" formControlName="email" autocomplete="email" />
+
+  <label for="n">Nombre completo</label>
+  <input id="n" type="text" formControlName="full_name" autocomplete="name" />
+
+  <label for="p">Contraseña (mín. 12)</label>
+  <input id="p" type="password" formControlName="password" autocomplete="new-password" />
+
+  <label for="r">Rol en empresa</label>
+  <select id="r" formControlName="role_in_enterprise">
+    <option value="admin">admin</option>
+    <option value="operator">operator</option>
+    <option value="viewer">viewer</option>
+  </select>
+
+  <label for="pj">Permisos (JSON objeto)</label>
+  <textarea id="pj" rows="5" formControlName="permissionsJson" aria-label="Permisos JSON"></textarea>
+  <p class="hint" *ngIf="form.controls.permissionsJson.errors?.['json']">JSON inválido.</p>
+
+  <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
+  <p class="ok" *ngIf="vm.state() === 'success'">Usuario creado.</p>
+
+  <button type="submit" [disabled]="form.invalid || vm.state() === 'submitting'">
+    {{ vm.state() === 'submitting' ? 'Creando…' : 'Crear usuario' }}
+  </button>
+</form>

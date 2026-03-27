@@ -1,0 +1,21 @@
+<h2>Documentación KYB (MVP)</h2>
+<p>
+  El envío real de archivos llegará en una versión posterior. Por ahora puedes completar el paso con el
+  contrato JSON del servicio Identity (<code>waive_all_mvp</code>).
+</p>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>
+    <input type="checkbox" formControlName="waiveAll" />
+    Renunciar a documentos en MVP (recomendado en local)
+  </label>
+
+  <label for="ref">Referencias JSON (opcional)</label>
+  <textarea id="ref" rows="6" formControlName="referencesJson" aria-label="Referencias JSON"></textarea>
+
+  <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
+
+  <button type="submit" [disabled]="vm.state() === 'submitting'">
+    {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar' }}
+  </button>
+</form>

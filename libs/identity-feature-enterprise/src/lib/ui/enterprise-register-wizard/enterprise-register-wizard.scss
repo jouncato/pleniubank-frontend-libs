@@ -1,0 +1,39 @@
+.wizard {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.steps {
+  display: flex;
+  gap: 1rem;
+  list-style: decimal;
+  padding-left: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+label {
+  display: block;
+  margin-top: 0.75rem;
+}
+
+input,
+select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.error {
+  color: #b00020;
+}

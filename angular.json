@@ -1,0 +1,271 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm",
+    "analytics": false
+  },
+  "newProjectRoot": "libs",
+  "projects": {
+    "design-tokens": {
+      "projectType": "library",
+      "root": "libs/design-tokens",
+      "sourceRoot": "libs/design-tokens/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/design-tokens/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/design-tokens/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/design-tokens/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "ui": {
+      "projectType": "library",
+      "root": "libs/ui",
+      "sourceRoot": "libs/ui/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/ui/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/ui/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/ui/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "shared-http": {
+      "projectType": "library",
+      "root": "libs/shared-http",
+      "sourceRoot": "libs/shared-http/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/shared-http/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/shared-http/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/shared-http/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "shared-auth": {
+      "projectType": "library",
+      "root": "libs/shared-auth",
+      "sourceRoot": "libs/shared-auth/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/shared-auth/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/shared-auth/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/shared-auth/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "identity-domain": {
+      "projectType": "library",
+      "root": "libs/identity-domain",
+      "sourceRoot": "libs/identity-domain/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/identity-domain/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/identity-domain/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/identity-domain/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "identity-data-access": {
+      "projectType": "library",
+      "root": "libs/identity-data-access",
+      "sourceRoot": "libs/identity-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/identity-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/identity-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/identity-data-access/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "identity-feature-auth": {
+      "projectType": "library",
+      "root": "libs/identity-feature-auth",
+      "sourceRoot": "libs/identity-feature-auth/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/identity-feature-auth/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/identity-feature-auth/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/identity-feature-auth/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "identity-feature-enterprise": {
+      "projectType": "library",
+      "root": "libs/identity-feature-enterprise",
+      "sourceRoot": "libs/identity-feature-enterprise/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/identity-feature-enterprise/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/identity-feature-enterprise/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/identity-feature-enterprise/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "core-domain": {
+      "projectType": "library",
+      "root": "libs/core-domain",
+      "sourceRoot": "libs/core-domain/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/core-domain/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/core-domain/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/core-domain/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "core-data-access": {
+      "projectType": "library",
+      "root": "libs/core-data-access",
+      "sourceRoot": "libs/core-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/core-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/core-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/core-data-access/tsconfig.spec.json"
+          }
+        }
+      }
+    }
+  }
+}

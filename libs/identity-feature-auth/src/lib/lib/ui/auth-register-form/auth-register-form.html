@@ -1,0 +1,80 @@
+﻿<h2>Crear cuenta</h2>
+<p class="subtitle">Completa tus datos para iniciar el registro seguro.</p>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <label for="fullName">Nombre completo</label>
+  <input id="fullName" type="text" autocomplete="name" formControlName="fullName" />
+  <p class="field-error" *ngIf="form.controls.fullName.touched && form.controls.fullName.invalid">
+    Ingresa tu nombre completo (minimo 3 caracteres).
+  </p>
+
+  <label for="email">Correo electronico</label>
+  <input id="email" type="email" autocomplete="email" formControlName="email" />
+  <p class="field-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">
+    Ingresa un correo valido.
+  </p>
+
+  <label for="phone">Telefono celular</label>
+  <input id="phone" type="tel" autocomplete="tel" formControlName="phone" />
+  <p class="field-error" *ngIf="form.controls.phone.touched && form.controls.phone.invalid">
+    Ingresa un telefono valido (7 a 20 caracteres).
+  </p>
+
+  <label for="documentType">Tipo de documento</label>
+  <select id="documentType" formControlName="documentType">
+    <option *ngFor="let option of documentTypeOptions" [value]="option.value">{{ option.label }}</option>
+  </select>
+
+  <label for="documentNumber">Numero de documento</label>
+  <input id="documentNumber" type="text" autocomplete="off" formControlName="documentNumber" />
+  <p class="field-error" *ngIf="form.controls.documentNumber.touched && form.controls.documentNumber.invalid">
+    Ingresa un documento valido (5 a 32 caracteres).
+  </p>
+
+  <label for="password">Contrasena</label>
+  <input
+    id="password"
+    type="password"
+    autocomplete="new-password"
+    formControlName="password"
+    (input)="onPasswordInput()"
+  />
+  <ul class="password-hints" aria-live="polite">
+    <li [class.valid]="hasMinLengthPassword">Minimo 12 caracteres</li>
+    <li [class.valid]="hasUpperPassword">Al menos una letra mayuscula</li>
+    <li [class.valid]="hasLowerPassword">Al menos una letra minuscula</li>
+    <li [class.valid]="hasNumberPassword">Al menos un numero</li>
+    <li [class.valid]="hasSymbolPassword">Al menos un simbolo</li>
+  </ul>
+
+  <label for="confirmPassword">Confirmar contrasena</label>
+  <input
+    id="confirmPassword"
+    type="password"
+    autocomplete="new-password"
+    formControlName="confirmPassword"
+    (input)="onPasswordInput()"
+  />
+  <p class="field-error" *ngIf="form.controls.confirmPassword.hasError('mismatch')">
+    Las contrasenas no coinciden.
+  </p>
+
+  <label class="terms">
+    <input type="checkbox" formControlName="acceptedTerms" />
+    <span>
+      Acepto terminos y condiciones y autorizo el tratamiento de datos.
+    </span>
+  </label>
+  <p class="field-error" *ngIf="form.controls.acceptedTerms.touched && form.controls.acceptedTerms.invalid">
+    Debes aceptar los terminos para continuar.
+  </p>
+
+  <p class="error" *ngIf="vm.errorMessage as error" aria-live="polite">{{ error }}</p>
+
+  <button type="submit" [disabled]="form.invalid || vm.state === 'submitting'">
+    {{ vm.state === 'submitting' ? 'Enviando...' : 'Crear cuenta' }}
+  </button>
+</form>
+
+<a routerLink="/onboarding/party/access/login">Ya tengo cuenta</a>
+

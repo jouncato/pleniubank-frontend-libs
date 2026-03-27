@@ -1,0 +1,26 @@
+﻿<h2>VerificaciÃ³n correo empresa</h2>
+<p>
+  Verificando correo del {{ roleLabel }}:
+  <strong>{{ vm.maskedEmail() }}</strong>
+</p>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <label for="otp">CÃ³digo OTP</label>
+  <input
+    id="otp"
+    type="text"
+    inputmode="numeric"
+    autocomplete="one-time-code"
+    maxlength="12"
+    formControlName="code"
+  />
+
+  <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
+
+  <button type="submit" [disabled]="form.invalid || vm.state() === 'submitting'">
+    {{ vm.state() === 'submitting' ? 'Verificandoâ€¦' : 'Verificar' }}
+  </button>
+</form>
+
+<p><a routerLink="/onboarding/party/organization/register">Volver al registro empresa</a></p>
+

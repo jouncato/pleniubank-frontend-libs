@@ -1,0 +1,106 @@
+﻿<section class="wizard" aria-label="Registro empresa">
+  <ol class="steps" role="list">
+    <li [attr.aria-current]="step === 0 ? 'step' : null">Empresa</li>
+    <li [attr.aria-current]="step === 1 ? 'step' : null">Contacto principal</li>
+    <li [attr.aria-current]="step === 2 ? 'step' : null">Administrador</li>
+    <li [attr.aria-current]="step === 3 ? 'step' : null">ConfirmaciÃ³n</li>
+  </ol>
+
+  <div *ngIf="step === 0" class="card">
+    <h2>Datos de la empresa</h2>
+    <form [formGroup]="companyForm" (ngSubmit)="nextFromCompany()">
+      <label for="bn">RazÃ³n social</label>
+      <input id="bn" type="text" formControlName="business_name" autocomplete="organization" />
+
+      <label for="dt">Tipo documento</label>
+      <select id="dt" formControlName="document_type">
+        <option *ngFor="let d of documentTypes" [value]="d">{{ d }}</option>
+      </select>
+
+      <label for="dn">NÃºmero documento</label>
+      <input id="dn" type="text" formControlName="document_number" />
+
+      <label for="ce">Correo empresa</label>
+      <input id="ce" type="email" formControlName="company_email" autocomplete="email" />
+
+      <label for="cp">TelÃ©fono empresa</label>
+      <input id="cp" type="tel" formControlName="company_phone" autocomplete="tel" />
+
+      <label for="sec">Sector (opcional)</label>
+      <input id="sec" type="text" formControlName="sector" />
+
+      <div class="actions">
+        <a routerLink="/onboarding/party/access/login">Cancelar</a>
+        <button type="submit" [disabled]="companyForm.invalid">Siguiente</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="step === 1" class="card">
+    <h2>Representante legal</h2>
+    <form [formGroup]="principalForm" (ngSubmit)="nextFromPrincipal()">
+      <label for="pe">Correo</label>
+      <input id="pe" type="email" formControlName="email" autocomplete="email" />
+
+      <label for="pn">Nombre completo</label>
+      <input id="pn" type="text" formControlName="full_name" autocomplete="name" />
+
+      <label for="pp">ContraseÃ±a (mÃ­n. 12)</label>
+      <input id="pp" type="password" formControlName="password" autocomplete="new-password" />
+
+      <div class="actions">
+        <button type="button" (click)="prev()">AtrÃ¡s</button>
+        <button type="submit" [disabled]="principalForm.invalid">Siguiente</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="step === 2" class="card">
+    <h2>Usuario administrador</h2>
+    <form [formGroup]="adminForm" (ngSubmit)="nextFromAdmin()">
+      <label for="ae">Correo</label>
+      <input id="ae" type="email" formControlName="email" autocomplete="email" />
+
+      <label for="an">Nombre completo</label>
+      <input id="an" type="text" formControlName="full_name" autocomplete="name" />
+
+      <label for="ap">ContraseÃ±a (mÃ­n. 12)</label>
+      <input id="ap" type="password" formControlName="password" autocomplete="new-password" />
+
+      <div class="actions">
+        <button type="button" (click)="prev()">AtrÃ¡s</button>
+        <button type="submit" [disabled]="adminForm.invalid">Siguiente</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="step === 3" class="card">
+    <h2>Confirmar registro</h2>
+    <dl>
+      <dt>Empresa</dt>
+      <dd>{{ companyForm.value.business_name }} â€” {{ companyForm.value.document_type }} {{ companyForm.value.document_number }}</dd>
+      <dt>Contacto</dt>
+      <dd>{{ companyForm.value.company_email }} / {{ companyForm.value.company_phone }}</dd>
+      <dt>Principal</dt>
+      <dd>{{ principalForm.value.email }}</dd>
+      <dt>Admin</dt>
+      <dd>{{ adminForm.value.email }}</dd>
+    </dl>
+
+    <label>
+      <input type="checkbox" [checked]="confirmCorrect" (change)="onConfirmChange($event)" />
+      Confirmo que los datos son correctos
+    </label>
+
+    <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
+    <p class="error" *ngIf="vm.conflictError()">Si necesitas ayuda, contacta soporte.</p>
+
+    <div class="actions">
+      <button type="button" (click)="prev()">AtrÃ¡s</button>
+      <button type="button" (click)="submit()" [disabled]="!confirmCorrect || vm.submitting()">
+        {{ vm.submitting() ? 'Enviandoâ€¦' : 'Registrar empresa' }}
+      </button>
+    </div>
+  </div>
+</section>
+

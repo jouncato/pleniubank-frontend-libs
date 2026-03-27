@@ -1,0 +1,114 @@
+// Pleniu Bank Design Tokens (SCSS helpers)
+// Fuente de verdad: tokens.css. Mantener valores sincronizados.
+
+/* Brand */
+$pb-color-primary: #0272de;
+$pb-color-primary-dark: #0056b3;
+$pb-color-primary-light: #00aeff;
+$pb-color-accent-lime: #cad215;
+$pb-color-accent-cyan: #03d3ff;
+$pb-color-accent-orange: #fc6936;
+$pb-color-accent-amber: #ff9600;
+$pb-color-accent-red: #f91c50;
+$pb-color-accent-green: #02d17b;
+$pb-color-accent-teal: #05b9a8;
+
+/* Neutral */
+$pb-gray-900: #111827;
+$pb-gray-800: #1f2937;
+$pb-gray-700: #374151;
+$pb-gray-600: #4b5563;
+$pb-gray-500: #6b7280;
+$pb-gray-400: #9ca3af;
+$pb-gray-300: #d1d5db;
+$pb-gray-200: #e5e7eb;
+$pb-gray-100: #f3f4f6;
+$pb-gray-50: #f9fafb;
+$pb-white: #ffffff;
+
+/* Status */
+$pb-status-ok: #02d17b;
+$pb-status-warn: #ff9600;
+$pb-status-error: #f91c50;
+$pb-status-info: #00aeff;
+$pb-status-neutral: #9ca3af;
+
+/* Typography */
+$pb-font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+$pb-font-size-body: 16px;
+$pb-font-size-sm: 13px;
+$pb-font-size-xs: 11px;
+$pb-font-size-h1: 22px;
+$pb-font-size-h2: 18px;
+$pb-font-weight-regular: 400;
+$pb-font-weight-medium: 500;
+$pb-font-weight-semibold: 600;
+$pb-font-weight-bold: 700;
+$pb-font-weight-extrabold: 800;
+$pb-line-height: 1.6;
+
+/* Spacing & layout */
+$pb-space-4: 4px;
+$pb-space-8: 8px;
+$pb-space-12: 12px;
+$pb-space-16: 16px;
+$pb-space-20: 20px;
+$pb-space-24: 24px;
+$pb-radius: 12px;
+$pb-radius-sm: 8px;
+$pb-shadow: 0 2px 12px rgba(2, 114, 222, 0.08);
+$pb-shadow-md: 0 4px 24px rgba(2, 114, 222, 0.12);
+$pb-sidebar-width: 240px;
+$pb-topbar-height: 60px;
+
+/* Surfaces & text helpers */
+$pb-surface: $pb-white;
+$pb-surface-alt: $pb-gray-100;
+$pb-text: $pb-gray-900;
+$pb-text-muted: $pb-gray-500;
+$pb-border: $pb-gray-200;
+$pb-border-strong: $pb-gray-300;
+$pb-link: $pb-color-primary;
+$pb-danger: $pb-status-error;
+$pb-success: $pb-status-ok;
+$pb-warning: $pb-status-warn;
+$pb-info: $pb-status-info;
+
+/* Breakpoints */
+$pb-break-md: 1024px;
+$pb-break-sm: 768px;
+$pb-break-xs: 480px;
+
+/* Mixins */
+@mixin pb-focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(2, 114, 222, 0.25);
+}
+
+@mixin pb-font-body {
+  font-family: $pb-font-family;
+  font-size: $pb-font-size-body;
+  line-height: $pb-line-height;
+  color: $pb-text;
+}
+
+@mixin pb-card {
+  background: $pb-white;
+  border: 1px solid $pb-border;
+  border-radius: $pb-radius;
+  box-shadow: $pb-shadow;
+}
+
+@mixin pb-btn-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: $pb-radius-sm;
+  font-size: 14px;
+  font-weight: $pb-font-weight-semibold;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}

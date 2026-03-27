@@ -1,0 +1,10 @@
+<h2>Cambio de contexto empresa</h2>
+
+@if (flags.isEnabled('switchContext')) {
+  <p>Función experimental. Si el servidor aún no la implementa, verás un mensaje claro.</p>
+  <button type="button" (click)="switchVm.trySwitch()">Intentar cambiar empresa</button>
+} @else {
+  <p>El selector multi-empresa no está disponible en esta versión.</p>
+}
+
+<p *ngIf="switchVm.message()" role="status">{{ switchVm.message() }}</p>

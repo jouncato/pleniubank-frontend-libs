@@ -1,0 +1,131 @@
+/**
+ * Pleniu Bank Design Tokens (CSS custom properties)
+ * Fuente: docs/desing/app/design-system.css + FIGMA_SPEC.md
+ * Importar en styles.scss de cada app.
+ */
+:root {
+  /* Brand */
+  --pb-color-primary: #0272de;
+  --pb-color-primary-dark: #0056b3;
+  --pb-color-primary-light: #00aeff;
+  --pb-color-accent-lime: #cad215;
+  --pb-color-accent-cyan: #03d3ff;
+  --pb-color-accent-orange: #fc6936;
+  --pb-color-accent-amber: #ff9600;
+  --pb-color-accent-red: #f91c50;
+  --pb-color-accent-green: #02d17b;
+  --pb-color-accent-teal: #05b9a8;
+
+  /* Neutral */
+  --pb-gray-900: #111827;
+  --pb-gray-800: #1f2937;
+  --pb-gray-700: #374151;
+  --pb-gray-600: #4b5563;
+  --pb-gray-500: #6b7280;
+  --pb-gray-400: #9ca3af;
+  --pb-gray-300: #d1d5db;
+  --pb-gray-200: #e5e7eb;
+  --pb-gray-100: #f3f4f6;
+  --pb-gray-50: #f9fafb;
+  --pb-white: #ffffff;
+
+  /* Status */
+  --pb-status-ok: #02d17b;
+  --pb-status-warn: #ff9600;
+  --pb-status-error: #f91c50;
+  --pb-status-info: #00aeff;
+  --pb-status-neutral: #9ca3af;
+
+  /* Typography */
+  --pb-font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --pb-font-size-body: 16px;
+  --pb-font-size-sm: 13px;
+  --pb-font-size-xs: 11px;
+  --pb-font-size-h1: 22px;
+  --pb-font-size-h2: 18px;
+  --pb-font-weight-regular: 400;
+  --pb-font-weight-medium: 500;
+  --pb-font-weight-semibold: 600;
+  --pb-font-weight-bold: 700;
+  --pb-font-weight-extrabold: 800;
+  --pb-line-height: 1.6;
+
+  /* Spacing & layout */
+  --pb-space-4: 4px;
+  --pb-space-8: 8px;
+  --pb-space-12: 12px;
+  --pb-space-16: 16px;
+  --pb-space-20: 20px;
+  --pb-space-24: 24px;
+  --pb-radius: 12px;
+  --pb-radius-sm: 8px;
+  --pb-shadow: 0 2px 12px rgba(2, 114, 222, 0.08);
+  --pb-shadow-md: 0 4px 24px rgba(2, 114, 222, 0.12);
+  --pb-sidebar-width: 240px;
+  --pb-topbar-height: 60px;
+
+  /* Surfaces & text helpers */
+  --pb-surface: var(--pb-white);
+  --pb-surface-alt: var(--pb-gray-100);
+  --pb-text: var(--pb-gray-900);
+  --pb-text-muted: var(--pb-gray-500);
+  --pb-border: var(--pb-gray-200);
+  --pb-border-strong: var(--pb-gray-300);
+  --pb-link: var(--pb-color-primary);
+  --pb-danger: var(--pb-status-error);
+  --pb-success: var(--pb-status-ok);
+  --pb-warning: var(--pb-status-warn);
+  --pb-info: var(--pb-status-info);
+
+  /* Breakpoints */
+  --pb-break-md: 1024px;
+  --pb-break-sm: 768px;
+  --pb-break-xs: 480px;
+}
+
+/* Focus ring helper */
+:root {
+  --pb-focus-ring: 0 0 0 2px rgba(2, 114, 222, 0.25);
+}
+
+/* Aliases para compatibilidad (prefijo anterior pleniu-) */
+:root {
+  --pleniu-color-primary: var(--pb-color-primary);
+  --pleniu-color-primary-contrast: var(--pb-white);
+  --pleniu-color-surface: var(--pb-surface);
+  --pleniu-color-text: var(--pb-text);
+  --pleniu-color-text-muted: var(--pb-text-muted);
+  --pleniu-color-border: var(--pb-border);
+  --pleniu-color-danger: var(--pb-danger);
+  --pleniu-font-family: var(--pb-font-family);
+  --pleniu-font-size-body: var(--pb-font-size-body);
+  --pleniu-line-height-body: var(--pb-line-height);
+  --pleniu-spacing-xs: 4px;
+  --pleniu-spacing-sm: 8px;
+  --pleniu-spacing-md: 16px;
+  --pleniu-spacing-lg: 24px;
+  --pleniu-spacing-xl: 32px;
+  --pleniu-radius-sm: var(--pb-radius-sm);
+  --pleniu-radius-md: var(--pb-radius);
+  --pleniu-shadow-1: var(--pb-shadow);
+}
+
+/* Optional dark surface palette (placeholder until official dark spec) */
+.theme-dark,
+:root.theme-dark {
+  --pb-surface: #0f172a;
+  --pb-surface-alt: #111827;
+  --pb-text: #f9fafb;
+  --pb-text-muted: #cbd5e1;
+  --pb-border: #1e293b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) {
+    --pb-surface: #0f172a;
+    --pb-surface-alt: #111827;
+    --pb-text: #f9fafb;
+    --pb-text-muted: #cbd5e1;
+    --pb-border: #1e293b;
+  }
+}

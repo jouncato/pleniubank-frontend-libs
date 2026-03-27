@@ -1,0 +1,26 @@
+import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { IdentityAuthApiService } from 'identity-data-access';
+import { SessionStore } from 'shared-auth';
+
+import { VerifyEmailVm } from './verify-email';
+
+describe('VerifyEmailVm', () => {
+  let service: VerifyEmailVm;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        VerifyEmailVm,
+        { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
+        { provide: IdentityAuthApiService, useValue: { verifyEmail: () => {} } },
+        { provide: SessionStore, useValue: { getRegistrationId: () => 'r1' } },
+      ],
+    });
+    service = TestBed.inject(VerifyEmailVm);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});

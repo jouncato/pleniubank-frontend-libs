@@ -1,0 +1,57 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "paths": {
+      "design-tokens": ["./libs/design-tokens/src/public-api.ts"],
+      "ui": ["./libs/ui/src/public-api.ts"],
+      "shared-http": ["./libs/shared-http/src/public-api.ts"],
+      "shared-auth": ["./libs/shared-auth/src/public-api.ts"],
+      "identity-domain": ["./libs/identity-domain/src/public-api.ts"],
+      "identity-data-access": ["./libs/identity-data-access/src/public-api.ts"],
+      "identity-feature-auth": ["./libs/identity-feature-auth/src/public-api.ts"],
+      "identity-feature-enterprise": ["./libs/identity-feature-enterprise/src/public-api.ts"],
+      "core-domain": ["./libs/core-domain/src/public-api.ts"],
+      "core-data-access": ["./libs/core-data-access/src/public-api.ts"]
+    },
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./libs/design-tokens/tsconfig.lib.json" },
+    { "path": "./libs/design-tokens/tsconfig.spec.json" },
+    { "path": "./libs/ui/tsconfig.lib.json" },
+    { "path": "./libs/ui/tsconfig.spec.json" },
+    { "path": "./libs/shared-http/tsconfig.lib.json" },
+    { "path": "./libs/shared-http/tsconfig.spec.json" },
+    { "path": "./libs/shared-auth/tsconfig.lib.json" },
+    { "path": "./libs/shared-auth/tsconfig.spec.json" },
+    { "path": "./libs/identity-domain/tsconfig.lib.json" },
+    { "path": "./libs/identity-domain/tsconfig.spec.json" },
+    { "path": "./libs/identity-data-access/tsconfig.lib.json" },
+    { "path": "./libs/identity-data-access/tsconfig.spec.json" },
+    { "path": "./libs/identity-feature-auth/tsconfig.lib.json" },
+    { "path": "./libs/identity-feature-auth/tsconfig.spec.json" },
+    { "path": "./libs/identity-feature-enterprise/tsconfig.lib.json" },
+    { "path": "./libs/identity-feature-enterprise/tsconfig.spec.json" },
+    { "path": "./libs/core-domain/tsconfig.lib.json" },
+    { "path": "./libs/core-domain/tsconfig.spec.json" },
+    { "path": "./libs/core-data-access/tsconfig.lib.json" },
+    { "path": "./libs/core-data-access/tsconfig.spec.json" }
+  ]
+}
