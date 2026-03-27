@@ -17,6 +17,12 @@ Monorepo de librerías Angular compartidas para los portales de PleniuBank.
 | `@pleniu/core-domain` | Modelos de Account, Loan, Product, Posting, Contract |
 | `@pleniu/core-data-access` | API services de Core Banking |
 
+## Documentación del SDK
+
+- [docs/SDK_OVERVIEW.md](./docs/SDK_OVERVIEW.md) — mapa de paquetes y scripts
+- [docs/SECURITY_CONTRACT.md](./docs/SECURITY_CONTRACT.md) — tokens, guards, PII
+- [docs/CHANGELOG.md](./docs/CHANGELOG.md) — notas de versión (manual)
+
 ## Desarrollo
 
 ```bash
