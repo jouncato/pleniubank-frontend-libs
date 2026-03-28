@@ -25,6 +25,57 @@ export interface AdminCreateUserResponse {
   is_active: boolean;
 }
 
+export interface AdminUserDto {
+  user_id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  status: 'active' | 'inactive';
+  created_at: string;
+  enterprise_id?: string | null;
+}
+
+export interface AdminUserActivityItem {
+  event_type: string;
+  entity_type: string;
+  entity_id?: string | null;
+  correlation_id?: string | null;
+  created_at: string;
+  details?: Record<string, unknown>;
+}
+
+export interface AdminUserDetailDto {
+  user_id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  status: 'active' | 'inactive';
+  enterprise_id?: string | null;
+  customer_id?: string | null;
+  two_factor_enabled: boolean;
+  identity_verified: boolean;
+  created_at: string;
+  recent_activity: AdminUserActivityItem[];
+}
+
+export interface AdminUsersListParams {
+  email?: string;
+  role?: string;
+  enterprise_id?: string;
+  status?: 'active' | 'inactive';
+  cursor?: string;
+  limit?: number;
+}
+
+export interface CursorPaginationMeta {
+  cursor?: string | null;
+  total?: number | null;
+  has_more?: boolean;
+}
+
+export type AdminUsersListEnvelope = ApiEnvelope<AdminUserDto[]>;
+export type AdminUserDetailEnvelope = ApiEnvelope<AdminUserDetailDto>;
+
 /** Body de `POST /api/v1/admin/enterprises` (Identity `CreateEnterpriseRequest`). */
 export interface AdminCreateEnterpriseRequest {
   business_name: string;
