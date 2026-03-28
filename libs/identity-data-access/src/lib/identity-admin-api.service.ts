@@ -9,6 +9,7 @@ import {
   AdminCreateUserEnvelope,
   AdminCreateUserResponse,
   AdminCreateUserRequest,
+  AdminPatchUserRequest,
   AdminUserDetailDto,
   AdminUserDetailEnvelope,
   AdminUsersListEnvelope,
@@ -55,6 +56,15 @@ export class IdentityAdminApiService {
     return this.http
       .get<AdminUserDetailEnvelope | AdminUserDetailDto>(
         `${this.apiConfig.identityBaseUrl}/api/v1/admin/users/${encodeURIComponent(userId)}`,
+      )
+      .pipe(map((raw) => this.asEnvelope(raw)));
+  }
+
+  patchUser(userId: string, payload: AdminPatchUserRequest): Observable<AdminUserDetailEnvelope> {
+    return this.http
+      .patch<AdminUserDetailEnvelope | AdminUserDetailDto>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/admin/users/${encodeURIComponent(userId)}`,
+        payload,
       )
       .pipe(map((raw) => this.asEnvelope(raw)));
   }

@@ -58,6 +58,11 @@ export interface AdminUserDetailDto {
   recent_activity: AdminUserActivityItem[];
 }
 
+export interface AdminPatchUserRequest {
+  status?: 'active' | 'inactive';
+  role?: AdminCreateUserRole;
+}
+
 export interface AdminUsersListParams {
   email?: string;
   role?: string;
