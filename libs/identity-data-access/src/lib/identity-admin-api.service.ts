@@ -6,6 +6,12 @@ import {
   AdminCreateEnterpriseEnvelope,
   AdminCreateEnterpriseResponse,
   AdminCreateEnterpriseRequest,
+  AdminEnterpriseDetailDto,
+  AdminEnterpriseDetailEnvelope,
+  AdminEnterpriseSummaryDto,
+  AdminEnterprisesListEnvelope,
+  AdminEnterprisesListParams,
+  AdminPatchEnterpriseKybRequest,
   AdminCreateUserEnvelope,
   AdminCreateUserResponse,
   AdminCreateUserRequest,
@@ -69,11 +75,69 @@ export class IdentityAdminApiService {
       .pipe(map((raw) => this.asEnvelope(raw)));
   }
 
+  listEnterprises(params: AdminEnterprisesListParams = {}): Observable<AdminEnterprisesListEnvelope> {
+    return this.http
+      .get<
+        | AdminEnterprisesListEnvelope
+        | {
+            items?: AdminEnterpriseSummaryDto[];
+            cursor?: string | null;
+            has_more?: boolean;
+            total?: number | null;
+          }
+      >(`${this.apiConfig.identityBaseUrl}/api/v1/admin/enterprises`, {
+        params: params as Record<string, string | number | boolean>,
+      })
+      .pipe(map((raw) => this.asEnterprisesListEnvelope(raw)));
+  }
+
+  getEnterpriseById(enterpriseId: string): Observable<AdminEnterpriseDetailEnvelope> {
+    return this.http
+      .get<AdminEnterpriseDetailEnvelope | AdminEnterpriseDetailDto>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/admin/enterprises/${encodeURIComponent(enterpriseId)}`,
+      )
+      .pipe(map((raw) => this.asEnvelope(raw)));
+  }
+
+  patchEnterpriseKyb(
+    enterpriseId: string,
+    payload: AdminPatchEnterpriseKybRequest,
+  ): Observable<AdminEnterpriseDetailEnvelope> {
+    return this.http
+      .patch<AdminEnterpriseDetailEnvelope | AdminEnterpriseDetailDto>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/admin/enterprises/${encodeURIComponent(enterpriseId)}/kyb`,
+        payload,
+      )
+      .pipe(map((raw) => this.asEnvelope(raw)));
+  }
+
   private asUsersListEnvelope(
     payload:
       | AdminUsersListEnvelope
       | { items?: AdminUserDto[]; cursor?: string | null; has_more?: boolean; total?: number | null },
   ): AdminUsersListEnvelope {
+    if (this.isEnvelope(payload)) {
+      return payload;
+    }
+    const list = Array.isArray(payload?.items) ? payload.items : [];
+    const meta: ApiMeta = {
+      cursor: payload?.cursor ?? null,
+      has_more: payload?.has_more ?? false,
+      total: payload?.total ?? null,
+    };
+    return { data: list, meta };
+  }
+
+  private asEnterprisesListEnvelope(
+    payload:
+      | AdminEnterprisesListEnvelope
+      | {
+          items?: AdminEnterpriseSummaryDto[];
+          cursor?: string | null;
+          has_more?: boolean;
+          total?: number | null;
+        },
+  ): AdminEnterprisesListEnvelope {
     if (this.isEnvelope(payload)) {
       return payload;
     }

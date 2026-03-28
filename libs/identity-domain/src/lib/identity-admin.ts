@@ -101,5 +101,86 @@ export interface AdminCreateEnterpriseResponse {
   created_at: string;
 }
 
+export type AdminEnterpriseKybStatus = 'pending_kyb' | 'active' | 'rejected' | string;
+
+export interface AdminEnterpriseSummaryDto {
+  enterprise_id: string;
+  business_name: string;
+  document_number: string;
+  sector?: string | null;
+  kyb_status: AdminEnterpriseKybStatus;
+  created_at: string;
+}
+
+export interface AdminEnterprisePersonDto {
+  user_id?: string | null;
+  full_name?: string | null;
+  email?: string | null;
+}
+
+export interface AdminEnterpriseKybStageDto {
+  stage: string;
+  status: string;
+  enabled: boolean;
+  updated_at: string;
+}
+
+export interface AdminEnterpriseTimelineItemDto {
+  event_type: string;
+  actor_id?: string | null;
+  created_at: string;
+  details?: Record<string, unknown>;
+}
+
+export interface AdminEnterpriseSubEnterpriseDto {
+  sub_enterprise_id: string;
+  business_name: string;
+  company_code: string;
+  document_number: string;
+  status: string;
+  created_at: string;
+}
+
+export interface AdminEnterpriseUserDto {
+  user_id: string;
+  full_name: string;
+  email: string;
+  role: string;
+  status: 'active' | 'inactive';
+  created_at: string;
+}
+
+export interface AdminEnterpriseDetailDto {
+  enterprise_id: string;
+  business_name: string;
+  document_type: string;
+  document_number: string;
+  email: string;
+  phone: string;
+  sector?: string | null;
+  status: AdminEnterpriseKybStatus;
+  created_at: string;
+  principal?: AdminEnterprisePersonDto | null;
+  admin?: AdminEnterprisePersonDto | null;
+  kyb_stages: AdminEnterpriseKybStageDto[];
+  kyb_timeline: AdminEnterpriseTimelineItemDto[];
+  sub_enterprises: AdminEnterpriseSubEnterpriseDto[];
+  users: AdminEnterpriseUserDto[];
+}
+
+export interface AdminPatchEnterpriseKybRequest {
+  action: 'approve' | 'reject';
+  reason?: string | null;
+}
+
+export interface AdminEnterprisesListParams {
+  search?: string;
+  status?: AdminEnterpriseKybStatus;
+  cursor?: string;
+  limit?: number;
+}
+
 export type AdminCreateUserEnvelope = ApiEnvelope<AdminCreateUserResponse>;
 export type AdminCreateEnterpriseEnvelope = ApiEnvelope<AdminCreateEnterpriseResponse>;
+export type AdminEnterprisesListEnvelope = ApiEnvelope<AdminEnterpriseSummaryDto[]>;
+export type AdminEnterpriseDetailEnvelope = ApiEnvelope<AdminEnterpriseDetailDto>;
