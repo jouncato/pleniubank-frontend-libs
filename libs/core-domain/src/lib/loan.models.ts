@@ -26,8 +26,20 @@ export interface CreateLoanRequest {
   instance_parameters: Record<string, unknown>;
 }
 
+export const LOAN_STATUS_VALUES = [
+  'PENDING_DISBURSEMENT',
+  'ACTIVE',
+  'DISBURSED',
+  'SETTLED',
+  'CANCELLED',
+  'CLOSED',
+] as const;
+
+export type LoanStatusValue = (typeof LOAN_STATUS_VALUES)[number];
+
 export interface UpdateLoanRequest {
   version: number;
+  status?: LoanStatusValue | string;
   amount?: string;
   denomination?: string;
   instance_parameters?: Record<string, unknown>;

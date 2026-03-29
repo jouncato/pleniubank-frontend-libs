@@ -42,4 +42,23 @@ describe('CoreLoansApiService', () => {
 
     expect(http.post).toHaveBeenCalledWith('http://localhost:8000/api/v1/loans/simulate', payload);
   });
+
+  it('update envia status y parametros a /loans/:id', () => {
+    const http = {
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn().mockReturnValue(of({ data: { id: 'loan-1' } })),
+    };
+    const service = new CoreLoansApiService(http as never, apiConfig);
+    const payload = {
+      version: 2,
+      status: 'ACTIVE',
+      amount: '200000',
+      instance_parameters: { term_months: 18 },
+    };
+
+    service.update('loan-1', payload).subscribe();
+
+    expect(http.put).toHaveBeenCalledWith('http://localhost:8000/api/v1/loans/loan-1', payload);
+  });
 });

@@ -28,6 +28,7 @@ export interface CreateLoanRequest {
 
 export interface UpdateLoanRequest {
   version: number;
+  status?: string;
   amount?: string;
   denomination?: string;
   instance_parameters?: Record<string, unknown>;
