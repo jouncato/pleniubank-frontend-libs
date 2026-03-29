@@ -7,3 +7,4 @@ export * from './lib/breakpoint-observer.service';
 export * from './lib/skip-link.component';
 export * from './lib/brand-assets';
 export * from './lib/logo.component';
+export * from './lib/breadcrumb.component';
