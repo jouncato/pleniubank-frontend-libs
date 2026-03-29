@@ -58,7 +58,7 @@ describe('ForgotPasswordVm', () => {
 
     vm.submit({ email: 'cliente@example.com', method: 'link' });
 
-    expect(vm.state).toBe('error');
-    expect(vm.errorMessage).toContain('Demasiados intentos');
+    expect(vm.state).toBe('rate_limited');
+    expect(vm.rateLimitMessage).toContain('Demasiados intentos');
   });
 });

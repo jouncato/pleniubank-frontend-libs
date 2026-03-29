@@ -1,19 +1,19 @@
-﻿<h2>Iniciar sesiÃ³n</h2>
+<h2>Iniciar sesion</h2>
 
 <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  <label for="email">Correo electrÃ³nico</label>
+  <label for="email">Correo electronico</label>
   <input id="email" type="email" autocomplete="email" formControlName="email" />
 
-  <label for="password">ContraseÃ±a</label>
+  <label for="password">Contrasena</label>
   <input id="password" type="password" autocomplete="current-password" formControlName="password" />
 
+  <p class="error" *ngIf="vm.rateLimitMessage as message" role="status" aria-live="polite">{{ message }}</p>
   <p class="error" *ngIf="vm.errorMessage as error" role="alert" aria-live="polite">{{ error }}</p>
 
-  <button type="submit" [disabled]="form.invalid || vm.state === 'submitting'">
+  <button type="submit" [disabled]="form.invalid || vm.state === 'submitting' || vm.isRateLimited">
     {{ vm.state === 'submitting' ? 'Ingresando...' : 'Ingresar' }}
   </button>
 </form>
 
-<a routerLink="/onboarding/party/access/forgot-password">Â¿Olvidaste tu contraseÃ±a?</a>
+<a routerLink="/onboarding/party/access/forgot-password">Olvidaste tu contrasena?</a>
 <a routerLink="/onboarding/party/customer/register">Crear cuenta</a>
-

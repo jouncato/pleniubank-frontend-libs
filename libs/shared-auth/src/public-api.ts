@@ -17,3 +17,4 @@ export * from './lib/guest.guard';
 export * from './lib/app-feature-flags.token';
 export * from './lib/feature-flag.service';
 export * from './lib/portal-app.token';
+export * from './lib/return-url';

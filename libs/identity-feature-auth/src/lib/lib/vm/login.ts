@@ -1,26 +1,48 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginRequest } from 'identity-domain';
-import { PORTAL_APP, PortalAppKind, SessionStore } from 'shared-auth';
 import { IdentityAuthApiService } from 'identity-data-access';
+import { isValidReturnUrl, PORTAL_APP, PortalAppKind, SessionStore } from 'shared-auth';
 import { mapHttpError } from 'shared-http';
+
+import { AuthRateLimitService } from './auth-rate-limit.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginVm {
-  state: 'idle' | 'submitting' | 'success' | 'locked' | 'error' = 'idle';
+  state: 'idle' | 'submitting' | 'success' | 'locked' | 'rate_limited' | 'error' = 'idle';
   errorMessage: string | null = null;
 
   private readonly portal = inject<PortalAppKind>(PORTAL_APP);
+  private readonly rateLimit = inject(AuthRateLimitService);
 
   constructor(
     private readonly identityApi: IdentityAuthApiService,
     private readonly sessionStore: SessionStore,
     private readonly router: Router,
-  ) {}
+  ) {
+    this.applyStoredRateLimit();
+  }
+
+  get isRateLimited(): boolean {
+    return this.rateLimit.isBlocked();
+  }
+
+  get remainingSeconds(): number {
+    return this.rateLimit.remainingSeconds();
+  }
+
+  get rateLimitMessage(): string | null {
+    return this.rateLimit.message();
+  }
 
   login(payload: LoginRequest, returnUrl?: string): void {
+    this.rateLimit.sync();
+    if (this.rateLimit.isBlocked()) {
+      this.state = 'rate_limited';
+      return;
+    }
     if (this.state === 'submitting') {
       return;
     }
@@ -30,6 +52,7 @@ export class LoginVm {
 
     this.identityApi.login(payload).subscribe({
       next: (response) => {
+        this.rateLimit.reset();
         const data = response.data;
         this.sessionStore.setUserToken(data.access_token);
         this.sessionStore.setRefreshToken(data.refresh_token ?? null);
@@ -44,20 +67,22 @@ export class LoginVm {
         const mappedError = mapHttpError(error);
         const code = mappedError.errors[0]?.code;
         if (mappedError.status === 423 || code === 'ACCOUNT_LOCKED') {
+          this.rateLimit.reset();
           this.state = 'locked';
-          this.errorMessage = 'Tu cuenta está bloqueada.';
+          this.errorMessage = 'Tu cuenta esta bloqueada.';
           return;
         }
         if (mappedError.status === 429) {
-          this.state = 'error';
-          this.errorMessage = 'Demasiados intentos. Espera unos minutos.';
+          this.rateLimit.register429();
+          this.state = 'rate_limited';
           return;
         }
+        this.rateLimit.reset();
         this.state = 'error';
         this.errorMessage =
           code === 'USER_INACTIVE'
-            ? 'Tu cuenta no está activa. Completa la verificación.'
-            : 'Correo o contraseña incorrectos.';
+            ? 'Tu cuenta no esta activa. Completa la verificacion.'
+            : 'Correo o contrasena incorrectos.';
       },
     });
   }
@@ -70,7 +95,7 @@ export class LoginVm {
           this.sessionStore.clear();
           this.state = 'error';
           this.errorMessage =
-            'Las cuentas de administrador de plataforma deben iniciar sesión en el portal de backoffice.';
+            'Las cuentas de administrador de plataforma deben iniciar sesion en el portal de backoffice.';
           return;
         }
         this.sessionStore.setClaims({
@@ -84,13 +109,21 @@ export class LoginVm {
             : response.data.claims.enterprise_id
               ? '/app/accounts'
               : '/app/dashboard';
-        void this.router.navigateByUrl(returnUrl || route);
+        const safeReturnUrl = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
+        void this.router.navigateByUrl(safeReturnUrl ?? route);
       },
       error: () => {
         this.sessionStore.clear();
         this.state = 'error';
-        this.errorMessage = 'No fue posible validar la sesión.';
+        this.errorMessage = 'No fue posible validar la sesion.';
       },
     });
+  }
+
+  private applyStoredRateLimit(): void {
+    this.rateLimit.sync();
+    if (this.rateLimit.isBlocked()) {
+      this.state = 'rate_limited';
+    }
   }
 }

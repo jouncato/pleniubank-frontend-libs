@@ -5,6 +5,7 @@
   "scripts": {
     "ng": "ng",
     "build:all": "ng build design-tokens && ng build ui && ng build shared-http && ng build shared-auth && ng build identity-domain && ng build identity-data-access && ng build identity-feature-auth && ng build identity-feature-enterprise && ng build core-domain && ng build core-data-access",
+    "build:identity-feature-auth": "ng build identity-domain && ng build shared-http && ng build shared-auth && ng build identity-data-access && ng build identity-feature-auth",
     "build:all:prod": "npm run build:all -- --configuration production",
     "test:all": "ng test shared-http --watch=false && ng test shared-auth --watch=false && ng test identity-domain --watch=false && ng test identity-data-access --watch=false && ng test identity-feature-auth --watch=false && ng test identity-feature-enterprise --watch=false && ng test core-domain --watch=false && ng test core-data-access --watch=false",
     "verify": "npm run build:all && npm run test:all"
