@@ -1,8 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, input, output } from '@angular/core';
 
+export interface ConfirmDialogSummaryItem {
+  label: string;
+  value: string;
+}
+
 /**
- * Diálogo modal accesible (I-05): role="dialog", aria-modal, cierre con Escape.
+ * Dialogo modal accesible: role="dialog", aria-modal, cierre con Escape.
  */
 @Component({
   selector: 'lib-confirm-dialog',
@@ -11,9 +16,11 @@ import { Component, HostListener, input, output } from '@angular/core';
   styleUrl: './confirm-dialog.scss',
 })
 export class ConfirmDialog {
-  /** Título del diálogo (evita el atributo global HTML `title`). */
+  /** Titulo del dialogo (evita el atributo global HTML `title`). */
   readonly dialogTitle = input.required<string>();
   readonly message = input<string>();
+  readonly summaryItems = input<ConfirmDialogSummaryItem[]>([]);
+  readonly warning = input<string>();
   readonly confirmLabel = input('Confirmar');
   readonly cancelLabel = input('Cancelar');
   readonly confirmed = output<void>();

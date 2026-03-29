@@ -1,5 +1,46 @@
+# Dependencies
 node_modules/
+
+# Build / Angular
 dist/
 out-tsc/
 .angular/
+
+# Typecheck artefactos
 *.ngtypecheck.ts
+
+# Cache & coverage
+coverage/
+.nyc_output/
+
+# Environment (no secretos en Git)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# e2e / Playwright (si se añaden)
+playwright-report/
+test-results/
+.playwright/
+
+# Misc
+*.tgz
+.sass-cache/
+connect.lock

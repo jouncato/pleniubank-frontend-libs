@@ -266,6 +266,58 @@
           }
         }
       }
+    },
+    "paymenthub-domain": {
+      "projectType": "library",
+      "root": "libs/paymenthub-domain",
+      "sourceRoot": "libs/paymenthub-domain/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/paymenthub-domain/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/paymenthub-domain/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/paymenthub-domain/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "paymenthub-data-access": {
+      "projectType": "library",
+      "root": "libs/paymenthub-data-access",
+      "sourceRoot": "libs/paymenthub-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/paymenthub-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/paymenthub-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/paymenthub-data-access/tsconfig.spec.json"
+          }
+        }
+      }
     }
   }
 }

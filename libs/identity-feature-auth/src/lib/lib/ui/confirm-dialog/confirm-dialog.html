@@ -5,11 +5,25 @@
     aria-modal="true"
     aria-labelledby="confirm-dialog-heading"
     class="panel"
+    [class.panel--wide]="summaryItems().length > 0 || !!warning()"
     (click)="$event.stopPropagation()"
   >
     <h2 id="confirm-dialog-heading" class="title">{{ dialogTitle() }}</h2>
     @if (message(); as msg) {
       <p class="message">{{ msg }}</p>
+    }
+    @if (summaryItems().length > 0) {
+      <dl class="summary" aria-label="Resumen de la operacion">
+        @for (item of summaryItems(); track item.label) {
+          <div class="summary__row">
+            <dt>{{ item.label }}</dt>
+            <dd>{{ item.value }}</dd>
+          </div>
+        }
+      </dl>
+    }
+    @if (warning(); as warning) {
+      <p class="warning" role="alert">{{ warning }}</p>
     }
     <div class="actions">
       <button type="button" class="btn-secondary" (click)="onCancel()">{{ cancelLabel() }}</button>

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -53,7 +53,7 @@ export class IdentityAdminApiService {
     return this.http
       .get<AdminUsersListEnvelope | { items?: AdminUserDto[]; cursor?: string | null; has_more?: boolean; total?: number | null }>(
         `${this.apiConfig.identityBaseUrl}/api/v1/admin/users`,
-        { params: params as Record<string, string | number | boolean> },
+        { params: this.buildAdminUsersQueryParams(params) },
       )
       .pipe(map((raw) => this.asUsersListEnvelope(raw)));
   }
@@ -86,7 +86,7 @@ export class IdentityAdminApiService {
             total?: number | null;
           }
       >(`${this.apiConfig.identityBaseUrl}/api/v1/admin/enterprises`, {
-        params: params as Record<string, string | number | boolean>,
+        params: this.buildAdminEnterprisesQueryParams(params),
       })
       .pipe(map((raw) => this.asEnterprisesListEnvelope(raw)));
   }
@@ -109,6 +109,37 @@ export class IdentityAdminApiService {
         payload,
       )
       .pipe(map((raw) => this.asEnvelope(raw)));
+  }
+
+  private buildAdminUsersQueryParams(params: AdminUsersListParams): HttpParams {
+    return this.toHttpParams({
+      email: params.email,
+      role: params.role,
+      enterprise_id: params.enterprise_id,
+      status: params.status,
+      cursor: params.cursor,
+      limit: params.limit,
+    });
+  }
+
+  private buildAdminEnterprisesQueryParams(params: AdminEnterprisesListParams): HttpParams {
+    return this.toHttpParams({
+      search: params.search,
+      status: params.status,
+      cursor: params.cursor,
+      limit: params.limit,
+    });
+  }
+
+  private toHttpParams(record: Record<string, string | number | boolean | undefined | null>): HttpParams {
+    let hp = new HttpParams();
+    for (const [key, value] of Object.entries(record)) {
+      if (value === undefined || value === null || value === '') {
+        continue;
+      }
+      hp = hp.set(key, String(value));
+    }
+    return hp;
   }
 
   private asUsersListEnvelope(

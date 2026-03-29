@@ -25,6 +25,10 @@
   box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2);
 }
 
+.panel--wide {
+  max-width: 34rem;
+}
+
 .title {
   margin: 0 0 0.5rem;
   font-size: 1.125rem;
@@ -33,6 +37,41 @@
 .message {
   margin: 0 0 1rem;
   color: #444;
+}
+
+.summary {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+}
+
+.summary__row {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.summary dt {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475467;
+}
+
+.summary dd {
+  margin: 0;
+  color: #101828;
+  word-break: break-word;
+}
+
+.warning {
+  margin: 0 0 1rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.75rem;
+  background: #fff4e5;
+  color: #9a3412;
+  font-weight: 600;
 }
 
 .actions {
