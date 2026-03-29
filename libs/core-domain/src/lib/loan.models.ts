@@ -42,3 +42,20 @@ export interface PaymentLineDto {
   booking_timestamp: string;
   type: string;
 }
+
+export interface SimulateLoanRequest {
+  contract_type: string;
+  contract_id?: string | null;
+  parameters?: Record<string, unknown>;
+}
+
+export interface SimulatedInstallmentDto {
+  [key: string]: unknown;
+}
+
+export interface SimulateLoanResponse {
+  installments: SimulatedInstallmentDto[];
+  total_interest: string | number | null;
+  total_cost: string | number | null;
+  schedule: Record<string, unknown>;
+}

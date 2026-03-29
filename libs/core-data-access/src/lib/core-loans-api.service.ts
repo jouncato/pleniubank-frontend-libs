@@ -3,7 +3,14 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
-import type { CreateLoanRequest, LoanDto, PaymentLineDto, UpdateLoanRequest } from './core-types';
+import type {
+  CreateLoanRequest,
+  LoanDto,
+  PaymentLineDto,
+  SimulateLoanRequest,
+  SimulateLoanResponse,
+  UpdateLoanRequest,
+} from 'core-domain';
 
 export interface ListLoansParams {
   cursor?: string | null;
@@ -64,5 +71,9 @@ export class CoreLoansApiService {
 
   update(loanId: string, body: UpdateLoanRequest): Observable<ApiEnvelope<LoanDto>> {
     return this.http.put<ApiEnvelope<LoanDto>>(`${this.base}/${loanId}`, body);
+  }
+
+  simulate(body: SimulateLoanRequest): Observable<ApiEnvelope<SimulateLoanResponse>> {
+    return this.http.post<ApiEnvelope<SimulateLoanResponse>>(`${this.base}/simulate`, body);
   }
 }
