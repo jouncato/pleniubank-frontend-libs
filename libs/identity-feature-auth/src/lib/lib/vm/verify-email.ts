@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { IdentityAuthApiService } from 'identity-data-access';
+import { IdentityAuthApiService, unwrapVerificationResponse } from 'identity-data-access';
 import { SessionStore } from 'shared-auth';
 import { ApiHttpError, mapHttpError } from 'shared-http';
 
@@ -81,9 +81,17 @@ export class VerifyEmailVm {
     this.errorMessage.set(null);
 
     this.identityApi.verifyEmail({ registration_id: registrationId, code }).subscribe({
-      next: () => {
+      next: (raw) => {
         this.state.set('idle');
         this.errorMessage.set(null);
+        const result = unwrapVerificationResponse(raw);
+        if (result.identity_verified && result.is_active) {
+          this.sessionStore.setRegistrationId(null);
+          void this.router.navigate(['/onboarding/party/access/login'], {
+            state: { registrationCompleted: true },
+          });
+          return;
+        }
         void this.router.navigate(['/onboarding/party/customer/verify-phone'], {
           state: { registrationId },
         });

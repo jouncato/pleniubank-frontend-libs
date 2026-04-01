@@ -38,14 +38,16 @@ describe('RegisterVm', () => {
     });
   });
 
-  it('stores registration id and routes to email verification on success (envelope)', () => {
+  it('stores registration id and routes to verify-contact hub on success (envelope)', () => {
     api.register.mockReturnValue(of({ data: { registration_id: 'r1' } }));
     const vm = TestBed.inject(RegisterVm);
 
     vm.submit(registerPayload);
 
     expect(sessionStore.setRegistrationId).toHaveBeenCalledWith('r1');
-    expect(router.navigate).toHaveBeenCalledWith(['/onboarding/party/customer/verify-email'], { state: { registrationId: 'r1' } });
+    expect(router.navigate).toHaveBeenCalledWith(['/onboarding/party/customer/verify-contact'], {
+      state: { registrationId: 'r1' },
+    });
     expect(vm.state()).toBe('success');
   });
 
@@ -56,7 +58,9 @@ describe('RegisterVm', () => {
     vm.submit(registerPayload);
 
     expect(sessionStore.setRegistrationId).toHaveBeenCalledWith('r2');
-    expect(router.navigate).toHaveBeenCalledWith(['/onboarding/party/customer/verify-email'], { state: { registrationId: 'r2' } });
+    expect(router.navigate).toHaveBeenCalledWith(['/onboarding/party/customer/verify-contact'], {
+      state: { registrationId: 'r2' },
+    });
     expect(vm.state()).toBe('success');
   });
 

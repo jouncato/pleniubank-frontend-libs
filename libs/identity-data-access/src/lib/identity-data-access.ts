@@ -14,6 +14,8 @@ import {
   ValidateEnvelope,
   ValidateResponse,
   ResendEmailOtpRequest,
+  VerificationEnvelope,
+  VerificationResponse,
   VerifyOtpRequest,
 } from 'identity-domain';
 
@@ -40,6 +42,16 @@ export function unwrapValidateResponse(
   return body as ValidateResponse;
 }
 
+export function unwrapVerificationResponse(
+  body: VerificationEnvelope | VerificationResponse,
+): VerificationResponse {
+  if (body && typeof body === 'object' && 'data' in body) {
+    const d = (body as VerificationEnvelope).data;
+    if (d) return d;
+  }
+  return body as VerificationResponse;
+}
+
 @Injectable({ providedIn: 'root' })
 export class IdentityAuthApiService {
   constructor(
@@ -51,8 +63,8 @@ export class IdentityAuthApiService {
     return this.http.post<RegisterEnvelope>(`${this.apiConfig.identityBaseUrl}/api/v1/auth/register`, payload);
   }
 
-  verifyEmail(payload: VerifyOtpRequest): Observable<ApiEnvelope<Record<string, unknown>>> {
-    return this.http.post<ApiEnvelope<Record<string, unknown>>>(
+  verifyEmail(payload: VerifyOtpRequest): Observable<VerificationEnvelope | VerificationResponse> {
+    return this.http.post<VerificationEnvelope | VerificationResponse>(
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/verify-email`,
       payload,
     );
@@ -65,8 +77,8 @@ export class IdentityAuthApiService {
     );
   }
 
-  verifyPhone(payload: VerifyOtpRequest): Observable<ApiEnvelope<Record<string, unknown>>> {
-    return this.http.post<ApiEnvelope<Record<string, unknown>>>(
+  verifyPhone(payload: VerifyOtpRequest): Observable<VerificationEnvelope | VerificationResponse> {
+    return this.http.post<VerificationEnvelope | VerificationResponse>(
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/verify-phone`,
       payload,
     );

@@ -66,7 +66,9 @@ export class RegisterVm {
         }
         this.sessionStore.setRegistrationId(registrationId);
         this.state.set('success');
-        void this.router.navigate(['/onboarding/party/customer/verify-email'], { state: { registrationId } });
+        void this.router.navigate(['/onboarding/party/customer/verify-contact'], {
+          state: { registrationId },
+        });
       },
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);

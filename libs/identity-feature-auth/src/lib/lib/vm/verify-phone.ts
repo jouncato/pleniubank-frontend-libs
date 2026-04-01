@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { VerifyOtpRequest } from 'identity-domain';
 import { SessionStore } from 'shared-auth';
-import { IdentityAuthApiService } from 'identity-data-access';
+import { IdentityAuthApiService, unwrapVerificationResponse } from 'identity-data-access';
 import { mapHttpError } from 'shared-http';
 
 @Injectable({
@@ -24,7 +24,9 @@ export class VerifyPhoneVm {
       return;
     }
 
-    const registrationId = this.sessionStore.getRegistrationId();
+    const registrationId =
+      (history.state && (history.state as { registrationId?: string }).registrationId) ??
+      this.sessionStore.getRegistrationId();
     if (!registrationId) {
       this.state = 'expired';
       this.errorMessage = 'El proceso expiró. Reinicia el registro.';
@@ -36,10 +38,31 @@ export class VerifyPhoneVm {
 
     const payload: VerifyOtpRequest = { registration_id: registrationId, code };
     this.identityApi.verifyPhone(payload).subscribe({
-      next: () => {
+      next: (raw) => {
         this.state = 'success';
-        this.sessionStore.setRegistrationId(null);
-        void this.router.navigate(['/onboarding/party/access/login'], { state: { registrationCompleted: true } });
+        const result = unwrapVerificationResponse(raw);
+        if (result.identity_verified && result.is_active) {
+          this.sessionStore.setRegistrationId(null);
+          void this.router.navigate(['/onboarding/party/access/login'], {
+            state: { registrationCompleted: true },
+          });
+          return;
+        }
+        if (!result.email_verified) {
+          void this.router.navigate(['/onboarding/party/customer/verify-email'], {
+            state: { registrationId },
+          });
+          return;
+        }
+        if (!result.phone_verified) {
+          void this.router.navigate(['/onboarding/party/customer/verify-phone'], {
+            state: { registrationId },
+          });
+          return;
+        }
+        void this.router.navigate(['/onboarding/party/access/login'], {
+          state: { registrationCompleted: true },
+        });
       },
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);

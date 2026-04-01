@@ -111,7 +111,7 @@ export class LoginVm {
         this.rateLimit.reset();
         this.state.set('error');
         const inactiveFb =
-          'Tu cuenta no está activa. Completa la verificación de correo y teléfono antes de iniciar sesión.';
+          'Tu cuenta no está activa. Verifica con el código que enviamos por correo o por SMS (con uno basta).';
         const badCredsFb = 'Correo o contrasena incorrectos.';
         if (mappedError.status === 401) {
           this.errorMessage.set(

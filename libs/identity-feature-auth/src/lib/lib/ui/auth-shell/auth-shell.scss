@@ -3,16 +3,34 @@
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: var(--pb-surface-alt, #f7f8fb);
+  background: linear-gradient(
+    165deg,
+    var(--pb-color-primary-dark, #0056b3) 0%,
+    var(--pb-color-primary, #0272de) 45%,
+    #0b4f9c 100%
+  );
 }
 
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background: var(--pb-surface, #fff);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--pb-radius, 12px);
   padding: 1.25rem;
-  box-shadow: var(--pb-shadow, 0 10px 30px rgba(0, 0, 0, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+
+  /* Texto legible sobre fondo azul (todos los hijos del onboarding) */
+  --pb-onboarding-fg: #ffffff;
+  --pb-onboarding-heading: #ffffff;
+  --pb-onboarding-muted: rgba(255, 255, 255, 0.9);
+  --pb-onboarding-label: #ffffff;
+  --pb-onboarding-link: #ffffff;
+  --pb-onboarding-link-hover: rgba(255, 255, 255, 0.85);
+  --pb-onboarding-error: #fecaca;
 }
 
 .brand {

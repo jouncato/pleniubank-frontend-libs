@@ -1,5 +1,6 @@
 export type AuthFeature =
   | 'register'
+  | 'verify-contact'
   | 'verify-email'
   | 'verify-phone'
   | 'login'

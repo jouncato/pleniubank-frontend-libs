@@ -1,17 +1,17 @@
-/* Texto legible sobre fondos oscuros del portal (onboarding); inputs siguen claros. */
+/* Texto claro sobre fondo azul del auth-shell; inputs y selects siguen fondo blanco. */
 :host {
   display: block;
-  color: var(--pb-onboarding-fg, rgba(255, 255, 255, 0.95));
+  color: #ffffff;
 }
 
 h2 {
   margin: 0 0 var(--pb-space-8);
-  color: var(--pb-onboarding-heading, #ffffff);
+  color: #ffffff;
 }
 
 .subtitle {
   margin: 0 0 var(--pb-space-16);
-  color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.78));
+  color: rgba(255, 255, 255, 0.9);
 }
 
 form {
@@ -20,7 +20,7 @@ form {
 }
 
 label {
-  color: var(--pb-gray-800);
+  color: var(--pb-onboarding-label, #ffffff);
   font-size: var(--pb-font-size-sm);
   font-weight: var(--pb-font-weight-semibold);
 }
@@ -66,7 +66,7 @@ button:disabled {
   align-items: flex-start;
   gap: var(--pb-space-8);
   font-size: var(--pb-font-size-sm);
-  color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.85));
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .terms input {
@@ -78,14 +78,14 @@ button:disabled {
 .field-error,
 .error {
   margin: 0;
-  color: var(--pb-status-error);
+  color: var(--pb-onboarding-error, #fecaca);
   font-size: var(--pb-font-size-sm);
 }
 
 .password-hints {
   margin: 0;
   padding-left: 1rem;
-  color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.72));
+  color: rgba(255, 255, 255, 0.88);
   font-size: var(--pb-font-size-sm);
 }
 
@@ -94,10 +94,10 @@ button:disabled {
 }
 
 :host a {
-  color: var(--pb-onboarding-link, rgba(147, 197, 253, 0.95));
+  color: #ffffff;
   text-underline-offset: 2px;
 }
 
 :host a:hover {
-  color: var(--pb-onboarding-link-hover, #bfdbfe);
+  color: rgba(255, 255, 255, 0.88);
 }

@@ -22,6 +22,15 @@ export interface VerifyOtpRequest {
   code: string;
 }
 
+/** Respuesta de verify-email / verify-phone (cuerpo plano o envuelto en { data }). */
+export interface VerificationResponse {
+  registration_id: string;
+  email_verified: boolean;
+  phone_verified: boolean;
+  identity_verified: boolean;
+  is_active: boolean;
+}
+
 export interface ResendEmailOtpRequest {
   registration_id: string;
 }
@@ -68,6 +77,8 @@ export interface LoginResponse {
 export interface ValidateResponse {
   claims: SessionClaims;
 }
+
+export type VerificationEnvelope = ApiEnvelope<VerificationResponse>;
 
 export type RegisterEnvelope = ApiEnvelope<RegisterResponse>;
 export type LoginEnvelope = ApiEnvelope<LoginResponse>;

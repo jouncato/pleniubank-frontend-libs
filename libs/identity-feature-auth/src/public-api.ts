@@ -2,6 +2,7 @@ export * from './lib/identity-feature-auth';
 export * from './lib/lib/ui/auth-shell/auth-shell';
 export * from './lib/lib/ui/auth-register-form/auth-register-form';
 export * from './lib/lib/ui/otp-challenge/otp-challenge';
+export * from './lib/lib/ui/verify-contact-hub/verify-contact-hub';
 export * from './lib/lib/ui/auth-login-form/auth-login-form';
 export * from './lib/lib/ui/forgot-password-placeholder/forgot-password-placeholder';
 export * from './lib/lib/ui/forgot-password-form/forgot-password-form';
