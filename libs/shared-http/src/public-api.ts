@@ -1,4 +1,6 @@
 export * from './lib/shared-http';
+export * from './lib/realtime/core-domain-event';
+export * from './lib/realtime/core-websocket-events.service';
 export * from './lib/api-envelope';
 export * from './lib/api-config.token';
 export * from './lib/correlation-id.interceptor';
