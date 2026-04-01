@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -10,6 +10,8 @@ import type {
   BatchRequest,
   BatchResponse,
   CustomPostingRequest,
+  PostingFilters,
+  PostingListResponse,
   PostingResponse,
   ReleaseRequest,
   SettleRequest,
@@ -63,5 +65,28 @@ export class CorePostingsApiService {
 
   getBatch(batchId: string): Observable<ApiEnvelope<BatchDetailResponse>> {
     return this.http.get<ApiEnvelope<BatchDetailResponse>>(`${this.base}/${batchId}`);
+  }
+
+  getPostings(filters: PostingFilters): Observable<ApiEnvelope<PostingListResponse>> {
+    let params = new HttpParams()
+      .set('page', String(filters.page))
+      .set('size', String(filters.size));
+    if (filters.sort) {
+      params = params.set('sort', filters.sort);
+    }
+    if (filters.status) {
+      params = params.set('status', filters.status);
+    }
+    if (filters.from) {
+      params = params.set('from', filters.from);
+    }
+    if (filters.to) {
+      params = params.set('to', filters.to);
+    }
+    return this.http.get<ApiEnvelope<PostingListResponse>>(this.base, { params });
+  }
+
+  getReversal(batchId: string): Observable<ApiEnvelope<PostingResponse | null>> {
+    return this.http.get<ApiEnvelope<PostingResponse | null>>(`${this.base}/${batchId}/reversal`);
   }
 }

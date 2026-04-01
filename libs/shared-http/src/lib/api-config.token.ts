@@ -13,6 +13,16 @@ export interface ApiConfig {
   paymentHubClientSecret?: string;
   /** Scopes separados por espacio, p. ej. `payments:read payments:write`. */
   paymentHubOAuthScope?: string;
+  /**
+   * Base URL del motor de reglas (pleniubank-rules-engine), sin barra final.
+   * Ej.: `http://localhost:8095`. Rutas bajo `/api/v1` (MR-ST-005).
+   */
+  rulesEngineBaseUrl?: string;
+  /**
+   * pleniubank-ai-service (F5AI), sin barra final. Ej.: `http://localhost:8002`.
+   * Si falta, el backoffice no puede invocar re-análisis desde el navegador.
+   */
+  aiServiceBaseUrl?: string;
 }
 
 export const API_CONFIG = new InjectionToken<ApiConfig>('API_CONFIG');
