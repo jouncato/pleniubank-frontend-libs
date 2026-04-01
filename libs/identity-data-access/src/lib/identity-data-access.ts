@@ -12,8 +12,32 @@ import {
   ResetPasswordEnvelope,
   ResetPasswordRequest,
   ValidateEnvelope,
+  ValidateResponse,
   VerifyOtpRequest,
 } from 'identity-domain';
+
+export type RefreshTokenPayload = { access_token: string; refresh_token?: string };
+
+/** Identity devuelve cuerpo plano; algunos gateways pueden envolver en `{ data }`. */
+export function unwrapRefreshResponse(
+  body: ApiEnvelope<RefreshTokenPayload> | RefreshTokenPayload,
+): RefreshTokenPayload {
+  if (body && typeof body === 'object' && 'data' in body) {
+    const d = (body as ApiEnvelope<RefreshTokenPayload>).data;
+    if (d) return d;
+  }
+  return body as RefreshTokenPayload;
+}
+
+export function unwrapValidateResponse(
+  body: ValidateEnvelope | ValidateResponse,
+): ValidateResponse {
+  if (body && typeof body === 'object' && 'data' in body) {
+    const d = (body as ValidateEnvelope).data;
+    if (d) return d;
+  }
+  return body as ValidateResponse;
+}
 
 @Injectable({ providedIn: 'root' })
 export class IdentityAuthApiService {

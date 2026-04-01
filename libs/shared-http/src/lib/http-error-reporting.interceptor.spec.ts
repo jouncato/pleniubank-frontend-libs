@@ -20,6 +20,14 @@ describe('httpErrorReportingInterceptor', () => {
     http.get('/x').subscribe({ error: () => undefined });
     httpMock.expectOne('/x').flush(null, { status: 503, statusText: 'Service Unavailable' });
     expect(report).toHaveBeenCalled();
+    expect(report).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        httpStatus: 503,
+        method: 'GET',
+        url: '/x',
+      }),
+    );
   });
 
   it('no invoca handler en 404', () => {

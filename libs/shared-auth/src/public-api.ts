@@ -1,6 +1,7 @@
 export * from './lib/shared-auth';
 export * from './lib/session-store.service';
 export * from './lib/session-strategy.token';
+export * from './lib/identity-csrf-bootstrap';
 export * from './lib/auth-refresh.token';
 export * from './lib/auth-validate.token';
 export * from './lib/auth-token.interceptor';

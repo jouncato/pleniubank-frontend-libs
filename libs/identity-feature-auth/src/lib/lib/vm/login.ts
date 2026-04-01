@@ -1,9 +1,23 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginRequest } from 'identity-domain';
+import { LoginEnvelope, LoginRequest, LoginResponse } from 'identity-domain';
 import { IdentityAuthApiService } from 'identity-data-access';
-import { isValidReturnUrl, PORTAL_APP, PortalAppKind, SessionStore } from 'shared-auth';
+import {
+  isValidReturnUrl,
+  PORTAL_APP,
+  PortalAppKind,
+  SESSION_STRATEGY,
+  SessionStrategy,
+  SessionStore,
+} from 'shared-auth';
 import { mapHttpError } from 'shared-http';
+
+function unwrapLoginPayload(body: LoginEnvelope | LoginResponse): LoginResponse {
+  if (body && typeof body === 'object' && 'data' in body && (body as LoginEnvelope).data) {
+    return (body as LoginEnvelope).data;
+  }
+  return body as LoginResponse;
+}
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 
@@ -16,6 +30,7 @@ export class LoginVm {
 
   private readonly portal = inject<PortalAppKind>(PORTAL_APP);
   private readonly rateLimit = inject(AuthRateLimitService);
+  private readonly sessionStrategy = inject<SessionStrategy>(SESSION_STRATEGY);
 
   constructor(
     private readonly identityApi: IdentityAuthApiService,
@@ -53,13 +68,19 @@ export class LoginVm {
     this.identityApi.login(payload).subscribe({
       next: (response) => {
         this.rateLimit.reset();
-        const data = response.data;
-        this.sessionStore.setUserToken(data.access_token);
-        this.sessionStore.setRefreshToken(data.refresh_token ?? null);
-        if (data.admin_access_token) {
-          this.sessionStore.setAdminToken(data.admin_access_token);
-        } else {
+        const data = unwrapLoginPayload(response as LoginEnvelope | LoginResponse);
+        if (this.sessionStrategy === 'httpOnlyCookie') {
+          this.sessionStore.setUserToken(null);
+          this.sessionStore.setRefreshToken(null);
           this.sessionStore.setAdminToken(null);
+        } else {
+          this.sessionStore.setUserToken(data.access_token);
+          this.sessionStore.setRefreshToken(data.refresh_token ?? null);
+          if (data.admin_access_token) {
+            this.sessionStore.setAdminToken(data.admin_access_token);
+          } else {
+            this.sessionStore.setAdminToken(null);
+          }
         }
         this.hydrateSession(returnUrl);
       },

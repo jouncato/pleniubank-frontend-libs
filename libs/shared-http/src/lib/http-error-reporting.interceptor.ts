@@ -21,7 +21,12 @@ export const httpErrorReportingInterceptor: HttpInterceptorFn = (req, next) => {
         if (cat === 'server' || cat === 'network') {
           const mapped = mapHttpError(err);
           const msg = mapApiErrorToUserMessage(mapped);
-          report(msg, { correlationId: mapped.correlationId });
+          report(msg, {
+            correlationId: mapped.correlationId,
+            httpStatus: err.status,
+            method: req.method,
+            url: err.url ?? req.url,
+          });
         }
       }
       return throwError(() => err);

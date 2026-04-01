@@ -111,6 +111,26 @@
         }
       }
     },
+    "shared-observability": {
+      "projectType": "library",
+      "root": "libs/shared-observability",
+      "sourceRoot": "libs/shared-observability/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/shared-observability/tsconfig.lib.json"
+            },
+            "development": {
+              "tsConfig": "libs/shared-observability/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
     "identity-domain": {
       "projectType": "library",
       "root": "libs/identity-domain",

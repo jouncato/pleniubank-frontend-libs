@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, filter, finalize, switchMap, take, throwError } from 'rxjs';
 import { mapHttpError } from 'shared-http';
 import { AUTH_REFRESH_HANDLER } from './auth-refresh.token';
+import { SESSION_STRATEGY } from './session-strategy.token';
 import { SessionStore } from './session-store.service';
 
 const retryToken$ = new BehaviorSubject<string | null>(null);
@@ -21,6 +22,10 @@ function cloneWithToken(req: HttpRequest<unknown>, token: string): HttpRequest<u
   });
 }
 
+function cloneForCookieRetry(req: HttpRequest<unknown>): HttpRequest<unknown> {
+  return req.clone({ withCredentials: true });
+}
+
 function logoutAndRedirect(sessionStore: SessionStore, router: Router): Observable<never> {
   sessionStore.clear();
   void router.navigate(['/onboarding/party/access/login']);
@@ -31,6 +36,8 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
   const sessionStore = inject(SessionStore);
   const refreshHandler = inject(AUTH_REFRESH_HANDLER, { optional: true });
   const router = inject(Router);
+  const strategy = inject(SESSION_STRATEGY);
+  const cookieSession = strategy === 'httpOnlyCookie';
 
   if (!refreshHandler || req.url.includes('/auth/refresh')) {
     return next(req);
@@ -40,6 +47,26 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: unknown) => {
       if (!(error instanceof HttpErrorResponse) || !shouldRefresh(error)) {
         return throwError(() => mapHttpError(error));
+      }
+
+      if (cookieSession) {
+        if (sessionStore.isRefreshing()) {
+          return retryToken$.pipe(
+            filter((t): t is string => t === '__cookie__'),
+            take(1),
+            switchMap(() => next(cloneForCookieRetry(req))),
+          );
+        }
+        sessionStore.setRefreshing(true);
+        retryToken$.next(null);
+        return refreshHandler().pipe(
+          switchMap(() => {
+            retryToken$.next('__cookie__');
+            return next(cloneForCookieRetry(req));
+          }),
+          catchError(() => logoutAndRedirect(sessionStore, router)),
+          finalize(() => sessionStore.setRefreshing(false)),
+        );
       }
 
       if (sessionStore.isRefreshing()) {
