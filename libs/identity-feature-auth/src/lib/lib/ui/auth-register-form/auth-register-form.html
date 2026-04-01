@@ -1,4 +1,4 @@
-﻿<h2>Crear cuenta</h2>
+<h2>Crear cuenta</h2>
 <p class="subtitle">Completa tus datos para iniciar el registro seguro.</p>
 
 <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -69,10 +69,10 @@
     Debes aceptar los terminos para continuar.
   </p>
 
-  <p class="error" *ngIf="vm.errorMessage as error" aria-live="polite">{{ error }}</p>
+  <p class="error" *ngIf="vm.errorMessage() as error" aria-live="polite">{{ error }}</p>
 
-  <button type="submit" [disabled]="form.invalid || vm.state === 'submitting'">
-    {{ vm.state === 'submitting' ? 'Enviando...' : 'Crear cuenta' }}
+  <button type="submit" [disabled]="form.invalid || vm.state() === 'submitting'">
+    {{ vm.state() === 'submitting' ? 'Enviando...' : 'Crear cuenta' }}
   </button>
 </form>
 

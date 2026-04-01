@@ -13,7 +13,10 @@ describe('VerifyEmailVm', () => {
       providers: [
         VerifyEmailVm,
         { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
-        { provide: IdentityAuthApiService, useValue: { verifyEmail: () => {} } },
+        {
+          provide: IdentityAuthApiService,
+          useValue: { verifyEmail: () => {}, resendEmailOtp: () => {} },
+        },
         { provide: SessionStore, useValue: { getRegistrationId: () => 'r1' } },
       ],
     });

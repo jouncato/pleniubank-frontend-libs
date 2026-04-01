@@ -149,7 +149,7 @@ describe('LoginVm', () => {
 
     service.login(payload);
 
-    expect(service.state).toBe('rate_limited');
+    expect(service.state()).toBe('rate_limited');
     expect(service.isRateLimited).toBe(true);
     expect(service.remainingSeconds).toBe(60);
     expect(service.rateLimitMessage).toContain('60 segundos');
@@ -177,7 +177,7 @@ describe('LoginVm', () => {
 
     service.login(payload);
 
-    expect(service.state).toBe('rate_limited');
+    expect(service.state()).toBe('rate_limited');
     expect(service.remainingSeconds).toBe(120);
   });
 
@@ -230,7 +230,45 @@ describe('LoginVm', () => {
     service.login(payload);
     service.login(payload);
 
-    expect(service.state).toBe('rate_limited');
+    expect(service.state()).toBe('rate_limited');
     expect(service.remainingSeconds).toBe(60);
+  });
+
+  it('muestra mensaje del API en 401 cuando errors[0].message esta presente', () => {
+    const { service } = setup({
+      loginImpl: () =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 401,
+              error: {
+                errors: [{ code: 'INVALID_CREDENTIALS', message: 'Texto devuelto por Identity.' }],
+              },
+            }),
+        ),
+    });
+
+    service.login(payload);
+
+    expect(service.state()).toBe('error');
+    expect(service.errorMessage()).toBe('Texto devuelto por Identity.');
+  });
+
+  it('usa copy por defecto en 401 sin mensaje usable del sobre', () => {
+    const { service } = setup({
+      loginImpl: () =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 401,
+              error: { errors: [{ code: 'INVALID_CREDENTIALS', message: '' }] },
+            }),
+        ),
+    });
+
+    service.login(payload);
+
+    expect(service.state()).toBe('error');
+    expect(service.errorMessage()).toBe('Correo o contrasena incorrectos.');
   });
 });

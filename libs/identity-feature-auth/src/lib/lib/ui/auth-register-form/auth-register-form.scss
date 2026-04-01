@@ -1,14 +1,17 @@
+/* Texto legible sobre fondos oscuros del portal (onboarding); inputs siguen claros. */
 :host {
   display: block;
+  color: var(--pb-onboarding-fg, rgba(255, 255, 255, 0.95));
 }
 
 h2 {
   margin: 0 0 var(--pb-space-8);
+  color: var(--pb-onboarding-heading, #ffffff);
 }
 
 .subtitle {
   margin: 0 0 var(--pb-space-16);
-  color: var(--pb-text-muted);
+  color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.78));
 }
 
 form {
@@ -63,7 +66,7 @@ button:disabled {
   align-items: flex-start;
   gap: var(--pb-space-8);
   font-size: var(--pb-font-size-sm);
-  color: var(--pb-gray-700);
+  color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.85));
 }
 
 .terms input {
@@ -82,10 +85,19 @@ button:disabled {
 .password-hints {
   margin: 0;
   padding-left: 1rem;
-  color: var(--pb-text-muted);
+  color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.72));
   font-size: var(--pb-font-size-sm);
 }
 
 .password-hints .valid {
   color: var(--pb-status-ok);
+}
+
+:host a {
+  color: var(--pb-onboarding-link, rgba(147, 197, 253, 0.95));
+  text-underline-offset: 2px;
+}
+
+:host a:hover {
+  color: var(--pb-onboarding-link-hover, #bfdbfe);
 }

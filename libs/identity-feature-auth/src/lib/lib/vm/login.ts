@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginEnvelope, LoginRequest, LoginResponse } from 'identity-domain';
 import { IdentityAuthApiService } from 'identity-data-access';
@@ -10,7 +10,9 @@ import {
   SessionStrategy,
   SessionStore,
 } from 'shared-auth';
-import { mapHttpError } from 'shared-http';
+import { ApiHttpError, mapHttpError } from 'shared-http';
+
+import { AuthRateLimitService } from './auth-rate-limit.service';
 
 function unwrapLoginPayload(body: LoginEnvelope | LoginResponse): LoginResponse {
   if (body && typeof body === 'object' && 'data' in body && (body as LoginEnvelope).data) {
@@ -19,14 +21,20 @@ function unwrapLoginPayload(body: LoginEnvelope | LoginResponse): LoginResponse 
   return body as LoginResponse;
 }
 
-import { AuthRateLimitService } from './auth-rate-limit.service';
+function messageFromApiEnvelope(mapped: ApiHttpError, fallback: string): string {
+  const raw = mapped.errors[0]?.message?.trim() ?? '';
+  if (!raw || raw.startsWith('Http failure response for')) {
+    return fallback;
+  }
+  return raw;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginVm {
-  state: 'idle' | 'submitting' | 'success' | 'locked' | 'rate_limited' | 'error' = 'idle';
-  errorMessage: string | null = null;
+  readonly state = signal<'idle' | 'submitting' | 'success' | 'locked' | 'rate_limited' | 'error'>('idle');
+  readonly errorMessage = signal<string | null>(null);
 
   private readonly portal = inject<PortalAppKind>(PORTAL_APP);
   private readonly rateLimit = inject(AuthRateLimitService);
@@ -55,15 +63,15 @@ export class LoginVm {
   login(payload: LoginRequest, returnUrl?: string): void {
     this.rateLimit.sync();
     if (this.rateLimit.isBlocked()) {
-      this.state = 'rate_limited';
+      this.state.set('rate_limited');
       return;
     }
-    if (this.state === 'submitting') {
+    if (this.state() === 'submitting') {
       return;
     }
 
-    this.state = 'submitting';
-    this.errorMessage = null;
+    this.state.set('submitting');
+    this.errorMessage.set(null);
 
     this.identityApi.login(payload).subscribe({
       next: (response) => {
@@ -89,21 +97,36 @@ export class LoginVm {
         const code = mappedError.errors[0]?.code;
         if (mappedError.status === 423 || code === 'ACCOUNT_LOCKED') {
           this.rateLimit.reset();
-          this.state = 'locked';
-          this.errorMessage = 'Tu cuenta esta bloqueada.';
+          this.state.set('locked');
+          this.errorMessage.set(
+            messageFromApiEnvelope(mappedError, 'Tu cuenta esta bloqueada.'),
+          );
           return;
         }
         if (mappedError.status === 429) {
           this.rateLimit.register429();
-          this.state = 'rate_limited';
+          this.state.set('rate_limited');
           return;
         }
         this.rateLimit.reset();
-        this.state = 'error';
-        this.errorMessage =
-          code === 'USER_INACTIVE'
-            ? 'Tu cuenta no esta activa. Completa la verificacion.'
-            : 'Correo o contrasena incorrectos.';
+        this.state.set('error');
+        const inactiveFb =
+          'Tu cuenta no está activa. Completa la verificación de correo y teléfono antes de iniciar sesión.';
+        const badCredsFb = 'Correo o contrasena incorrectos.';
+        if (mappedError.status === 401) {
+          this.errorMessage.set(
+            code === 'USER_INACTIVE'
+              ? messageFromApiEnvelope(mappedError, inactiveFb)
+              : messageFromApiEnvelope(mappedError, badCredsFb),
+          );
+          return;
+        }
+        this.errorMessage.set(
+          messageFromApiEnvelope(
+            mappedError,
+            'No fue posible iniciar sesion. Intenta nuevamente.',
+          ),
+        );
       },
     });
   }
@@ -114,16 +137,17 @@ export class LoginVm {
         const role = response.data.claims.role;
         if (role === 'admin' && this.portal === 'customer') {
           this.sessionStore.clear();
-          this.state = 'error';
-          this.errorMessage =
-            'Las cuentas de administrador de plataforma deben iniciar sesion en el portal de backoffice.';
+          this.state.set('error');
+          this.errorMessage.set(
+            'Las cuentas de administrador de plataforma deben iniciar sesion en el portal de backoffice.',
+          );
           return;
         }
         this.sessionStore.setClaims({
           ...response.data.claims,
           email: response.data.claims.email,
         });
-        this.state = 'success';
+        this.state.set('success');
         const route =
           role === 'admin'
             ? '/admin/dashboard'
@@ -135,8 +159,8 @@ export class LoginVm {
       },
       error: () => {
         this.sessionStore.clear();
-        this.state = 'error';
-        this.errorMessage = 'No fue posible validar la sesion.';
+        this.state.set('error');
+        this.errorMessage.set('No fue posible validar la sesion.');
       },
     });
   }
@@ -144,7 +168,7 @@ export class LoginVm {
   private applyStoredRateLimit(): void {
     this.rateLimit.sync();
     if (this.rateLimit.isBlocked()) {
-      this.state = 'rate_limited';
+      this.state.set('rate_limited');
     }
   }
 }

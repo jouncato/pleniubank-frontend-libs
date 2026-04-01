@@ -8,10 +8,10 @@
   <input id="password" type="password" autocomplete="current-password" formControlName="password" />
 
   <p class="error" *ngIf="vm.rateLimitMessage as message" role="status" aria-live="polite">{{ message }}</p>
-  <p class="error" *ngIf="vm.errorMessage as error" role="alert" aria-live="polite">{{ error }}</p>
+  <p class="error" *ngIf="vm.errorMessage() as error" role="alert" aria-live="polite">{{ error }}</p>
 
-  <button type="submit" [disabled]="form.invalid || vm.state === 'submitting' || vm.isRateLimited">
-    {{ vm.state === 'submitting' ? 'Ingresando...' : 'Ingresar' }}
+  <button type="submit" [disabled]="form.invalid || vm.state() === 'submitting' || vm.isRateLimited">
+    {{ vm.state() === 'submitting' ? 'Ingresando...' : 'Ingresar' }}
   </button>
 </form>
 

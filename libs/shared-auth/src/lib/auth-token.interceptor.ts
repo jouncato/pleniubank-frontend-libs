@@ -8,6 +8,7 @@ function isPublicIdentityRoute(url: string): boolean {
     url.includes('/auth/login') ||
     url.includes('/auth/register') ||
     url.includes('/auth/verify-email') ||
+    url.includes('/auth/resend-email-otp') ||
     url.includes('/auth/verify-phone') ||
     url.includes('/auth/forgot-password') ||
     url.includes('/auth/reset-password') ||

@@ -1,7 +1,7 @@
-﻿<h2>{{ title }}</h2>
+<h2>{{ title }}</h2>
 
 <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  <label for="code">CÃ³digo OTP</label>
+  <label for="code">Código OTP</label>
   <input
     id="code"
     type="text"
@@ -13,10 +13,22 @@
 
   <p class="error" *ngIf="errorMessage as error" aria-live="polite">{{ error }}</p>
 
-  <button type="submit" [disabled]="form.invalid || submitting">
+  <button type="submit" [disabled]="form.invalid || submitting || resendEmailBusy">
     {{ submitting ? 'Verificando...' : 'Verificar' }}
   </button>
 </form>
+
+<div *ngIf="channel === 'email'" class="resend">
+  <button type="button" (click)="resendEmailOtp()" [disabled]="resendEmailDisabled">
+    {{
+      resendEmailBusy
+        ? 'Enviando...'
+        : resendEmailSecondsLeft > 0
+          ? 'Reenviar en ' + resendEmailSecondsLeft + ' s'
+          : 'Reenviar código por correo'
+    }}
+  </button>
+</div>
 
 <a routerLink="/onboarding/party/customer/register">Volver al registro</a>
 

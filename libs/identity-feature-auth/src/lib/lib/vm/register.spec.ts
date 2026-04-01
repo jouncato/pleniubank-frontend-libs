@@ -38,7 +38,7 @@ describe('RegisterVm', () => {
     });
   });
 
-  it('stores registration id and routes to email verification on success', () => {
+  it('stores registration id and routes to email verification on success (envelope)', () => {
     api.register.mockReturnValue(of({ data: { registration_id: 'r1' } }));
     const vm = TestBed.inject(RegisterVm);
 
@@ -46,7 +46,18 @@ describe('RegisterVm', () => {
 
     expect(sessionStore.setRegistrationId).toHaveBeenCalledWith('r1');
     expect(router.navigate).toHaveBeenCalledWith(['/onboarding/party/customer/verify-email'], { state: { registrationId: 'r1' } });
-    expect(vm.state).toBe('success');
+    expect(vm.state()).toBe('success');
+  });
+
+  it('stores registration id when Identity returns flat RegisterResponse (no data wrapper)', () => {
+    api.register.mockReturnValue(of({ registration_id: 'r2' }));
+    const vm = TestBed.inject(RegisterVm);
+
+    vm.submit(registerPayload);
+
+    expect(sessionStore.setRegistrationId).toHaveBeenCalledWith('r2');
+    expect(router.navigate).toHaveBeenCalledWith(['/onboarding/party/customer/verify-email'], { state: { registrationId: 'r2' } });
+    expect(vm.state()).toBe('success');
   });
 
   it('maps 429 responses to rate_limited state', () => {
@@ -63,8 +74,46 @@ describe('RegisterVm', () => {
 
     vm.submit(registerPayload);
 
-    expect(vm.state).toBe('rate_limited');
-    expect(vm.errorMessage).toContain('Demasiados intentos');
+    expect(vm.state()).toBe('rate_limited');
+    expect(vm.errorMessage()).toContain('Demasiados intentos');
+  });
+
+  it('shows Identity message on 409 when errors[0].message is present', () => {
+    api.register.mockReturnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: {
+              errors: [{ code: 'REGISTRATION_EXISTS', message: 'El correo ya esta registrado.' }],
+            },
+          }),
+      ),
+    );
+    const vm = TestBed.inject(RegisterVm);
+
+    vm.submit(registerPayload);
+
+    expect(vm.state()).toBe('error');
+    expect(vm.errorMessage()).toBe('El correo ya esta registrado.');
+  });
+
+  it('uses fallback copy on 409 when envelope has no usable message', () => {
+    api.register.mockReturnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: { errors: [] },
+          }),
+      ),
+    );
+    const vm = TestBed.inject(RegisterVm);
+
+    vm.submit(registerPayload);
+
+    expect(vm.state()).toBe('error');
+    expect(vm.errorMessage()).toBe('Ya existe un registro con la informacion ingresada.');
   });
 });
 

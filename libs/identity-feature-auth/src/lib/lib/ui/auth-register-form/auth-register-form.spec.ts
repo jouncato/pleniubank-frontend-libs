@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AuthRegisterForm } from './auth-register-form';
@@ -7,8 +8,8 @@ describe('AuthRegisterForm', () => {
   let component: AuthRegisterForm;
   let fixture: ComponentFixture<AuthRegisterForm>;
   const vm = {
-    state: 'idle',
-    errorMessage: null as string | null,
+    state: signal<'idle' | 'submitting' | 'success' | 'error' | 'rate_limited'>('idle'),
+    errorMessage: signal<string | null>(null),
     submit: vi.fn(),
   };
 

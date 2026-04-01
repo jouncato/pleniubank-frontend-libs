@@ -24,7 +24,21 @@ export class OtpChallenge {
     code: ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]],
   });
 
-  readonly channel = this.route.snapshot.data['channel'] as 'email' | 'phone';
+  /** Ruta debe definir `data.channel`; si falta, se infiere del path (p. ej. public-portal). */
+  get channel(): 'email' | 'phone' {
+    const fromData = this.route.snapshot.data['channel'];
+    if (fromData === 'email' || fromData === 'phone') {
+      return fromData;
+    }
+    const path = this.route.snapshot.routeConfig?.path ?? '';
+    if (path.includes('phone')) {
+      return 'phone';
+    }
+    if (path.includes('email')) {
+      return 'email';
+    }
+    return 'email';
+  }
 
   constructor(
     protected readonly verifyEmailVm: VerifyEmailVm,
@@ -38,11 +52,30 @@ export class OtpChallenge {
   get submitting(): boolean {
     return this.channel === 'phone'
       ? this.verifyPhoneVm.state === 'submitting'
-      : this.verifyEmailVm.state === 'submitting';
+      : this.verifyEmailVm.state() === 'submitting';
   }
 
   get errorMessage(): string | null {
-    return this.channel === 'phone' ? this.verifyPhoneVm.errorMessage : this.verifyEmailVm.errorMessage;
+    return this.channel === 'phone'
+      ? this.verifyPhoneVm.errorMessage
+      : this.verifyEmailVm.errorMessage();
+  }
+
+  get resendEmailBusy(): boolean {
+    return this.channel === 'email' && this.verifyEmailVm.state() === 'resending';
+  }
+
+  get resendEmailDisabled(): boolean {
+    if (this.channel !== 'email') return true;
+    return (
+      this.verifyEmailVm.state() === 'resending' ||
+      this.verifyEmailVm.resendSecondsLeft() > 0 ||
+      this.verifyEmailVm.state() === 'submitting'
+    );
+  }
+
+  get resendEmailSecondsLeft(): number {
+    return this.channel === 'email' ? this.verifyEmailVm.resendSecondsLeft() : 0;
   }
 
   submit(): void {
@@ -56,5 +89,10 @@ export class OtpChallenge {
       return;
     }
     this.verifyEmailVm.submit(code);
+  }
+
+  resendEmailOtp(): void {
+    if (this.channel !== 'email') return;
+    this.verifyEmailVm.resendEmail();
   }
 }

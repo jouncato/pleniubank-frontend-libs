@@ -13,6 +13,7 @@ import {
   ResetPasswordRequest,
   ValidateEnvelope,
   ValidateResponse,
+  ResendEmailOtpRequest,
   VerifyOtpRequest,
 } from 'identity-domain';
 
@@ -53,6 +54,13 @@ export class IdentityAuthApiService {
   verifyEmail(payload: VerifyOtpRequest): Observable<ApiEnvelope<Record<string, unknown>>> {
     return this.http.post<ApiEnvelope<Record<string, unknown>>>(
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/verify-email`,
+      payload,
+    );
+  }
+
+  resendEmailOtp(payload: ResendEmailOtpRequest): Observable<{ status: string }> {
+    return this.http.post<{ status: string }>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/resend-email-otp`,
       payload,
     );
   }

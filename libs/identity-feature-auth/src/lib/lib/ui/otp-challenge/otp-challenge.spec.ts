@@ -13,8 +13,20 @@ describe('OtpChallenge', () => {
     await TestBed.configureTestingModule({
       imports: [OtpChallenge],
       providers: [
-        { provide: ActivatedRoute, useValue: { snapshot: { data: { channel: 'email' } } } },
-        { provide: VerifyEmailVm, useValue: { state: 'idle', errorMessage: null, submit: () => {} } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { data: { channel: 'email' }, routeConfig: { path: 'verify-email' } } },
+        },
+        {
+          provide: VerifyEmailVm,
+          useValue: {
+            state: () => 'idle',
+            errorMessage: () => null,
+            resendSecondsLeft: () => 0,
+            submit: () => {},
+            resendEmail: () => {},
+          },
+        },
         { provide: VerifyPhoneVm, useValue: { state: 'idle', errorMessage: null, submit: () => {} } },
       ],
     })
