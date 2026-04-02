@@ -106,6 +106,15 @@ export interface CompanyCodeOptionDto {
   business_name: string;
 }
 
+/** Alineado a Core `PrimaryPaymentIdentifierResponse` (v1: solo IBAN en enum BD). */
+export type PaymentSchemeV1 = 'IBAN';
+
+export interface PrimaryPaymentIdentifierDto {
+  scheme: PaymentSchemeV1;
+  display_value_masked: string;
+  country_code: string | null;
+}
+
 export interface AccountDto {
   id: string;
   version_id: string;
@@ -127,6 +136,7 @@ export interface AccountDto {
   stakeholder_ids: string[];
   flags: string[];
   account_type: string;
+  primary_payment_identifier: PrimaryPaymentIdentifierDto | null;
 }
 
 /** Fila de `GET /api/v1/audit/logs` y `GET /api/v1/audit/logs/{id}` (Core audit_schemas). */

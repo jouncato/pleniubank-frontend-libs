@@ -1,5 +1,15 @@
 /** Respuesta mínima de Core `GET /accounts`. */
 
+/** Valores de `scheme` en v1; ampliar la union cuando Core añada enum en BD. */
+export const PAYMENT_SCHEME_V1 = ['IBAN'] as const;
+export type PaymentSchemeV1 = (typeof PAYMENT_SCHEME_V1)[number];
+
+export interface PrimaryPaymentIdentifierDto {
+  scheme: PaymentSchemeV1;
+  display_value_masked: string;
+  country_code: string | null;
+}
+
 export interface AccountDto {
   id: string;
   version_id: string;
@@ -21,6 +31,7 @@ export interface AccountDto {
   stakeholder_ids: string[];
   flags: string[];
   account_type: string;
+  primary_payment_identifier: PrimaryPaymentIdentifierDto | null;
 }
 
 /** Alineado a Core `AccountCreate`. */

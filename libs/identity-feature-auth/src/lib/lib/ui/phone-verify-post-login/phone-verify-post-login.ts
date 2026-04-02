@@ -5,22 +5,24 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
+  effect,
   inject,
   viewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { VerifyPhonePostLoginVm } from '../../vm/verify-phone-post-login';
+import { SessionVm } from '../../vm/session';
 
 @Component({
   selector: 'lib-phone-verify-post-login',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './phone-verify-post-login.html',
   styleUrl: './phone-verify-post-login.scss',
 })
 export class PhoneVerifyPostLogin implements OnInit, AfterViewInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(VerifyPhonePostLoginVm);
+  private readonly session = inject(SessionVm);
 
   private readonly codeField = viewChild<ElementRef<HTMLInputElement>>('codeField');
 
@@ -29,6 +31,15 @@ export class PhoneVerifyPostLogin implements OnInit, AfterViewInit, OnDestroy {
   readonly form = this.fb.group({
     code: ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]],
   });
+
+  constructor() {
+    effect(() => {
+      const tick = this.vm.otpReissuedTick();
+      if (tick > 0) {
+        this.form.patchValue({ code: '' });
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.vm.startChallenge();
@@ -54,6 +65,10 @@ export class PhoneVerifyPostLogin implements OnInit, AfterViewInit, OnDestroy {
 
   get submitting(): boolean {
     return this.vm.state() === 'submitting';
+  }
+
+  signOut(): void {
+    this.session.logout();
   }
 
   private bindWebOtp(): void {

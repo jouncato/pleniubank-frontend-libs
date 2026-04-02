@@ -60,4 +60,15 @@ describe('phoneVerifiedGuard', () => {
       queryParams: { returnUrl: '/app/personal/loans/list' },
     });
   });
+
+  it('redirige desde dashboard si B2C sin telefono', () => {
+    const router = configure('customer', { phone_verified: false });
+    const result = TestBed.runInInjectionContext(() =>
+      phoneVerifiedGuard({} as never, { url: '/app/dashboard' } as never),
+    );
+    expect(result).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/app/verify-phone'], {
+      queryParams: { returnUrl: '/app/dashboard' },
+    });
+  });
 });
