@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 
+import { PORTAL_APP } from 'shared-auth';
 import { LoginVm } from '../../vm/login';
 import { AuthLoginForm } from './auth-login-form';
 
@@ -30,6 +31,7 @@ describe('AuthLoginForm', () => {
       providers: [
         { provide: LoginVm, useValue: vm },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => null } } } },
+        { provide: PORTAL_APP, useValue: 'customer' },
       ],
     }).compileComponents();
 
@@ -56,6 +58,12 @@ describe('AuthLoginForm', () => {
     expect(button?.disabled).toBe(true);
   });
 
+  it('no muestra aviso de portal publico cuando portal es customer', () => {
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.textContent).not.toContain('portal de cliente');
+  });
+
   it('rehabilita submit cuando el cooldown termina', () => {
     component.form.setValue({ email: 'cliente@example.com', password: 'secret' });
     vm.state.set('idle');
@@ -67,5 +75,30 @@ describe('AuthLoginForm', () => {
     const host = fixture.nativeElement as HTMLElement;
     const button = host.querySelector('button');
     expect(button?.disabled).toBe(false);
+  });
+});
+
+describe('AuthLoginForm portal public', () => {
+  it('muestra aviso de redireccion al portal de cliente', async () => {
+    const vm = {
+      state: signal<'idle'>('idle'),
+      errorMessage: signal<string | null>(null),
+      isRateLimited: false,
+      rateLimitMessage: null,
+      login: vi.fn(),
+    };
+    await TestBed.configureTestingModule({
+      imports: [AuthLoginForm],
+      providers: [
+        { provide: LoginVm, useValue: vm },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => null } } } },
+        { provide: PORTAL_APP, useValue: 'public' },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(AuthLoginForm);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.textContent).toContain('portal de cliente');
   });
 });

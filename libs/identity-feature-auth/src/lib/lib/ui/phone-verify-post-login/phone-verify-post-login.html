@@ -1,0 +1,57 @@
+<section class="pb-phone-verify" aria-labelledby="pb-phone-verify-title">
+  <p class="pb-phone-verify__eyebrow">Un paso más, casi entras</p>
+  <h1 id="pb-phone-verify-title">Confirma que eres tú</h1>
+  <p class="pb-phone-verify__lead">
+    Ya validamos tu correo y contraseña. Para cuidar tu cuenta y dejarte usar préstamos y el resto de tus
+    productos con total seguridad, te enviamos un código corto por SMS al número que tienes registrado.
+  </p>
+  <p class="pb-phone-verify__sublead">
+    Escribe los 6 dígitos aquí abajo. Si no llega en unos segundos, revisa tus mensajes o pide un código
+    nuevo; en Chrome en móvil el código puede rellenarse solo gracias a WebOTP.
+  </p>
+
+  @if (vm.state() === 'starting') {
+    <p class="pb-phone-verify__status" aria-live="polite">Preparando tu código seguro…</p>
+  }
+
+  @if (vm.debugOtpHint(); as hint) {
+    <p class="pb-phone-verify__debug" aria-live="polite">{{ hint }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <label for="pb-phone-otp-code">Código de 6 dígitos</label>
+    <input
+      #codeField
+      id="pb-phone-otp-code"
+      type="text"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+      maxlength="6"
+      formControlName="code"
+    />
+
+    @if (vm.errorMessage(); as err) {
+      <p class="pb-phone-verify__error" role="alert">{{ err }}</p>
+    }
+
+    <button type="submit" [disabled]="form.invalid || submitting || vm.state() === 'starting'">
+      {{ submitting ? 'Verificando…' : 'Verificar' }}
+    </button>
+  </form>
+
+  <div class="pb-phone-verify__resend">
+    <button
+      type="button"
+      (click)="vm.resend()"
+      [disabled]="vm.resendSecondsLeft() > 0 || vm.state() === 'starting' || submitting"
+    >
+      {{
+        vm.resendSecondsLeft() > 0
+          ? 'Reenviar en ' + vm.resendSecondsLeft() + ' s'
+          : 'Reenviar código por SMS'
+      }}
+    </button>
+  </div>
+
+  <a routerLink="/app/dashboard" class="pb-phone-verify__back">Volver al inicio</a>
+</section>

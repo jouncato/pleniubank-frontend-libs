@@ -6,9 +6,12 @@ import {
   isValidReturnUrl,
   PORTAL_APP,
   PortalAppKind,
+  POST_LOGIN_CUSTOMER_PORTAL,
+  type PostLoginCustomerPortalConfig,
   SESSION_STRATEGY,
   SessionStrategy,
   SessionStore,
+  stashDevPortalTokenHandoff,
 } from 'shared-auth';
 import { ApiHttpError, mapHttpError } from 'shared-http';
 
@@ -39,6 +42,9 @@ export class LoginVm {
   private readonly portal = inject<PortalAppKind>(PORTAL_APP);
   private readonly rateLimit = inject(AuthRateLimitService);
   private readonly sessionStrategy = inject<SessionStrategy>(SESSION_STRATEGY);
+  private readonly postLoginCustomerPortal = inject<PostLoginCustomerPortalConfig>(
+    POST_LOGIN_CUSTOMER_PORTAL,
+  );
 
   constructor(
     private readonly identityApi: IdentityAuthApiService,
@@ -149,14 +155,18 @@ export class LoginVm {
           email: claims.email,
         });
         this.state.set('success');
-        const route =
-          role === 'admin'
-            ? '/admin/dashboard'
-            : claims.enterprise_id
-              ? '/app/accounts'
-              : '/app/dashboard';
-        const safeReturnUrl = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
-        void this.router.navigateByUrl(safeReturnUrl ?? route);
+        if (
+          this.portal === 'customer' &&
+          !claims.enterprise_id &&
+          claims.phone_verified !== true
+        ) {
+          const safeReturn = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
+          void this.router.navigate(['/app/verify-phone'], {
+            queryParams: safeReturn ? { returnUrl: safeReturn } : {},
+          });
+          return;
+        }
+        this.navigateAfterSuccessfulValidate(claims, role, returnUrl);
       },
       error: () => {
         this.sessionStore.clear();
@@ -164,6 +174,49 @@ export class LoginVm {
         this.errorMessage.set('No fue posible validar la sesion.');
       },
     });
+  }
+
+  /**
+   * Portal público con `customerPortalOrigin`: salto al customer (handoff dev si aplica).
+   * Sin origen externo en público: B2B evita `/app/accounts` (no existe en :4200).
+   */
+  private navigateAfterSuccessfulValidate(
+    claims: { enterprise_id?: string | null },
+    role: string | undefined,
+    returnUrl?: string,
+  ): void {
+    const safeReturnUrl = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
+    const cfg = this.postLoginCustomerPortal;
+    const externalBase = cfg.customerPortalOrigin.trim().replace(/\/$/, '');
+
+    if (this.portal === 'public' && externalBase) {
+      const defaultPath = claims.enterprise_id ? cfg.b2bPath : cfg.b2cPath;
+      let path = defaultPath;
+      if (safeReturnUrl && safeReturnUrl.startsWith('/app/')) {
+        path = safeReturnUrl;
+      }
+      const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+      const url = `${externalBase}${normalizedPath}`;
+      if (cfg.allowCrossOriginTokenHandoff && this.sessionStrategy === 'sessionStorage') {
+        const access = this.sessionStore.userToken();
+        if (access) {
+          stashDevPortalTokenHandoff(access, this.sessionStore.refreshToken());
+        }
+      }
+      globalThis.location.assign(url);
+      return;
+    }
+
+    let route =
+      role === 'admin'
+        ? '/admin/dashboard'
+        : claims.enterprise_id
+          ? '/app/accounts'
+          : '/app/dashboard';
+    if (this.portal === 'public' && !externalBase && claims.enterprise_id) {
+      route = '/app/dashboard';
+    }
+    void this.router.navigateByUrl(safeReturnUrl ?? route);
   }
 
   private applyStoredRateLimit(): void {

@@ -4,7 +4,12 @@ import { Router, provideRouter } from '@angular/router';
 import { LoginRequest } from 'identity-domain';
 import { IdentityAuthApiService } from 'identity-data-access';
 import { of, throwError } from 'rxjs';
-import { PORTAL_APP, SessionStore } from 'shared-auth';
+import {
+  PORTAL_APP,
+  POST_LOGIN_CUSTOMER_PORTAL,
+  SessionStore,
+  SESSION_STRATEGY,
+} from 'shared-auth';
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 import { LoginVm } from './login';
@@ -25,7 +30,15 @@ describe('LoginVm', () => {
   function setup(options?: {
     role?: 'customer' | 'admin';
     enterpriseId?: string | undefined;
-    portal?: 'customer' | 'backoffice';
+    /** B2C customer: si es false, LoginVm navega a /app/verify-phone tras validate. */
+    phoneVerified?: boolean;
+    portal?: 'customer' | 'backoffice' | 'public';
+    postLoginPortal?: {
+      customerPortalOrigin?: string;
+      allowCrossOriginTokenHandoff?: boolean;
+      b2cPath?: string;
+      b2bPath?: string;
+    };
     loginImpl?: () => unknown;
     validateImpl?: () => unknown;
   }) {
@@ -37,14 +50,24 @@ describe('LoginVm', () => {
     const role = options?.role ?? 'customer';
     const enterpriseId = options?.enterpriseId;
     const portal = options?.portal ?? 'customer';
+    const phoneVerified = options?.phoneVerified ?? true;
+    const postLoginCustomerPortal = {
+      customerPortalOrigin: options?.postLoginPortal?.customerPortalOrigin ?? '',
+      allowCrossOriginTokenHandoff: options?.postLoginPortal?.allowCrossOriginTokenHandoff ?? false,
+      b2cPath: options?.postLoginPortal?.b2cPath ?? '/app/dashboard',
+      b2bPath: options?.postLoginPortal?.b2bPath ?? '/app/accounts',
+    };
 
     const navigateByUrl = vi.fn(() => Promise.resolve(true));
+    const navigate = vi.fn(() => Promise.resolve(true));
     const sessionStore = {
       setUserToken: vi.fn(),
       setRefreshToken: vi.fn(),
       setAdminToken: vi.fn(),
       setClaims: vi.fn(),
       clear: vi.fn(),
+      userToken: vi.fn(() => 'access-token'),
+      refreshToken: vi.fn(() => 'refresh-token'),
     };
     const identityApi = {
       login: vi.fn(
@@ -67,6 +90,7 @@ describe('LoginVm', () => {
                   role,
                   email: 'test@example.com',
                   enterprise_id: enterpriseId,
+                  phone_verified: phoneVerified,
                 },
               },
             })),
@@ -78,16 +102,19 @@ describe('LoginVm', () => {
         provideRouter([]),
         LoginVm,
         AuthRateLimitService,
-        { provide: Router, useValue: { navigateByUrl } },
+        { provide: Router, useValue: { navigateByUrl, navigate } },
         { provide: IdentityAuthApiService, useValue: identityApi },
         { provide: SessionStore, useValue: sessionStore },
         { provide: PORTAL_APP, useValue: portal },
+        { provide: SESSION_STRATEGY, useValue: 'sessionStorage' },
+        { provide: POST_LOGIN_CUSTOMER_PORTAL, useValue: postLoginCustomerPortal },
       ],
     });
 
     return {
       service: TestBed.inject(LoginVm),
       navigateByUrl,
+      navigate,
       identityApi,
     };
   }
@@ -134,12 +161,81 @@ describe('LoginVm', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/app/dashboard');
   });
 
+  it('customer B2C sin telefono verificado va a verify-phone y conserva returnUrl valida', () => {
+    const { service, navigate, navigateByUrl } = setup({ phoneVerified: false });
+
+    service.login(payload, '/app/personal/loans/list');
+
+    expect(navigate).toHaveBeenCalledWith(['/app/verify-phone'], {
+      queryParams: { returnUrl: '/app/personal/loans/list' },
+    });
+    expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
   it('hace fallback a /app/accounts para usuarios enterprise si returnUrl es invalida', () => {
     const { service, navigateByUrl } = setup({ enterpriseId: 'ent-123' });
 
     service.login(payload, '/onboarding/party/access/login');
 
     expect(navigateByUrl).toHaveBeenCalledWith('/app/accounts');
+  });
+
+  it('portal publico con customerPortalOrigin redirige al customer B2C con location.assign', () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...globalThis.location, assign: assign });
+    const { service } = setup({
+      portal: 'public',
+      postLoginPortal: {
+        customerPortalOrigin: 'http://localhost:4201',
+        allowCrossOriginTokenHandoff: true,
+      },
+    });
+
+    service.login(payload);
+
+    expect(assign).toHaveBeenCalledWith('http://localhost:4201/app/dashboard');
+    vi.unstubAllGlobals();
+  });
+
+  it('portal publico con customerPortalOrigin y enterprise redirige a ruta B2B en el customer', () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...globalThis.location, assign: assign });
+    const { service } = setup({
+      portal: 'public',
+      enterpriseId: 'ent-123',
+      postLoginPortal: { customerPortalOrigin: 'http://localhost:4201' },
+    });
+
+    service.login(payload);
+
+    expect(assign).toHaveBeenCalledWith('http://localhost:4201/app/accounts');
+    vi.unstubAllGlobals();
+  });
+
+  it('portal publico sin customerPortalOrigin y enterprise evita /app/accounts inexistente', () => {
+    const { service, navigateByUrl } = setup({
+      portal: 'public',
+      enterpriseId: 'ent-123',
+      postLoginPortal: { customerPortalOrigin: '' },
+    });
+
+    service.login(payload);
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/app/dashboard');
+  });
+
+  it('portal publico con returnUrl /app valida compone URL en el customer', () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...globalThis.location, assign: assign });
+    const { service } = setup({
+      portal: 'public',
+      postLoginPortal: { customerPortalOrigin: 'http://localhost:4201' },
+    });
+
+    service.login(payload, '/app/personal/accounts/list');
+
+    expect(assign).toHaveBeenCalledWith('http://localhost:4201/app/personal/accounts/list');
+    vi.unstubAllGlobals();
   });
 
   it('activa rate_limited y countdown tras recibir 429', () => {

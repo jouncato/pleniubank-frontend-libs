@@ -22,6 +22,13 @@ import {
 
 export type RefreshTokenPayload = { access_token: string; refresh_token?: string };
 
+/** POST /api/v1/auth/phone-challenge | resend-phone-otp */
+export type PhoneOtpChallengePayload = {
+  status: string;
+  expires_in_seconds: number;
+  debug_otp?: string | null;
+};
+
 /** Identity devuelve cuerpo plano; algunos gateways pueden envolver en `{ data }`. */
 export function unwrapRefreshResponse(
   body: ApiEnvelope<RefreshTokenPayload> | RefreshTokenPayload,
@@ -52,8 +59,20 @@ function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
   if (typeof raw['email'] === 'string') {
     out.email = raw['email'];
   }
+  if (typeof raw['full_name'] === 'string' && raw['full_name'].trim()) {
+    out.full_name = raw['full_name'].trim();
+  }
   if (typeof raw['two_factor_enabled'] === 'boolean') {
     out.two_factor_enabled = raw['two_factor_enabled'];
+  }
+  if (typeof raw['identity_verified'] === 'boolean') {
+    out.identity_verified = raw['identity_verified'];
+  }
+  if (typeof raw['email_verified'] === 'boolean') {
+    out.email_verified = raw['email_verified'];
+  }
+  if (typeof raw['phone_verified'] === 'boolean') {
+    out.phone_verified = raw['phone_verified'];
   }
   return out;
 }
@@ -97,6 +116,16 @@ export function unwrapVerificationResponse(
   return body as VerificationResponse;
 }
 
+export function unwrapPhoneOtpChallenge(
+  body: ApiEnvelope<PhoneOtpChallengePayload> | PhoneOtpChallengePayload,
+): PhoneOtpChallengePayload {
+  if (body && typeof body === 'object' && 'data' in body) {
+    const d = (body as ApiEnvelope<PhoneOtpChallengePayload>).data;
+    if (d) return d;
+  }
+  return body as PhoneOtpChallengePayload;
+}
+
 @Injectable({ providedIn: 'root' })
 export class IdentityAuthApiService {
   constructor(
@@ -126,6 +155,20 @@ export class IdentityAuthApiService {
     return this.http.post<VerificationEnvelope | VerificationResponse>(
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/verify-phone`,
       payload,
+    );
+  }
+
+  startPhoneOtpChallenge(): Observable<ApiEnvelope<PhoneOtpChallengePayload> | PhoneOtpChallengePayload> {
+    return this.http.post<ApiEnvelope<PhoneOtpChallengePayload> | PhoneOtpChallengePayload>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/phone-challenge`,
+      {},
+    );
+  }
+
+  resendPhoneOtpAuthenticated(): Observable<ApiEnvelope<PhoneOtpChallengePayload> | PhoneOtpChallengePayload> {
+    return this.http.post<ApiEnvelope<PhoneOtpChallengePayload> | PhoneOtpChallengePayload>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/resend-phone-otp`,
+      {},
     );
   }
 

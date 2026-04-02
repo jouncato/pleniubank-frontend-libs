@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { PORTAL_APP, type PortalAppKind } from 'shared-auth';
 import { LoginVm } from '../../vm/login';
 
 @Component({
@@ -13,6 +14,7 @@ import { LoginVm } from '../../vm/login';
 export class AuthLoginForm {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  protected readonly portal = inject<PortalAppKind>(PORTAL_APP);
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

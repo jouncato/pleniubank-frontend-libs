@@ -1,5 +1,12 @@
 <h2>Iniciar sesion</h2>
 
+@if (portal === 'public') {
+  <p class="login-context-hint" role="note">
+    Tras validar tus datos te llevamos al portal de cliente para operar tus productos (cuentas, préstamos
+    y más), salvo que uses una cuenta empresarial.
+  </p>
+}
+
 <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <label for="email">Correo electronico</label>
   <input id="email" type="email" autocomplete="email" formControlName="email" />

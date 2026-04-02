@@ -29,17 +29,25 @@ describe('unwrapRefreshResponse / unwrapValidateResponse (FE-OBS-002)', () => {
     const body = {
       user_id: '550e8400-e29b-41d4-a716-446655440000',
       email: 'c@example.com',
+      full_name: 'Cliente Demo',
       role: 'customer',
       enterprise_id: null,
       customer_id: '660e8400-e29b-41d4-a716-446655440001',
+      phone_verified: false,
+      email_verified: true,
+      identity_verified: true,
     };
     expect(unwrapValidateResponse(body as never)).toEqual({
       claims: {
         user_id: '550e8400-e29b-41d4-a716-446655440000',
         email: 'c@example.com',
+        full_name: 'Cliente Demo',
         role: 'customer',
         enterprise_id: undefined,
         customer_id: '660e8400-e29b-41d4-a716-446655440001',
+        phone_verified: false,
+        email_verified: true,
+        identity_verified: true,
       },
     });
   });

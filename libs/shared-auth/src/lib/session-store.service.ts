@@ -17,6 +17,11 @@ export interface SessionClaims {
   customer_id?: string;
   two_factor_enabled?: boolean;
   email?: string;
+  /** Nombre registrado (Identity validate); fallback UI al local del email si falta. */
+  full_name?: string;
+  identity_verified?: boolean;
+  email_verified?: boolean;
+  phone_verified?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -72,6 +77,11 @@ export class SessionStore {
   setClaims(claims: SessionClaims | null): void {
     this._claims.set(claims);
     this._claimsValidatedAt.set(claims ? Date.now() : null);
+  }
+
+  /** Fuerza un nuevo POST /validate en el próximo authGuard (p. ej. tras verificar teléfono y refresh JWT). */
+  invalidateClaimsCache(): void {
+    this._claimsValidatedAt.set(null);
   }
 
   setRegistrationId(registrationId: string | null): void {

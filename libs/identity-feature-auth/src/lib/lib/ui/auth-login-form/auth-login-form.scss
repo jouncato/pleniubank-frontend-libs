@@ -8,6 +8,13 @@ h2 {
   color: #ffffff;
 }
 
+.login-context-hint {
+  margin: 0 0 0.85rem;
+  font-size: var(--pb-font-size-sm, 0.875rem);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+}
+
 form {
   display: grid;
   gap: 0.75rem;

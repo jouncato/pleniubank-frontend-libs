@@ -3,6 +3,7 @@
 <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <label for="code">Código OTP</label>
   <input
+    #codeField
     id="code"
     type="text"
     inputmode="numeric"
