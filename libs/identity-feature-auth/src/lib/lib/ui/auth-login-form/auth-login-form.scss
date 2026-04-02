@@ -33,29 +33,46 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-button {
+button[type='submit'] {
   margin-top: 0.5rem;
   height: 42px;
   border: 0;
   border-radius: 8px;
   background: #0272de;
-  color: #fff;
+  color: #ffffff;
   font-weight: 600;
+  /* Evita color de texto del UA en :disabled (p. ej. “Ingresando…” ilegible). */
+  -webkit-text-fill-color: #ffffff;
 }
 
-button:disabled {
-  opacity: 0.6;
+button[type='submit']:disabled {
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  opacity: 0.88;
+  cursor: wait;
 }
 
-a {
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.footer-links a {
   display: inline-block;
-  margin-top: 0.5rem;
   color: #ffffff;
   text-underline-offset: 2px;
 }
 
-a:hover {
+.footer-links a:hover {
   color: rgba(255, 255, 255, 0.88);
+}
+
+.footer-sep {
+  color: rgba(255, 255, 255, 0.55);
+  user-select: none;
 }
 
 .error {

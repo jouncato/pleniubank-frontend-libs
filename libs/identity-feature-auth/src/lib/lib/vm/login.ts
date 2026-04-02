@@ -135,7 +135,7 @@ export class LoginVm {
     this.identityApi.validate().subscribe({
       next: (response) => {
         const role = response.data.claims.role;
-        if (role === 'admin' && this.portal === 'customer') {
+        if (role === 'admin' && this.portal !== 'backoffice') {
           this.sessionStore.clear();
           this.state.set('error');
           this.errorMessage.set(
