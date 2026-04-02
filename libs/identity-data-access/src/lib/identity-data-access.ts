@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
+import type { SessionClaims } from 'shared-auth';
 import {
   ForgotPasswordEnvelope,
   ForgotPasswordRequest,
@@ -32,14 +33,58 @@ export function unwrapRefreshResponse(
   return body as RefreshTokenPayload;
 }
 
+function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
+  const out: SessionClaims = {};
+  if (raw['user_id'] != null) {
+    out.user_id = String(raw['user_id']);
+  } else if (raw['sub'] != null) {
+    out.user_id = String(raw['sub']);
+  }
+  if (typeof raw['role'] === 'string') {
+    out.role = raw['role'] as SessionClaims['role'];
+  }
+  if (raw['enterprise_id'] != null) {
+    out.enterprise_id = String(raw['enterprise_id']);
+  }
+  if (raw['customer_id'] != null) {
+    out.customer_id = String(raw['customer_id']);
+  }
+  if (typeof raw['email'] === 'string') {
+    out.email = raw['email'];
+  }
+  if (typeof raw['two_factor_enabled'] === 'boolean') {
+    out.two_factor_enabled = raw['two_factor_enabled'];
+  }
+  return out;
+}
+
+/**
+ * Normaliza la respuesta de POST /auth/validate:
+ * - Gateway / sobre: `{ data: ... }`
+ * - Legacy FE: `{ claims: SessionClaims }` o `{ data: { claims } }`
+ * - Identity-service actual: cuerpo plano `ValidateTokenResponse` (role, email, user_id, …)
+ */
 export function unwrapValidateResponse(
-  body: ValidateEnvelope | ValidateResponse,
+  body: ValidateEnvelope | ValidateResponse | Record<string, unknown>,
 ): ValidateResponse {
+  let raw: Record<string, unknown>;
   if (body && typeof body === 'object' && 'data' in body) {
     const d = (body as ValidateEnvelope).data;
-    if (d) return d;
+    raw = (d && typeof d === 'object' ? d : {}) as Record<string, unknown>;
+  } else {
+    raw = body as Record<string, unknown>;
   }
-  return body as ValidateResponse;
+
+  const nestedClaims = raw['claims'];
+  if (nestedClaims && typeof nestedClaims === 'object' && !Array.isArray(nestedClaims)) {
+    return { claims: claimsFromRecord(nestedClaims as Record<string, unknown>) };
+  }
+
+  if (typeof raw['role'] === 'string' && typeof raw['email'] === 'string') {
+    return { claims: claimsFromRecord(raw) };
+  }
+
+  return { claims: {} };
 }
 
 export function unwrapVerificationResponse(

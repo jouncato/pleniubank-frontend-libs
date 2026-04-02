@@ -18,14 +18,37 @@ describe('unwrapRefreshResponse / unwrapValidateResponse (FE-OBS-002)', () => {
     expect(unwrapRefreshResponse({ data: inner })).toEqual(inner);
   });
 
-  it('unwrapValidateResponse accepts plain body', () => {
+  it('unwrapValidateResponse accepts plain body with nested claims', () => {
     const body = { claims: { email: 'x@y.com', sub: 'u' } };
-    expect(unwrapValidateResponse(body as never)).toEqual(body);
+    expect(unwrapValidateResponse(body as never)).toEqual({
+      claims: { user_id: 'u', email: 'x@y.com' },
+    });
+  });
+
+  it('unwrapValidateResponse maps flat Identity ValidateTokenResponse', () => {
+    const body = {
+      user_id: '550e8400-e29b-41d4-a716-446655440000',
+      email: 'c@example.com',
+      role: 'customer',
+      enterprise_id: null,
+      customer_id: '660e8400-e29b-41d4-a716-446655440001',
+    };
+    expect(unwrapValidateResponse(body as never)).toEqual({
+      claims: {
+        user_id: '550e8400-e29b-41d4-a716-446655440000',
+        email: 'c@example.com',
+        role: 'customer',
+        enterprise_id: undefined,
+        customer_id: '660e8400-e29b-41d4-a716-446655440001',
+      },
+    });
   });
 
   it('unwrapValidateResponse unwraps envelope', () => {
     const inner = { claims: { email: 'x@y.com' } };
-    expect(unwrapValidateResponse({ data: inner } as never)).toEqual(inner);
+    expect(unwrapValidateResponse({ data: inner } as never)).toEqual({
+      claims: { email: 'x@y.com' },
+    });
   });
 });
 

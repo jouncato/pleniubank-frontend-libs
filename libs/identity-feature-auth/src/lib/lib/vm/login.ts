@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginEnvelope, LoginRequest, LoginResponse } from 'identity-domain';
-import { IdentityAuthApiService } from 'identity-data-access';
+import { IdentityAuthApiService, unwrapValidateResponse } from 'identity-data-access';
 import {
   isValidReturnUrl,
   PORTAL_APP,
@@ -134,7 +134,8 @@ export class LoginVm {
   private hydrateSession(returnUrl?: string): void {
     this.identityApi.validate().subscribe({
       next: (response) => {
-        const role = response.data.claims.role;
+        const { claims } = unwrapValidateResponse(response as never);
+        const role = claims.role;
         if (role === 'admin' && this.portal !== 'backoffice') {
           this.sessionStore.clear();
           this.state.set('error');
@@ -144,14 +145,14 @@ export class LoginVm {
           return;
         }
         this.sessionStore.setClaims({
-          ...response.data.claims,
-          email: response.data.claims.email,
+          ...claims,
+          email: claims.email,
         });
         this.state.set('success');
         const route =
           role === 'admin'
             ? '/admin/dashboard'
-            : response.data.claims.enterprise_id
+            : claims.enterprise_id
               ? '/app/accounts'
               : '/app/dashboard';
         const safeReturnUrl = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
