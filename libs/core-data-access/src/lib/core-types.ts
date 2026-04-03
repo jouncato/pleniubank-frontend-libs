@@ -98,6 +98,17 @@ export interface ClientContractDto {
   status: string;
   correlation_id: string | null;
   created_at: string;
+  updated_at?: string | null;
+  updated_by?: string | null;
+  deactivated_at?: string | null;
+  deactivated_by?: string | null;
+  deactivation_reason?: string | null;
+}
+
+export interface ClientContractPatchRequest {
+  status?: string | null;
+  terms?: Record<string, unknown> | null;
+  deactivation_reason?: string | null;
 }
 
 /** Opciones de company_code permitidas para el usuario (sub-empresas sincronizadas en Core). */

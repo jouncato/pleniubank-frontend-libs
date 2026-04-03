@@ -151,6 +151,14 @@ export class IdentityAuthApiService {
     );
   }
 
+  /** Reenvío SMS durante registro B2C (mismo payload que resend-email-otp: registration_id). */
+  resendRegistrationPhoneOtp(payload: ResendEmailOtpRequest): Observable<{ status: string }> {
+    return this.http.post<{ status: string }>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/resend-registration-phone-otp`,
+      payload,
+    );
+  }
+
   verifyPhone(payload: VerifyOtpRequest): Observable<VerificationEnvelope | VerificationResponse> {
     return this.http.post<VerificationEnvelope | VerificationResponse>(
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/verify-phone`,

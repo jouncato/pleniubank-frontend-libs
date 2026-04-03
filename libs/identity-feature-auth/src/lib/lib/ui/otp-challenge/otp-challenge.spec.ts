@@ -27,7 +27,16 @@ describe('OtpChallenge', () => {
             resendEmail: () => {},
           },
         },
-        { provide: VerifyPhoneVm, useValue: { state: 'idle', errorMessage: null, submit: () => {} } },
+        {
+          provide: VerifyPhoneVm,
+          useValue: {
+            state: 'idle',
+            errorMessage: null,
+            resendSecondsLeft: 0,
+            submit: () => {},
+            resendSms: () => {},
+          },
+        },
       ],
     })
     .compileComponents();

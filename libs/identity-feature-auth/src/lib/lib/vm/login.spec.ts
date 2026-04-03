@@ -55,7 +55,7 @@ describe('LoginVm', () => {
       customerPortalOrigin: options?.postLoginPortal?.customerPortalOrigin ?? '',
       allowCrossOriginTokenHandoff: options?.postLoginPortal?.allowCrossOriginTokenHandoff ?? false,
       b2cPath: options?.postLoginPortal?.b2cPath ?? '/app/dashboard',
-      b2bPath: options?.postLoginPortal?.b2bPath ?? '/app/accounts',
+      b2bPath: options?.postLoginPortal?.b2bPath ?? '/app/dashboard',
     };
 
     const navigateByUrl = vi.fn(() => Promise.resolve(true));
@@ -172,12 +172,12 @@ describe('LoginVm', () => {
     expect(navigateByUrl).not.toHaveBeenCalled();
   });
 
-  it('hace fallback a /app/accounts para usuarios enterprise si returnUrl es invalida', () => {
+  it('hace fallback a /app/dashboard para usuarios enterprise si returnUrl es invalida', () => {
     const { service, navigateByUrl } = setup({ enterpriseId: 'ent-123' });
 
     service.login(payload, '/onboarding/party/access/login');
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/app/accounts');
+    expect(navigateByUrl).toHaveBeenCalledWith('/app/dashboard');
   });
 
   it('portal publico con customerPortalOrigin redirige al customer B2C con location.assign', () => {
@@ -208,11 +208,11 @@ describe('LoginVm', () => {
 
     service.login(payload);
 
-    expect(assign).toHaveBeenCalledWith('http://localhost:4201/app/accounts');
+    expect(assign).toHaveBeenCalledWith('http://localhost:4201/app/dashboard');
     vi.unstubAllGlobals();
   });
 
-  it('portal publico sin customerPortalOrigin y enterprise evita /app/accounts inexistente', () => {
+  it('portal publico sin customerPortalOrigin y enterprise aterriza en dashboard', () => {
     const { service, navigateByUrl } = setup({
       portal: 'public',
       enterpriseId: 'ent-123',

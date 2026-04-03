@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { of } from 'rxjs';
 import { IdentityAuthApiService } from 'identity-data-access';
 import { SessionStore } from 'shared-auth';
 
@@ -13,7 +14,20 @@ describe('VerifyPhoneVm', () => {
       providers: [
         VerifyPhoneVm,
         { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
-        { provide: IdentityAuthApiService, useValue: { verifyPhone: () => {} } },
+        {
+          provide: IdentityAuthApiService,
+          useValue: {
+            verifyPhone: () =>
+              of({
+                registration_id: 'r1',
+                email_verified: true,
+                phone_verified: true,
+                identity_verified: true,
+                is_active: true,
+              }),
+            resendRegistrationPhoneOtp: () => of({ status: 'sent' }),
+          },
+        },
         { provide: SessionStore, useValue: { getRegistrationId: () => 'r1' } },
       ],
     });

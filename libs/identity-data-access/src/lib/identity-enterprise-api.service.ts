@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 import {
   AcceptInviteEnvelope,
@@ -11,13 +12,30 @@ import {
   CreateUserEnterpriseRequest,
   InviteUserEnvelope,
   InviteUserRequest,
+  EnterpriseMeSummaryResponse,
   KybDocumentsEnvelope,
   KybDocumentsRequest,
   RegisterEnterpriseEnvelope,
   RegisterEnterpriseRequest,
+  RegisterEnterpriseResponse,
+  ResendEnterpriseEmailOtpEnvelope,
+  ResendEnterpriseEmailOtpRequest,
+  ResendEnterpriseEmailOtpResponse,
   VerifyEnterpriseEmailEnvelope,
   VerifyEnterpriseEmailRequest,
+  VerifyEnterpriseEmailResponse,
 } from 'identity-domain';
+
+/** Identity devuelve muchos POST como cuerpo plano; Core usa `{ data, meta }`. Normalizamos aquí. */
+function asApiEnvelope<T>(body: ApiEnvelope<T> | T): ApiEnvelope<T> {
+  if (body !== null && typeof body === 'object' && 'data' in (body as object)) {
+    const env = body as ApiEnvelope<T>;
+    if (env.data !== undefined && env.data !== null) {
+      return env;
+    }
+  }
+  return { data: body as T };
+}
 
 @Injectable({ providedIn: 'root' })
 export class IdentityEnterpriseApiService {
@@ -27,23 +45,42 @@ export class IdentityEnterpriseApiService {
   ) {}
 
   registerEnterprise(payload: RegisterEnterpriseRequest): Observable<RegisterEnterpriseEnvelope> {
-    return this.http.post<RegisterEnterpriseEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/auth/register-enterprise`,
-      payload,
-    );
+    return this.http
+      .post<RegisterEnterpriseEnvelope | RegisterEnterpriseResponse>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/auth/register-enterprise`,
+        payload,
+      )
+      .pipe(map((body) => asApiEnvelope<RegisterEnterpriseResponse>(body)));
   }
 
   verifyEnterpriseEmail(payload: VerifyEnterpriseEmailRequest): Observable<VerifyEnterpriseEmailEnvelope> {
-    return this.http.post<VerifyEnterpriseEmailEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/auth/verify-enterprise-email`,
-      payload,
-    );
+    return this.http
+      .post<VerifyEnterpriseEmailEnvelope | VerifyEnterpriseEmailResponse>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/auth/verify-enterprise-email`,
+        payload,
+      )
+      .pipe(map((body) => asApiEnvelope<VerifyEnterpriseEmailResponse>(body)));
+  }
+
+  resendEnterpriseEmailOtp(payload: ResendEnterpriseEmailOtpRequest): Observable<ResendEnterpriseEmailOtpEnvelope> {
+    return this.http
+      .post<ResendEnterpriseEmailOtpEnvelope | ResendEnterpriseEmailOtpResponse>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/auth/resend-enterprise-email-otp`,
+        payload,
+      )
+      .pipe(map((body) => asApiEnvelope<ResendEnterpriseEmailOtpResponse>(body)));
   }
 
   submitKybDocuments(payload: KybDocumentsRequest): Observable<KybDocumentsEnvelope> {
     return this.http.post<KybDocumentsEnvelope>(
       `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/kyb/documents`,
       payload,
+    );
+  }
+
+  getEnterpriseMeSummary(): Observable<EnterpriseMeSummaryResponse> {
+    return this.http.get<EnterpriseMeSummaryResponse>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/me/summary`,
     );
   }
 

@@ -66,7 +66,16 @@ export class RegisterEnterpriseVm {
     this.api.registerEnterprise(body).subscribe({
       next: (res) => {
         const d = res.data;
-        this.onboarding.setRegistrationIds(d.enterprise_id, d.principal_user_id, d.admin_user_id);
+        if (!d?.enterprise_id || !d.principal_user_id || !d.admin_user_id) {
+          this.submitting.set(false);
+          this.errorMessage.set('Respuesta inválida del servidor. Intenta de nuevo o contacta soporte.');
+          return;
+        }
+        this.onboarding.setRegistrationIds(
+          String(d.enterprise_id),
+          String(d.principal_user_id),
+          String(d.admin_user_id),
+        );
         this.submitting.set(false);
         void this.router.navigate(['/onboarding/party/organization/verify-email'], { queryParams: { role: 'principal' } });
       },
@@ -75,7 +84,20 @@ export class RegisterEnterpriseVm {
         this.submitting.set(false);
         if (mapped.status === 409) {
           this.conflictError.set(true);
-          this.errorMessage.set('Esta empresa ya está registrada.');
+          const raw = (mapped.errors[0]?.message ?? '').toLowerCase();
+          if (raw.includes('email')) {
+            this.errorMessage.set(
+              'Uno de los correos (empresa, representante o administrador) ya está registrado. Usa otros o inicia sesión.',
+            );
+          } else if (raw.includes('document')) {
+            this.errorMessage.set(
+              'El documento de la empresa ya está registrado. Si ya iniciaste el proceso, continúa con la verificación por correo.',
+            );
+          } else {
+            this.errorMessage.set(
+              'Los datos coinciden con un registro existente. Revisa correos y NIT, o continúa la verificación si ya registraste la empresa.',
+            );
+          }
           return;
         }
         if (mapped.status === 422) {

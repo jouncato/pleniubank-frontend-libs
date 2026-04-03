@@ -1,106 +1,138 @@
-﻿<section class="wizard" aria-label="Registro empresa">
-  <ol class="steps" role="list">
-    <li [attr.aria-current]="step === 0 ? 'step' : null">Empresa</li>
-    <li [attr.aria-current]="step === 1 ? 'step' : null">Contacto principal</li>
-    <li [attr.aria-current]="step === 2 ? 'step' : null">Administrador</li>
-    <li [attr.aria-current]="step === 3 ? 'step' : null">ConfirmaciÃ³n</li>
-  </ol>
+<section class="enterprise-wizard" aria-label="Registro empresa">
+  <header class="enterprise-wizard__head">
+    <h1 class="enterprise-wizard__title">Alta de empresa</h1>
+    <p class="enterprise-wizard__lede">
+      Registra tu organización en unos pasos. Los mismos estándares de seguridad que el resto del onboarding PleniuBank.
+    </p>
+  </header>
 
-  <div *ngIf="step === 0" class="card">
-    <h2>Datos de la empresa</h2>
-    <form [formGroup]="companyForm" (ngSubmit)="nextFromCompany()">
-      <label for="bn">RazÃ³n social</label>
+  <nav class="steps" aria-label="Progreso del registro">
+    <ol class="steps__list" role="list">
+      <li class="steps__item" [class.steps__item--done]="step > 0" [attr.aria-current]="step === 0 ? 'step' : null">
+        <span class="steps__n">1</span>
+        <span class="steps__label">Empresa</span>
+      </li>
+      <li class="steps__item" [class.steps__item--done]="step > 1" [attr.aria-current]="step === 1 ? 'step' : null">
+        <span class="steps__n">2</span>
+        <span class="steps__label">Contacto principal</span>
+      </li>
+      <li class="steps__item" [class.steps__item--done]="step > 2" [attr.aria-current]="step === 2 ? 'step' : null">
+        <span class="steps__n">3</span>
+        <span class="steps__label">Administrador</span>
+      </li>
+      <li class="steps__item" [class.steps__item--done]="step > 3" [attr.aria-current]="step === 3 ? 'step' : null">
+        <span class="steps__n">4</span>
+        <span class="steps__label">Confirmación</span>
+      </li>
+    </ol>
+  </nav>
+
+  <div *ngIf="step === 0" class="panel">
+    <h2 class="panel__title">Datos de la empresa</h2>
+    <p class="panel__subtitle">Identificación fiscal y datos de contacto corporativos.</p>
+    <form [formGroup]="companyForm" (ngSubmit)="nextFromCompany()" novalidate>
+      <label for="bn">Razón social</label>
       <input id="bn" type="text" formControlName="business_name" autocomplete="organization" />
 
-      <label for="dt">Tipo documento</label>
+      <label for="dt">Tipo de documento</label>
       <select id="dt" formControlName="document_type">
         <option *ngFor="let d of documentTypes" [value]="d">{{ d }}</option>
       </select>
 
-      <label for="dn">NÃºmero documento</label>
+      <label for="dn">Número de documento</label>
       <input id="dn" type="text" formControlName="document_number" />
 
       <label for="ce">Correo empresa</label>
       <input id="ce" type="email" formControlName="company_email" autocomplete="email" />
 
-      <label for="cp">TelÃ©fono empresa</label>
+      <label for="cp">Teléfono empresa</label>
       <input id="cp" type="tel" formControlName="company_phone" autocomplete="tel" />
 
       <label for="sec">Sector (opcional)</label>
       <input id="sec" type="text" formControlName="sector" />
 
       <div class="actions">
-        <a routerLink="/onboarding/party/access/login">Cancelar</a>
-        <button type="submit" [disabled]="companyForm.invalid">Siguiente</button>
+        <a class="actions__link" routerLink="/onboarding/party/access/login">Cancelar</a>
+        <button type="submit" class="actions__primary" [disabled]="companyForm.invalid">Siguiente</button>
       </div>
     </form>
   </div>
 
-  <div *ngIf="step === 1" class="card">
-    <h2>Representante legal</h2>
-    <form [formGroup]="principalForm" (ngSubmit)="nextFromPrincipal()">
+  <div *ngIf="step === 1" class="panel">
+    <h2 class="panel__title">Representante legal</h2>
+    <p class="panel__subtitle">Persona que firma en nombre de la empresa.</p>
+    <form [formGroup]="principalForm" (ngSubmit)="nextFromPrincipal()" novalidate>
       <label for="pe">Correo</label>
       <input id="pe" type="email" formControlName="email" autocomplete="email" />
 
       <label for="pn">Nombre completo</label>
       <input id="pn" type="text" formControlName="full_name" autocomplete="name" />
 
-      <label for="pp">ContraseÃ±a (mÃ­n. 12)</label>
+      <label for="pp">Contraseña (mín. 12 caracteres)</label>
       <input id="pp" type="password" formControlName="password" autocomplete="new-password" />
 
       <div class="actions">
-        <button type="button" (click)="prev()">AtrÃ¡s</button>
-        <button type="submit" [disabled]="principalForm.invalid">Siguiente</button>
+        <button type="button" class="actions__secondary" (click)="prev()">Atrás</button>
+        <button type="submit" class="actions__primary" [disabled]="principalForm.invalid">Siguiente</button>
       </div>
     </form>
   </div>
 
-  <div *ngIf="step === 2" class="card">
-    <h2>Usuario administrador</h2>
-    <form [formGroup]="adminForm" (ngSubmit)="nextFromAdmin()">
+  <div *ngIf="step === 2" class="panel">
+    <h2 class="panel__title">Usuario administrador</h2>
+    <p class="panel__subtitle">Quién gestionará usuarios y permisos en el portal.</p>
+    <form [formGroup]="adminForm" (ngSubmit)="nextFromAdmin()" novalidate>
       <label for="ae">Correo</label>
       <input id="ae" type="email" formControlName="email" autocomplete="email" />
 
       <label for="an">Nombre completo</label>
       <input id="an" type="text" formControlName="full_name" autocomplete="name" />
 
-      <label for="ap">ContraseÃ±a (mÃ­n. 12)</label>
+      <label for="ap">Contraseña (mín. 12 caracteres)</label>
       <input id="ap" type="password" formControlName="password" autocomplete="new-password" />
 
       <div class="actions">
-        <button type="button" (click)="prev()">AtrÃ¡s</button>
-        <button type="submit" [disabled]="adminForm.invalid">Siguiente</button>
+        <button type="button" class="actions__secondary" (click)="prev()">Atrás</button>
+        <button type="submit" class="actions__primary" [disabled]="adminForm.invalid">Siguiente</button>
       </div>
     </form>
   </div>
 
-  <div *ngIf="step === 3" class="card">
-    <h2>Confirmar registro</h2>
-    <dl>
+  <div *ngIf="step === 3" class="panel">
+    <h2 class="panel__title">Confirmar registro</h2>
+    <p class="panel__subtitle">Revisa los datos antes de enviar.</p>
+    <dl class="summary">
       <dt>Empresa</dt>
-      <dd>{{ companyForm.value.business_name }} â€” {{ companyForm.value.document_type }} {{ companyForm.value.document_number }}</dd>
+      <dd>
+        {{ companyForm.value.business_name }} — {{ companyForm.value.document_type }}
+        {{ companyForm.value.document_number }}
+      </dd>
       <dt>Contacto</dt>
-      <dd>{{ companyForm.value.company_email }} / {{ companyForm.value.company_phone }}</dd>
+      <dd>{{ companyForm.value.company_email }} · {{ companyForm.value.company_phone }}</dd>
       <dt>Principal</dt>
       <dd>{{ principalForm.value.email }}</dd>
-      <dt>Admin</dt>
+      <dt>Administrador</dt>
       <dd>{{ adminForm.value.email }}</dd>
     </dl>
 
-    <label>
+    <label class="confirm-terms">
       <input type="checkbox" [checked]="confirmCorrect" (change)="onConfirmChange($event)" />
-      Confirmo que los datos son correctos
+      <span>Confirmo que los datos son correctos</span>
     </label>
 
     <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
     <p class="error" *ngIf="vm.conflictError()">Si necesitas ayuda, contacta soporte.</p>
 
     <div class="actions">
-      <button type="button" (click)="prev()">AtrÃ¡s</button>
-      <button type="button" (click)="submit()" [disabled]="!confirmCorrect || vm.submitting()">
-        {{ vm.submitting() ? 'Enviandoâ€¦' : 'Registrar empresa' }}
+      <button type="button" class="actions__secondary" (click)="prev()">Atrás</button>
+      <button
+        type="button"
+        class="actions__primary"
+        (click)="submit()"
+        [disabled]="!confirmCorrect || vm.submitting()"
+      >
+        {{ vm.submitting() ? 'Enviando…' : 'Registrar empresa' }}
       </button>
     </div>
   </div>
 </section>
-

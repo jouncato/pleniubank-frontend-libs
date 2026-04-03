@@ -39,6 +39,7 @@ describe('VerifyEnterpriseEmailVm', () => {
           provide: IdentityEnterpriseApiService,
           useValue: {
             verifyEnterpriseEmail: () => of({ data: { ok: true } }),
+            resendEnterpriseEmailOtp: () => of({ data: { status: 'sent' } }),
           },
         },
         {

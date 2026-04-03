@@ -1,7 +1,42 @@
-<h2>Documentación KYB (MVP)</h2>
+<div class="kyb-documents__head">
+  <h2>Verificación empresarial (KYB)</h2>
+  <p class="kyb-documents__lede">
+    Este paso es <strong>recomendado</strong> y <strong>no bloquea</strong> tu acceso al panel: puedes
+    posponerlo y volver cuando tengas la documentación lista.
+  </p>
+  <button type="button" class="kyb-documents__secondary" (click)="goDashboard()">Ir al panel</button>
+</div>
+
+<section class="kyb-documents__local" aria-labelledby="kyb-local-title">
+  <h3 id="kyb-local-title">Borradores en este dispositivo</h3>
+  <p>
+    Los archivos se guardan solo en tu navegador (IndexedDB) para pruebas; el envío al banco se integrará
+    con almacenamiento seguro en una versión posterior.
+  </p>
+  <label class="kyb-documents__file-label">
+    <span>Añadir archivos</span>
+    <input
+      type="file"
+      multiple
+      accept=".pdf,.doc,.docx,image/jpeg,image/png,image/webp"
+      (change)="onLocalFilesSelected($event)"
+    />
+  </label>
+  <p class="kyb-documents__hint">PDF, Word o imagen; máximo 15 MB por archivo.</p>
+  <p class="kyb-documents__error" *ngIf="localFileError()" aria-live="polite">{{ localFileError() }}</p>
+  <ul class="kyb-documents__list" *ngIf="localDocs().length">
+    <li *ngFor="let doc of localDocs()">
+      <span class="kyb-documents__name">{{ doc.fileName }}</span>
+      <span class="kyb-documents__meta">{{ (doc.sizeBytes / 1024) | number : '1.0-0' }} KB · {{ doc.status }}</span>
+      <button type="button" class="kyb-documents__remove" (click)="removeLocalDoc(doc.id)">Quitar</button>
+    </li>
+  </ul>
+</section>
+
+<h3 class="kyb-documents__mvp-title">Envío MVP (Identity)</h3>
 <p>
-  El envío real de archivos llegará en una versión posterior. Por ahora puedes completar el paso con el
-  contrato JSON del servicio Identity (<code>waive_all_mvp</code>).
+  Completa el paso con el contrato JSON del servicio Identity (<code>waive_all_mvp</code>) cuando quieras
+  cerrar el flujo en el entorno actual.
 </p>
 
 <form [formGroup]="form" (ngSubmit)="submit()">

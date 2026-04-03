@@ -5,6 +5,15 @@ import { API_CONFIG } from '../api-config.token';
 import { type CoreDomainEvent, parseCoreWsPayload } from './core-domain-event';
 
 const BACKOFF_MS = [1000, 2000, 4000, 8000, 16000, 30000] as const;
+/** Menor que HEARTBEAT del Core (30s): mantiene tráfico en el bucle `receive_text` y reduce timeouts de proxies. */
+const CLIENT_PING_INTERVAL_MS = 25_000;
+/** Cierres consecutivos muy breves antes de entrar en pausa larga (evita martilleo al Core / logs). */
+const RAPID_CLOSE_MS = 4000;
+const RAPID_CLOSE_LIMIT = 10;
+const FLAP_COOLDOWN_MS = 45_000;
+
+const WS_CONNECTING = 0;
+const WS_OPEN = 1;
 
 export type CoreWsAuthMode = 'bearer' | 'cookie';
 
@@ -17,7 +26,8 @@ export type CoreWsConnectionState =
 
 /**
  * Cliente WebSocket hacia Core `/ws/events` con `?token=` o cookie HttpOnly (mismo sitio).
- * Reconexión con backoff; resync tras reconectar; polling fallback en detalle tras fallos WS.
+ * Reconexión con backoff; sin reconexión ante cierre intencional (auth_change) ni errores de token;
+ * anti-flapping; ping periódico hacia el servidor.
  */
 @Injectable({ providedIn: 'root' })
 export class CoreWebSocketEventsService {
@@ -39,12 +49,18 @@ export class CoreWebSocketEventsService {
 
   private ws: WebSocket | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+  private cooldownTimer: ReturnType<typeof setTimeout> | undefined;
+  private pingTimer: ReturnType<typeof setInterval> | undefined;
   private manualStop = false;
   private connectAttempt = 0;
   private failureStreak = 0;
   private authMode: CoreWsAuthMode | null = null;
   private bearerToken: string | null = null;
   private readonly _hadConnected = signal(false);
+  /** Marca de tiempo del último `onopen` (para detectar sesiones que caen al instante). */
+  private lastOpenAtMs: number | null = null;
+  private rapidCloseCount = 0;
+
   /** Último `occurred_at` de evento de negocio (para resync al reconectar). */
   private lastDomainEventIso: string | null = null;
 
@@ -55,11 +71,22 @@ export class CoreWebSocketEventsService {
       this.disconnect();
       return;
     }
-    if (this.authMode === 'bearer' && this.bearerToken === token && this.ws?.readyState === WebSocket.OPEN) {
-      return;
+
+    const sameToken = this.authMode === 'bearer' && this.bearerToken === token;
+    if (sameToken && this.ws != null) {
+      const rs = this.ws.readyState;
+      if (rs === WS_OPEN || rs === WS_CONNECTING) {
+        return;
+      }
     }
+
+    if (this.bearerToken !== token) {
+      this.rapidCloseCount = 0;
+    }
+
     this.manualStop = false;
     this._clearReconnectTimer();
+    this._clearCooldownTimer();
     if (this.ws) {
       this.ws.close(1000, 'auth_change');
       this.ws = null;
@@ -71,11 +98,16 @@ export class CoreWebSocketEventsService {
 
   /** Conexión sin query; el navegador envía la cookie de acceso si es same-site con Core. */
   connectCookieAuth(): void {
-    if (this.authMode === 'cookie' && this.ws?.readyState === WebSocket.OPEN) {
-      return;
+    if (this.authMode === 'cookie' && this.ws != null) {
+      const rs = this.ws.readyState;
+      if (rs === WS_OPEN || rs === WS_CONNECTING) {
+        return;
+      }
     }
+
     this.manualStop = false;
     this._clearReconnectTimer();
+    this._clearCooldownTimer();
     if (this.ws) {
       this.ws.close(1000, 'auth_change');
       this.ws = null;
@@ -90,8 +122,12 @@ export class CoreWebSocketEventsService {
     this.authMode = null;
     this.bearerToken = null;
     this._clearReconnectTimer();
+    this._clearCooldownTimer();
+    this._clearPingTimer();
     this.failureStreak = 0;
     this.connectAttempt = 0;
+    this.rapidCloseCount = 0;
+    this.lastOpenAtMs = null;
     if (this.ws) {
       this.ws.close(1000, 'client_disconnect');
       this.ws = null;
@@ -106,6 +142,20 @@ export class CoreWebSocketEventsService {
     if (this.reconnectTimer !== undefined) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = undefined;
+    }
+  }
+
+  private _clearCooldownTimer(): void {
+    if (this.cooldownTimer !== undefined) {
+      clearTimeout(this.cooldownTimer);
+      this.cooldownTimer = undefined;
+    }
+  }
+
+  private _clearPingTimer(): void {
+    if (this.pingTimer !== undefined) {
+      clearInterval(this.pingTimer);
+      this.pingTimer = undefined;
     }
   }
 
@@ -152,6 +202,26 @@ export class CoreWebSocketEventsService {
     }
   }
 
+  private _startClientPing(socket: WebSocket): void {
+    this._clearPingTimer();
+    this.pingTimer = setInterval(() => {
+      try {
+        if (socket.readyState === WS_OPEN) {
+          socket.send(JSON.stringify({ type: 'ping' }));
+        }
+      } catch {
+        /* ignore */
+      }
+    }, CLIENT_PING_INTERVAL_MS);
+  }
+
+  private _scheduleReconnect(): void {
+    const idx = Math.min(this.connectAttempt, BACKOFF_MS.length - 1);
+    const delay = BACKOFF_MS[idx];
+    this.connectAttempt++;
+    this.reconnectTimer = setTimeout(() => this._openSocket(), delay);
+  }
+
   private _openSocket(): void {
     if (this.manualStop || this.authMode === null) {
       return;
@@ -172,6 +242,8 @@ export class CoreWebSocketEventsService {
         this._pollingFallback.set(false);
         this._hadConnected.set(true);
         this._connectionState.set('connected');
+        this.lastOpenAtMs = Date.now();
+        this._startClientPing(socket);
         this._sendResync(socket);
       };
 
@@ -190,21 +262,58 @@ export class CoreWebSocketEventsService {
         /* onclose gestiona reconexión */
       };
 
-      socket.onclose = () => {
+      socket.onclose = (ev: CloseEvent) => {
+        this._clearPingTimer();
         this.ws = null;
+        const openedAt = this.lastOpenAtMs;
+        this.lastOpenAtMs = null;
+
         if (this.manualStop) {
           this._connectionState.set('disconnected');
           return;
         }
+
+        // Cierre por sustitución de socket en connectBearer / connectCookieAuth: no duplicar reconexiones.
+        if (ev.code === 1000 && ev.reason === 'auth_change') {
+          return;
+        }
+
+        // Token inválido / política: reintentar con el mismo JWT no ayuda; esperar nuevo login o refresh.
+        if (ev.code === 4401 || ev.code === 4403) {
+          this._connectionState.set('disconnected');
+          this.rapidCloseCount = 0;
+          return;
+        }
+
+        const now = Date.now();
+        const brief = openedAt != null && now - openedAt < RAPID_CLOSE_MS;
+        if (brief) {
+          this.rapidCloseCount++;
+        } else {
+          this.rapidCloseCount = 0;
+        }
+
         this.failureStreak++;
         if (this.failureStreak >= 3) {
           this._pollingFallback.set(true);
         }
+
+        if (this.rapidCloseCount >= RAPID_CLOSE_LIMIT) {
+          this.rapidCloseCount = 0;
+          this.connectAttempt = 0;
+          this._connectionState.set('disconnected');
+          this._clearCooldownTimer();
+          this.cooldownTimer = setTimeout(() => {
+            this.cooldownTimer = undefined;
+            if (!this.manualStop && this.authMode !== null) {
+              this._openSocket();
+            }
+          }, FLAP_COOLDOWN_MS);
+          return;
+        }
+
         this._connectionState.set('reconnecting');
-        const idx = Math.min(this.connectAttempt, BACKOFF_MS.length - 1);
-        const delay = BACKOFF_MS[idx];
-        this.connectAttempt++;
-        this.reconnectTimer = setTimeout(() => this._openSocket(), delay);
+        this._scheduleReconnect();
       };
     } catch {
       this._connectionState.set('reconnecting');
@@ -212,9 +321,7 @@ export class CoreWebSocketEventsService {
       if (this.failureStreak >= 3) {
         this._pollingFallback.set(true);
       }
-      const idx = Math.min(this.connectAttempt, BACKOFF_MS.length - 1);
-      this.connectAttempt++;
-      this.reconnectTimer = setTimeout(() => this._openSocket(), BACKOFF_MS[idx]);
+      this._scheduleReconnect();
     }
   }
 }

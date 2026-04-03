@@ -13,7 +13,8 @@
 
 .auth-card {
   width: 100%;
-  max-width: 420px;
+  /* Formularios simples ~420px; wizard empresa necesita más aire sin salir del glass card */
+  max-width: min(40rem, calc(100vw - 2rem));
   color: #ffffff;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);

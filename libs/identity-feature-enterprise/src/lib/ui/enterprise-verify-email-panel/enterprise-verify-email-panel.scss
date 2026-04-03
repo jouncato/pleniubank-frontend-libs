@@ -1,3 +1,140 @@
+.verify-enterprise-email {
+  display: block;
+}
+
+.verify-enterprise-email h2 {
+  margin: 0 0 var(--pb-space-8, 0.5rem);
+  font-size: var(--pb-font-size-h2, 18px);
+  font-weight: var(--pb-font-weight-semibold, 600);
+  color: var(--pb-text, #111827);
+}
+
+.lede {
+  margin: 0 0 var(--pb-space-16, 1rem);
+  font-size: var(--pb-font-size-sm, 0.875rem);
+  line-height: 1.45;
+  color: var(--pb-gray-600, #4b5563);
+}
+
+.verify-enterprise-email label {
+  display: block;
+  margin-bottom: var(--pb-space-4, 4px);
+  font-size: var(--pb-font-size-sm, 0.875rem);
+  font-weight: var(--pb-font-weight-semibold, 600);
+  color: var(--pb-gray-800, #1f2937);
+}
+
+.verify-enterprise-email input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 42px;
+  padding: 0 var(--pb-space-12, 0.75rem);
+  margin-bottom: var(--pb-space-8, 0.5rem);
+  border: 1px solid var(--pb-border, #d0d5dd);
+  border-radius: var(--pb-radius-sm, 8px);
+  background: var(--pb-white, #ffffff);
+  color: var(--pb-gray-900, #111827);
+  font-size: var(--pb-font-size-body, 1rem);
+}
+
+.verify-enterprise-email button {
+  margin-top: var(--pb-space-8, 0.5rem);
+  min-height: 42px;
+  padding: 0 var(--pb-space-16, 1rem);
+  border: 0;
+  border-radius: var(--pb-radius-sm, 8px);
+  background: var(--pb-color-primary, #0272de);
+  color: var(--pb-white, #ffffff);
+  font-weight: var(--pb-font-weight-semibold, 600);
+  cursor: pointer;
+}
+
+.verify-enterprise-email button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .error {
-  color: #b00020;
+  margin: 0;
+  color: var(--pb-status-error, #f91c50);
+  font-size: var(--pb-font-size-sm, 0.875rem);
+}
+
+.resend-info {
+  margin: 0 0 var(--pb-space-8, 0.5rem);
+  color: var(--pb-gray-700, #374151);
+  font-size: var(--pb-font-size-sm, 0.875rem);
+}
+
+.resend-row {
+  margin: var(--pb-space-12, 0.75rem) 0 0;
+}
+
+.link-resend {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  min-height: auto;
+  border: 0;
+  background: none;
+  color: var(--pb-color-primary, #0272de);
+  font-size: var(--pb-font-size-sm, 0.875rem);
+  font-weight: var(--pb-font-weight-semibold, 600);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link-resend:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.footer-link {
+  margin-top: var(--pb-space-16, 1rem);
+  font-size: var(--pb-font-size-sm, 0.875rem);
+}
+
+.footer-link a {
+  color: var(--pb-color-primary, #0272de);
+  font-weight: var(--pb-font-weight-semibold, 600);
+}
+
+/* Mismo shell de onboarding que el wizard empresa */
+:host-context(.auth-shell) .verify-enterprise-email h2 {
+  color: #ffffff;
+}
+
+:host-context(.auth-shell) .lede {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:host-context(.auth-shell) .verify-enterprise-email label {
+  color: #ffffff;
+}
+
+:host-context(.auth-shell) .error {
+  color: var(--pb-onboarding-error, #fecaca);
+}
+
+:host-context(.auth-shell) .resend-info {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+:host-context(.auth-shell) .link-resend {
+  color: #ffffff;
+}
+
+:host-context(.auth-shell) .verify-enterprise-email button {
+  background: #ffffff;
+  color: var(--pb-color-primary, #0272de);
+}
+
+:host-context(.auth-shell) .verify-enterprise-email button.link-resend {
+  background: none;
+  color: #ffffff;
+}
+
+:host-context(.auth-shell) .footer-link a {
+  color: #ffffff;
 }

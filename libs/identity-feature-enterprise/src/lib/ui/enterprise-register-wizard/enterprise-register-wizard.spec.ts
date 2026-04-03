@@ -36,7 +36,7 @@ describe('EnterpriseRegisterWizard (a11y smoke)', () => {
   });
 
   it('marca el primer paso del stepper con aria-current', () => {
-    const steps = fixture.nativeElement.querySelectorAll('.steps li');
+    const steps = fixture.nativeElement.querySelectorAll('.steps__item');
     expect(steps.length).toBe(4);
     expect(steps[0].getAttribute('aria-current')).toBe('step');
     expect(steps[1].getAttribute('aria-current')).toBeNull();

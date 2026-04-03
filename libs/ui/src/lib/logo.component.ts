@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { NgIf, NgClass, NgOptimizedImage } from '@angular/common';
+import { NgIf, NgClass } from '@angular/common';
 import { BRAND_ASSETS } from './brand-assets';
 
 type LogoVariant = 'color' | 'white' | 'auto';
@@ -8,25 +8,25 @@ type LogoSize = 'sm' | 'md' | 'lg';
 @Component({
   selector: 'pb-logo',
   standalone: true,
-  imports: [NgIf, NgClass, NgOptimizedImage],
+  imports: [NgIf, NgClass],
   template: `
     <a *ngIf="clickable" [href]="href" class="pb-logo" [ngClass]="size" aria-label="Pleniu Bank">
       <img
-        [ngSrc]="resolvedSrc"
+        [src]="resolvedSrc"
         [width]="imgWidth"
         [height]="imgHeight"
         [alt]="alt"
-        [priority]="loading === 'eager'"
+        [attr.loading]="loading"
         decoding="async"
       />
     </a>
     <span *ngIf="!clickable" class="pb-logo" [ngClass]="size">
       <img
-        [ngSrc]="resolvedSrc"
+        [src]="resolvedSrc"
         [width]="imgWidth"
         [height]="imgHeight"
         [alt]="alt"
-        [priority]="loading === 'eager'"
+        [attr.loading]="loading"
         decoding="async"
       />
     </span>
@@ -72,15 +72,15 @@ export class PbLogoComponent {
     return this.onDark ? BRAND_ASSETS.logoWhite : BRAND_ASSETS.logoColor;
   }
 
-  /** Dimensiones de layout alineadas a max-height por tamaño (evita NG0913). */
+  /** Dimensiones de layout (relación de aspecto ~1.83 del PNG de marca). max-height en CSS acota la vista. */
   get imgWidth(): number {
     switch (this.size) {
       case 'sm':
-        return 96;
+        return 44;
       case 'lg':
-        return 140;
+        return 59;
       default:
-        return 120;
+        return 51;
     }
   }
 

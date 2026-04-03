@@ -6,12 +6,62 @@ import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
 
 export type EnterpriseEmailRole = 'principal' | 'admin';
 
+function verifyEnterpriseEmailUserMessage(status: number, raw: string): string {
+  if (status === 404) {
+    return 'Proceso expirado, reinicia el registro empresa.';
+  }
+  const key = raw.trim();
+  const known: Record<string, string> = {
+    'Invalid verification code': 'Código incorrecto.',
+    'Verification code expired':
+      'El código expiró. Puedes solicitar uno nuevo con «Reenviar código».',
+    'Verification temporarily locked due to repeated failed attempts':
+      'Demasiados intentos incorrectos. Espera unos minutos o solicita un nuevo código.',
+    'No pending verification challenge':
+      'No hay un código pendiente. Pulsa «Reenviar código» para recibir uno nuevo.',
+    'Invalid user for enterprise email verification': 'Este paso no aplica a tu usuario. Reinicia el registro.',
+  };
+  if (known[key]) {
+    return known[key];
+  }
+  if (key.length > 0) {
+    return key;
+  }
+  return 'No se pudo verificar el código. Revisa e intenta de nuevo.';
+}
+
+function resendEnterpriseOtpUserMessage(status: number, raw: string): string {
+  if (status === 404) {
+    return 'Proceso expirado, reinicia el registro empresa.';
+  }
+  if (status === 429) {
+    return raw.trim().length > 0 ? raw.trim() : 'Espera unos segundos antes de volver a pedir el código.';
+  }
+  if (status === 409) {
+    return 'Este correo ya está verificado. Continúa con el inicio de sesión.';
+  }
+  const known: Record<string, string> = {
+    'Email OTP is disabled on this server': 'Verificación por correo no disponible en este entorno.',
+    'Invalid user for enterprise email verification': 'No se puede reenviar el código para este usuario.',
+  };
+  const key = raw.trim();
+  if (known[key]) {
+    return known[key];
+  }
+  if (key.length > 0) {
+    return key;
+  }
+  return 'No se pudo reenviar el código. Intenta de nuevo.';
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class VerifyEnterpriseEmailVm {
   readonly state = signal<'idle' | 'submitting' | 'error' | 'expired'>('idle');
   readonly errorMessage = signal<string | null>(null);
+  readonly resendSubmitting = signal(false);
+  readonly resendInfo = signal<string | null>(null);
 
   constructor(
     private readonly api: IdentityEnterpriseApiService,
@@ -39,6 +89,44 @@ export class VerifyEnterpriseEmailVm {
     return `${u}@${domain}`;
   }
 
+  resendCode(): void {
+    if (this.resendSubmitting() || this.state() === 'submitting') {
+      return;
+    }
+    const s = this.onboarding.state();
+    const role = this.getRole();
+    const userId = role === 'principal' ? s?.principalUserId : s?.adminUserId;
+    if (!userId) {
+      this.state.set('expired');
+      this.errorMessage.set('Proceso expirado, reinicia el registro empresa.');
+      this.resendInfo.set(null);
+      return;
+    }
+
+    this.resendSubmitting.set(true);
+    this.resendInfo.set(null);
+    this.errorMessage.set(null);
+
+    this.api.resendEnterpriseEmailOtp({ user_id: userId }).subscribe({
+      next: () => {
+        this.resendSubmitting.set(false);
+        this.state.set('idle');
+        this.errorMessage.set(null);
+        this.resendInfo.set('Te enviamos un nuevo código a tu correo.');
+      },
+      error: (err: unknown) => {
+        this.resendSubmitting.set(false);
+        const mapped = mapHttpError(err);
+        if (mapped.status === 404) {
+          this.state.set('expired');
+          this.errorMessage.set('Proceso expirado, reinicia el registro empresa.');
+          return;
+        }
+        this.errorMessage.set(resendEnterpriseOtpUserMessage(mapped.status, mapped.errors[0]?.message ?? ''));
+      },
+    });
+  }
+
   submit(code: string): void {
     if (this.state() === 'submitting') {
       return;
@@ -54,6 +142,7 @@ export class VerifyEnterpriseEmailVm {
 
     this.state.set('submitting');
     this.errorMessage.set(null);
+    this.resendInfo.set(null);
 
     this.api.verifyEnterpriseEmail({ user_id: userId, code }).subscribe({
       next: () => {
@@ -70,12 +159,9 @@ export class VerifyEnterpriseEmailVm {
         const mapped = mapHttpError(err);
         this.state.set(mapped.status === 404 ? 'expired' : 'error');
         this.errorMessage.set(
-          mapped.status === 404
-            ? 'Proceso expirado, reinicia el registro empresa.'
-            : 'Código inválido.',
+          verifyEnterpriseEmailUserMessage(mapped.status, mapped.errors[0]?.message ?? ''),
         );
       },
     });
   }
 }
-

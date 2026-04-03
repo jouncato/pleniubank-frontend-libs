@@ -9,7 +9,7 @@ export interface PostLoginCustomerPortalConfig {
   allowCrossOriginTokenHandoff: boolean;
   /** Path en el customer tras login B2C (p. ej. /app/dashboard). */
   b2cPath: string;
-  /** Path en el customer tras login B2B (p. ej. /app/accounts). */
+  /** Path en el customer tras login B2B (p. ej. /app/dashboard). */
   b2bPath: string;
 }
 
@@ -21,7 +21,7 @@ export const POST_LOGIN_CUSTOMER_PORTAL = new InjectionToken<PostLoginCustomerPo
       customerPortalOrigin: '',
       allowCrossOriginTokenHandoff: false,
       b2cPath: '/app/dashboard',
-      b2bPath: '/app/accounts',
+      b2bPath: '/app/dashboard',
     }),
   },
 );

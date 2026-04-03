@@ -68,7 +68,7 @@ export class OtpChallenge implements AfterViewInit, OnDestroy {
 
   get submitting(): boolean {
     return this.channel === 'phone'
-      ? this.verifyPhoneVm.state === 'submitting'
+      ? this.verifyPhoneVm.state === 'submitting' || this.verifyPhoneVm.state === 'resending'
       : this.verifyEmailVm.state() === 'submitting';
   }
 
@@ -95,6 +95,23 @@ export class OtpChallenge implements AfterViewInit, OnDestroy {
     return this.channel === 'email' ? this.verifyEmailVm.resendSecondsLeft() : 0;
   }
 
+  get resendPhoneBusy(): boolean {
+    return this.channel === 'phone' && this.verifyPhoneVm.state === 'resending';
+  }
+
+  get resendPhoneDisabled(): boolean {
+    if (this.channel !== 'phone') return true;
+    return (
+      this.verifyPhoneVm.state === 'resending' ||
+      this.verifyPhoneVm.resendSecondsLeft > 0 ||
+      this.verifyPhoneVm.state === 'submitting'
+    );
+  }
+
+  get resendPhoneSecondsLeft(): number {
+    return this.channel === 'phone' ? this.verifyPhoneVm.resendSecondsLeft : 0;
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -111,6 +128,11 @@ export class OtpChallenge implements AfterViewInit, OnDestroy {
   resendEmailOtp(): void {
     if (this.channel !== 'email') return;
     this.verifyEmailVm.resendEmail();
+  }
+
+  resendPhoneOtp(): void {
+    if (this.channel !== 'phone') return;
+    this.verifyPhoneVm.resendSms();
   }
 
   private bindWebOtp(): void {

@@ -178,7 +178,7 @@ export class LoginVm {
 
   /**
    * Portal público con `customerPortalOrigin`: salto al customer (handoff dev si aplica).
-   * Sin origen externo en público: B2B evita `/app/accounts` (no existe en :4200).
+   * Sin origen externo en público: B2B usa el mismo destino por defecto que en customer (`/app/dashboard`).
    */
   private navigateAfterSuccessfulValidate(
     claims: { enterprise_id?: string | null },
@@ -207,15 +207,7 @@ export class LoginVm {
       return;
     }
 
-    let route =
-      role === 'admin'
-        ? '/admin/dashboard'
-        : claims.enterprise_id
-          ? '/app/accounts'
-          : '/app/dashboard';
-    if (this.portal === 'public' && !externalBase && claims.enterprise_id) {
-      route = '/app/dashboard';
-    }
+    const route = role === 'admin' ? '/admin/dashboard' : '/app/dashboard';
     void this.router.navigateByUrl(safeReturnUrl ?? route);
   }
 

@@ -14,7 +14,7 @@
 
   <p class="error" *ngIf="errorMessage as error" aria-live="polite">{{ error }}</p>
 
-  <button type="submit" [disabled]="form.invalid || submitting || resendEmailBusy">
+  <button type="submit" [disabled]="form.invalid || submitting || resendEmailBusy || resendPhoneBusy">
     {{ submitting ? 'Verificando...' : 'Verificar' }}
   </button>
 </form>
@@ -27,6 +27,18 @@
         : resendEmailSecondsLeft > 0
           ? 'Reenviar en ' + resendEmailSecondsLeft + ' s'
           : 'Reenviar código por correo'
+    }}
+  </button>
+</div>
+
+<div *ngIf="channel === 'phone'" class="resend">
+  <button type="button" (click)="resendPhoneOtp()" [disabled]="resendPhoneDisabled">
+    {{
+      resendPhoneBusy
+        ? 'Enviando...'
+        : resendPhoneSecondsLeft > 0
+          ? 'Reenviar en ' + resendPhoneSecondsLeft + ' s'
+          : 'Reenviar código por SMS'
     }}
   </button>
 </div>

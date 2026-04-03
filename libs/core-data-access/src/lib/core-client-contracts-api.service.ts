@@ -3,13 +3,15 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
-import type { ClientContractDto, CompanyCodeOptionDto } from './core-types';
+import type { ClientContractDto, ClientContractPatchRequest, CompanyCodeOptionDto } from './core-types';
 
 export interface ListClientContractsParams {
   company_code: string;
   customer_id?: string | null;
   cursor?: string | null;
   limit?: number;
+  include_terminated?: boolean;
+  status?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -34,6 +36,12 @@ export class CoreClientContractsApiService {
     if (params.limit != null) {
       hp = hp.set('limit', String(params.limit));
     }
+    if (params.include_terminated) {
+      hp = hp.set('include_terminated', 'true');
+    }
+    if (params.status) {
+      hp = hp.set('status', params.status);
+    }
     return this.http.get<ApiEnvelope<ClientContractDto[]>>(this.base, { params: hp });
   }
 
@@ -43,5 +51,9 @@ export class CoreClientContractsApiService {
 
   listAllowedCompanyCodes(): Observable<ApiEnvelope<CompanyCodeOptionDto[]>> {
     return this.http.get<ApiEnvelope<CompanyCodeOptionDto[]>>(`${this.base}/company-codes`);
+  }
+
+  patch(contractId: string, body: ClientContractPatchRequest): Observable<ApiEnvelope<ClientContractDto>> {
+    return this.http.patch<ApiEnvelope<ClientContractDto>>(`${this.base}/${contractId}`, body);
   }
 }

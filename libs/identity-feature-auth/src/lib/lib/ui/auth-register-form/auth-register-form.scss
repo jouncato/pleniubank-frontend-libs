@@ -101,3 +101,16 @@ button:disabled {
 :host a:hover {
   color: rgba(255, 255, 255, 0.88);
 }
+
+.register-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: var(--pb-space-16);
+  font-size: var(--pb-font-size-sm);
+}
+
+.register-footer__sep {
+  opacity: 0.7;
+}

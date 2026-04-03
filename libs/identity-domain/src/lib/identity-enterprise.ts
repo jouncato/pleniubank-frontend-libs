@@ -46,6 +46,14 @@ export interface VerifyEnterpriseEmailResponse {
   is_active: boolean;
 }
 
+export interface ResendEnterpriseEmailOtpRequest {
+  user_id: string;
+}
+
+export interface ResendEnterpriseEmailOtpResponse {
+  status: string;
+}
+
 export interface KybDocumentsRequest {
   references?: Record<string, unknown>;
   waive_all_mvp?: boolean;
@@ -55,6 +63,16 @@ export interface KybDocumentsResponse {
   enterprise_id: string;
   enterprise_status: string;
   stages: Record<string, unknown>[];
+}
+
+/** GET /api/v1/enterprise/me/summary (cuerpo plano). */
+export interface EnterpriseMeSummaryResponse {
+  enterprise_id: string;
+  enterprise_name: string;
+  enterprise_status: string;
+  kyb_complete: boolean;
+  /** Prestadora de nómina (Identity); habilita anticipo en Core. */
+  is_payroll_provider?: boolean;
 }
 
 export interface InviteUserRequest {
@@ -117,6 +135,7 @@ export interface CreateSubEnterpriseResponse {
 
 export type RegisterEnterpriseEnvelope = ApiEnvelope<RegisterEnterpriseResponse>;
 export type VerifyEnterpriseEmailEnvelope = ApiEnvelope<VerifyEnterpriseEmailResponse>;
+export type ResendEnterpriseEmailOtpEnvelope = ApiEnvelope<ResendEnterpriseEmailOtpResponse>;
 export type KybDocumentsEnvelope = ApiEnvelope<KybDocumentsResponse>;
 export type InviteUserEnvelope = ApiEnvelope<InviteUserResponse>;
 export type AcceptInviteEnvelope = ApiEnvelope<AcceptInviteResponse>;
