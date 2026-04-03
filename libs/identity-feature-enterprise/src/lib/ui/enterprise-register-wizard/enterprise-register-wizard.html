@@ -48,8 +48,17 @@
       <label for="cp">Teléfono empresa</label>
       <input id="cp" type="tel" formControlName="company_phone" autocomplete="tel" />
 
-      <label for="sec">Sector (opcional)</label>
-      <input id="sec" type="text" formControlName="sector" />
+      <label for="sec">Sector económico</label>
+      <ng-container *ngIf="!sectorsError(); else sectorErrTpl">
+        <select id="sec" formControlName="economic_sector_id">
+          <option value="" disabled>Selecciona un sector</option>
+          <option *ngFor="let s of sectors()" [value]="s.sector_id">{{ s.label_es }}</option>
+        </select>
+      </ng-container>
+      <ng-template #sectorErrTpl>
+        <p class="error" role="alert">{{ sectorsError() }}</p>
+        <button type="button" class="actions__secondary" (click)="loadSectors()">Reintentar</button>
+      </ng-template>
 
       <div class="actions">
         <a class="actions__link" routerLink="/onboarding/party/access/login">Cancelar</a>
@@ -109,6 +118,8 @@
       </dd>
       <dt>Contacto</dt>
       <dd>{{ companyForm.value.company_email }} · {{ companyForm.value.company_phone }}</dd>
+      <dt>Sector</dt>
+      <dd>{{ selectedSectorLabel() || '—' }}</dd>
       <dt>Principal</dt>
       <dd>{{ principalForm.value.email }}</dd>
       <dt>Administrador</dt>

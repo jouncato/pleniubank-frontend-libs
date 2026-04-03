@@ -6,11 +6,15 @@ import {
   AdminCreateEnterpriseEnvelope,
   AdminCreateEnterpriseResponse,
   AdminCreateEnterpriseRequest,
+  AdminEconomicSectorDto,
+  AdminEconomicSectorEnvelope,
+  AdminEconomicSectorsListEnvelope,
   AdminEnterpriseDetailDto,
   AdminEnterpriseDetailEnvelope,
   AdminEnterpriseSummaryDto,
   AdminEnterprisesListEnvelope,
   AdminEnterprisesListParams,
+  AdminPatchEconomicSectorRequest,
   AdminPatchEnterpriseKybRequest,
   AdminCreateUserEnvelope,
   AdminCreateUserResponse,
@@ -111,6 +115,26 @@ export class IdentityAdminApiService {
       .pipe(map((raw) => this.asEnvelope(raw)));
   }
 
+  listAdminEconomicSectors(): Observable<AdminEconomicSectorsListEnvelope> {
+    return this.http
+      .get<AdminEconomicSectorsListEnvelope | { data?: AdminEconomicSectorDto[] }>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/admin/economic-sectors`,
+      )
+      .pipe(map((raw) => this.asEconomicSectorsEnvelope(raw)));
+  }
+
+  patchAdminEconomicSector(
+    sectorId: string,
+    payload: AdminPatchEconomicSectorRequest,
+  ): Observable<AdminEconomicSectorEnvelope> {
+    return this.http
+      .patch<AdminEconomicSectorEnvelope | AdminEconomicSectorDto>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/admin/economic-sectors/${encodeURIComponent(sectorId)}`,
+        payload,
+      )
+      .pipe(map((raw) => this.asEnvelope(raw)));
+  }
+
   private buildAdminUsersQueryParams(params: AdminUsersListParams): HttpParams {
     return this.toHttpParams({
       email: params.email,
@@ -186,6 +210,15 @@ export class IdentityAdminApiService {
       return payload;
     }
     return { data: payload };
+  }
+
+  private asEconomicSectorsEnvelope(
+    payload: AdminEconomicSectorsListEnvelope | { data?: AdminEconomicSectorDto[] },
+  ): AdminEconomicSectorsListEnvelope {
+    if (this.isEnvelope(payload)) {
+      return payload as AdminEconomicSectorsListEnvelope;
+    }
+    return { data: payload?.data ?? [] };
   }
 
   private isEnvelope<T>(value: unknown): value is ApiEnvelope<T> {

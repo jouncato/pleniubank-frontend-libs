@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { EnterpriseDocumentType } from 'identity-domain';
+import { EconomicSectorPublicDto, EnterpriseDocumentType } from 'identity-domain';
+import { IdentityEnterpriseApiService } from 'identity-data-access';
 import { EnterpriseOnboardingStore } from '../../enterprise-onboarding.store';
 import { RegisterEnterpriseVm } from '../../vm/register-enterprise';
 
@@ -12,12 +13,15 @@ import { RegisterEnterpriseVm } from '../../vm/register-enterprise';
   templateUrl: './enterprise-register-wizard.html',
   styleUrl: './enterprise-register-wizard.scss',
 })
-export class EnterpriseRegisterWizard {
+export class EnterpriseRegisterWizard implements OnInit {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(RegisterEnterpriseVm);
   private readonly onboarding = inject(EnterpriseOnboardingStore);
+  private readonly enterpriseApi = inject(IdentityEnterpriseApiService);
 
   readonly documentTypes: EnterpriseDocumentType[] = ['NIT', 'CC', 'CE', 'PP', 'TI'];
+  readonly sectors = signal<EconomicSectorPublicDto[]>([]);
+  readonly sectorsError = signal<string | null>(null);
 
   readonly companyForm = this.fb.nonNullable.group({
     business_name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
@@ -25,7 +29,7 @@ export class EnterpriseRegisterWizard {
     document_number: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(32)]],
     company_email: ['', [Validators.required, Validators.email]],
     company_phone: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(64)]],
-    sector: [''],
+    economic_sector_id: ['', Validators.required],
   });
 
   readonly principalForm = this.fb.nonNullable.group({
@@ -56,7 +60,7 @@ export class EnterpriseRegisterWizard {
         document_number: s.company.document_number,
         company_email: s.company.company_email,
         company_phone: s.company.company_phone,
-        sector: s.company.sector,
+        economic_sector_id: s.company.economic_sector_id ?? '',
       });
       this.principalForm.patchValue({
         email: s.principalEmail,
@@ -71,8 +75,26 @@ export class EnterpriseRegisterWizard {
     }
   }
 
+  ngOnInit(): void {
+    this.loadSectors();
+  }
+
+  loadSectors(): void {
+    this.sectorsError.set(null);
+    this.enterpriseApi.listPublicEconomicSectors().subscribe({
+      next: (env) => this.sectors.set(env.data ?? []),
+      error: () => this.sectorsError.set('No se pudo cargar el catálogo de sectores.'),
+    });
+  }
+
   get step(): number {
     return this.vm.currentStep();
+  }
+
+  selectedSectorLabel(): string {
+    const id = this.companyForm.getRawValue().economic_sector_id;
+    const row = this.sectors().find((x) => x.sector_id === id);
+    return row?.label_es ?? '';
   }
 
   nextFromCompany(): void {
@@ -81,6 +103,7 @@ export class EnterpriseRegisterWizard {
       return;
     }
     const v = this.companyForm.getRawValue();
+    const selected = this.sectors().find((x) => x.sector_id === v.economic_sector_id);
     this.onboarding.patch({
       wizardStep: 1,
       company: {
@@ -89,7 +112,8 @@ export class EnterpriseRegisterWizard {
         document_number: v.document_number,
         company_email: v.company_email,
         company_phone: v.company_phone,
-        sector: v.sector ?? '',
+        economic_sector_id: v.economic_sector_id,
+        sector: selected?.label_es ?? '',
       },
     });
     this.vm.next();

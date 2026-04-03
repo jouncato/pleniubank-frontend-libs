@@ -3,7 +3,12 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
-import type { ClientContractDto, ClientContractPatchRequest, CompanyCodeOptionDto } from './core-types';
+import type {
+  ClientContractCreateRequest,
+  ClientContractDto,
+  ClientContractPatchRequest,
+  CompanyCodeOptionDto,
+} from './core-types';
 
 export interface ListClientContractsParams {
   company_code: string;
@@ -55,5 +60,9 @@ export class CoreClientContractsApiService {
 
   patch(contractId: string, body: ClientContractPatchRequest): Observable<ApiEnvelope<ClientContractDto>> {
     return this.http.patch<ApiEnvelope<ClientContractDto>>(`${this.base}/${contractId}`, body);
+  }
+
+  create(body: ClientContractCreateRequest): Observable<ApiEnvelope<ClientContractDto>> {
+    return this.http.post<ApiEnvelope<ClientContractDto>>(this.base, body);
   }
 }

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { SessionStore } from 'shared-auth';
 import {
   kybLocalAddDoc,
@@ -14,14 +14,13 @@ import { KybSubmitVm } from '../../vm/kyb-submit';
 
 @Component({
   selector: 'lib-kyb-documents-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './kyb-documents-form.html',
   styleUrl: './kyb-documents-form.scss',
 })
 export class KybDocumentsForm implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly session = inject(SessionStore);
-  private readonly router = inject(Router);
   protected readonly vm = inject(KybSubmitVm);
 
   readonly localDocs = signal<KybLocalDocumentRecord[]>([]);
@@ -34,10 +33,6 @@ export class KybDocumentsForm implements OnInit {
 
   ngOnInit(): void {
     void this.refreshLocalDocs();
-  }
-
-  goDashboard(): void {
-    void this.router.navigateByUrl('/app/dashboard');
   }
 
   async onLocalFilesSelected(ev: Event): Promise<void> {
@@ -90,10 +85,13 @@ export class KybDocumentsForm implements OnInit {
       if (typeof p === 'object' && p !== null && !Array.isArray(p)) {
         references = p as Record<string, unknown>;
       } else {
+        this.form.controls.referencesJson.setErrors({ json: true });
+        this.form.controls.referencesJson.markAsTouched();
         return;
       }
     } catch {
       this.form.controls.referencesJson.setErrors({ json: true });
+      this.form.controls.referencesJson.markAsTouched();
       return;
     }
     this.vm.submit({

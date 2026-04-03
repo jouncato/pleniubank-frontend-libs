@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -10,6 +10,8 @@ import {
   CreateSubEnterpriseRequest,
   CreateUserEnterpriseEnvelope,
   CreateUserEnterpriseRequest,
+  EconomicSectorsListEnvelope,
+  EconomicSectorPublicDto,
   InviteUserEnvelope,
   InviteUserRequest,
   EnterpriseMeSummaryResponse,
@@ -51,6 +53,26 @@ export class IdentityEnterpriseApiService {
         payload,
       )
       .pipe(map((body) => asApiEnvelope<RegisterEnterpriseResponse>(body)));
+  }
+
+  /** Catálogo público para selector de registro B2B. */
+  listPublicEconomicSectors(category?: string | null): Observable<EconomicSectorsListEnvelope> {
+    let params = new HttpParams();
+    if (category) {
+      params = params.set('category', category);
+    }
+    return this.http
+      .get<EconomicSectorsListEnvelope | { data: EconomicSectorPublicDto[] }>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/economic-sectors`,
+        { params },
+      )
+      .pipe(
+        map((raw) =>
+          raw && typeof raw === 'object' && 'data' in raw
+            ? (raw as EconomicSectorsListEnvelope)
+            : { data: [] as EconomicSectorPublicDto[] },
+        ),
+      );
   }
 
   verifyEnterpriseEmail(payload: VerifyEnterpriseEmailRequest): Observable<VerifyEnterpriseEmailEnvelope> {

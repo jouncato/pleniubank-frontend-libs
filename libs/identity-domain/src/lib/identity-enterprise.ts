@@ -15,11 +15,25 @@ export interface RegisterEnterpriseRequest {
   document_number: string;
   company_email: string;
   company_phone: string;
+  /** ID del catálogo Identity `economic_sectors` (obligatorio en registro self-service). */
+  economic_sector_id: string;
+  /** Deprecado: el backend ignora si viene `economic_sector_id`. */
   sector?: string | null;
   principal: RegisterEnterprisePersonRequest;
   admin: RegisterEnterprisePersonRequest;
   metadata_?: Record<string, unknown>;
 }
+
+/** GET /api/v1/economic-sectors (sectores activos). */
+export interface EconomicSectorPublicDto {
+  sector_id: string;
+  code: string;
+  label_es: string;
+  category: string;
+  ui_sort_order: number;
+}
+
+export type EconomicSectorsListEnvelope = ApiEnvelope<EconomicSectorPublicDto[]>;
 
 export interface RegisterEnterpriseResponse {
   enterprise_id: string;

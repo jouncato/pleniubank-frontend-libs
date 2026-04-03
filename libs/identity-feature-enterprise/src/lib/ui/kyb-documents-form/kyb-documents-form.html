@@ -1,56 +1,121 @@
-<div class="kyb-documents__head">
-  <h2>Verificación empresarial (KYB)</h2>
-  <p class="kyb-documents__lede">
-    Este paso es <strong>recomendado</strong> y <strong>no bloquea</strong> tu acceso al panel: puedes
-    posponerlo y volver cuando tengas la documentación lista.
-  </p>
-  <button type="button" class="kyb-documents__secondary" (click)="goDashboard()">Ir al panel</button>
-</div>
+<section class="enterprise-kyb" aria-label="Verificación empresarial KYB">
+  <header class="enterprise-kyb__hero">
+    <p class="enterprise-kyb__eyebrow">Verificación empresarial</p>
+    <h1 class="enterprise-kyb__title">Conoce a tu empresa (KYB)</h1>
+    <p class="enterprise-kyb__lede">
+      Este paso refuerza la confianza en tu relación con PleniuBank. Puedes completarlo cuando tengas la
+      documentación a mano: <strong>no bloquea el acceso al panel</strong> ni a los módulos que ya tengas
+      habilitados.
+    </p>
+  </header>
 
-<section class="kyb-documents__local" aria-labelledby="kyb-local-title">
-  <h3 id="kyb-local-title">Borradores en este dispositivo</h3>
-  <p>
-    Los archivos se guardan solo en tu navegador (IndexedDB) para pruebas; el envío al banco se integrará
-    con almacenamiento seguro en una versión posterior.
-  </p>
-  <label class="kyb-documents__file-label">
-    <span>Añadir archivos</span>
-    <input
-      type="file"
-      multiple
-      accept=".pdf,.doc,.docx,image/jpeg,image/png,image/webp"
-      (change)="onLocalFilesSelected($event)"
-    />
-  </label>
-  <p class="kyb-documents__hint">PDF, Word o imagen; máximo 15 MB por archivo.</p>
-  <p class="kyb-documents__error" *ngIf="localFileError()" aria-live="polite">{{ localFileError() }}</p>
-  <ul class="kyb-documents__list" *ngIf="localDocs().length">
-    <li *ngFor="let doc of localDocs()">
-      <span class="kyb-documents__name">{{ doc.fileName }}</span>
-      <span class="kyb-documents__meta">{{ (doc.sizeBytes / 1024) | number : '1.0-0' }} KB · {{ doc.status }}</span>
-      <button type="button" class="kyb-documents__remove" (click)="removeLocalDoc(doc.id)">Quitar</button>
-    </li>
-  </ul>
+  <div class="enterprise-kyb__callout" role="status">
+    <div class="enterprise-kyb__callout-copy">
+      <strong>Sigues operando con normalidad</strong>
+      <p>
+        Mientras preparas los documentos, puedes usar el inicio, contratos, préstamos y el resto de accesos
+        según tu rol.
+      </p>
+    </div>
+    <a routerLink="/app/dashboard" class="enterprise-kyb__callout-cta">Ir al panel</a>
+  </div>
+
+  <section class="enterprise-kyb__card" aria-labelledby="kyb-draft-title">
+    <h2 id="kyb-draft-title" class="enterprise-kyb__card-title">Borradores en este dispositivo</h2>
+    <p class="enterprise-kyb__card-lede">
+      Puedes ir adjuntando archivos de prueba; se guardan solo en tu navegador. El canal seguro de envío al
+      banco se conectará en una versión posterior.
+    </p>
+
+    <label class="enterprise-kyb__upload">
+      <span class="enterprise-kyb__upload-btn">Añadir archivos</span>
+      <span class="enterprise-kyb__upload-hint">PDF, Word o imagen · máximo 15 MB por archivo</span>
+      <input
+        type="file"
+        class="enterprise-kyb__visually-hidden"
+        multiple
+        accept=".pdf,.doc,.docx,image/jpeg,image/png,image/webp"
+        (change)="onLocalFilesSelected($event)"
+      />
+    </label>
+
+    @if (localFileError(); as locErr) {
+      <p class="enterprise-kyb__field-error" role="alert">{{ locErr }}</p>
+    }
+
+    @if (localDocs().length === 0) {
+      <p class="enterprise-kyb__empty">Aún no hay archivos. Cuando los añadas, aparecerán listados aquí.</p>
+    } @else {
+      <ul class="enterprise-kyb__doc-list">
+        @for (doc of localDocs(); track doc.id) {
+          <li class="enterprise-kyb__doc-row">
+            <div class="enterprise-kyb__doc-main">
+              <span class="enterprise-kyb__doc-name">{{ doc.fileName }}</span>
+              <span class="enterprise-kyb__doc-meta"
+                >{{ doc.sizeBytes / 1024 | number : '1.0-0' }} KB · {{ doc.status }}</span
+              >
+            </div>
+            <button type="button" class="enterprise-kyb__doc-remove" (click)="removeLocalDoc(doc.id)">
+              Quitar
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="enterprise-kyb__card enterprise-kyb__card--submit" aria-labelledby="kyb-submit-title">
+    <h2 id="kyb-submit-title" class="enterprise-kyb__card-title">Enviar verificación</h2>
+    <p class="enterprise-kyb__card-lede">
+      En entornos locales o de prueba puedes completar el paso sin adjuntos oficiales. Si tu equipo usa datos
+      extra, puedes incluirlos como JSON opcional.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="enterprise-kyb__form">
+      <label class="enterprise-kyb__check">
+        <input type="checkbox" formControlName="waiveAll" />
+        <span>Completar KYB sin documentos adjuntos (recomendado en desarrollo / MVP)</span>
+      </label>
+
+      <div class="enterprise-kyb__field">
+        <label for="ref" class="enterprise-kyb__label">Referencias adicionales (JSON, opcional)</label>
+        <textarea
+          id="ref"
+          class="enterprise-kyb__textarea"
+          rows="6"
+          formControlName="referencesJson"
+          spellcheck="false"
+          autocapitalize="off"
+          aria-describedby="ref-hint"
+        ></textarea>
+        <p id="ref-hint" class="enterprise-kyb__hint">Objeto JSON vacío <code>&#123;&#125;</code> si no necesitas metadatos.</p>
+        @if (form.controls.referencesJson.touched && form.controls.referencesJson.errors?.['json']) {
+          <p class="enterprise-kyb__field-error" role="alert">El contenido debe ser un objeto JSON válido.</p>
+        }
+      </div>
+
+      @if (vm.errorMessage(); as apiErr) {
+        <p class="enterprise-kyb__field-error" role="alert">{{ apiErr }}</p>
+      }
+
+      <div class="enterprise-kyb__actions">
+        <button
+          type="submit"
+          class="enterprise-kyb__primary"
+          [disabled]="vm.state() === 'submitting'"
+        >
+          {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar verificación' }}
+        </button>
+        <a routerLink="/app/dashboard" class="enterprise-kyb__secondary-link">Volver al panel sin enviar</a>
+      </div>
+    </form>
+  </section>
+
+  <details class="enterprise-kyb__technical">
+    <summary>Detalle técnico (integración Identity)</summary>
+    <p>
+      El envío usa el contrato <code>KybDocumentsRequest</code> del servicio Identity; en MVP suele enviarse
+      <code>waive_all_mvp: true</code> para cerrar etapas en entornos de prueba.
+    </p>
+  </details>
 </section>
-
-<h3 class="kyb-documents__mvp-title">Envío MVP (Identity)</h3>
-<p>
-  Completa el paso con el contrato JSON del servicio Identity (<code>waive_all_mvp</code>) cuando quieras
-  cerrar el flujo en el entorno actual.
-</p>
-
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <label>
-    <input type="checkbox" formControlName="waiveAll" />
-    Renunciar a documentos en MVP (recomendado en local)
-  </label>
-
-  <label for="ref">Referencias JSON (opcional)</label>
-  <textarea id="ref" rows="6" formControlName="referencesJson" aria-label="Referencias JSON"></textarea>
-
-  <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
-
-  <button type="submit" [disabled]="vm.state() === 'submitting'">
-    {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar' }}
-  </button>
-</form>

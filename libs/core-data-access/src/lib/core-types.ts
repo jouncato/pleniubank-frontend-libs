@@ -111,6 +111,14 @@ export interface ClientContractPatchRequest {
   deactivation_reason?: string | null;
 }
 
+/** Body `POST /api/v1/client-contracts` — Core `ClientContractCreateRequest`. */
+export interface ClientContractCreateRequest {
+  customer_id: string;
+  company_code: string;
+  template_contract_id: string;
+  terms: Record<string, unknown>;
+}
+
 /** Opciones de company_code permitidas para el usuario (sub-empresas sincronizadas en Core). */
 export interface CompanyCodeOptionDto {
   company_code: string;

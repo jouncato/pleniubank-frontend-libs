@@ -88,6 +88,7 @@ export interface AdminCreateEnterpriseRequest {
   document_number: string;
   email: string;
   phone: string;
+  economic_sector_id?: string | null;
   sector?: string | null;
   metadata_?: Record<string, unknown>;
 }
@@ -107,6 +108,7 @@ export interface AdminEnterpriseSummaryDto {
   enterprise_id: string;
   business_name: string;
   document_number: string;
+  economic_sector_id?: string | null;
   sector?: string | null;
   kyb_status: AdminEnterpriseKybStatus;
   created_at: string;
@@ -157,7 +159,9 @@ export interface AdminEnterpriseDetailDto {
   document_number: string;
   email: string;
   phone: string;
+  economic_sector_id?: string | null;
   sector?: string | null;
+  is_payroll_provider?: boolean;
   status: AdminEnterpriseKybStatus;
   created_at: string;
   principal?: AdminEnterprisePersonDto | null;
@@ -184,3 +188,24 @@ export type AdminCreateUserEnvelope = ApiEnvelope<AdminCreateUserResponse>;
 export type AdminCreateEnterpriseEnvelope = ApiEnvelope<AdminCreateEnterpriseResponse>;
 export type AdminEnterprisesListEnvelope = ApiEnvelope<AdminEnterpriseSummaryDto[]>;
 export type AdminEnterpriseDetailEnvelope = ApiEnvelope<AdminEnterpriseDetailDto>;
+
+export interface AdminEconomicSectorDto {
+  sector_id: string;
+  code: string;
+  label_es: string;
+  category: string;
+  ui_sort_order: number;
+  is_active: boolean;
+  allows_payroll_advance: boolean;
+}
+
+export interface AdminPatchEconomicSectorRequest {
+  label_es?: string | null;
+  category?: string | null;
+  ui_sort_order?: number | null;
+  is_active?: boolean | null;
+  allows_payroll_advance?: boolean | null;
+}
+
+export type AdminEconomicSectorsListEnvelope = ApiEnvelope<AdminEconomicSectorDto[]>;
+export type AdminEconomicSectorEnvelope = ApiEnvelope<AdminEconomicSectorDto>;

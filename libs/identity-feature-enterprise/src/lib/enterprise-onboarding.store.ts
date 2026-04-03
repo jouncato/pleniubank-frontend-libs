@@ -15,6 +15,8 @@ export interface EnterpriseOnboardingPersisted {
     document_number: string;
     company_email: string;
     company_phone: string;
+    /** UUID del sector en Identity `economic_sectors`. */
+    economic_sector_id: string;
     sector: string;
   };
   principalEmail: string;
@@ -55,6 +57,7 @@ export class EnterpriseOnboardingStore {
         document_number: partial.company?.document_number ?? co?.document_number ?? '',
         company_email: partial.company?.company_email ?? co?.company_email ?? '',
         company_phone: partial.company?.company_phone ?? co?.company_phone ?? '',
+        economic_sector_id: partial.company?.economic_sector_id ?? co?.economic_sector_id ?? '',
         sector: partial.company?.sector ?? co?.sector ?? '',
       },
       principalEmail: partial.principalEmail ?? prev?.principalEmail ?? '',
@@ -83,12 +86,16 @@ export class EnterpriseOnboardingStore {
     if (!s) {
       throw new Error('Enterprise onboarding state missing');
     }
+    if (!s.company.economic_sector_id?.trim()) {
+      throw new Error('economic_sector_id required');
+    }
     return {
       business_name: s.company.business_name,
       document_type: s.company.document_type,
       document_number: s.company.document_number,
       company_email: s.company.company_email,
       company_phone: s.company.company_phone,
+      economic_sector_id: s.company.economic_sector_id.trim(),
       sector: s.company.sector || undefined,
       principal,
       admin,

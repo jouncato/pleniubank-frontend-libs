@@ -1,5 +1,13 @@
 /** Tipos alineados con Core `ClientContractResponse` (contratos cliente / payroller). */
 
+/** Body `POST /api/v1/client-contracts`. */
+export interface ClientContractCreateRequest {
+  customer_id: string;
+  company_code: string;
+  template_contract_id: string;
+  terms: Record<string, unknown>;
+}
+
 export interface ClientContractDto {
   id: string;
   customer_id: string;
