@@ -47,6 +47,13 @@ export function productTypeLabel(code: string): string {
   return PRODUCT_TYPE_LABELS[code] ?? code;
 }
 
+/** Opciones ordenadas para selectores de `product_type` (p. ej. políticas de contrato en admin). */
+export const CONTRACT_POLICY_PRODUCT_TYPE_OPTIONS: { code: string; label: string }[] = Object.entries(
+  PRODUCT_TYPE_LABELS,
+)
+  .map(([code, label]) => ({ code, label }))
+  .sort((a, b) => a.label.localeCompare(b.label, 'es'));
+
 export function formatProductTypesList(codes: string[] | null | undefined): string {
   if (!codes?.length) {
     return 'Todos los productos (sin filtro explícito en la regla)';
