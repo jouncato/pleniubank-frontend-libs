@@ -72,6 +72,33 @@ export interface LoginResponse {
   refresh_token?: string;
   /** JWT firmado con secreto admin; solo si el usuario es admin de plataforma. */
   admin_access_token?: string | null;
+  /** Operadores de plataforma con contraseña inicial o política de cambio forzado. */
+  password_must_change?: boolean;
+}
+
+export interface StaffChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
+export interface StaffPatchProfileRequest {
+  full_name?: string;
+  /** Cadena vacía limpia el teléfono en Identity. */
+  phone?: string | null;
+}
+
+export interface StaffSelfProfileResponse {
+  user_id: string;
+  email: string;
+  full_name: string;
+  phone?: string | null;
+  role: string;
+  is_active: boolean;
+  identity_verified: boolean;
+  email_verified?: boolean;
+  phone_verified?: boolean;
+  scope?: string | null;
+  password_must_change?: boolean;
 }
 
 export interface ValidateResponse {

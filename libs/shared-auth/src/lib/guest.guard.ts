@@ -12,6 +12,11 @@ export const guestGuard: CanActivateFn = () => {
     return true;
   }
 
+  if (portal === 'backoffice' && sessionStore.claims()?.password_must_change) {
+    void router.navigate(['/staff/access/change-password']);
+    return false;
+  }
+
   const redirectTo = portal === 'backoffice' ? '/admin/dashboard' : '/app/dashboard';
   void router.navigate([redirectTo]);
   return false;

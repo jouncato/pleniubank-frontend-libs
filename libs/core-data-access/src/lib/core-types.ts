@@ -182,3 +182,50 @@ export interface CoreReadinessResponse {
   status: string;
   checks: Record<string, string>;
 }
+
+/** Políticas de contrato Nivel 0/1 (`/api/v1/platform/contract-policies`). */
+export interface ContractPolicyDefinitionDto {
+  id: string;
+  param_key: string;
+  category: string;
+  value_type: string;
+  scope: string;
+  description: string | null;
+  nullable: boolean;
+  default_json: unknown;
+}
+
+export interface ContractPolicyValueDto {
+  id: string;
+  definition_id: string;
+  level: number;
+  product_type: string | null;
+  country_code: string | null;
+  company_code: string | null;
+  value: unknown;
+  effective_from: string;
+  effective_to: string | null;
+  created_by: string;
+  updated_by: string | null;
+}
+
+export interface ContractPolicyResolveDto {
+  policy: Record<string, unknown>;
+}
+
+export interface ContractPolicyValueCreateRequest {
+  definition_id: string;
+  level: number;
+  product_type?: string | null;
+  country_code?: string | null;
+  company_code?: string | null;
+  value: unknown;
+  effective_from?: string | null;
+  effective_to?: string | null;
+}
+
+export interface ContractPolicyValuePatchRequest {
+  value?: unknown;
+  effective_from?: string | null;
+  effective_to?: string | null;
+}

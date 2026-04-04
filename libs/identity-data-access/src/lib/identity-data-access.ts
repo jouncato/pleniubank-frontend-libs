@@ -8,6 +8,9 @@ import {
   ForgotPasswordRequest,
   LoginEnvelope,
   LoginRequest,
+  StaffChangePasswordRequest,
+  StaffPatchProfileRequest,
+  StaffSelfProfileResponse,
   RegisterEnvelope,
   RegisterRequest,
   ResetPasswordEnvelope,
@@ -62,6 +65,9 @@ function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
   if (typeof raw['full_name'] === 'string' && raw['full_name'].trim()) {
     out.full_name = raw['full_name'].trim();
   }
+  if (typeof raw['phone'] === 'string' && raw['phone'].trim()) {
+    out.phone = raw['phone'].trim();
+  }
   if (typeof raw['two_factor_enabled'] === 'boolean') {
     out.two_factor_enabled = raw['two_factor_enabled'];
   }
@@ -73,6 +79,15 @@ function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
   }
   if (typeof raw['phone_verified'] === 'boolean') {
     out.phone_verified = raw['phone_verified'];
+  }
+  if (typeof raw['password_must_change'] === 'boolean') {
+    out.password_must_change = raw['password_must_change'];
+  }
+  if (typeof raw['is_active'] === 'boolean') {
+    out.is_active = raw['is_active'];
+  }
+  if (typeof raw['scope'] === 'string' && raw['scope'].trim()) {
+    out.scope = raw['scope'].trim();
   }
   return out;
 }
@@ -197,6 +212,20 @@ export class IdentityAuthApiService {
 
   validate(): Observable<ValidateEnvelope> {
     return this.http.post<ValidateEnvelope>(`${this.apiConfig.identityBaseUrl}/api/v1/auth/validate`, {});
+  }
+
+  staffChangePassword(payload: StaffChangePasswordRequest): Observable<LoginEnvelope> {
+    return this.http.post<LoginEnvelope>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/staff/change-password`,
+      payload,
+    );
+  }
+
+  staffPatchProfile(payload: StaffPatchProfileRequest): Observable<StaffSelfProfileResponse> {
+    return this.http.patch<StaffSelfProfileResponse>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/staff/me`,
+      payload,
+    );
   }
 
   forgotPassword(payload: ForgotPasswordRequest): Observable<ForgotPasswordEnvelope> {

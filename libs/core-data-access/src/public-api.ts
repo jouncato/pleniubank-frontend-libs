@@ -9,4 +9,5 @@ export * from './lib/core-contract-templates-api.service';
 export * from './lib/core-audit-api.service';
 export * from './lib/core-internal-accounts-api.service';
 export * from './lib/core-health-api.service';
+export * from './lib/core-contract-policies-api.service';
 export * from './lib/rules';

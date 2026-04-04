@@ -3,6 +3,8 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
+import { corePublicV1Base } from './core-api-base';
+
 import type {
   CreateLoanRequest,
   LoanDto,
@@ -29,7 +31,7 @@ export class CoreLoansApiService {
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    this.base = `${apiConfig.coreBaseUrl}/api/v1/loans`;
+    this.base = `${corePublicV1Base(apiConfig)}/loans`;
   }
 
   list(params: ListLoansParams = {}): Observable<ApiEnvelope<LoanDto[]>> {

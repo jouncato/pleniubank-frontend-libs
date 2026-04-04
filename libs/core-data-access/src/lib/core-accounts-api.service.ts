@@ -3,6 +3,8 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
+import { corePublicV1Base } from './core-api-base';
+
 import type {
   AccountBalancePayloadDto,
   AccountDto,
@@ -32,7 +34,7 @@ export class CoreAccountsApiService {
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    this.base = `${apiConfig.coreBaseUrl}/api/v1/accounts`;
+    this.base = `${corePublicV1Base(apiConfig)}/accounts`;
   }
 
   list(params: ListAccountsParams = {}): Observable<ApiEnvelope<AccountDto[]>> {

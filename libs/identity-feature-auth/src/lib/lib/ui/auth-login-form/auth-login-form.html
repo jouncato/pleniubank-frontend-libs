@@ -6,6 +6,12 @@
     y más), salvo que uses una cuenta empresarial.
   </p>
 }
+@if (portal === 'backoffice') {
+  <p class="login-context-hint" role="note">
+    Acceso para operadores de plataforma. El registro de personas y empresas se hace desde el portal
+    público o de cliente, no desde aquí.
+  </p>
+}
 
 <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <label for="email">Correo electronico</label>
@@ -22,10 +28,17 @@
   </button>
 </form>
 
-<nav class="footer-links" aria-label="Enlaces de acceso">
-  <a routerLink="/onboarding/party/access/forgot-password">Olvidaste tu contrasena?</a>
-  <span class="footer-sep" aria-hidden="true">·</span>
-  <a routerLink="/onboarding/party/customer/register">Crear cuenta (persona)</a>
-  <span class="footer-sep" aria-hidden="true">·</span>
-  <a routerLink="/onboarding/party/organization/register">Registrar empresa</a>
-</nav>
+@if (portal !== 'backoffice') {
+  <nav class="footer-links" aria-label="Enlaces de acceso">
+    <a routerLink="/onboarding/party/access/forgot-password">Olvidaste tu contrasena?</a>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <a routerLink="/onboarding/party/customer/register">Crear cuenta (persona)</a>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <a routerLink="/onboarding/party/organization/register">Registrar empresa</a>
+  </nav>
+}
+@if (portal === 'backoffice') {
+  <nav class="footer-links" aria-label="Recuperacion de acceso">
+    <a routerLink="/onboarding/party/access/forgot-password">Olvidaste tu contrasena?</a>
+  </nav>
+}

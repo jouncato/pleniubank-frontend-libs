@@ -155,6 +155,13 @@ export class LoginVm {
           email: claims.email,
         });
         this.state.set('success');
+        if (this.portal === 'backoffice' && claims.password_must_change === true) {
+          const safeReturn = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
+          void this.router.navigate(['/staff/access/change-password'], {
+            queryParams: safeReturn ? { returnUrl: safeReturn } : {},
+          });
+          return;
+        }
         if (
           this.portal === 'customer' &&
           !claims.enterprise_id &&

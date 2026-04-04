@@ -4,6 +4,14 @@ export interface ApiConfig {
   identityBaseUrl: string;
   coreBaseUrl: string;
   /**
+   * Prefijo API Core para superficie pública (p. ej. `/api/v1/public`). Vacío = legado `/api/v1`.
+   */
+  corePublicApiPrefix?: string;
+  /**
+   * Prefijo API Core para operadores (p. ej. `/api/v1/admin`). Vacío = legado `/api/v1`.
+   */
+  coreAdminApiPrefix?: string;
+  /**
    * Base URL del PaymentHub (OpenAPI `servers[0]`, p. ej. proxy Core o hub directo).
    * Sin barra final. Si falta, los servicios `PaymentHub*` no deben usarse.
    */

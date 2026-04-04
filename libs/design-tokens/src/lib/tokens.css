@@ -68,6 +68,8 @@
   --pb-surface: var(--pb-white);
   --pb-surface-alt: var(--pb-gray-100);
   --pb-text: var(--pb-gray-900);
+  /* Texto tecleado en inputs/select/textarea sobre fondo claro: no seguir --pb-text en theme-dark */
+  --pb-text-input: var(--pb-gray-900);
   --pb-text-muted: var(--pb-gray-500);
   --pb-border: var(--pb-gray-200);
   --pb-border-strong: var(--pb-gray-300);

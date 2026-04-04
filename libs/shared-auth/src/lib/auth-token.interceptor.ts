@@ -29,8 +29,14 @@ export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  const isAdminRoute = req.url.includes('/admin/');
-  const token = isAdminRoute ? sessionStore.adminToken() : sessionStore.userToken();
+  const u = req.url;
+  // Identity `POST /auth/validate` (usado por Core) solo decodifica el access_token principal (JWT_SECRET_KEY).
+  // `admin_access_token` firma con ADMIN_JWT_SECRET_KEY: sirve para la API admin de Identity (`/api/v1/admin/*`),
+  // pero Core (platform, internal-accounts, audit) debe recibir el JWT de sesión normal.
+  const isIdentityAdminApi = u.includes('/api/v1/admin/');
+  const token = isIdentityAdminApi
+    ? (sessionStore.adminToken() ?? sessionStore.userToken())
+    : sessionStore.userToken();
 
   if (!token) {
     return next(req);

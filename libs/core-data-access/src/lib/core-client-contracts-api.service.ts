@@ -3,6 +3,8 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
+import { corePublicV1Base } from './core-api-base';
+
 import type {
   ClientContractCreateRequest,
   ClientContractDto,
@@ -27,7 +29,7 @@ export class CoreClientContractsApiService {
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    this.base = `${apiConfig.coreBaseUrl}/api/v1/client-contracts`;
+    this.base = `${corePublicV1Base(apiConfig)}/client-contracts`;
   }
 
   list(params: ListClientContractsParams): Observable<ApiEnvelope<ClientContractDto[]>> {

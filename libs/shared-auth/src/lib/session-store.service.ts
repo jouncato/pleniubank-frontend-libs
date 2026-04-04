@@ -19,9 +19,17 @@ export interface SessionClaims {
   email?: string;
   /** Nombre registrado (Identity validate); fallback UI al local del email si falta. */
   full_name?: string;
+  /** Teléfono desde Identity validate (staff/B2C). */
+  phone?: string;
   identity_verified?: boolean;
   email_verified?: boolean;
   phone_verified?: boolean;
+  /** Operadores de plataforma: Identity exige cambiar contraseña antes del área admin. */
+  password_must_change?: boolean;
+  /** Cuenta activa (Identity validate). */
+  is_active?: boolean;
+  /** Ámbito JWT (p. ej. plt_admin); solo lectura en UI de perfil. */
+  scope?: string;
 }
 
 @Injectable({ providedIn: 'root' })

@@ -32,7 +32,8 @@ input {
   border: 1px solid var(--pb-border, #d0d5dd);
   border-radius: 8px;
   background: var(--pb-white, #ffffff);
-  color: var(--pb-gray-900, #111827);
+  color: var(--pb-text-input, var(--pb-gray-900, #111827));
+  -webkit-text-fill-color: var(--pb-text-input, var(--pb-gray-900, #111827));
 }
 
 input:focus-visible {
@@ -44,12 +45,31 @@ button[type='submit'] {
   margin-top: 0.5rem;
   height: 42px;
   border: 0;
-  border-radius: 8px;
-  background: #0272de;
+  border-radius: var(--pb-radius-sm, 8px);
+  /* Mismo azul marca que el gradiente del auth-shell (--pb-color-primary) */
+  background: var(--pb-color-primary, #0272de);
   color: #ffffff;
   font-weight: 600;
+  box-shadow: 0 2px 10px rgba(2, 114, 222, 0.35);
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
   /* Evita color de texto del UA en :disabled (p. ej. “Ingresando…” ilegible). */
   -webkit-text-fill-color: #ffffff;
+}
+
+button[type='submit']:hover:not(:disabled) {
+  background: var(--pb-color-primary-dark, #0056b3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(2, 114, 222, 0.4);
+}
+
+button[type='submit']:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.9),
+    0 0 0 4px var(--pb-color-primary, #0272de);
 }
 
 button[type='submit']:disabled {
@@ -57,6 +77,8 @@ button[type='submit']:disabled {
   -webkit-text-fill-color: #ffffff;
   opacity: 0.88;
   cursor: wait;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(2, 114, 222, 0.22);
 }
 
 .footer-links {

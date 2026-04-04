@@ -3,6 +3,8 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
+import { coreAdminV1Base } from './core-api-base';
+
 import type { AccountDto } from './core-types';
 
 export interface ListInternalAccountsParams {
@@ -18,7 +20,7 @@ export class CoreInternalAccountsApiService {
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    this.base = `${apiConfig.coreBaseUrl}/api/v1/internal-accounts`;
+    this.base = `${coreAdminV1Base(apiConfig)}/internal-accounts`;
   }
 
   list(params: ListInternalAccountsParams): Observable<ApiEnvelope<AccountDto[]>> {

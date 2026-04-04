@@ -3,6 +3,8 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
+import { coreAdminV1Base } from './core-api-base';
+
 import type { AuditLogDto } from './core-types';
 
 export interface ListAuditLogsParams {
@@ -21,7 +23,7 @@ export class CoreAuditApiService {
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    this.base = `${apiConfig.coreBaseUrl}/api/v1/audit/logs`;
+    this.base = `${coreAdminV1Base(apiConfig)}/audit/logs`;
   }
 
   list(params: ListAuditLogsParams): Observable<ApiEnvelope<AuditLogDto[]>> {

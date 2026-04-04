@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig } from 'shared-http';
 
+import { corePublicV1Base } from './core-api-base';
 import type { CoreHealthResponse, CoreReadinessResponse } from './core-types';
 
 /**
@@ -17,9 +18,9 @@ export class CoreHealthApiService {
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    const base = apiConfig.coreBaseUrl;
-    this.healthUrl = `${base}/api/v1/health`;
-    this.readinessUrl = `${base}/api/v1/readiness`;
+    const root = corePublicV1Base(apiConfig);
+    this.healthUrl = `${root}/health`;
+    this.readinessUrl = `${root}/readiness`;
   }
 
   getHealth(): Observable<CoreHealthResponse> {

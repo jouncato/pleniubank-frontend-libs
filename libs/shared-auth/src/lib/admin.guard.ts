@@ -1,4 +1,4 @@
-﻿import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { SessionStore } from './session-store.service';
 
@@ -9,6 +9,10 @@ export const adminGuard: CanActivateFn = (route, state) => {
 
   if (!store.userToken()) {
     void router.navigate(['/onboarding/party/access/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }
+  if (store.claims()?.password_must_change) {
+    void router.navigate(['/staff/access/change-password'], { queryParams: { returnUrl: state.url } });
     return false;
   }
   if (!store.adminToken() || store.claims()?.role !== 'admin') {

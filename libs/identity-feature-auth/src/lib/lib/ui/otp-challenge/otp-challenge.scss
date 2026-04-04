@@ -27,7 +27,8 @@ input {
   text-align: center;
   letter-spacing: 0.25rem;
   background: var(--pb-white, #ffffff);
-  color: var(--pb-gray-900, #111827);
+  color: var(--pb-text-input, var(--pb-gray-900, #111827));
+  -webkit-text-fill-color: var(--pb-text-input, var(--pb-gray-900, #111827));
 }
 
 input:focus-visible {

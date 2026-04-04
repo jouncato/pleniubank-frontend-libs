@@ -8,6 +8,8 @@ import {
 } from 'core-domain';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
+import { coreAdminV1Base } from './core-api-base';
+
 @Injectable({ providedIn: 'root' })
 export class CoreContractTemplatesApiService {
   private readonly base: string;
@@ -16,7 +18,7 @@ export class CoreContractTemplatesApiService {
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    this.base = `${apiConfig.coreBaseUrl}/api/v1/contract-templates`;
+    this.base = `${coreAdminV1Base(apiConfig)}/contract-templates`;
   }
 
   list(params: ListContractTemplatesParams): Observable<ApiEnvelope<ContractTemplateDto[]>> {

@@ -1,4 +1,4 @@
-﻿import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 
@@ -54,6 +54,22 @@ describe('adminGuard', () => {
     );
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/auth/forbidden']);
+  });
+
+  it('password_must_change redirige a cambio de contrasena', () => {
+    const store = TestBed.inject(SessionStore);
+    store.setUserToken('u');
+    store.setAdminToken('a');
+    store.setClaims({ role: 'admin', password_must_change: true });
+    const router = TestBed.inject(Router);
+
+    const result = TestBed.runInInjectionContext(() =>
+      adminGuard({} as never, { url: '/admin/x' } as never),
+    );
+    expect(result).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/staff/access/change-password'], {
+      queryParams: { returnUrl: '/admin/x' },
+    });
   });
 
   it('rol distinto de admin redirige a forbidden', () => {

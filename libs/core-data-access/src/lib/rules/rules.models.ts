@@ -1,5 +1,13 @@
 export type RuleSubject = 'PERSONA' | 'PAGADOR_NOMINA' | 'TRANSACTION' | 'ACCOUNT';
-export type RuleRelation = 'GTE' | 'LTE' | 'EQ' | 'NEQ' | 'EXCLUDES' | 'IN_RANGE' | 'BETWEEN';
+export type RuleRelation =
+  | 'GTE'
+  | 'LTE'
+  | 'EQ'
+  | 'NEQ'
+  | 'EXCLUDES'
+  | 'IN_RANGE'
+  | 'BETWEEN'
+  | 'VELOCITY';
 export type RuleType = 'STATIC' | 'DYNAMIC' | 'COMPUTED';
 export type EvaluationDecision = 'APPROVED' | 'REJECTED' | 'MANUAL_REVIEW';
 

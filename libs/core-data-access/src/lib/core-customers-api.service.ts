@@ -3,6 +3,8 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
 
+import { corePublicV1Base } from './core-api-base';
+
 import type {
   CreateCustomerRequest,
   CustomerDto,
@@ -23,7 +25,7 @@ export class CoreCustomersApiService {
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    this.base = `${apiConfig.coreBaseUrl}/api/v1/customers`;
+    this.base = `${corePublicV1Base(apiConfig)}/customers`;
   }
 
   list(params: ListCustomersParams = {}): Observable<ApiEnvelope<CustomerDto[]>> {
