@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { isEnterpriseAdministratorRole, SessionStore } from 'shared-auth';
 import { InviteUserVm } from '../../vm/invite-user';
 
 @Component({
@@ -12,6 +13,11 @@ import { InviteUserVm } from '../../vm/invite-user';
 export class InviteUserForm {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(InviteUserVm);
+  private readonly session = inject(SessionStore);
+
+  protected readonly showAdminHierarchyHint = computed(() =>
+    isEnterpriseAdministratorRole(this.session.claims()?.role),
+  );
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],

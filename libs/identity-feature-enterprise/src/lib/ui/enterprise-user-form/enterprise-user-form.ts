@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { isEnterpriseAdministratorRole, SessionStore } from 'shared-auth';
 import { EnterpriseUserCreateVm } from '../../vm/enterprise-user-create';
 
 @Component({
@@ -12,6 +13,12 @@ import { EnterpriseUserCreateVm } from '../../vm/enterprise-user-create';
 export class EnterpriseUserForm {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(EnterpriseUserCreateVm);
+  private readonly session = inject(SessionStore);
+
+  /** Jerarquía B2B: administradores no deben poder mutar la cuenta del Principal (refuerzo en UI). */
+  protected readonly showAdminHierarchyHint = computed(() =>
+    isEnterpriseAdministratorRole(this.session.claims()?.role),
+  );
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],

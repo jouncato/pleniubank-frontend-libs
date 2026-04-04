@@ -71,6 +71,8 @@
   /* Texto tecleado en inputs/select/textarea sobre fondo claro: no seguir --pb-text en theme-dark */
   --pb-text-input: var(--pb-gray-900);
   --pb-text-muted: var(--pb-gray-500);
+  /* Etiquetas sobre campos de texto (inputs, PrimeNG float/ifta, p-textbox / p-textfield) */
+  --pb-text-label: var(--pb-gray-700);
   --pb-border: var(--pb-gray-200);
   --pb-border-strong: var(--pb-gray-300);
   --pb-link: var(--pb-color-primary);
@@ -119,6 +121,7 @@
   --pb-surface-alt: #111827;
   --pb-text: #f9fafb;
   --pb-text-muted: #cbd5e1;
+  --pb-text-label: #d1d5db;
   --pb-border: #1e293b;
 }
 
@@ -128,6 +131,7 @@
     --pb-surface-alt: #111827;
     --pb-text: #f9fafb;
     --pb-text-muted: #cbd5e1;
+    --pb-text-label: #d1d5db;
     --pb-border: #1e293b;
   }
 }

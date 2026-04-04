@@ -1,0 +1,40 @@
+/**
+ * Etiquetas de campos de texto: PrimeNG (float/ifta), p-textbox / p-textfield (Prime UI / web components).
+ * Importar después de tokens.css.
+ */
+
+p-floatlabel {
+  --p-floatlabel-color: var(--pb-text-label);
+  --p-floatlabel-active-color: var(--pb-text-label);
+  --p-floatlabel-focus-color: var(--pb-text-label);
+}
+
+p-iftalabel {
+  --p-iftalabel-color: var(--pb-text-label);
+  --p-iftalabel-focus-color: var(--pb-text-label);
+}
+
+p-floatlabel label,
+p-iftalabel label,
+p-textbox label,
+p-textfield label,
+p-textarea label,
+p-inputtextarea label {
+  color: var(--pb-text-label);
+}
+
+p-floatlabel .p-floatlabel-label,
+p-iftalabel .p-iftalabel-label {
+  color: var(--pb-text-label);
+}
+
+p-textbox,
+p-textfield {
+  --p-textbox-label-color: var(--pb-text-label);
+  --p-textfield-label-color: var(--pb-text-label);
+}
+
+p-textbox::part(label),
+p-textfield::part(label) {
+  color: var(--pb-text-label);
+}

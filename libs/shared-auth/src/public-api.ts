@@ -1,4 +1,5 @@
 export * from './lib/shared-auth';
+export * from './lib/enterprise-tenant-role';
 export * from './lib/session-store.service';
 export * from './lib/session-strategy.token';
 export * from './lib/identity-csrf-bootstrap';

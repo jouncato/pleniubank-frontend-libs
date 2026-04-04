@@ -87,6 +87,10 @@ export interface EnterpriseMeSummaryResponse {
   kyb_complete: boolean;
   /** Prestadora de nómina (Identity); habilita anticipo en Core. */
   is_payroll_provider?: boolean;
+  /** Usuario con rol `enterprise_principal` en Identity (referencia UI solo lectura para administradores). */
+  principal_user_id?: string | null;
+  principal_full_name?: string | null;
+  principal_email?: string | null;
 }
 
 export interface InviteUserRequest {

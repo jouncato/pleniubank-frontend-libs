@@ -42,4 +42,29 @@ describe('mapHttpError', () => {
     });
     expect(mapHttpError(err).correlationId).toBe('cid-1');
   });
+
+  it('status 0 sin envelope no expone mensaje técnico de Angular', () => {
+    const err = new HttpErrorResponse({
+      status: 0,
+      statusText: 'Unknown Error',
+      url: 'http://localhost:8000/api/v1/x',
+      error: null,
+    });
+    const m = mapHttpError(err);
+    expect(m.status).toBe(0);
+    expect(m.message).not.toMatch(/Http failure response/i);
+    expect(m.message).not.toMatch(/localhost:8000/);
+    expect(m.message.length).toBeGreaterThan(10);
+  });
+
+  it('400 sin envelope usa mensaje amable, no error.message cruda', () => {
+    const err = new HttpErrorResponse({
+      status: 400,
+      statusText: 'Bad Request',
+      url: '/api/x',
+      error: { not: 'an envelope' },
+    });
+    const m = mapHttpError(err);
+    expect(m.message).not.toMatch(/Http failure response/i);
+  });
 });
