@@ -1,44 +1,67 @@
-<h2>Iniciar sesion</h2>
+<div class="pl-root">
+  <section class="pl-hero pl-hero--compact" aria-labelledby="login-hero-title">
+    <div class="pl-container">
+      <div class="pl-hero__content">
+        <h1 id="login-hero-title" class="pl-hero__title">Iniciar sesion</h1>
+        @if (portal === 'public') {
+          <p class="pl-hero__sub login-context-hint" role="note">
+            Tras validar tus datos te llevamos al portal de cliente para operar tus productos (cuentas, préstamos
+            y más), salvo que uses una cuenta empresarial.
+          </p>
+        }
+        @if (portal === 'backoffice') {
+          <p class="pl-hero__sub login-context-hint" role="note">
+            Acceso para operadores de plataforma. El registro de personas y empresas se hace desde el portal
+            público o de cliente, no desde aquí.
+          </p>
+        }
+      </div>
+    </div>
+  </section>
 
-@if (portal === 'public') {
-  <p class="login-context-hint" role="note">
-    Tras validar tus datos te llevamos al portal de cliente para operar tus productos (cuentas, préstamos
-    y más), salvo que uses una cuenta empresarial.
-  </p>
-}
-@if (portal === 'backoffice') {
-  <p class="login-context-hint" role="note">
-    Acceso para operadores de plataforma. El registro de personas y empresas se hace desde el portal
-    público o de cliente, no desde aquí.
-  </p>
-}
+  <section class="pl-section pl-section--alt" aria-label="Formulario de acceso">
+    <div class="pl-container">
+      <h2 class="visually-hidden">Credenciales</h2>
+      <div class="pl-form-card login-form">
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <label for="email">Correo electronico</label>
+          <input id="email" type="email" autocomplete="email" formControlName="email" />
 
-<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  <label for="email">Correo electronico</label>
-  <input id="email" type="email" autocomplete="email" formControlName="email" />
+          <label for="password">Contrasena</label>
+          <input id="password" type="password" autocomplete="current-password" formControlName="password" />
 
-  <label for="password">Contrasena</label>
-  <input id="password" type="password" autocomplete="current-password" formControlName="password" />
+          <p class="error" *ngIf="vm.rateLimitMessage as message" role="status" aria-live="polite">{{ message }}</p>
+          <p class="error" *ngIf="vm.errorMessage() as error" role="alert" aria-live="polite">{{ error }}</p>
 
-  <p class="error" *ngIf="vm.rateLimitMessage as message" role="status" aria-live="polite">{{ message }}</p>
-  <p class="error" *ngIf="vm.errorMessage() as error" role="alert" aria-live="polite">{{ error }}</p>
+          <button
+            type="submit"
+            class="pl-btn pl-btn--primary pl-btn--block login-form__submit"
+            [disabled]="form.invalid || vm.state() === 'submitting' || vm.isRateLimited"
+          >
+            {{ vm.state() === 'submitting' ? 'Ingresando...' : 'Ingresar' }}
+          </button>
+        </form>
 
-  <button type="submit" [disabled]="form.invalid || vm.state() === 'submitting' || vm.isRateLimited">
-    {{ vm.state() === 'submitting' ? 'Ingresando...' : 'Ingresar' }}
-  </button>
-</form>
+        @if (portal === 'public' || portal === 'customer') {
+          <nav class="login-footer" aria-label="Enlaces de acceso">
+            <a routerLink="/onboarding/party/access/forgot-password">Olvidaste tu contrasena?</a>
+            <span class="login-footer__sep" aria-hidden="true">·</span>
+            <a routerLink="/onboarding/party/register">Crear cuenta</a>
+          </nav>
+        }
+        @if (portal === 'backoffice') {
+          <nav class="login-footer" aria-label="Recuperacion de acceso">
+            <a routerLink="/onboarding/party/access/forgot-password">Olvidaste tu contrasena?</a>
+          </nav>
+        }
+      </div>
+    </div>
+  </section>
 
-@if (portal !== 'backoffice') {
-  <nav class="footer-links" aria-label="Enlaces de acceso">
-    <a routerLink="/onboarding/party/access/forgot-password">Olvidaste tu contrasena?</a>
-    <span class="footer-sep" aria-hidden="true">·</span>
-    <a routerLink="/onboarding/party/customer/register">Crear cuenta (persona)</a>
-    <span class="footer-sep" aria-hidden="true">·</span>
-    <a routerLink="/onboarding/party/organization/register">Registrar empresa</a>
-  </nav>
-}
-@if (portal === 'backoffice') {
-  <nav class="footer-links" aria-label="Recuperacion de acceso">
-    <a routerLink="/onboarding/party/access/forgot-password">Olvidaste tu contrasena?</a>
-  </nav>
-}
+  <footer class="pl-footer pl-footer--compact">
+    <div class="pl-container pl-footer__bottom">
+      <span>© 2026 Pleniu Bank S.A.S. — Colombia</span>
+      <span class="pl-footer__legal-badge">Regulado SFC</span>
+    </div>
+  </footer>
+</div>

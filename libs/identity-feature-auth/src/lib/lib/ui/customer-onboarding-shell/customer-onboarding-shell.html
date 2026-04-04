@@ -1,0 +1,75 @@
+<div class="pl-root customer-onb">
+  <header class="pl-header">
+    <div class="pl-container pl-header__inner">
+      <a routerLink="/" class="pl-header-logo-link" aria-label="Inicio">
+        <pb-logo [clickable]="false" size="md" variant="color" />
+      </a>
+      <nav class="pl-nav" aria-label="Navegación">
+        <a routerLink="/" class="pl-nav__link">Inicio</a>
+        <a routerLink="/onboarding/party/register" class="pl-nav__link">Tipo de cuenta</a>
+      </nav>
+      <div class="pl-header__actions">
+        @if (customerSignInUrl) {
+          <a
+            [href]="customerSignInUrl"
+            class="pl-btn pl-btn--outline"
+            rel="noopener noreferrer"
+          >
+            Ya tengo cuenta
+          </a>
+        } @else {
+          <a routerLink="/onboarding/party/access/login" class="pl-btn pl-btn--outline">
+            Ya tengo cuenta
+          </a>
+        }
+      </div>
+    </div>
+  </header>
+
+  <div class="customer-onb__stepper-wrap pl-container">
+    <p class="customer-onb__step-summary" aria-live="polite">
+      Paso {{ activeStep() }} de 3
+    </p>
+    <nav class="customer-onb-stepper" aria-label="Progreso del registro">
+      <ol class="customer-onb-stepper__list" role="list">
+        @for (s of steps; track s.n) {
+          <li
+            class="customer-onb-stepper__item"
+            [class.customer-onb-stepper__item--done]="isStepDone(s.n)"
+            [attr.aria-current]="isStepCurrent(s.n) ? 'step' : null"
+          >
+            <span class="customer-onb-stepper__n">{{ s.n }}</span>
+            <span class="customer-onb-stepper__label">{{ s.label }}</span>
+          </li>
+        }
+      </ol>
+      <div class="customer-onb-stepper__bar" aria-hidden="true">
+        <div
+          class="customer-onb-stepper__bar-fill"
+          [style.width.%]="(activeStep() / 3) * 100"
+        ></div>
+      </div>
+    </nav>
+  </div>
+
+  <section class="pl-hero pl-hero--compact" [attr.aria-labelledby]="'onb-hero-title'">
+    <div class="pl-container">
+      <div class="pl-hero__content">
+        <span class="pl-hero__badge">{{ hero().badge }}</span>
+        <h1 id="onb-hero-title" class="pl-hero__title">{{ hero().title }}</h1>
+        <p class="pl-hero__sub">{{ hero().sub }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pl-section pl-section--alt customer-onb__outlet-section">
+    <router-outlet />
+  </section>
+
+  <footer class="pl-footer pl-footer--compact">
+    <div class="pl-container pl-footer__bottom">
+      <span>© 2026 Pleniu Bank S.A.S. — Colombia</span>
+      <span class="pl-footer__legal-badge">Regulado SFC</span>
+    </div>
+  </footer>
+</div>

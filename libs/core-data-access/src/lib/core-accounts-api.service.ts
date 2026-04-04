@@ -8,6 +8,7 @@ import { corePublicV1Base } from './core-api-base';
 import type {
   AccountBalancePayloadDto,
   AccountDto,
+  AccountMovementItemDto,
   AddAccountFlagRequest,
   CreateAccountRequest,
   UpdateAccountRequest,
@@ -83,6 +84,14 @@ export class CoreAccountsApiService {
       hp = hp.set('at', params.at);
     }
     return this.http.get<ApiEnvelope<AccountBalancePayloadDto>>(`${this.base}/${accountId}/balances`, {
+      params: hp,
+    });
+  }
+
+  /** Últimos movimientos del libro para la cuenta (Core `GET .../movements`). */
+  listMovements(accountId: string, limit = 5): Observable<ApiEnvelope<AccountMovementItemDto[]>> {
+    const hp = new HttpParams().set('limit', String(limit));
+    return this.http.get<ApiEnvelope<AccountMovementItemDto[]>>(`${this.base}/${accountId}/movements`, {
       params: hp,
     });
   }

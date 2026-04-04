@@ -1,5 +1,44 @@
 <h2>Seguridad de la cuenta</h2>
+
+<section class="section">
+  <lib-customer-change-password-form />
+</section>
+
 @if (vm.mfaSectionVisible) {
-  <p>Estado 2FA: <strong>{{ vm.mfaEnabled ? 'Activo' : 'Inactivo' }}</strong></p>
+  <section class="section mfa">
+    <h3>Verificacion en dos pasos (2FA)</h3>
+    <p>Estado: <strong>{{ vm.mfaEnabled ? 'Activo' : 'Inactivo' }}</strong></p>
+    <p class="hint">Indica tu contrasena actual y elige activar o desactivar 2FA.</p>
+    <form [formGroup]="mfaForm" (ngSubmit)="$event.preventDefault()">
+      <label for="mfa-current">Contrasena actual</label>
+      <input id="mfa-current" type="password" formControlName="currentPassword" autocomplete="current-password" />
+      @if (mfaForm.controls.currentPassword.touched && mfaForm.controls.currentPassword.invalid) {
+        <small class="error">Requerida (minimo 8 caracteres).</small>
+      }
+      <div class="mfa-actions">
+        <button
+          type="button"
+          (click)="patchMfa(true)"
+          [disabled]="vm.mfaEnabled || vm.mfaState() === 'submitting'"
+        >
+          Activar 2FA
+        </button>
+        <button
+          type="button"
+          (click)="patchMfa(false)"
+          [disabled]="!vm.mfaEnabled || vm.mfaState() === 'submitting'"
+        >
+          Desactivar 2FA
+        </button>
+      </div>
+    </form>
+    @if (vm.mfaError()) {
+      <p class="error" role="alert">{{ vm.mfaError() }}</p>
+    }
+    @if (vm.mfaState() === 'success') {
+      <p class="success" role="status">Preferencia de 2FA actualizada.</p>
+    }
+  </section>
 }
-<p>Sesiones activas: Próximamente.</p>
+
+<p>Sesiones activas: Proximamente.</p>

@@ -15,6 +15,8 @@ export class RegisterEnterpriseVm {
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly conflictError = signal(false);
+  /** Tras POST exitoso: pantalla de éxito antes de ir a verificación por correo. */
+  readonly registrationSucceeded = signal(false);
 
   constructor(
     private readonly api: IdentityEnterpriseApiService,
@@ -77,7 +79,7 @@ export class RegisterEnterpriseVm {
           String(d.admin_user_id),
         );
         this.submitting.set(false);
-        void this.router.navigate(['/onboarding/party/organization/verify-email'], { queryParams: { role: 'principal' } });
+        this.registrationSucceeded.set(true);
       },
       error: (err: unknown) => {
         const mapped = mapHttpError(err);
@@ -106,6 +108,13 @@ export class RegisterEnterpriseVm {
         }
         this.errorMessage.set('No fue posible registrar la empresa. Intenta de nuevo.');
       },
+    });
+  }
+
+  /** Navega al flujo de OTP del representante legal (primera verificación). */
+  continueToEmailVerification(): void {
+    void this.router.navigate(['/onboarding/party/organization/verify-email'], {
+      queryParams: { role: 'principal' },
     });
   }
 }

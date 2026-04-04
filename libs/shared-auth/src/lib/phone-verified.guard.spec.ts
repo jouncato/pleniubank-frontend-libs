@@ -71,4 +71,21 @@ describe('phoneVerifiedGuard', () => {
       queryParams: { returnUrl: '/app/dashboard' },
     });
   });
+
+  it('permite /app/personal/profile en B2C sin telefono (perfil y CTA verificacion)', () => {
+    const router = configure('customer', { phone_verified: false });
+    const result = TestBed.runInInjectionContext(() =>
+      phoneVerifiedGuard({} as never, { url: '/app/personal/profile' } as never),
+    );
+    expect(result).toBe(true);
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('permite /app/personal/profile con query string sin telefono', () => {
+    configure('customer', { phone_verified: false });
+    const result = TestBed.runInInjectionContext(() =>
+      phoneVerifiedGuard({} as never, { url: '/app/personal/profile?tab=seguridad' } as never),
+    );
+    expect(result).toBe(true);
+  });
 });

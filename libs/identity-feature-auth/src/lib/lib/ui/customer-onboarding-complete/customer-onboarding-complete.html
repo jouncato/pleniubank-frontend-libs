@@ -1,0 +1,21 @@
+<div class="pl-container">
+  <div class="pl-form-card customer-onb-complete">
+    <p class="customer-onb-complete__lead">
+      Tu registro quedó confirmado. Ya puedes acceder al portal de cliente con tu correo y contraseña.
+    </p>
+    <div class="customer-onb-complete__actions">
+      @if (customerSignInUrl) {
+        <a [href]="customerSignInUrl" class="pl-btn pl-btn--primary pl-btn--block" rel="noopener noreferrer">
+          Ir al portal de cliente
+        </a>
+      } @else {
+        <a routerLink="/onboarding/party/access/login" class="pl-btn pl-btn--primary pl-btn--block">
+          Iniciar sesión
+        </a>
+      }
+      <a routerLink="/" class="pl-btn pl-btn--outline pl-btn--block customer-onb-complete__secondary">
+        Volver al inicio
+      </a>
+    </div>
+  </div>
+</div>

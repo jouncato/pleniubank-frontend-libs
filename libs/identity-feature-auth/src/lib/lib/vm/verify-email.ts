@@ -87,9 +87,7 @@ export class VerifyEmailVm {
         const result = unwrapVerificationResponse(raw);
         if (result.identity_verified && result.is_active) {
           this.sessionStore.setRegistrationId(null);
-          void this.router.navigate(['/onboarding/party/access/login'], {
-            state: { registrationCompleted: true },
-          });
+          void this.router.navigate(['/onboarding/party/customer/complete']);
           return;
         }
         void this.router.navigate(['/onboarding/party/customer/verify-phone'], {

@@ -1,0 +1,21 @@
+@use '../../styles/onboarding-landing-pl' as *;
+
+:host {
+  display: block;
+}
+
+.customer-onb-complete__lead {
+  margin: 0 0 24px;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--pl-dark);
+}
+
+.customer-onb-complete__actions {
+  display: grid;
+  gap: 12px;
+}
+
+.customer-onb-complete__secondary {
+  margin-top: 4px;
+}

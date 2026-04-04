@@ -8,6 +8,7 @@ import {
   ForgotPasswordRequest,
   LoginEnvelope,
   LoginRequest,
+  CustomerMfaPatchRequest,
   StaffChangePasswordRequest,
   StaffPatchProfileRequest,
   StaffSelfProfileResponse,
@@ -219,6 +220,18 @@ export class IdentityAuthApiService {
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/staff/change-password`,
       payload,
     );
+  }
+
+  /** B2C/B2B: filas en `users` (no operadores platform_staff). */
+  appUserChangePassword(payload: StaffChangePasswordRequest): Observable<LoginEnvelope> {
+    return this.http.post<LoginEnvelope>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/change-password`,
+      payload,
+    );
+  }
+
+  patchAppUserMfa(payload: CustomerMfaPatchRequest): Observable<LoginEnvelope> {
+    return this.http.patch<LoginEnvelope>(`${this.apiConfig.identityBaseUrl}/api/v1/auth/mfa`, payload);
   }
 
   staffPatchProfile(payload: StaffPatchProfileRequest): Observable<StaffSelfProfileResponse> {

@@ -4,20 +4,25 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { EconomicSectorPublicDto, EnterpriseDocumentType } from 'identity-domain';
 import { IdentityEnterpriseApiService } from 'identity-data-access';
+import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
+import { PbLogoComponent } from 'ui';
 import { EnterpriseOnboardingStore } from '../../enterprise-onboarding.store';
-import { RegisterEnterpriseVm } from '../../vm/register-enterprise';
+import { RegisterEnterpriseVm, type RegisterEnterpriseStep } from '../../vm/register-enterprise';
 
 @Component({
   selector: 'lib-enterprise-register-wizard',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PbLogoComponent],
   templateUrl: './enterprise-register-wizard.html',
   styleUrl: './enterprise-register-wizard.scss',
 })
 export class EnterpriseRegisterWizard implements OnInit {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(RegisterEnterpriseVm);
+  readonly customerSignInUrl = inject(CUSTOMER_PORTAL_SIGN_IN_URL);
   private readonly onboarding = inject(EnterpriseOnboardingStore);
   private readonly enterpriseApi = inject(IdentityEnterpriseApiService);
+
+  readonly stepLabels = ['Empresa', 'Principal', 'Administrador', 'Confirmar'] as const;
 
   readonly documentTypes: EnterpriseDocumentType[] = ['NIT', 'CC', 'CE', 'PP', 'TI'];
   readonly sectors = signal<EconomicSectorPublicDto[]>([]);
@@ -91,12 +96,6 @@ export class EnterpriseRegisterWizard implements OnInit {
     return this.vm.currentStep();
   }
 
-  selectedSectorLabel(): string {
-    const id = this.companyForm.getRawValue().economic_sector_id;
-    const row = this.sectors().find((x) => x.sector_id === id);
-    return row?.label_es ?? '';
-  }
-
   nextFromCompany(): void {
     if (this.companyForm.invalid) {
       this.companyForm.markAllAsTouched();
@@ -151,15 +150,53 @@ export class EnterpriseRegisterWizard implements OnInit {
     this.vm.prev();
   }
 
+  /** Volver a un paso anterior desde el stepper (solo hacia atrás). */
+  goToStep(target: number): void {
+    if (target < 0 || target > 3 || target >= this.step) {
+      return;
+    }
+    this.vm.setStep(target as RegisterEnterpriseStep);
+  }
+
+  continueToVerification(): void {
+    this.vm.continueToEmailVerification();
+  }
+
+  /** Sincroniza sessionStorage con los formularios antes del POST (paso confirmación editable). */
+  private persistAllFromFormsForSubmit(): void {
+    const cv = this.companyForm.getRawValue();
+    const selected = this.sectors().find((x) => x.sector_id === cv.economic_sector_id);
+    const pv = this.principalForm.getRawValue();
+    const av = this.adminForm.getRawValue();
+    this.onboarding.patch({
+      wizardStep: 3,
+      company: {
+        business_name: cv.business_name,
+        document_type: cv.document_type,
+        document_number: cv.document_number,
+        company_email: cv.company_email,
+        company_phone: cv.company_phone,
+        economic_sector_id: cv.economic_sector_id,
+        sector: selected?.label_es ?? '',
+      },
+      principalEmail: pv.email,
+      principalFullName: pv.full_name,
+      adminEmail: av.email,
+      adminFullName: av.full_name,
+    });
+  }
+
   submit(): void {
     if (!this.confirmCorrect) {
       return;
     }
-    if (this.principalForm.invalid || this.adminForm.invalid) {
+    if (this.companyForm.invalid || this.principalForm.invalid || this.adminForm.invalid) {
+      this.companyForm.markAllAsTouched();
       this.principalForm.markAllAsTouched();
       this.adminForm.markAllAsTouched();
       return;
     }
+    this.persistAllFromFormsForSubmit();
     const p = this.principalForm.getRawValue();
     const a = this.adminForm.getRawValue();
     this.vm.submit(

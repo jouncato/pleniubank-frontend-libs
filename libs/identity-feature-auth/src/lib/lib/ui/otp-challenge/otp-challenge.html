@@ -1,47 +1,65 @@
-<h2>{{ title }}</h2>
+<div class="pl-container">
+  <div class="pl-form-card otp-card">
+    <h2 class="visually-hidden">{{ title }}</h2>
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label for="code">Código OTP</label>
+      <input
+        #codeField
+        id="code"
+        type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        formControlName="code"
+      />
 
-<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  <label for="code">Código OTP</label>
-  <input
-    #codeField
-    id="code"
-    type="text"
-    inputmode="numeric"
-    autocomplete="one-time-code"
-    maxlength="6"
-    formControlName="code"
-  />
+      <p class="error" *ngIf="errorMessage as error" aria-live="polite">{{ error }}</p>
 
-  <p class="error" *ngIf="errorMessage as error" aria-live="polite">{{ error }}</p>
+      <button
+        type="submit"
+        class="pl-btn pl-btn--primary pl-btn--block otp-card__submit"
+        [disabled]="form.invalid || submitting || resendEmailBusy || resendPhoneBusy"
+      >
+        {{ submitting ? 'Verificando...' : 'Verificar' }}
+      </button>
+    </form>
 
-  <button type="submit" [disabled]="form.invalid || submitting || resendEmailBusy || resendPhoneBusy">
-    {{ submitting ? 'Verificando...' : 'Verificar' }}
-  </button>
-</form>
+    <div *ngIf="channel === 'email'" class="otp-card__resend">
+      <button
+        type="button"
+        class="pl-btn pl-btn--outline pl-btn--block"
+        (click)="resendEmailOtp()"
+        [disabled]="resendEmailDisabled"
+      >
+        {{
+          resendEmailBusy
+            ? 'Enviando...'
+            : resendEmailSecondsLeft > 0
+              ? 'Reenviar en ' + resendEmailSecondsLeft + ' s'
+              : 'Reenviar código por correo'
+        }}
+      </button>
+    </div>
 
-<div *ngIf="channel === 'email'" class="resend">
-  <button type="button" (click)="resendEmailOtp()" [disabled]="resendEmailDisabled">
-    {{
-      resendEmailBusy
-        ? 'Enviando...'
-        : resendEmailSecondsLeft > 0
-          ? 'Reenviar en ' + resendEmailSecondsLeft + ' s'
-          : 'Reenviar código por correo'
-    }}
-  </button>
+    <div *ngIf="channel === 'phone'" class="otp-card__resend">
+      <button
+        type="button"
+        class="pl-btn pl-btn--outline pl-btn--block"
+        (click)="resendPhoneOtp()"
+        [disabled]="resendPhoneDisabled"
+      >
+        {{
+          resendPhoneBusy
+            ? 'Enviando...'
+            : resendPhoneSecondsLeft > 0
+              ? 'Reenviar en ' + resendPhoneSecondsLeft + ' s'
+              : 'Reenviar código por SMS'
+        }}
+      </button>
+    </div>
+
+    <a routerLink="/onboarding/party/customer/verify-contact" class="otp-card__back">
+      Cambiar método de verificación
+    </a>
+  </div>
 </div>
-
-<div *ngIf="channel === 'phone'" class="resend">
-  <button type="button" (click)="resendPhoneOtp()" [disabled]="resendPhoneDisabled">
-    {{
-      resendPhoneBusy
-        ? 'Enviando...'
-        : resendPhoneSecondsLeft > 0
-          ? 'Reenviar en ' + resendPhoneSecondsLeft + ' s'
-          : 'Reenviar código por SMS'
-    }}
-  </button>
-</div>
-
-<a routerLink="/onboarding/party/customer/register">Volver al registro</a>
-

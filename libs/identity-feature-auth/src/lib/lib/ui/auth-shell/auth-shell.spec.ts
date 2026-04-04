@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { AuthShell } from './auth-shell';
 
@@ -8,7 +9,8 @@ describe('AuthShell', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AuthShell]
+      imports: [AuthShell],
+      providers: [provideRouter([])],
     })
     .compileComponents();
 

@@ -1,149 +1,271 @@
-<section class="enterprise-wizard" aria-label="Registro empresa">
-  <header class="enterprise-wizard__head">
-    <h1 class="enterprise-wizard__title">Alta de empresa</h1>
-    <p class="enterprise-wizard__lede">
-      Registra tu organización en unos pasos. Los mismos estándares de seguridad que el resto del onboarding PleniuBank.
-    </p>
+<div class="pl-root">
+  <header class="pl-header">
+    <div class="pl-container pl-header__inner">
+      <a routerLink="/" class="pl-header-logo-link" aria-label="Inicio">
+        <pb-logo [clickable]="false" size="md" variant="color" />
+      </a>
+      <nav class="pl-nav" aria-label="Navegación">
+        <a routerLink="/" class="pl-nav__link">Inicio</a>
+        <a routerLink="/onboarding/party/register" class="pl-nav__link">Tipo de cuenta</a>
+      </nav>
+      <div class="pl-header__actions">
+        @if (customerSignInUrl) {
+          <a
+            [href]="customerSignInUrl"
+            class="pl-btn pl-btn--outline"
+            rel="noopener noreferrer"
+          >
+            Ya tengo cuenta
+          </a>
+        } @else {
+          <a routerLink="/onboarding/party/access/login" class="pl-btn pl-btn--outline">
+            Ya tengo cuenta
+          </a>
+        }
+      </div>
+    </div>
   </header>
 
-  <nav class="steps" aria-label="Progreso del registro">
-    <ol class="steps__list" role="list">
-      <li class="steps__item" [class.steps__item--done]="step > 0" [attr.aria-current]="step === 0 ? 'step' : null">
-        <span class="steps__n">1</span>
-        <span class="steps__label">Empresa</span>
-      </li>
-      <li class="steps__item" [class.steps__item--done]="step > 1" [attr.aria-current]="step === 1 ? 'step' : null">
-        <span class="steps__n">2</span>
-        <span class="steps__label">Contacto principal</span>
-      </li>
-      <li class="steps__item" [class.steps__item--done]="step > 2" [attr.aria-current]="step === 2 ? 'step' : null">
-        <span class="steps__n">3</span>
-        <span class="steps__label">Administrador</span>
-      </li>
-      <li class="steps__item" [class.steps__item--done]="step > 3" [attr.aria-current]="step === 3 ? 'step' : null">
-        <span class="steps__n">4</span>
-        <span class="steps__label">Confirmación</span>
-      </li>
-    </ol>
-  </nav>
-
-  <div *ngIf="step === 0" class="panel">
-    <h2 class="panel__title">Datos de la empresa</h2>
-    <p class="panel__subtitle">Identificación fiscal y datos de contacto corporativos.</p>
-    <form [formGroup]="companyForm" (ngSubmit)="nextFromCompany()" novalidate>
-      <label for="bn">Razón social</label>
-      <input id="bn" type="text" formControlName="business_name" autocomplete="organization" />
-
-      <label for="dt">Tipo de documento</label>
-      <select id="dt" formControlName="document_type">
-        <option *ngFor="let d of documentTypes" [value]="d">{{ d }}</option>
-      </select>
-
-      <label for="dn">Número de documento</label>
-      <input id="dn" type="text" formControlName="document_number" />
-
-      <label for="ce">Correo empresa</label>
-      <input id="ce" type="email" formControlName="company_email" autocomplete="email" />
-
-      <label for="cp">Teléfono empresa</label>
-      <input id="cp" type="tel" formControlName="company_phone" autocomplete="tel" />
-
-      <label for="sec">Sector económico</label>
-      <ng-container *ngIf="!sectorsError(); else sectorErrTpl">
-        <select id="sec" formControlName="economic_sector_id">
-          <option value="" disabled>Selecciona un sector</option>
-          <option *ngFor="let s of sectors()" [value]="s.sector_id">{{ s.label_es }}</option>
-        </select>
-      </ng-container>
-      <ng-template #sectorErrTpl>
-        <p class="error" role="alert">{{ sectorsError() }}</p>
-        <button type="button" class="actions__secondary" (click)="loadSectors()">Reintentar</button>
-      </ng-template>
-
-      <div class="actions">
-        <a class="actions__link" routerLink="/onboarding/party/access/login">Cancelar</a>
-        <button type="submit" class="actions__primary" [disabled]="companyForm.invalid">Siguiente</button>
+  <section class="pl-hero pl-hero--compact" aria-labelledby="ent-reg-hero-title">
+    <div class="pl-container">
+      <div class="pl-hero__content">
+        <span class="pl-hero__badge">Empresa</span>
+        <h1 id="ent-reg-hero-title" class="pl-hero__title">Alta de organización</h1>
+        <p class="pl-hero__sub">
+          Registra tu empresa en unos pasos. Mismos estándares de seguridad que el resto de Pleniu Bank.
+        </p>
       </div>
-    </form>
-  </div>
-
-  <div *ngIf="step === 1" class="panel">
-    <h2 class="panel__title">Representante legal</h2>
-    <p class="panel__subtitle">Persona que firma en nombre de la empresa.</p>
-    <form [formGroup]="principalForm" (ngSubmit)="nextFromPrincipal()" novalidate>
-      <label for="pe">Correo</label>
-      <input id="pe" type="email" formControlName="email" autocomplete="email" />
-
-      <label for="pn">Nombre completo</label>
-      <input id="pn" type="text" formControlName="full_name" autocomplete="name" />
-
-      <label for="pp">Contraseña (mín. 12 caracteres)</label>
-      <input id="pp" type="password" formControlName="password" autocomplete="new-password" />
-
-      <div class="actions">
-        <button type="button" class="actions__secondary" (click)="prev()">Atrás</button>
-        <button type="submit" class="actions__primary" [disabled]="principalForm.invalid">Siguiente</button>
-      </div>
-    </form>
-  </div>
-
-  <div *ngIf="step === 2" class="panel">
-    <h2 class="panel__title">Usuario administrador</h2>
-    <p class="panel__subtitle">Quién gestionará usuarios y permisos en el portal.</p>
-    <form [formGroup]="adminForm" (ngSubmit)="nextFromAdmin()" novalidate>
-      <label for="ae">Correo</label>
-      <input id="ae" type="email" formControlName="email" autocomplete="email" />
-
-      <label for="an">Nombre completo</label>
-      <input id="an" type="text" formControlName="full_name" autocomplete="name" />
-
-      <label for="ap">Contraseña (mín. 12 caracteres)</label>
-      <input id="ap" type="password" formControlName="password" autocomplete="new-password" />
-
-      <div class="actions">
-        <button type="button" class="actions__secondary" (click)="prev()">Atrás</button>
-        <button type="submit" class="actions__primary" [disabled]="adminForm.invalid">Siguiente</button>
-      </div>
-    </form>
-  </div>
-
-  <div *ngIf="step === 3" class="panel">
-    <h2 class="panel__title">Confirmar registro</h2>
-    <p class="panel__subtitle">Revisa los datos antes de enviar.</p>
-    <dl class="summary">
-      <dt>Empresa</dt>
-      <dd>
-        {{ companyForm.value.business_name }} — {{ companyForm.value.document_type }}
-        {{ companyForm.value.document_number }}
-      </dd>
-      <dt>Contacto</dt>
-      <dd>{{ companyForm.value.company_email }} · {{ companyForm.value.company_phone }}</dd>
-      <dt>Sector</dt>
-      <dd>{{ selectedSectorLabel() || '—' }}</dd>
-      <dt>Principal</dt>
-      <dd>{{ principalForm.value.email }}</dd>
-      <dt>Administrador</dt>
-      <dd>{{ adminForm.value.email }}</dd>
-    </dl>
-
-    <label class="confirm-terms">
-      <input type="checkbox" [checked]="confirmCorrect" (change)="onConfirmChange($event)" />
-      <span>Confirmo que los datos son correctos</span>
-    </label>
-
-    <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
-    <p class="error" *ngIf="vm.conflictError()">Si necesitas ayuda, contacta soporte.</p>
-
-    <div class="actions">
-      <button type="button" class="actions__secondary" (click)="prev()">Atrás</button>
-      <button
-        type="button"
-        class="actions__primary"
-        (click)="submit()"
-        [disabled]="!confirmCorrect || vm.submitting()"
-      >
-        {{ vm.submitting() ? 'Enviando…' : 'Registrar empresa' }}
-      </button>
     </div>
-  </div>
-</section>
+  </section>
+
+  <section class="pl-section pl-section--alt" aria-label="Formulario de registro empresa">
+    <div class="pl-container">
+      <div class="pl-form-card pl-form-card--wide">
+        @if (vm.registrationSucceeded()) {
+          <section class="ent-reg-success" aria-labelledby="ent-reg-success-title">
+            <h2 id="ent-reg-success-title" class="ent-reg-success__title">¡Registro recibido!</h2>
+            <p class="ent-reg-success__lead">
+              Enviamos un <strong>correo de verificación al representante legal (principal)</strong> y otro al
+              <strong>usuario administrador</strong>. Cada uno debe abrir su enlace o código para activar el acceso.
+            </p>
+            <ul class="ent-reg-success__list">
+              <li>Revisa la bandeja de entrada y spam de ambos correos.</li>
+              <li>Puedes completar la verificación en el orden que prefieras.</li>
+              <li>Después podrás iniciar sesión en el portal de cliente.</li>
+            </ul>
+            <div class="ent-reg-success__actions">
+              <button type="button" class="pl-btn pl-btn--primary" (click)="continueToVerification()">
+                Continuar: verificar correo del principal
+              </button>
+            </div>
+          </section>
+        } @else {
+          <section class="enterprise-wizard" aria-label="Registro empresa">
+            <nav class="steps" aria-label="Progreso del registro">
+              <ol class="steps__list" role="list">
+                @for (label of stepLabels; track $index) {
+                  <li
+                    class="steps__item"
+                    [class.steps__item--done]="step > $index"
+                    [class.steps__item--clickable]="step > $index"
+                    [attr.aria-current]="step === $index ? 'step' : null"
+                    [attr.tabindex]="step > $index ? 0 : null"
+                    [attr.aria-label]="
+                      step > $index
+                        ? 'Ir al paso ' + ($index + 1) + ': ' + label
+                        : null
+                    "
+                    (click)="goToStep($index)"
+                    (keydown.enter)="goToStep($index)"
+                    (keydown.space)="$event.preventDefault(); goToStep($index)"
+                  >
+                    <span class="steps__n">{{ $index + 1 }}</span>
+                    <span class="steps__label">{{ label }}</span>
+                  </li>
+                }
+              </ol>
+            </nav>
+
+            <div *ngIf="step === 0" class="panel">
+              <h2 class="panel__title">Datos de la empresa</h2>
+              <p class="panel__subtitle">Identificación fiscal y datos de contacto corporativos.</p>
+              <form [formGroup]="companyForm" (ngSubmit)="nextFromCompany()" novalidate>
+                <label for="bn">Razón social</label>
+                <input id="bn" type="text" formControlName="business_name" autocomplete="organization" />
+
+                <label for="dt">Tipo de documento</label>
+                <select id="dt" formControlName="document_type">
+                  <option *ngFor="let d of documentTypes" [value]="d">{{ d }}</option>
+                </select>
+
+                <label for="dn">Número de documento</label>
+                <input id="dn" type="text" formControlName="document_number" />
+
+                <label for="ce">Correo empresa</label>
+                <input id="ce" type="email" formControlName="company_email" autocomplete="email" />
+
+                <label for="cp">Teléfono empresa</label>
+                <input id="cp" type="tel" formControlName="company_phone" autocomplete="tel" />
+
+                <label for="sec">Sector económico</label>
+                <ng-container *ngIf="!sectorsError(); else sectorErrTpl">
+                  <select id="sec" formControlName="economic_sector_id">
+                    <option value="" disabled>Selecciona un sector</option>
+                    <option *ngFor="let s of sectors()" [value]="s.sector_id">{{ s.label_es }}</option>
+                  </select>
+                </ng-container>
+                <ng-template #sectorErrTpl>
+                  <p class="error" role="alert">{{ sectorsError() }}</p>
+                  <button type="button" class="pl-btn pl-btn--outline" (click)="loadSectors()">Reintentar</button>
+                </ng-template>
+
+                <div class="actions">
+                  <a class="actions__link" routerLink="/onboarding/party/access/login">Cancelar</a>
+                  <button type="submit" class="pl-btn pl-btn--primary" [disabled]="companyForm.invalid">
+                    Siguiente
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div *ngIf="step === 1" class="panel">
+              <h2 class="panel__title">Representante legal</h2>
+              <p class="panel__subtitle">Persona que firma en nombre de la empresa (usuario principal).</p>
+              <form [formGroup]="principalForm" (ngSubmit)="nextFromPrincipal()" novalidate>
+                <label for="pe">Correo</label>
+                <input id="pe" type="email" formControlName="email" autocomplete="email" />
+
+                <label for="pn">Nombre completo</label>
+                <input id="pn" type="text" formControlName="full_name" autocomplete="name" />
+
+                <label for="pp">Contraseña (mín. 12 caracteres)</label>
+                <input id="pp" type="password" formControlName="password" autocomplete="new-password" />
+
+                <div class="actions">
+                  <button type="button" class="pl-btn pl-btn--outline" (click)="prev()">Atrás</button>
+                  <button type="submit" class="pl-btn pl-btn--primary" [disabled]="principalForm.invalid">
+                    Siguiente
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div *ngIf="step === 2" class="panel">
+              <h2 class="panel__title">Usuario administrador</h2>
+              <p class="panel__subtitle">Quién gestionará usuarios y permisos en el portal.</p>
+              <form [formGroup]="adminForm" (ngSubmit)="nextFromAdmin()" novalidate>
+                <label for="ae">Correo</label>
+                <input id="ae" type="email" formControlName="email" autocomplete="email" />
+
+                <label for="an">Nombre completo</label>
+                <input id="an" type="text" formControlName="full_name" autocomplete="name" />
+
+                <label for="ap">Contraseña (mín. 12 caracteres)</label>
+                <input id="ap" type="password" formControlName="password" autocomplete="new-password" />
+
+                <div class="actions">
+                  <button type="button" class="pl-btn pl-btn--outline" (click)="prev()">Atrás</button>
+                  <button type="submit" class="pl-btn pl-btn--primary" [disabled]="adminForm.invalid">
+                    Siguiente
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div *ngIf="step === 3" class="panel">
+              <h2 class="panel__title">Confirmar registro</h2>
+              <p class="panel__subtitle">Revisa o corrige los datos antes de enviar.</p>
+
+              <div class="confirm-edit" [formGroup]="companyForm">
+                <h3 class="confirm-edit__heading">Empresa</h3>
+                <label for="c-bn">Razón social</label>
+                <input id="c-bn" type="text" formControlName="business_name" autocomplete="organization" />
+
+                <label for="c-dt">Tipo de documento</label>
+                <select id="c-dt" formControlName="document_type">
+                  <option *ngFor="let d of documentTypes" [value]="d">{{ d }}</option>
+                </select>
+
+                <label for="c-dn">Número de documento</label>
+                <input id="c-dn" type="text" formControlName="document_number" />
+
+                <label for="c-ce">Correo empresa</label>
+                <input id="c-ce" type="email" formControlName="company_email" autocomplete="email" />
+
+                <label for="c-cp">Teléfono empresa</label>
+                <input id="c-cp" type="tel" formControlName="company_phone" autocomplete="tel" />
+
+                <label for="c-sec">Sector económico</label>
+                <ng-container *ngIf="!sectorsError(); else sectorErrConfirmTpl">
+                  <select id="c-sec" formControlName="economic_sector_id">
+                    <option value="" disabled>Selecciona un sector</option>
+                    <option *ngFor="let s of sectors()" [value]="s.sector_id">{{ s.label_es }}</option>
+                  </select>
+                </ng-container>
+                <ng-template #sectorErrConfirmTpl>
+                  <p class="error" role="alert">{{ sectorsError() }}</p>
+                  <button type="button" class="pl-btn pl-btn--outline" (click)="loadSectors()">Reintentar</button>
+                </ng-template>
+              </div>
+
+              <div class="confirm-edit" [formGroup]="principalForm">
+                <h3 class="confirm-edit__heading">Principal</h3>
+                <label for="c-pe">Correo</label>
+                <input id="c-pe" type="email" formControlName="email" autocomplete="email" />
+
+                <label for="c-pn">Nombre completo</label>
+                <input id="c-pn" type="text" formControlName="full_name" autocomplete="name" />
+
+                <label for="c-pp">Contraseña (mín. 12 caracteres)</label>
+                <input id="c-pp" type="password" formControlName="password" autocomplete="new-password" />
+              </div>
+
+              <div class="confirm-edit" [formGroup]="adminForm">
+                <h3 class="confirm-edit__heading">Administrador</h3>
+                <label for="c-ae">Correo</label>
+                <input id="c-ae" type="email" formControlName="email" autocomplete="email" />
+
+                <label for="c-an">Nombre completo</label>
+                <input id="c-an" type="text" formControlName="full_name" autocomplete="name" />
+
+                <label for="c-ap">Contraseña (mín. 12 caracteres)</label>
+                <input id="c-ap" type="password" formControlName="password" autocomplete="new-password" />
+              </div>
+
+              <label class="confirm-terms">
+                <input type="checkbox" [checked]="confirmCorrect" (change)="onConfirmChange($event)" />
+                <span>Confirmo que los datos son correctos</span>
+              </label>
+
+              <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
+              <p class="error" *ngIf="vm.conflictError()">Si necesitas ayuda, contacta soporte.</p>
+
+              <div class="actions">
+                <button type="button" class="pl-btn pl-btn--outline" (click)="prev()">Atrás</button>
+                <button
+                  type="button"
+                  class="pl-btn pl-btn--primary"
+                  (click)="submit()"
+                  [disabled]="!confirmCorrect || vm.submitting()"
+                >
+                  {{ vm.submitting() ? 'Enviando…' : 'Registrar empresa' }}
+                </button>
+              </div>
+            </div>
+          </section>
+        }
+
+        <nav class="ent-reg-footer" aria-label="Otras opciones">
+          <a routerLink="/onboarding/party/customer/register">Soy persona: registro individual</a>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <footer class="pl-footer pl-footer--compact">
+    <div class="pl-container pl-footer__bottom">
+      <span>© 2026 Pleniu Bank S.A.S. — Colombia</span>
+      <span class="pl-footer__legal-badge">Regulado SFC</span>
+    </div>
+  </footer>
+</div>

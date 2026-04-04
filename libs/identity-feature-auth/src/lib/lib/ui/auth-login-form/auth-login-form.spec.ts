@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { provideRouter } from '@angular/router';
 
 import { PORTAL_APP } from 'shared-auth';
 import { LoginVm } from '../../vm/login';
@@ -29,6 +30,7 @@ describe('AuthLoginForm', () => {
     await TestBed.configureTestingModule({
       imports: [AuthLoginForm],
       providers: [
+        provideRouter([]),
         { provide: LoginVm, useValue: vm },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => null } } } },
         { provide: PORTAL_APP, useValue: 'customer' },
@@ -90,6 +92,7 @@ describe('AuthLoginForm portal public', () => {
     await TestBed.configureTestingModule({
       imports: [AuthLoginForm],
       providers: [
+        provideRouter([]),
         { provide: LoginVm, useValue: vm },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => null } } } },
         { provide: PORTAL_APP, useValue: 'public' },

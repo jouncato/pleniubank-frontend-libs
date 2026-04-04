@@ -1,6 +1,12 @@
-<main class="auth-shell">
-  <section class="auth-card">
-    <pb-logo class="brand" variant="auto" size="md" [onDark]="true" />
+@if (fullBleedOnboarding()) {
+  <div class="auth-shell-fullbleed">
     <router-outlet />
-  </section>
-</main>
+  </div>
+} @else {
+  <main class="auth-shell">
+    <section class="auth-card">
+      <pb-logo class="brand" variant="auto" size="md" [onDark]="true" />
+      <router-outlet />
+    </section>
+  </main>
+}

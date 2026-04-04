@@ -1,3 +1,12 @@
+:host {
+  display: block;
+}
+
+.auth-shell-fullbleed {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
 .auth-shell {
   min-height: 100vh;
   display: grid;
@@ -37,5 +46,5 @@
 .brand {
   margin: 0 0 1rem;
   display: inline-flex;
-  max-height: 32px;
+  align-items: center;
 }

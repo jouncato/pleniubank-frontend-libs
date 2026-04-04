@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { EconomicSectorPublicDto } from 'identity-domain';
 import { IdentityEnterpriseApiService } from 'identity-data-access';
+import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
 import { of } from 'rxjs';
 import { EnterpriseOnboardingStore } from '../../enterprise-onboarding.store';
 import { RegisterEnterpriseVm } from '../../vm/register-enterprise';
@@ -29,10 +30,13 @@ describe('EnterpriseRegisterWizard (a11y smoke)', () => {
             currentStep: () => 0,
             next: () => {},
             prev: () => {},
+            setStep: () => {},
             submit: () => {},
             errorMessage: () => null,
             conflictError: () => false,
             submitting: () => false,
+            registrationSucceeded: () => false,
+            continueToEmailVerification: () => {},
           },
         },
         {
@@ -45,6 +49,7 @@ describe('EnterpriseRegisterWizard (a11y smoke)', () => {
             listPublicEconomicSectors: () => of({ data: [TEST_SECTOR] }),
           },
         },
+        { provide: CUSTOMER_PORTAL_SIGN_IN_URL, useValue: null },
       ],
     }).compileComponents();
 

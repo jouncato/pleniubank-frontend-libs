@@ -150,9 +150,7 @@ export class VerifyPhoneVm {
         const result = unwrapVerificationResponse(raw);
         if (result.identity_verified && result.is_active) {
           this.sessionStore.setRegistrationId(null);
-          void this.router.navigate(['/onboarding/party/access/login'], {
-            state: { registrationCompleted: true },
-          });
+          void this.router.navigate(['/onboarding/party/customer/complete']);
           return;
         }
         if (!result.email_verified) {
@@ -167,9 +165,7 @@ export class VerifyPhoneVm {
           });
           return;
         }
-        void this.router.navigate(['/onboarding/party/access/login'], {
-          state: { registrationCompleted: true },
-        });
+        void this.router.navigate(['/onboarding/party/customer/complete']);
       },
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);

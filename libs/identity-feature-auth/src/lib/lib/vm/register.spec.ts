@@ -117,7 +117,9 @@ describe('RegisterVm', () => {
     vm.submit(registerPayload);
 
     expect(vm.state()).toBe('error');
-    expect(vm.errorMessage()).toBe('Ya existe un registro con la informacion ingresada.');
+    expect(vm.errorMessage()).toBe(
+      'No pudimos completar la operación. Revisa los datos e inténtalo de nuevo.',
+    );
   });
 });
 

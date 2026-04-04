@@ -1,85 +1,93 @@
+@use '../../styles/onboarding-landing-pl' as *;
+
 :host {
   display: block;
-  color: #ffffff;
 }
 
-h2 {
-  margin: 0 0 0.75rem;
-  color: #ffffff;
-}
-
-form {
-  display: grid;
-  gap: 0.75rem;
-}
-
-label {
-  color: #ffffff;
-  font-size: var(--pb-font-size-sm, 0.875rem);
-  font-weight: var(--pb-font-weight-semibold, 600);
-}
-
-input {
-  height: 40px;
-  padding: 0 0.75rem;
-  border: 1px solid var(--pb-border, #d0d5dd);
-  border-radius: 8px;
-  text-align: center;
-  letter-spacing: 0.25rem;
-  background: var(--pb-white, #ffffff);
-  color: var(--pb-text-input, var(--pb-gray-900, #111827));
-  -webkit-text-fill-color: var(--pb-text-input, var(--pb-gray-900, #111827));
-}
-
-input:focus-visible {
-  outline: 2px solid var(--pb-color-primary, #0272de);
-  outline-offset: 2px;
-}
-
-button[type='submit'] {
-  margin-top: 0.5rem;
-  height: 42px;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
   border: 0;
-  border-radius: 8px;
-  background: var(--pb-color-primary, #0272de);
-  color: #fff;
+}
+
+.otp-card form {
+  display: grid;
+  gap: 14px;
+}
+
+.otp-card label {
+  color: var(--pl-dark);
+  font-size: 13px;
   font-weight: 600;
 }
 
-button[type='submit']:disabled {
-  opacity: 0.75;
-  cursor: not-allowed;
+.otp-card input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  background: var(--pl-white);
+  color: var(--pl-dark);
+  font-size: 1.25rem;
+  text-align: center;
+  letter-spacing: 0.35rem;
+  font-family: inherit;
 }
 
-.resend button {
-  margin-top: 0.5rem;
-  min-height: 40px;
-  padding: 0 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  font-weight: 600;
+.otp-card input:focus-visible {
+  outline: none;
+  border-color: var(--pl-blue);
 }
 
-.resend button:disabled {
+.otp-card__submit {
+  margin-top: 8px;
+}
+
+.otp-card__submit:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+  transform: none;
+}
+
+.otp-card__submit:disabled:hover {
+  opacity: 0.55;
+  transform: none;
+}
+
+.otp-card__resend {
+  margin-top: 12px;
+}
+
+.otp-card__resend .pl-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .error {
-  color: #fecaca;
   margin: 0;
-  font-size: var(--pb-font-size-sm, 0.875rem);
+  color: #dc2626;
+  font-size: 13px;
 }
 
-:host a {
+.otp-card__back {
   display: inline-block;
-  margin-top: 0.75rem;
-  color: #ffffff;
-  text-underline-offset: 2px;
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pl-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-:host a:hover {
-  color: rgba(255, 255, 255, 0.88);
+.otp-card__back:hover {
+  color: #0056b3;
 }

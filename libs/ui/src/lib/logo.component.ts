@@ -44,15 +44,15 @@ type LogoSize = 'sm' | 'md' | 'lg';
       height: auto;
     }
     .pb-logo.sm img {
-      max-height: 24px;
+      max-height: 32px;
       width: auto;
     }
     .pb-logo.md img {
-      max-height: 28px;
+      max-height: 42px;
       width: auto;
     }
     .pb-logo.lg img {
-      max-height: 32px;
+      max-height: 56px;
       width: auto;
     }
   `,
@@ -76,22 +76,22 @@ export class PbLogoComponent {
   get imgWidth(): number {
     switch (this.size) {
       case 'sm':
-        return 44;
-      case 'lg':
         return 59;
+      case 'lg':
+        return 102;
       default:
-        return 51;
+        return 77;
     }
   }
 
   get imgHeight(): number {
     switch (this.size) {
       case 'sm':
-        return 24;
-      case 'lg':
         return 32;
+      case 'lg':
+        return 56;
       default:
-        return 28;
+        return 42;
     }
   }
 }

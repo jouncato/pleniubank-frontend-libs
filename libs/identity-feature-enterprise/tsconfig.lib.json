@@ -11,7 +11,8 @@
       "identity-data-access": ["../../dist/identity-data-access"],
       "identity-domain": ["../../dist/identity-domain"],
       "shared-auth": ["../../dist/shared-auth"],
-      "shared-http": ["../../dist/shared-http"]
+      "shared-http": ["../../dist/shared-http"],
+      "ui": ["../../dist/ui"]
     }
   },
   "include": [

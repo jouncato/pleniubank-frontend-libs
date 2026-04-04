@@ -89,3 +89,17 @@ export interface AccountBalancePayloadDto {
   balances: BalanceDimensionDto[];
   available_balance: string | number | null;
 }
+
+/** Línea de `GET /accounts/{id}/movements` (extracto reciente). */
+export interface AccountMovementItemDto {
+  id: string;
+  posting_instruction_batch_id: string;
+  type: string;
+  amount: string | number;
+  denomination: string;
+  phase: string;
+  value_timestamp: string;
+  booking_timestamp: string;
+  credit_account_id: string | null;
+  debit_account_id: string | null;
+}

@@ -81,6 +81,12 @@ export interface StaffChangePasswordRequest {
   new_password: string;
 }
 
+/** PATCH /api/v1/auth/mfa (usuarios en tabla `users`, no staff). */
+export interface CustomerMfaPatchRequest {
+  enabled: boolean;
+  current_password: string;
+}
+
 export interface StaffPatchProfileRequest {
   full_name?: string;
   /** Cadena vacía limpia el teléfono en Identity. */
