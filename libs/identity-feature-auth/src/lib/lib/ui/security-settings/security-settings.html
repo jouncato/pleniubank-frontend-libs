@@ -1,23 +1,34 @@
-<h2>Seguridad de la cuenta</h2>
+@if (showHeading()) {
+  <h2 class="sec-heading">Seguridad de la cuenta</h2>
+}
 
-<section class="section">
+<section class="sec-block">
   <lib-customer-change-password-form />
 </section>
 
 @if (vm.mfaSectionVisible) {
-  <section class="section mfa">
-    <h3>Verificacion en dos pasos (2FA)</h3>
-    <p>Estado: <strong>{{ vm.mfaEnabled ? 'Activo' : 'Inactivo' }}</strong></p>
-    <p class="hint">Indica tu contrasena actual y elige activar o desactivar 2FA.</p>
+  <section class="sec-block sec-block--mfa">
+    <h3 class="sec-subheading">Verificación en dos pasos (2FA)</h3>
+    <p class="sec-status">
+      Estado: <strong>{{ vm.mfaEnabled ? 'Activo' : 'Inactivo' }}</strong>
+    </p>
+    <p class="sec-hint">Indica tu contraseña actual y elige activar o desactivar 2FA.</p>
     <form [formGroup]="mfaForm" (ngSubmit)="$event.preventDefault()">
-      <label for="mfa-current">Contrasena actual</label>
-      <input id="mfa-current" type="password" formControlName="currentPassword" autocomplete="current-password" />
+      <label for="mfa-current">Contraseña actual</label>
+      <input
+        id="mfa-current"
+        type="password"
+        formControlName="currentPassword"
+        autocomplete="current-password"
+        class="sec-input"
+      />
       @if (mfaForm.controls.currentPassword.touched && mfaForm.controls.currentPassword.invalid) {
-        <small class="error">Requerida (minimo 8 caracteres).</small>
+        <small class="error">Requerida (mínimo 8 caracteres).</small>
       }
-      <div class="mfa-actions">
+      <div class="sec-actions">
         <button
           type="button"
+          class="sec-btn sec-btn--primary"
           (click)="patchMfa(true)"
           [disabled]="vm.mfaEnabled || vm.mfaState() === 'submitting'"
         >
@@ -25,6 +36,7 @@
         </button>
         <button
           type="button"
+          class="sec-btn sec-btn--outline"
           (click)="patchMfa(false)"
           [disabled]="!vm.mfaEnabled || vm.mfaState() === 'submitting'"
         >
@@ -41,4 +53,4 @@
   </section>
 }
 
-<p>Sesiones activas: Proximamente.</p>
+<p class="sec-footnote">Sesiones activas: próximamente.</p>

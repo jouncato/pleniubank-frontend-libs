@@ -29,8 +29,11 @@ describe('correlationIdInterceptor', () => {
     const id = req.request.headers.get('X-Correlation-ID');
     expect(id).toBeTruthy();
     expect(id!.length).toBeGreaterThan(8);
-    req.flush({ data: {}, meta: { correlation_id: 'resp-1' } });
-    expect(ctx.lastResponseCorrelationId()).toBe('resp-1');
+    req.flush(
+      { data: {}, meta: { correlation_id: id } },
+      { headers: { 'X-Correlation-ID': id! } },
+    );
+    expect(ctx.lastResponseCorrelationId()).toBe(id);
   });
 
   it('no sobrescribe X-Correlation-ID existente', () => {

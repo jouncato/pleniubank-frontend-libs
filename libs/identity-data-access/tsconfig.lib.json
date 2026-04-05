@@ -9,7 +9,7 @@
     "types": [],
     "paths": {
       "identity-domain": ["../../dist/identity-domain"],
-      "shared-auth": ["../shared-auth/src/public-api.ts"],
+      "shared-auth": ["../../dist/shared-auth"],
       "shared-http": ["../../dist/shared-http"]
     }
   },

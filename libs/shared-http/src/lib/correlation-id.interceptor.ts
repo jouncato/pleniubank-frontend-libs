@@ -27,16 +27,33 @@ export const correlationIdInterceptor: HttpInterceptorFn = (req, next) => {
   return next(reqOut).pipe(
     tap((event: HttpEvent<unknown>) => {
       if (event.type === HttpEventType.Response) {
-        const id = extractCorrelationIdFromBody(event.body);
-        if (id) {
-          ctx.setLastResponseCorrelationId(id);
-          const sent = reqOut.headers.get('X-Correlation-ID');
-          if (sent && id !== sent && isDevMode()) {
-            console.warn('[Correlation] X-Correlation-ID distinto de meta.correlation_id', {
-              sent,
-              response: id,
-            });
-          }
+        const headerId = event.headers.get('X-Correlation-ID')?.trim() || null;
+        const bodyId = extractCorrelationIdFromBody(event.body);
+        const effective = headerId || bodyId;
+        if (effective) {
+          ctx.setLastResponseCorrelationId(effective);
+        }
+        const sent = reqOut.headers.get('X-Correlation-ID')?.trim();
+        if (!sent || !isDevMode()) {
+          return;
+        }
+        if (headerId && headerId !== sent) {
+          console.warn('[Correlation] X-Correlation-ID de respuesta distinto al enviado', {
+            sent,
+            responseHeader: headerId,
+            meta: bodyId,
+          });
+        } else if (!headerId && bodyId && bodyId !== sent) {
+          console.warn('[Correlation] meta.correlation_id distinto al X-Correlation-ID enviado (sin cabecera de eco)', {
+            sent,
+            meta: bodyId,
+          });
+        } else if (headerId === sent && bodyId && bodyId !== sent) {
+          console.warn('[Correlation] meta.correlation_id no coincide con X-Correlation-ID de respuesta', {
+            sent,
+            responseHeader: headerId,
+            meta: bodyId,
+          });
         }
       }
     }),

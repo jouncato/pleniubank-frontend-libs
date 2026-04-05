@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { SessionStore } from 'shared-auth';
+import { IdentityAuthApiService } from 'identity-data-access';
+import { SESSION_STRATEGY, SessionStore } from 'shared-auth';
 
 import { SecuritySettingsVm } from './security-settings';
 
@@ -11,6 +12,14 @@ describe('SecuritySettingsVm', () => {
       providers: [
         SecuritySettingsVm,
         { provide: SessionStore, useValue: { claims: () => ({ two_factor_enabled: true }) } },
+        {
+          provide: IdentityAuthApiService,
+          useValue: {
+            patchAppUserMfa: () => ({ subscribe: () => ({}) }),
+            validate: () => ({ subscribe: () => ({}) }),
+          },
+        },
+        { provide: SESSION_STRATEGY, useValue: 'sessionStorage' },
       ],
     });
     service = TestBed.inject(SecuritySettingsVm);
@@ -30,6 +39,14 @@ describe('SecuritySettingsVm', () => {
       providers: [
         SecuritySettingsVm,
         { provide: SessionStore, useValue: { claims: () => ({ user_id: 'u1' }) } },
+        {
+          provide: IdentityAuthApiService,
+          useValue: {
+            patchAppUserMfa: () => ({ subscribe: () => ({}) }),
+            validate: () => ({ subscribe: () => ({}) }),
+          },
+        },
+        { provide: SESSION_STRATEGY, useValue: 'sessionStorage' },
       ],
     });
     const s = TestBed.inject(SecuritySettingsVm);

@@ -3,12 +3,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 import {
   IdentityAuthApiService,
   unwrapPhoneOtpChallenge,
-  unwrapRefreshResponse,
   unwrapValidateResponse,
 } from 'identity-data-access';
-import { isValidReturnUrl, SESSION_STRATEGY, SessionStrategy, SessionStore } from 'shared-auth';
+import { isValidReturnUrl, SessionStore } from 'shared-auth';
 import { mapHttpError } from 'shared-http';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -38,8 +37,6 @@ export class VerifyPhonePostLoginVm {
   private resendTimer: ReturnType<typeof setInterval> | null = null;
   private otpExpiryTimer: ReturnType<typeof setInterval> | null = null;
   private autoRenewInFlight = false;
-
-  private readonly sessionStrategy = inject<SessionStrategy>(SESSION_STRATEGY);
 
   constructor(
     private readonly identityApi: IdentityAuthApiService,
@@ -120,16 +117,7 @@ export class VerifyPhonePostLoginVm {
     this.identityApi
       .verifyPhone({ registration_id: uid, code: digits })
       .pipe(
-        switchMap(() => this.identityApi.refresh()),
-        map((raw) => unwrapRefreshResponse(raw)),
-        tap((tokens) => {
-          if (this.sessionStrategy !== 'httpOnlyCookie') {
-            this.sessionStore.setUserToken(tokens.access_token);
-            if (tokens.refresh_token) {
-              this.sessionStore.setRefreshToken(tokens.refresh_token);
-            }
-          }
-        }),
+        // Sin refresh intermedio: el JWT sigue válido (mismo token_version) y evita 401 si ver en BD ≠ ver en token.
         switchMap(() => this.identityApi.validate()),
         map((v) => unwrapValidateResponse(v as never)),
       )

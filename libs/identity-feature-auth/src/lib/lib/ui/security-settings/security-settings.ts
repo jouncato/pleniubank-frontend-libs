@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomerChangePasswordForm } from '../customer-change-password-form/customer-change-password-form';
 import { SecuritySettingsVm } from '../../vm/security-settings';
@@ -12,6 +12,9 @@ import { SecuritySettingsVm } from '../../vm/security-settings';
 })
 export class SecuritySettings {
   private readonly fb = inject(FormBuilder);
+
+  /** En página dedicada (`/app/settings/security`) el h1 va en el shell; ocultar el h2 duplicado. */
+  readonly showHeading = input(true);
 
   readonly mfaForm = this.fb.nonNullable.group({
     currentPassword: ['', [Validators.required, Validators.minLength(8)]],
