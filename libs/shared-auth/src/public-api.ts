@@ -23,4 +23,5 @@ export * from './lib/portal-app.token';
 export * from './lib/post-login-customer-portal.token';
 export * from './lib/customer-portal-sign-in-url.token';
 export * from './lib/return-url';
+export * from './lib/sign-in-path';
 export * from './lib/portal-dev-token-handoff';

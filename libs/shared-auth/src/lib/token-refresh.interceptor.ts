@@ -4,8 +4,10 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, filter, finalize, switchMap, take, throwError } from 'rxjs';
 import { mapHttpError } from 'shared-http';
 import { AUTH_REFRESH_HANDLER } from './auth-refresh.token';
+import { PORTAL_APP } from './portal-app.token';
 import { SESSION_STRATEGY } from './session-strategy.token';
 import { SessionStore } from './session-store.service';
+import { signInPathForPortal } from './sign-in-path';
 
 const retryToken$ = new BehaviorSubject<string | null>(null);
 
@@ -26,9 +28,13 @@ function cloneForCookieRetry(req: HttpRequest<unknown>): HttpRequest<unknown> {
   return req.clone({ withCredentials: true });
 }
 
-function logoutAndRedirect(sessionStore: SessionStore, router: Router): Observable<never> {
+function logoutAndRedirect(
+  sessionStore: SessionStore,
+  router: Router,
+  loginPath: string,
+): Observable<never> {
   sessionStore.clear();
-  void router.navigate(['/onboarding/party/access/login']);
+  void router.navigate([loginPath]);
   return throwError(() => new Error('Session expired'));
 }
 
@@ -37,6 +43,7 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
   const refreshHandler = inject(AUTH_REFRESH_HANDLER, { optional: true });
   const router = inject(Router);
   const strategy = inject(SESSION_STRATEGY);
+  const loginPath = signInPathForPortal(inject(PORTAL_APP));
   const cookieSession = strategy === 'httpOnlyCookie';
 
   if (!refreshHandler || req.url.includes('/auth/refresh')) {
@@ -64,7 +71,7 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
             retryToken$.next('__cookie__');
             return next(cloneForCookieRetry(req));
           }),
-          catchError(() => logoutAndRedirect(sessionStore, router)),
+          catchError(() => logoutAndRedirect(sessionStore, router, loginPath)),
           finalize(() => sessionStore.setRefreshing(false)),
         );
       }
@@ -89,7 +96,7 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
           retryToken$.next(response.access_token);
           return next(cloneWithToken(req, response.access_token));
         }),
-        catchError(() => logoutAndRedirect(sessionStore, router)),
+        catchError(() => logoutAndRedirect(sessionStore, router, loginPath)),
         finalize(() => sessionStore.setRefreshing(false)),
       );
     }),

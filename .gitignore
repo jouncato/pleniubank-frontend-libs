@@ -1,17 +1,24 @@
+# =============================================================================
+# PleniuBank Frontend Libs — Angular / Nx-style workspace / Node
+# =============================================================================
+
 # Dependencies
 node_modules/
 
 # Build / Angular
 dist/
 out-tsc/
+tmp/
 .angular/
-
-# Typecheck artefactos
 *.ngtypecheck.ts
+
+# Nx (si aplica)
+.nx/cache/
 
 # Cache & coverage
 coverage/
 .nyc_output/
+.eslintcache
 
 # Environment (no secretos en Git)
 .env
@@ -27,15 +34,26 @@ pnpm-debug.log*
 
 # IDE
 .idea/
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
 *.sublime-project
 *.sublime-workspace
+
+# Cursor (solo caché)
+.cursor/cache/
 
 # OS
 .DS_Store
 Thumbs.db
 ehthumbs.db
+desktop.ini
+*~
 
-# e2e / Playwright (si se añaden)
+# e2e / Playwright
 playwright-report/
 test-results/
 .playwright/

@@ -1,14 +1,17 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
+import { PORTAL_APP } from './portal-app.token';
 import { SessionStore } from './session-store.service';
+import { signInPathForPortal } from './sign-in-path';
 
 /** Rutas de plataforma admin: requiere JWT usuario + `admin_access_token` y claim `role === 'admin'`. */
 export const adminGuard: CanActivateFn = (route, state) => {
   const store = inject(SessionStore);
   const router = inject(Router);
+  const loginPath = signInPathForPortal(inject(PORTAL_APP));
 
   if (!store.userToken()) {
-    void router.navigate(['/onboarding/party/access/login'], { queryParams: { returnUrl: state.url } });
+    void router.navigate([loginPath], { queryParams: { returnUrl: state.url } });
     return false;
   }
   if (store.claims()?.password_must_change) {

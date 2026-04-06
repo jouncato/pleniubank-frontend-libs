@@ -32,6 +32,7 @@ export class AuthShell {
       path.endsWith('/onboarding/party/customer/register') ||
       path.endsWith('/onboarding/party/organization/register') ||
       path.endsWith('/onboarding/party/access/login') ||
+      path.endsWith('/backoffice/party/access/login') ||
       path.endsWith('/onboarding/party/customer/verify-contact') ||
       path.endsWith('/onboarding/party/customer/verify-email') ||
       path.endsWith('/onboarding/party/customer/verify-phone') ||

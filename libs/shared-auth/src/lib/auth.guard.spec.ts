@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 
 import { authGuard } from './auth.guard';
 import { AUTH_VALIDATE_HANDLER, AuthValidateHandler } from './auth-validate.token';
+import { PORTAL_APP } from './portal-app.token';
 import { SESSION_CLAIMS_TTL_MS, SessionClaims, SessionStore } from './session-store.service';
 
 function runGuard(url: string) {
@@ -38,6 +39,7 @@ describe('authGuard', () => {
         provideRouter([]),
         SessionStore,
         { provide: AUTH_VALIDATE_HANDLER, useValue: handler },
+        { provide: PORTAL_APP, useValue: 'customer' as const },
       ],
     });
     const router = TestBed.inject(Router);

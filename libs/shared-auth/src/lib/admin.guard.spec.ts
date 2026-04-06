@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 
 import { adminGuard } from './admin.guard';
+import { PORTAL_APP } from './portal-app.token';
 import { SessionStore } from './session-store.service';
 
 describe('adminGuard', () => {
@@ -10,7 +11,7 @@ describe('adminGuard', () => {
     TestBed.resetTestingModule();
     sessionStorage.clear();
     TestBed.configureTestingModule({
-      providers: [provideRouter([]), SessionStore],
+      providers: [provideRouter([]), SessionStore, { provide: PORTAL_APP, useValue: 'backoffice' as const }],
     });
     const router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
@@ -38,7 +39,7 @@ describe('adminGuard', () => {
       adminGuard({} as never, { url: '/admin/x' } as never),
     );
     expect(result).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/onboarding/party/access/login'], {
+    expect(router.navigate).toHaveBeenCalledWith(['/backoffice/party/access/login'], {
       queryParams: { returnUrl: '/admin/x' },
     });
   });

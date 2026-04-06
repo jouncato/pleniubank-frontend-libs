@@ -4,6 +4,8 @@ import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { SESSION_CLAIMS_TTL_MS, SessionStore } from './session-store.service';
 import { AUTH_VALIDATE_HANDLER } from './auth-validate.token';
+import { PORTAL_APP } from './portal-app.token';
+import { signInPathForPortal } from './sign-in-path';
 
 function claimsAreFresh(store: SessionStore): boolean {
   const c = store.claims();
@@ -18,9 +20,10 @@ export const authGuard: CanActivateFn = (route, state) => {
   const sessionStore = inject(SessionStore);
   const router = inject(Router);
   const validateHandler = inject(AUTH_VALIDATE_HANDLER);
+  const loginPath = signInPathForPortal(inject(PORTAL_APP));
 
   if (!sessionStore.userToken()) {
-    void router.navigate(['/onboarding/party/access/login'], {
+    void router.navigate([loginPath], {
       queryParams: { returnUrl: state.url },
     });
     return false;
@@ -37,7 +40,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     }),
     catchError(() => {
       sessionStore.clear();
-      void router.navigate(['/onboarding/party/access/login'], { queryParams: { returnUrl: state.url } });
+      void router.navigate([loginPath], { queryParams: { returnUrl: state.url } });
       return of(false);
     }),
   );
