@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FeatureFlagService } from 'shared-auth';
 import { SwitchContextVm } from '../../vm/switch-context';
 
@@ -8,6 +8,7 @@ import { SwitchContextVm } from '../../vm/switch-context';
   imports: [CommonModule],
   templateUrl: './switch-context-placeholder.html',
   styleUrl: './switch-context-placeholder.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SwitchContextPlaceholder {
   protected readonly flags = inject(FeatureFlagService);

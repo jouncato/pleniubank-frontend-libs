@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SessionStore } from 'shared-auth';
@@ -17,6 +17,7 @@ import { KybSubmitVm } from '../../vm/kyb-submit';
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './kyb-documents-form.html',
   styleUrl: './kyb-documents-form.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KybDocumentsForm implements OnInit {
   private readonly fb = inject(FormBuilder);

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 /**
@@ -8,6 +8,7 @@ import { RouterLink } from '@angular/router';
  */
 @Component({
   selector: 'lib-verify-contact-hub',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink],
   templateUrl: './verify-contact-hub.html',
   styleUrl: './verify-contact-hub.scss',

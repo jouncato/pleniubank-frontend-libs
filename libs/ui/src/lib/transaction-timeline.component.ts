@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 export interface TimelineStepUi {
   label: string;
@@ -10,6 +10,7 @@ export interface TimelineStepUi {
 
 @Component({
   selector: 'pleniu-transaction-timeline',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ol class="timeline" role="list" aria-label="Ciclo de vida de la transaccion">
       @for (step of steps; track step.label + ($index + '')) {

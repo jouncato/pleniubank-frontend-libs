@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, input, output } from '@angular/core';
 
 export interface ConfirmDialogSummaryItem {
   label: string;
@@ -11,6 +11,7 @@ export interface ConfirmDialogSummaryItem {
  */
 @Component({
   selector: 'lib-confirm-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   templateUrl: './confirm-dialog.html',
   styleUrl: './confirm-dialog.scss',

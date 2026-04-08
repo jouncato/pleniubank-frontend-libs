@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   OnDestroy,
@@ -15,6 +16,7 @@ import { SessionVm } from '../../vm/session';
 
 @Component({
   selector: 'lib-phone-verify-post-login',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './phone-verify-post-login.html',
   styleUrl: './phone-verify-post-login.scss',

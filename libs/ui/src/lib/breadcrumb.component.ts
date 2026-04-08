@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import {
   ActivatedRouteSnapshot,
   Event,
@@ -8,7 +8,7 @@ import {
   Router,
   RouterLink,
 } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { PleniuBreakpointObserver } from './breakpoint-observer.service';
 
@@ -49,6 +49,7 @@ export function truncateBreadcrumbValue(value: string, maxLength = 6): string {
 
 @Component({
   selector: 'pb-breadcrumbs',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink],
   template: `
     @if (items().length) {
@@ -162,10 +163,10 @@ export function truncateBreadcrumbValue(value: string, maxLength = 6): string {
     }
   `,
 })
-export class BreadcrumbComponent implements OnDestroy {
+export class BreadcrumbComponent {
   private readonly router = inject(Router);
   private readonly bp = inject(PleniuBreakpointObserver);
-  private readonly eventsSubscription: Subscription;
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly items = signal<BreadcrumbViewModel[]>([]);
   protected readonly mobileExpanded = signal(false);
@@ -187,16 +188,12 @@ export class BreadcrumbComponent implements OnDestroy {
 
   constructor() {
     this.refresh();
-    this.eventsSubscription = this.router.events.subscribe((event) => {
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       if (this.isNavigationBoundary(event)) {
         this.mobileExpanded.set(false);
         this.refresh();
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.eventsSubscription.unsubscribe();
   }
 
   protected toggleMobileExpanded(): void {

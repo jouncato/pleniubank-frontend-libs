@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PasswordResetMethod } from 'identity-domain';
@@ -8,6 +8,7 @@ import { ResetPasswordVm } from '../../vm/reset-password';
 
 @Component({
   selector: 'lib-reset-password-form',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './reset-password-form.html',
   styleUrl: './reset-password-form.scss',

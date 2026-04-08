@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { VerifyEnterpriseEmailVm } from '../../vm/verify-enterprise-email';
@@ -9,6 +9,7 @@ import { VerifyEnterpriseEmailVm } from '../../vm/verify-enterprise-email';
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './enterprise-verify-email-panel.html',
   styleUrl: './enterprise-verify-email-panel.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EnterpriseVerifyEmailPanel {
   private readonly fb = inject(FormBuilder);

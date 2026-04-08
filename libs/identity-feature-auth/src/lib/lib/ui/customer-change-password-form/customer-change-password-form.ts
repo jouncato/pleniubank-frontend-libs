@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   APP_PASSWORD_COMPLEXITY_PATTERN,
@@ -9,6 +9,7 @@ import { CustomerChangePasswordVm } from '../../vm/customer-change-password';
 
 @Component({
   selector: 'lib-customer-change-password-form',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './customer-change-password-form.html',
   styleUrl: './customer-change-password-form.scss',

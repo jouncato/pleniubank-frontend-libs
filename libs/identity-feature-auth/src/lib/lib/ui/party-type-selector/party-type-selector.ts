@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
 import { PbLogoComponent } from 'ui';
@@ -9,6 +9,7 @@ import { PbLogoComponent } from 'ui';
  */
 @Component({
   selector: 'lib-party-type-selector',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [RouterLink, PbLogoComponent],
   templateUrl: './party-type-selector.html',

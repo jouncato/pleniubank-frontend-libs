@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomerChangePasswordForm } from '../customer-change-password-form/customer-change-password-form';
 import { SecuritySettingsVm } from '../../vm/security-settings';
 
 @Component({
   selector: 'lib-security-settings',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, CustomerChangePasswordForm],
   templateUrl: './security-settings.html',
   styleUrl: './security-settings.scss',

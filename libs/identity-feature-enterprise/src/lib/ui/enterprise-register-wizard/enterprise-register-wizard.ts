@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { EconomicSectorPublicDto, EnterpriseDocumentType } from 'identity-domain';
@@ -11,9 +10,10 @@ import { RegisterEnterpriseVm, type RegisterEnterpriseStep } from '../../vm/regi
 
 @Component({
   selector: 'lib-enterprise-register-wizard',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, PbLogoComponent],
+  imports: [ReactiveFormsModule, RouterLink, PbLogoComponent],
   templateUrl: './enterprise-register-wizard.html',
   styleUrl: './enterprise-register-wizard.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EnterpriseRegisterWizard implements OnInit {
   private readonly fb = inject(FormBuilder);

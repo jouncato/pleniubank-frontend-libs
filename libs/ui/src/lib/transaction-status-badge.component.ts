@@ -1,9 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 export type TransactionStatus = 'PENDING' | 'COMMITTED' | 'REJECTED' | 'RELEASED' | string;
 
 @Component({
   selector: 'pleniu-transaction-status-badge',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span class="badge" [class]="badgeClass" [attr.aria-label]="'Estado: ' + label" [title]="detail || label">
       {{ label }}

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PasswordResetMethod } from 'identity-domain';
@@ -8,6 +8,7 @@ import { ForgotPasswordVm } from '../../vm/forgot-password';
 
 @Component({
   selector: 'lib-forgot-password-form',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './forgot-password-form.html',
   styleUrl: './forgot-password-form.scss',

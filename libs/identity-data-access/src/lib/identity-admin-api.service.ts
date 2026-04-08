@@ -59,7 +59,7 @@ export class IdentityAdminApiService {
         `${this.apiConfig.identityBaseUrl}/api/v1/admin/users`,
         { params: this.buildAdminUsersQueryParams(params) },
       )
-      .pipe(map((raw) => this.asUsersListEnvelope(raw)));
+      .pipe(map((raw) => this.normalizeCursorListEnvelope(raw)));
   }
 
   getUserById(userId: string): Observable<AdminUserDetailEnvelope> {
@@ -92,7 +92,7 @@ export class IdentityAdminApiService {
       >(`${this.apiConfig.identityBaseUrl}/api/v1/admin/enterprises`, {
         params: this.buildAdminEnterprisesQueryParams(params),
       })
-      .pipe(map((raw) => this.asEnterprisesListEnvelope(raw)));
+      .pipe(map((raw) => this.normalizeCursorListEnvelope(raw)));
   }
 
   getEnterpriseById(enterpriseId: string): Observable<AdminEnterpriseDetailEnvelope> {
@@ -166,35 +166,14 @@ export class IdentityAdminApiService {
     return hp;
   }
 
-  private asUsersListEnvelope(
+  /** Normaliza listas admin con `data`+`meta` o forma plana `items`+cursor (legacy / gateway). */
+  private normalizeCursorListEnvelope<T>(
     payload:
-      | AdminUsersListEnvelope
-      | { items?: AdminUserDto[]; cursor?: string | null; has_more?: boolean; total?: number | null },
-  ): AdminUsersListEnvelope {
+      | ApiEnvelope<T[]>
+      | { items?: T[]; cursor?: string | null; has_more?: boolean; total?: number | null },
+  ): { data: T[]; meta: ApiMeta } {
     if (this.isEnvelope(payload)) {
-      return payload;
-    }
-    const list = Array.isArray(payload?.items) ? payload.items : [];
-    const meta: ApiMeta = {
-      cursor: payload?.cursor ?? null,
-      has_more: payload?.has_more ?? false,
-      total: payload?.total ?? null,
-    };
-    return { data: list, meta };
-  }
-
-  private asEnterprisesListEnvelope(
-    payload:
-      | AdminEnterprisesListEnvelope
-      | {
-          items?: AdminEnterpriseSummaryDto[];
-          cursor?: string | null;
-          has_more?: boolean;
-          total?: number | null;
-        },
-  ): AdminEnterprisesListEnvelope {
-    if (this.isEnvelope(payload)) {
-      return payload;
+      return payload as { data: T[]; meta: ApiMeta };
     }
     const list = Array.isArray(payload?.items) ? payload.items : [];
     const meta: ApiMeta = {

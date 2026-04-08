@@ -86,7 +86,8 @@
               </ol>
             </nav>
 
-            <div *ngIf="step === 0" class="panel">
+            @if (step === 0) {
+            <div class="panel">
               <h2 class="panel__title">Datos de la empresa</h2>
               <p class="panel__subtitle">Identificación fiscal y datos de contacto corporativos.</p>
               <form [formGroup]="companyForm" (ngSubmit)="nextFromCompany()" novalidate>
@@ -95,7 +96,9 @@
 
                 <label for="dt">Tipo de documento</label>
                 <select id="dt" formControlName="document_type">
-                  <option *ngFor="let d of documentTypes" [value]="d">{{ d }}</option>
+                  @for (d of documentTypes; track d) {
+                    <option [value]="d">{{ d }}</option>
+                  }
                 </select>
 
                 <label for="dn">Número de documento</label>
@@ -108,16 +111,17 @@
                 <input id="cp" type="tel" formControlName="company_phone" autocomplete="tel" />
 
                 <label for="sec">Sector económico</label>
-                <ng-container *ngIf="!sectorsError(); else sectorErrTpl">
+                @if (!sectorsError()) {
                   <select id="sec" formControlName="economic_sector_id">
                     <option value="" disabled>Selecciona un sector</option>
-                    <option *ngFor="let s of sectors()" [value]="s.sector_id">{{ s.label_es }}</option>
+                    @for (s of sectors(); track s.sector_id) {
+                      <option [value]="s.sector_id">{{ s.label_es }}</option>
+                    }
                   </select>
-                </ng-container>
-                <ng-template #sectorErrTpl>
+                } @else {
                   <p class="error" role="alert">{{ sectorsError() }}</p>
                   <button type="button" class="pl-btn pl-btn--outline" (click)="loadSectors()">Reintentar</button>
-                </ng-template>
+                }
 
                 <div class="actions">
                   <a class="actions__link" routerLink="/onboarding/party/access/login">Cancelar</a>
@@ -127,8 +131,10 @@
                 </div>
               </form>
             </div>
+            }
 
-            <div *ngIf="step === 1" class="panel">
+            @if (step === 1) {
+            <div class="panel">
               <h2 class="panel__title">Representante legal</h2>
               <p class="panel__subtitle">Persona que firma en nombre de la empresa (usuario principal).</p>
               <form [formGroup]="principalForm" (ngSubmit)="nextFromPrincipal()" novalidate>
@@ -149,8 +155,10 @@
                 </div>
               </form>
             </div>
+            }
 
-            <div *ngIf="step === 2" class="panel">
+            @if (step === 2) {
+            <div class="panel">
               <h2 class="panel__title">Usuario administrador</h2>
               <p class="panel__subtitle">Quién gestionará usuarios y permisos en el portal.</p>
               <form [formGroup]="adminForm" (ngSubmit)="nextFromAdmin()" novalidate>
@@ -171,8 +179,10 @@
                 </div>
               </form>
             </div>
+            }
 
-            <div *ngIf="step === 3" class="panel">
+            @if (step === 3) {
+            <div class="panel">
               <h2 class="panel__title">Confirmar registro</h2>
               <p class="panel__subtitle">Revisa o corrige los datos antes de enviar.</p>
 
@@ -183,7 +193,9 @@
 
                 <label for="c-dt">Tipo de documento</label>
                 <select id="c-dt" formControlName="document_type">
-                  <option *ngFor="let d of documentTypes" [value]="d">{{ d }}</option>
+                  @for (d of documentTypes; track d) {
+                    <option [value]="d">{{ d }}</option>
+                  }
                 </select>
 
                 <label for="c-dn">Número de documento</label>
@@ -196,16 +208,17 @@
                 <input id="c-cp" type="tel" formControlName="company_phone" autocomplete="tel" />
 
                 <label for="c-sec">Sector económico</label>
-                <ng-container *ngIf="!sectorsError(); else sectorErrConfirmTpl">
+                @if (!sectorsError()) {
                   <select id="c-sec" formControlName="economic_sector_id">
                     <option value="" disabled>Selecciona un sector</option>
-                    <option *ngFor="let s of sectors()" [value]="s.sector_id">{{ s.label_es }}</option>
+                    @for (s of sectors(); track s.sector_id) {
+                      <option [value]="s.sector_id">{{ s.label_es }}</option>
+                    }
                   </select>
-                </ng-container>
-                <ng-template #sectorErrConfirmTpl>
+                } @else {
                   <p class="error" role="alert">{{ sectorsError() }}</p>
                   <button type="button" class="pl-btn pl-btn--outline" (click)="loadSectors()">Reintentar</button>
-                </ng-template>
+                }
               </div>
 
               <div class="confirm-edit" [formGroup]="principalForm">
@@ -237,8 +250,12 @@
                 <span>Confirmo que los datos son correctos</span>
               </label>
 
-              <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
-              <p class="error" *ngIf="vm.conflictError()">Si necesitas ayuda, contacta soporte.</p>
+              @if (vm.errorMessage()) {
+                <p class="error" aria-live="polite">{{ vm.errorMessage() }}</p>
+              }
+              @if (vm.conflictError()) {
+                <p class="error">Si necesitas ayuda, contacta soporte.</p>
+              }
 
               <div class="actions">
                 <button type="button" class="pl-btn pl-btn--outline" (click)="prev()">Atrás</button>
@@ -252,6 +269,7 @@
                 </button>
               </div>
             </div>
+            }
           </section>
         }
 

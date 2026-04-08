@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
@@ -12,6 +12,7 @@ type OnbSegment = 'register' | 'verify-contact' | 'verify-email' | 'verify-phone
 
 @Component({
   selector: 'lib-customer-onboarding-shell',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, RouterOutlet, PbLogoComponent],
   templateUrl: './customer-onboarding-shell.html',
   styleUrl: './customer-onboarding-shell.scss',

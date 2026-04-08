@@ -6,7 +6,7 @@ import {
   unwrapValidateResponse,
 } from 'identity-data-access';
 import { isValidReturnUrl, SessionStore } from 'shared-auth';
-import { mapHttpError } from 'shared-http';
+import { mapHttpError, type ApiHttpError } from 'shared-http';
 import { switchMap, map } from 'rxjs/operators';
 
 @Injectable({
@@ -54,9 +54,8 @@ export class VerifyPhonePostLoginVm {
     this.autoRenewNotice.set(null);
     this.identityApi.startPhoneOtpChallenge().subscribe({
       next: (raw) => {
-        const body = unwrapPhoneOtpChallenge(raw);
         this.state.set('ready');
-        this.applyChallengePayload(body);
+        this.consumeChallengeResponse(raw);
       },
       error: (error: unknown) => {
         const mapped = mapHttpError(error);
@@ -66,9 +65,7 @@ export class VerifyPhonePostLoginVm {
           return;
         }
         this.state.set('error');
-        this.errorMessage.set(
-          mapped.errors[0]?.message?.trim() || 'No se pudo enviar el código.',
-        );
+        this.errorMessage.set(this.firstMappedMessage(mapped, 'No se pudo enviar el código.'));
       },
     });
   }
@@ -81,9 +78,7 @@ export class VerifyPhonePostLoginVm {
     this.autoRenewNotice.set(null);
     this.identityApi.resendPhoneOtpAuthenticated().subscribe({
       next: (raw) => {
-        const body = unwrapPhoneOtpChallenge(raw);
-        this.applyChallengePayload(body);
-        this.otpReissuedTick.update((n) => n + 1);
+        this.consumeChallengeResponse(raw, { bumpReissue: true });
       },
       error: (error: unknown) => {
         const mapped = mapHttpError(error);
@@ -92,7 +87,7 @@ export class VerifyPhonePostLoginVm {
           this.armResendCooldown(60);
           return;
         }
-        this.errorMessage.set(mapped.errors[0]?.message?.trim() || 'No se pudo reenviar el código.');
+        this.errorMessage.set(this.firstMappedMessage(mapped, 'No se pudo reenviar el código.'));
       },
     });
   }
@@ -139,7 +134,7 @@ export class VerifyPhonePostLoginVm {
           this.errorMessage.set(
             mapped.status === 422 || mapped.status === 404
               ? 'Código incorrecto o expirado.'
-              : mapped.errors[0]?.message?.trim() || 'No se pudo verificar el código.',
+              : this.firstMappedMessage(mapped, 'No se pudo verificar el código.'),
           );
         },
       });
@@ -149,6 +144,21 @@ export class VerifyPhonePostLoginVm {
     this.clearResendTimer();
     this.clearOtpExpiryTimer();
     this.autoRenewInFlight = false;
+  }
+
+  private firstMappedMessage(mapped: ApiHttpError, fallback: string): string {
+    return mapped.errors[0]?.message?.trim() || fallback;
+  }
+
+  private consumeChallengeResponse(
+    raw: unknown,
+    options: { bumpReissue?: boolean } = {},
+  ): void {
+    const body = unwrapPhoneOtpChallenge(raw as never);
+    this.applyChallengePayload(body);
+    if (options.bumpReissue) {
+      this.otpReissuedTick.update((n) => n + 1);
+    }
   }
 
   private applyChallengePayload(body: { expires_in_seconds: number; debug_otp?: string | null }): void {
@@ -188,13 +198,11 @@ export class VerifyPhonePostLoginVm {
     this.identityApi.startPhoneOtpChallenge().subscribe({
       next: (raw) => {
         this.autoRenewInFlight = false;
-        const body = unwrapPhoneOtpChallenge(raw);
         if (this.state() === 'error') {
           this.state.set('ready');
         }
         this.autoRenewNotice.set('El código anterior caducó; te enviamos uno nuevo por SMS.');
-        this.applyChallengePayload(body);
-        this.otpReissuedTick.update((n) => n + 1);
+        this.consumeChallengeResponse(raw, { bumpReissue: true });
       },
       error: () => {
         this.autoRenewInFlight = false;

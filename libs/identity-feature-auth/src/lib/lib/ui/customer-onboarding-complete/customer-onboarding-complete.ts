@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
 
 @Component({
   selector: 'lib-customer-onboarding-complete',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink],
   templateUrl: './customer-onboarding-complete.html',
   styleUrl: './customer-onboarding-complete.scss',

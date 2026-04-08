@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { AcceptInviteVm } from '../../vm/accept-invite';
@@ -9,6 +9,7 @@ import { AcceptInviteVm } from '../../vm/accept-invite';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './accept-invite-panel.html',
   styleUrl: './accept-invite-panel.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcceptInvitePanel implements OnInit {
   private readonly fb = inject(FormBuilder);

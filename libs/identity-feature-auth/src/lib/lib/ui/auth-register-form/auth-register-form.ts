@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { RegisterDocumentType } from 'identity-domain';
@@ -11,7 +10,8 @@ const DOCUMENT_PATTERN = /^[A-Za-z0-9-]{5,32}$/;
 
 @Component({
   selector: 'lib-auth-register-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './auth-register-form.html',
   styleUrl: './auth-register-form.scss',
 })

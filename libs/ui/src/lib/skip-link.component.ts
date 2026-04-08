@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
  * Skip link WCAG (épica X-05): primer Tab muestra enlace a `#main-content`.
  */
 @Component({
   selector: 'lib-skip-link',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   template: `
     <a class="pleniu-skip-link" href="#main-content">Ir al contenido principal</a>

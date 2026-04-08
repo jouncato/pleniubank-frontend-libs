@@ -4,32 +4,34 @@
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <label for="fullName">Nombre completo</label>
       <input id="fullName" type="text" autocomplete="name" formControlName="fullName" />
-      <p class="field-error" *ngIf="form.controls.fullName.touched && form.controls.fullName.invalid">
-        Ingresa tu nombre completo (minimo 3 caracteres).
-      </p>
+      @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+        <p class="field-error">Ingresa tu nombre completo (minimo 3 caracteres).</p>
+      }
 
       <label for="email">Correo electronico</label>
       <input id="email" type="email" autocomplete="email" formControlName="email" />
-      <p class="field-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">
-        Ingresa un correo valido.
-      </p>
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <p class="field-error">Ingresa un correo valido.</p>
+      }
 
       <label for="phone">Telefono celular</label>
       <input id="phone" type="tel" autocomplete="tel" formControlName="phone" />
-      <p class="field-error" *ngIf="form.controls.phone.touched && form.controls.phone.invalid">
-        Ingresa un telefono valido (7 a 20 caracteres).
-      </p>
+      @if (form.controls.phone.touched && form.controls.phone.invalid) {
+        <p class="field-error">Ingresa un telefono valido (7 a 20 caracteres).</p>
+      }
 
       <label for="documentType">Tipo de documento</label>
       <select id="documentType" formControlName="documentType">
-        <option *ngFor="let option of documentTypeOptions" [value]="option.value">{{ option.label }}</option>
+        @for (option of documentTypeOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
       </select>
 
       <label for="documentNumber">Numero de documento</label>
       <input id="documentNumber" type="text" autocomplete="off" formControlName="documentNumber" />
-      <p class="field-error" *ngIf="form.controls.documentNumber.touched && form.controls.documentNumber.invalid">
-        Ingresa un documento valido (5 a 32 caracteres).
-      </p>
+      @if (form.controls.documentNumber.touched && form.controls.documentNumber.invalid) {
+        <p class="field-error">Ingresa un documento valido (5 a 32 caracteres).</p>
+      }
 
       <label for="password">Contrasena</label>
       <input
@@ -55,9 +57,9 @@
         formControlName="confirmPassword"
         (input)="onPasswordInput()"
       />
-      <p class="field-error" *ngIf="form.controls.confirmPassword.hasError('mismatch')">
-        Las contrasenas no coinciden.
-      </p>
+      @if (form.controls.confirmPassword.hasError('mismatch')) {
+        <p class="field-error">Las contrasenas no coinciden.</p>
+      }
 
       <label class="terms">
         <input type="checkbox" formControlName="acceptedTerms" />
@@ -65,11 +67,13 @@
           Acepto terminos y condiciones y autorizo el tratamiento de datos.
         </span>
       </label>
-      <p class="field-error" *ngIf="form.controls.acceptedTerms.touched && form.controls.acceptedTerms.invalid">
-        Debes aceptar los terminos para continuar.
-      </p>
+      @if (form.controls.acceptedTerms.touched && form.controls.acceptedTerms.invalid) {
+        <p class="field-error">Debes aceptar los terminos para continuar.</p>
+      }
 
-      <p class="error" *ngIf="vm.errorMessage() as error" aria-live="polite">{{ error }}</p>
+      @if (vm.errorMessage(); as error) {
+        <p class="error" aria-live="polite">{{ error }}</p>
+      }
 
       <button
         type="submit"

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   OnDestroy,
@@ -19,6 +20,7 @@ import { VerifyPhoneVm } from '../../vm/verify-phone';
  */
 @Component({
   selector: 'lib-otp-challenge',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './otp-challenge.html',
   styleUrl: './otp-challenge.scss',

@@ -73,24 +73,15 @@ export class CoreWebSocketEventsService {
     }
 
     const sameToken = this.authMode === 'bearer' && this.bearerToken === token;
-    if (sameToken && this.ws != null) {
-      const rs = this.ws.readyState;
-      if (rs === WS_OPEN || rs === WS_CONNECTING) {
-        return;
-      }
+    if (sameToken && this._socketIsOpenOrConnecting()) {
+      return;
     }
 
     if (this.bearerToken !== token) {
       this.rapidCloseCount = 0;
     }
 
-    this.manualStop = false;
-    this._clearReconnectTimer();
-    this._clearCooldownTimer();
-    if (this.ws) {
-      this.ws.close(1000, 'auth_change');
-      this.ws = null;
-    }
+    this._prepareNewConnection();
     this.authMode = 'bearer';
     this.bearerToken = token;
     this._openSocket();
@@ -98,20 +89,11 @@ export class CoreWebSocketEventsService {
 
   /** Conexión sin query; el navegador envía la cookie de acceso si es same-site con Core. */
   connectCookieAuth(): void {
-    if (this.authMode === 'cookie' && this.ws != null) {
-      const rs = this.ws.readyState;
-      if (rs === WS_OPEN || rs === WS_CONNECTING) {
-        return;
-      }
+    if (this.authMode === 'cookie' && this._socketIsOpenOrConnecting()) {
+      return;
     }
 
-    this.manualStop = false;
-    this._clearReconnectTimer();
-    this._clearCooldownTimer();
-    if (this.ws) {
-      this.ws.close(1000, 'auth_change');
-      this.ws = null;
-    }
+    this._prepareNewConnection();
     this.authMode = 'cookie';
     this.bearerToken = null;
     this._openSocket();
@@ -156,6 +138,37 @@ export class CoreWebSocketEventsService {
     if (this.pingTimer !== undefined) {
       clearInterval(this.pingTimer);
       this.pingTimer = undefined;
+    }
+  }
+
+  /** Cierra el socket actual por sustitución (p. ej. cambio de token o modo cookie). */
+  private _closeSocketForReconnect(): void {
+    if (this.ws) {
+      this.ws.close(1000, 'auth_change');
+      this.ws = null;
+    }
+  }
+
+  /** Prepara una nueva conexión: sale de pausa, limpia timers de backoff y cierra el socket previo. */
+  private _prepareNewConnection(): void {
+    this.manualStop = false;
+    this._clearReconnectTimer();
+    this._clearCooldownTimer();
+    this._closeSocketForReconnect();
+  }
+
+  private _socketIsOpenOrConnecting(): boolean {
+    if (this.ws == null) {
+      return false;
+    }
+    const rs = this.ws.readyState;
+    return rs === WS_OPEN || rs === WS_CONNECTING;
+  }
+
+  private _bumpFailureStreakAndMaybePolling(): void {
+    this.failureStreak++;
+    if (this.failureStreak >= 3) {
+      this._pollingFallback.set(true);
     }
   }
 
@@ -293,10 +306,7 @@ export class CoreWebSocketEventsService {
           this.rapidCloseCount = 0;
         }
 
-        this.failureStreak++;
-        if (this.failureStreak >= 3) {
-          this._pollingFallback.set(true);
-        }
+        this._bumpFailureStreakAndMaybePolling();
 
         if (this.rapidCloseCount >= RAPID_CLOSE_LIMIT) {
           this.rapidCloseCount = 0;
@@ -317,10 +327,7 @@ export class CoreWebSocketEventsService {
       };
     } catch {
       this._connectionState.set('reconnecting');
-      this.failureStreak++;
-      if (this.failureStreak >= 3) {
-        this._pollingFallback.set(true);
-      }
+      this._bumpFailureStreakAndMaybePolling();
       this._scheduleReconnect();
     }
   }

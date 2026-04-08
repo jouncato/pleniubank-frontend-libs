@@ -98,43 +98,39 @@ export class LoginVm {
         }
         this.hydrateSession(returnUrl);
       },
-      error: (error: unknown) => {
-        const mappedError = mapHttpError(error);
-        const code = mappedError.errors[0]?.code;
-        if (mappedError.status === 423 || code === 'ACCOUNT_LOCKED') {
-          this.rateLimit.reset();
-          this.state.set('locked');
-          this.errorMessage.set(
-            messageFromApiEnvelope(mappedError, 'Tu cuenta esta bloqueada.'),
-          );
-          return;
-        }
-        if (mappedError.status === 429) {
-          this.rateLimit.register429();
-          this.state.set('rate_limited');
-          return;
-        }
-        this.rateLimit.reset();
-        this.state.set('error');
-        const inactiveFb =
-          'Tu cuenta no está activa. Verifica con el código que enviamos por correo o por SMS (con uno basta).';
-        const badCredsFb = 'Correo o contrasena incorrectos.';
-        if (mappedError.status === 401) {
-          this.errorMessage.set(
-            code === 'USER_INACTIVE'
-              ? messageFromApiEnvelope(mappedError, inactiveFb)
-              : messageFromApiEnvelope(mappedError, badCredsFb),
-          );
-          return;
-        }
-        this.errorMessage.set(
-          messageFromApiEnvelope(
-            mappedError,
-            'No fue posible iniciar sesion. Intenta nuevamente.',
-          ),
-        );
-      },
+      error: (error: unknown) => this.applyLoginHttpError(mapHttpError(error)),
     });
+  }
+
+  private applyLoginHttpError(mappedError: ApiHttpError): void {
+    const code = mappedError.errors[0]?.code;
+    if (mappedError.status === 423 || code === 'ACCOUNT_LOCKED') {
+      this.rateLimit.reset();
+      this.state.set('locked');
+      this.errorMessage.set(messageFromApiEnvelope(mappedError, 'Tu cuenta esta bloqueada.'));
+      return;
+    }
+    if (mappedError.status === 429) {
+      this.rateLimit.register429();
+      this.state.set('rate_limited');
+      return;
+    }
+    this.rateLimit.reset();
+    this.state.set('error');
+    const inactiveFb =
+      'Tu cuenta no está activa. Verifica con el código que enviamos por correo o por SMS (con uno basta).';
+    const badCredsFb = 'Correo o contrasena incorrectos.';
+    if (mappedError.status === 401) {
+      this.errorMessage.set(
+        code === 'USER_INACTIVE'
+          ? messageFromApiEnvelope(mappedError, inactiveFb)
+          : messageFromApiEnvelope(mappedError, badCredsFb),
+      );
+      return;
+    }
+    this.errorMessage.set(
+      messageFromApiEnvelope(mappedError, 'No fue posible iniciar sesion. Intenta nuevamente.'),
+    );
   }
 
   private hydrateSession(returnUrl?: string): void {

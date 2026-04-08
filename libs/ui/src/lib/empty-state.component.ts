@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 export type EmptyStateIcon =
@@ -17,6 +17,7 @@ export type EmptyStateIcon =
 
 @Component({
   selector: 'pb-empty-state',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink],
   template: `
     <section class="pb-empty-state" role="status" aria-live="polite">

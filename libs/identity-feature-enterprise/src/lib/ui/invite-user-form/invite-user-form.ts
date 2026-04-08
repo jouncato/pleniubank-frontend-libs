@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { isEnterpriseAdministratorRole, SessionStore } from 'shared-auth';
 import { InviteUserVm } from '../../vm/invite-user';
@@ -9,6 +9,7 @@ import { InviteUserVm } from '../../vm/invite-user';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './invite-user-form.html',
   styleUrl: './invite-user-form.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InviteUserForm {
   private readonly fb = inject(FormBuilder);

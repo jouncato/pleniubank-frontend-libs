@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { isEnterpriseAdministratorRole, SessionStore } from 'shared-auth';
 import { EnterpriseUserCreateVm } from '../../vm/enterprise-user-create';
@@ -9,6 +9,7 @@ import { EnterpriseUserCreateVm } from '../../vm/enterprise-user-create';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './enterprise-user-form.html',
   styleUrl: './enterprise-user-form.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EnterpriseUserForm {
   private readonly fb = inject(FormBuilder);

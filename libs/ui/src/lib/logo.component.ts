@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NgIf, NgClass } from '@angular/common';
 import { BRAND_ASSETS } from './brand-assets';
 
@@ -7,6 +7,7 @@ type LogoSize = 'sm' | 'md' | 'lg';
 
 @Component({
   selector: 'pb-logo',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [NgIf, NgClass],
   template: `

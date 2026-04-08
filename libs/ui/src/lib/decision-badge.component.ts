@@ -1,10 +1,11 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 /** Decisiones de evaluación del motor de reglas (MR-FE-003). */
 export type EvaluationDecision = 'APPROVED' | 'REJECTED' | 'MANUAL_REVIEW';
 
 @Component({
   selector: 'pleniu-decision-badge',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   template: `
     <span class="badge" [class]="badgeClass()" [attr.aria-label]="'Decisión: ' + decision()">

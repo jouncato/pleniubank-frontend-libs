@@ -33,15 +33,22 @@ export type PhoneOtpChallengePayload = {
   debug_otp?: string | null;
 };
 
+/** Identity / gateway: cuerpo plano o `{ data: T }`. */
+function unwrapEnvelopeData<T>(body: ApiEnvelope<T> | T): T {
+  if (body && typeof body === 'object' && 'data' in body) {
+    const d = (body as ApiEnvelope<T>).data;
+    if (d) {
+      return d;
+    }
+  }
+  return body as T;
+}
+
 /** Identity devuelve cuerpo plano; algunos gateways pueden envolver en `{ data }`. */
 export function unwrapRefreshResponse(
   body: ApiEnvelope<RefreshTokenPayload> | RefreshTokenPayload,
 ): RefreshTokenPayload {
-  if (body && typeof body === 'object' && 'data' in body) {
-    const d = (body as ApiEnvelope<RefreshTokenPayload>).data;
-    if (d) return d;
-  }
-  return body as RefreshTokenPayload;
+  return unwrapEnvelopeData(body);
 }
 
 function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
@@ -125,21 +132,13 @@ export function unwrapValidateResponse(
 export function unwrapVerificationResponse(
   body: VerificationEnvelope | VerificationResponse,
 ): VerificationResponse {
-  if (body && typeof body === 'object' && 'data' in body) {
-    const d = (body as VerificationEnvelope).data;
-    if (d) return d;
-  }
-  return body as VerificationResponse;
+  return unwrapEnvelopeData(body as ApiEnvelope<VerificationResponse> | VerificationResponse);
 }
 
 export function unwrapPhoneOtpChallenge(
   body: ApiEnvelope<PhoneOtpChallengePayload> | PhoneOtpChallengePayload,
 ): PhoneOtpChallengePayload {
-  if (body && typeof body === 'object' && 'data' in body) {
-    const d = (body as ApiEnvelope<PhoneOtpChallengePayload>).data;
-    if (d) return d;
-  }
-  return body as PhoneOtpChallengePayload;
+  return unwrapEnvelopeData(body);
 }
 
 @Injectable({ providedIn: 'root' })

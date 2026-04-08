@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
@@ -6,6 +6,7 @@ import { PbLogoComponent } from 'ui';
 
 @Component({
   selector: 'lib-auth-shell',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, PbLogoComponent],
   templateUrl: './auth-shell.html',
   styleUrl: './auth-shell.scss',

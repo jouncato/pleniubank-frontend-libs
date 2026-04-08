@@ -1,5 +1,13 @@
-import { APP_INITIALIZER, EnvironmentInjector, ErrorHandler, inject, Provider, runInInjectionContext } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+  APP_INITIALIZER,
+  DestroyRef,
+  EnvironmentInjector,
+  ErrorHandler,
+  inject,
+  Provider,
+  runInInjectionContext,
+} from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import * as Sentry from '@sentry/angular';
 import { SessionStore, type SessionClaims } from '@pleniu/shared-auth';
 
@@ -50,8 +58,11 @@ export function pleniuSentryProviders(config: PleniuSentryInitConfig): Provider[
       useFactory: () => {
         const store = inject(SessionStore);
         const env = inject(EnvironmentInjector);
+        const destroyRef = inject(DestroyRef);
         runInInjectionContext(env, () => {
-          toObservable(store.claims).subscribe((c) => applySentryUserFromClaims(c));
+          toObservable(store.claims)
+            .pipe(takeUntilDestroyed(destroyRef))
+            .subscribe((c) => applySentryUserFromClaims(c));
         });
         return () => undefined;
       },

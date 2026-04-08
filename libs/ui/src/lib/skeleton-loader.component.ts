@@ -1,9 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 export type SkeletonLoaderVariant = 'row' | 'card' | 'text';
 
 @Component({
   selector: 'pb-skeleton-loader',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="pb-skeleton"
