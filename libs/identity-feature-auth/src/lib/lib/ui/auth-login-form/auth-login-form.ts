@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { PORTAL_APP, type PortalAppKind } from 'shared-auth';
+import { PORTAL_APP, type PortalAppKind } from '@pleniu/shared-auth';
 import { LoginVm } from '../../vm/login';
 
 @Component({

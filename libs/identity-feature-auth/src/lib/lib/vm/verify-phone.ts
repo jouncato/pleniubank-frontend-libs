@@ -2,9 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { VerifyOtpRequest } from 'identity-domain';
-import { SessionStore } from 'shared-auth';
-import { IdentityAuthApiService, unwrapVerificationResponse } from 'identity-data-access';
-import { ApiHttpError, mapHttpError } from 'shared-http';
+import { SessionStore } from '@pleniu/shared-auth';
+import { IdentityAuthApiService, unwrapVerificationResponse } from '@pleniu/identity-data-access';
+import { ApiHttpError, mapHttpError } from '@pleniu/shared-http';
 
 const VERIFY_PHONE_LOG = '[Pleniu auth/verify-phone]';
 const RESEND_COOLDOWN_SEC = 60;

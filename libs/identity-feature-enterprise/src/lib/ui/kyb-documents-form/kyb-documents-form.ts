@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { SessionStore } from 'shared-auth';
+import { SessionStore } from '@pleniu/shared-auth';
 import {
   kybLocalAddDoc,
   kybLocalListDocs,

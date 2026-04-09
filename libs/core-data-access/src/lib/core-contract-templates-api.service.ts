@@ -6,7 +6,7 @@ import {
   CreateContractTemplateRequest,
   ListContractTemplatesParams,
 } from 'core-domain';
-import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
+import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 
 import { coreAdminV1Base } from './core-api-base';
 

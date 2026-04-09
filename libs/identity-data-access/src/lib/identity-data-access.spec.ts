@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { API_CONFIG } from 'shared-http';
+import { API_CONFIG } from '@pleniu/shared-http';
 import {
   IdentityAuthApiService,
   unwrapRefreshResponse,

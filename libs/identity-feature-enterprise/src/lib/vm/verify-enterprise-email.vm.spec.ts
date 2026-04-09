@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { IdentityEnterpriseApiService } from 'identity-data-access';
+import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 
 import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
 import { VerifyEnterpriseEmailVm } from './verify-enterprise-email';

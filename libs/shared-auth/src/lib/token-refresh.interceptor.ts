@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpReq
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, filter, finalize, switchMap, take, throwError } from 'rxjs';
-import { mapHttpError } from 'shared-http';
+import { mapHttpError } from '@pleniu/shared-http';
 import { AUTH_REFRESH_HANDLER } from './auth-refresh.token';
 import { PORTAL_APP } from './portal-app.token';
 import { SESSION_STRATEGY } from './session-strategy.token';

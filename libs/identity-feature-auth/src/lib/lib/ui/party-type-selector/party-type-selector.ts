@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
-import { PbLogoComponent } from 'ui';
+import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
+import { PbLogoComponent } from '@pleniu/ui';
 
 /**
  * HU-1 / BIAN Party Reference: elección de tipo de Party antes del registro.

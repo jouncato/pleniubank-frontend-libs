@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { IdentityEnterpriseApiService } from 'identity-data-access';
-import { FeatureFlagService } from 'shared-auth';
+import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { FeatureFlagService } from '@pleniu/shared-auth';
 
 import { SwitchContextVm } from './switch-context';
 

@@ -1,5 +1,5 @@
-import { ApiEnvelope } from 'shared-http';
-import { SessionClaims } from 'shared-auth';
+import { ApiEnvelope } from '@pleniu/shared-http';
+import { SessionClaims } from '@pleniu/shared-auth';
 
 export interface RegisterRequest {
   email: string;

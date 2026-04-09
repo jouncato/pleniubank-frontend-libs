@@ -1,8 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { LoginEnvelope, LoginResponse } from 'identity-domain';
-import { IdentityAuthApiService, unwrapValidateResponse } from 'identity-data-access';
-import { SESSION_STRATEGY, SessionStore, type SessionStrategy } from 'shared-auth';
-import { mapHttpError } from 'shared-http';
+import { IdentityAuthApiService, unwrapValidateResponse } from '@pleniu/identity-data-access';
+import { SESSION_STRATEGY, SessionStore, type SessionStrategy } from '@pleniu/shared-auth';
+import { mapHttpError } from '@pleniu/shared-http';
 
 function unwrapLoginPayload(body: LoginEnvelope | LoginResponse): LoginResponse {
   if (body && typeof body === 'object' && 'data' in body && (body as LoginEnvelope).data) {

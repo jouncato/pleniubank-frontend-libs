@@ -1,4 +1,4 @@
-import type { ApiConfig } from 'shared-http';
+import type { ApiConfig } from '@pleniu/shared-http';
 
 function joinCorePrefix(baseUrl: string, prefix: string | undefined, fallback: string): string {
   const root = baseUrl.replace(/\/$/, '');

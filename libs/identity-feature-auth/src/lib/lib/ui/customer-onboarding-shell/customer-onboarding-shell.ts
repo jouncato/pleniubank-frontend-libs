@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
-import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
-import { PbLogoComponent } from 'ui';
+import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
+import { PbLogoComponent } from '@pleniu/ui';
 
 const CUSTOMER_BASE = '/onboarding/party/customer';
 

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
-import type { SessionClaims } from 'shared-auth';
+import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
+import type { SessionClaims } from '@pleniu/shared-auth';
 import {
   ForgotPasswordEnvelope,
   ForgotPasswordRequest,

@@ -2,14 +2,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { LoginRequest } from 'identity-domain';
-import { IdentityAuthApiService } from 'identity-data-access';
+import { IdentityAuthApiService } from '@pleniu/identity-data-access';
 import { of, throwError } from 'rxjs';
 import {
   PORTAL_APP,
   POST_LOGIN_CUSTOMER_PORTAL,
   SessionStore,
   SESSION_STRATEGY,
-} from 'shared-auth';
+} from '@pleniu/shared-auth';
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 import { LoginVm } from './login';

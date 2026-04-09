@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { API_CONFIG, ApiConfig } from 'shared-http';
+import { API_CONFIG, ApiConfig } from '@pleniu/shared-http';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentHubContext {

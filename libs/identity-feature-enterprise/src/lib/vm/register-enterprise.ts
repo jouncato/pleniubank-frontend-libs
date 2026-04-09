@@ -1,8 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { RegisterEnterprisePersonRequest } from 'identity-domain';
-import { IdentityEnterpriseApiService } from 'identity-data-access';
-import { mapHttpError } from 'shared-http';
+import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { mapHttpError } from '@pleniu/shared-http';
 import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
 
 export type RegisterEnterpriseStep = 0 | 1 | 2 | 3;

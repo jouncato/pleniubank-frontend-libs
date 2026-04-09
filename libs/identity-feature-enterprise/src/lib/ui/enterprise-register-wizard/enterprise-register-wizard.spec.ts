@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { EconomicSectorPublicDto } from 'identity-domain';
-import { IdentityEnterpriseApiService } from 'identity-data-access';
-import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
+import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
 import { of } from 'rxjs';
 import { EnterpriseOnboardingStore } from '../../enterprise-onboarding.store';
 import { RegisterEnterpriseVm } from '../../vm/register-enterprise';

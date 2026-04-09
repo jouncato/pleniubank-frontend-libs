@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IdentityEnterpriseApiService } from 'identity-data-access';
-import { mapHttpError } from 'shared-http';
+import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { mapHttpError } from '@pleniu/shared-http';
 import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
 
 export type EnterpriseEmailRole = 'principal' | 'admin';

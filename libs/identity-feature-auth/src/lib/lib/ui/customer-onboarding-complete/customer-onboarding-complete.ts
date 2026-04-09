@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
+import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
 
 @Component({
   selector: 'lib-customer-onboarding-complete',

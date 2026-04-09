@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { throwError, of } from 'rxjs';
 import { vi } from 'vitest';
-import { IdentityAuthApiService } from 'identity-data-access';
+import { IdentityAuthApiService } from '@pleniu/identity-data-access';
 
 import { ResetPasswordVm } from './reset-password';
 

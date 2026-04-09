@@ -4,9 +4,9 @@ import {
   IdentityAuthApiService,
   unwrapPhoneOtpChallenge,
   unwrapValidateResponse,
-} from 'identity-data-access';
-import { isValidReturnUrl, SessionStore } from 'shared-auth';
-import { mapHttpError, type ApiHttpError } from 'shared-http';
+} from '@pleniu/identity-data-access';
+import { isValidReturnUrl, SessionStore } from '@pleniu/shared-auth';
+import { mapHttpError, type ApiHttpError } from '@pleniu/shared-http';
 import { switchMap, map } from 'rxjs/operators';
 
 @Injectable({

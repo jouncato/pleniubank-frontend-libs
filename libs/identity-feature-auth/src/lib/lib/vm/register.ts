@@ -2,9 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, isDevMode, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { RegisterEnvelope, RegisterRequest, RegisterResponse } from 'identity-domain';
-import { IdentityAuthApiService } from 'identity-data-access';
-import { SessionStore } from 'shared-auth';
-import { ApiHttpError, mapHttpError } from 'shared-http';
+import { IdentityAuthApiService } from '@pleniu/identity-data-access';
+import { SessionStore } from '@pleniu/shared-auth';
+import { ApiHttpError, mapHttpError } from '@pleniu/shared-http';
 
 const REGISTER_LOG = '[Pleniu auth/register]';
 

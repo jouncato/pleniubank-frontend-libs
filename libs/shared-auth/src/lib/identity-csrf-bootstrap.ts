@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { APP_INITIALIZER, Provider } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { API_CONFIG, type ApiConfig } from 'shared-http';
+import { API_CONFIG, type ApiConfig } from '@pleniu/shared-http';
 import { SESSION_STRATEGY, type SessionStrategy } from './session-strategy.token';
 
 /**

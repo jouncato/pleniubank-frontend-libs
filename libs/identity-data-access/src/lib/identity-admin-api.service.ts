@@ -26,7 +26,7 @@ import {
   AdminUsersListParams,
   AdminUserDto,
 } from 'identity-domain';
-import { API_CONFIG, ApiConfig, ApiEnvelope, ApiMeta } from 'shared-http';
+import { API_CONFIG, ApiConfig, ApiEnvelope, ApiMeta } from '@pleniu/shared-http';
 
 @Injectable({ providedIn: 'root' })
 export class IdentityAdminApiService {

@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { IdentityAuthApiService } from 'identity-data-access';
-import { SessionStore } from 'shared-auth';
+import { IdentityAuthApiService } from '@pleniu/identity-data-access';
+import { SessionStore } from '@pleniu/shared-auth';
 
 import { VerifyPhoneVm } from './verify-phone';
 

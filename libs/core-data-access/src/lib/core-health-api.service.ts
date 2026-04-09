@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { API_CONFIG, ApiConfig } from 'shared-http';
+import { API_CONFIG, ApiConfig } from '@pleniu/shared-http';
 
 import { corePublicV1Base } from './core-api-base';
 import type { CoreHealthResponse, CoreReadinessResponse } from './core-types';

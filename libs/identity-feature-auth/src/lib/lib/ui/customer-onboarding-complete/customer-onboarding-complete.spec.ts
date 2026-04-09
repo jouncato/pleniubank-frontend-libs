@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
+import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
 import { CustomerOnboardingComplete } from './customer-onboarding-complete';
 
 describe('CustomerOnboardingComplete', () => {

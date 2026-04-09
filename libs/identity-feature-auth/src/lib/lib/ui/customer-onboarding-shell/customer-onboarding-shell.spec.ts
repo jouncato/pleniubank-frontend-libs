@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
+import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
 import { CustomerOnboardingShell } from './customer-onboarding-shell';
 
 @Component({ standalone: true, template: '' })

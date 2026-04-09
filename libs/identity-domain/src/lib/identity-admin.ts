@@ -1,4 +1,4 @@
-import { ApiEnvelope } from 'shared-http';
+import { ApiEnvelope } from '@pleniu/shared-http';
 import { EnterpriseDocumentType } from './identity-enterprise';
 
 /** Roles permitidos en `POST /api/v1/admin/users` (Identity `UserRole`). */

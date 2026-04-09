@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { IdentityAuthApiService } from 'identity-data-access';
+import { IdentityAuthApiService } from '@pleniu/identity-data-access';
 import { RegisterRequest } from 'identity-domain';
 import { of, throwError } from 'rxjs';
-import { SessionStore } from 'shared-auth';
+import { SessionStore } from '@pleniu/shared-auth';
 import { RegisterVm } from './register';
 
 const registerPayload: RegisterRequest = {

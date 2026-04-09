@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { isEnterpriseAdministratorRole, SessionStore } from 'shared-auth';
+import { isEnterpriseAdministratorRole, SessionStore } from '@pleniu/shared-auth';
 import { InviteUserVm } from '../../vm/invite-user';
 
 @Component({

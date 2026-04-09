@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginEnvelope, LoginRequest, LoginResponse } from 'identity-domain';
-import { IdentityAuthApiService, unwrapValidateResponse } from 'identity-data-access';
+import { IdentityAuthApiService, unwrapValidateResponse } from '@pleniu/identity-data-access';
 import {
   isValidReturnUrl,
   PORTAL_APP,
@@ -12,8 +12,8 @@ import {
   SessionStrategy,
   SessionStore,
   stashDevPortalTokenHandoff,
-} from 'shared-auth';
-import { ApiHttpError, mapHttpError } from 'shared-http';
+} from '@pleniu/shared-auth';
+import { ApiHttpError, mapHttpError } from '@pleniu/shared-http';
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 

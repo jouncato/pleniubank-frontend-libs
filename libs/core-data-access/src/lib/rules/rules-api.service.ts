@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { API_CONFIG, ApiConfig, ApiEnvelope } from 'shared-http';
+import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 
 import type {
   CreateRuleRequest,

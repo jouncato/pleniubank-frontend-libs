@@ -1,8 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CreateUserEnterpriseRequest } from 'identity-domain';
-import { IdentityEnterpriseApiService } from 'identity-data-access';
-import { mapHttpError } from 'shared-http';
+import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { mapHttpError } from '@pleniu/shared-http';
 
 export type EnterpriseUserTargetMode = 'enterprise' | 'subEnterprise';
 

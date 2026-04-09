@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { IdentityAuthApiService, unwrapVerificationResponse } from 'identity-data-access';
-import { SessionStore } from 'shared-auth';
-import { ApiHttpError, mapHttpError } from 'shared-http';
+import { IdentityAuthApiService, unwrapVerificationResponse } from '@pleniu/identity-data-access';
+import { SessionStore } from '@pleniu/shared-auth';
+import { ApiHttpError, mapHttpError } from '@pleniu/shared-http';
 
 const VERIFY_EMAIL_LOG = '[Pleniu auth/verify-email]';
 /** Alineado con el cooldown por defecto del identity-service (RESEND_EMAIL_OTP_COOLDOWN_SECONDS). */

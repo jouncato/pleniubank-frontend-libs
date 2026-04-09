@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FeatureFlagService } from 'shared-auth';
+import { FeatureFlagService } from '@pleniu/shared-auth';
 import { SwitchContextVm } from '../../vm/switch-context';
 
 @Component({

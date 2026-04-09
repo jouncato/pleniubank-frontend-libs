@@ -1,8 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { InviteUserRequest } from 'identity-domain';
-import { IdentityEnterpriseApiService } from 'identity-data-access';
-import { SessionStore } from 'shared-auth';
-import { mapHttpError } from 'shared-http';
+import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { SessionStore } from '@pleniu/shared-auth';
+import { mapHttpError } from '@pleniu/shared-http';
 
 @Injectable({
   providedIn: 'root',

@@ -4,8 +4,8 @@ import {
   ForgotPasswordResponse,
   PasswordResetMethod,
 } from 'identity-domain';
-import { IdentityAuthApiService } from 'identity-data-access';
-import { mapHttpError } from 'shared-http';
+import { IdentityAuthApiService } from '@pleniu/identity-data-access';
+import { mapHttpError } from '@pleniu/shared-http';
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 

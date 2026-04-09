@@ -1,4 +1,4 @@
-import { ApiEnvelope } from 'shared-http';
+import { ApiEnvelope } from '@pleniu/shared-http';
 
 /** Matches Identity `DocumentType` */
 export type EnterpriseDocumentType = 'CC' | 'CE' | 'NIT' | 'PP' | 'TI';

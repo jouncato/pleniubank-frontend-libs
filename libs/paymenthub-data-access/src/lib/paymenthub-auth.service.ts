@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { PaymentHubTokenResponse } from 'paymenthub-domain';
-import { API_CONFIG, ApiConfig } from 'shared-http';
+import { API_CONFIG, ApiConfig } from '@pleniu/shared-http';
 
 import { PaymentHubHttpService } from './paymenthub-http.service';
 

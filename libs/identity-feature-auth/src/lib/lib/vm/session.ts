@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { IdentityAuthApiService } from 'identity-data-access';
-import { SessionStore } from 'shared-auth';
+import { IdentityAuthApiService } from '@pleniu/identity-data-access';
+import { SessionStore } from '@pleniu/shared-auth';
 
 @Injectable({
   providedIn: 'root',

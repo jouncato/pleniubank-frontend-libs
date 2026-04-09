@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
-import { FeatureFlagService } from 'shared-auth';
-import { IdentityEnterpriseApiService } from 'identity-data-access';
-import { mapHttpError } from 'shared-http';
+import { FeatureFlagService } from '@pleniu/shared-auth';
+import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { mapHttpError } from '@pleniu/shared-http';
 
 @Injectable({
   providedIn: 'root',

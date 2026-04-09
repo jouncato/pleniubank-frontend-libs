@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { EconomicSectorPublicDto, EnterpriseDocumentType } from 'identity-domain';
-import { IdentityEnterpriseApiService } from 'identity-data-access';
-import { CUSTOMER_PORTAL_SIGN_IN_URL } from 'shared-auth';
-import { PbLogoComponent } from 'ui';
+import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
+import { PbLogoComponent } from '@pleniu/ui';
 import { EnterpriseOnboardingStore } from '../../enterprise-onboarding.store';
 import { RegisterEnterpriseVm, type RegisterEnterpriseStep } from '../../vm/register-enterprise';
 

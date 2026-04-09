@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { IdentityAuthApiService } from 'identity-data-access';
-import { SESSION_STRATEGY, SessionStore } from 'shared-auth';
+import { IdentityAuthApiService } from '@pleniu/identity-data-access';
+import { SESSION_STRATEGY, SessionStore } from '@pleniu/shared-auth';
 
 import { SecuritySettingsVm } from './security-settings';
 

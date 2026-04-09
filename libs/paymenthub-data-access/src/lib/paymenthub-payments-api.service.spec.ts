@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { API_CONFIG } from 'shared-http';
+import { API_CONFIG } from '@pleniu/shared-http';
 
 import { PaymentHubAuthService } from './paymenthub-auth.service';
 import { PaymentHubContext } from './paymenthub-context.service';

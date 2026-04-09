@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ResetPasswordRequest, ResetPasswordResponse } from 'identity-domain';
-import { IdentityAuthApiService } from 'identity-data-access';
-import { mapHttpError } from 'shared-http';
+import { IdentityAuthApiService } from '@pleniu/identity-data-access';
+import { mapHttpError } from '@pleniu/shared-http';
 
 function extractPayload(response: unknown): ResetPasswordResponse {
   const asEnvelope = (response as { data?: ResetPasswordResponse } | null)?.data;
