@@ -5,7 +5,11 @@ import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 
 import type {
   ContractPolicyDefinitionDto,
+  ContractPolicyPreviewRequest,
+  ContractPolicyPreviewResponse,
   ContractPolicyResolveDto,
+  ContractPolicyRuleLinkCreateRequest,
+  ContractPolicyRuleLinkDto,
   ContractPolicyValueCreateRequest,
   ContractPolicyValueDto,
   ContractPolicyValuePatchRequest,
@@ -62,5 +66,29 @@ export class CoreContractPoliciesApiService {
     body: ContractPolicyValuePatchRequest,
   ): Observable<ApiEnvelope<ContractPolicyValueDto>> {
     return this.http.patch<ApiEnvelope<ContractPolicyValueDto>>(`${this.base}/values/${valueId}`, body);
+  }
+
+  listRuleLinks(definitionId: string): Observable<ApiEnvelope<ContractPolicyRuleLinkDto[]>> {
+    return this.http.get<ApiEnvelope<ContractPolicyRuleLinkDto[]>>(
+      `${this.base}/definitions/${definitionId}/rule-links`,
+    );
+  }
+
+  createRuleLink(
+    definitionId: string,
+    body: ContractPolicyRuleLinkCreateRequest,
+  ): Observable<ApiEnvelope<ContractPolicyRuleLinkDto>> {
+    return this.http.post<ApiEnvelope<ContractPolicyRuleLinkDto>>(
+      `${this.base}/definitions/${definitionId}/rule-links`,
+      body,
+    );
+  }
+
+  deleteRuleLink(linkId: string): Observable<ApiEnvelope<unknown>> {
+    return this.http.delete<ApiEnvelope<unknown>>(`${this.base}/rule-links/${linkId}`);
+  }
+
+  previewMerged(body: ContractPolicyPreviewRequest): Observable<ApiEnvelope<ContractPolicyPreviewResponse>> {
+    return this.http.post<ApiEnvelope<ContractPolicyPreviewResponse>>(`${this.base}/preview`, body);
   }
 }

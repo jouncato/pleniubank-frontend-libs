@@ -229,4 +229,42 @@ export interface ContractPolicyValuePatchRequest {
   effective_from?: string | null;
   effective_to?: string | null;
   company_code?: string | null;
+  country_code?: string | null;
+  product_type?: string | null;
+}
+
+/** `GET/POST .../definitions/{id}/rule-links` — metadato gobierno/UI (no participa en resolución). */
+export interface ContractPolicyRuleLinkDto {
+  id: string;
+  definition_id: string;
+  ruleset_code: string;
+  rule_code: string | null;
+  relation_type: string;
+  notes: string | null;
+  /** Solo en respuesta POST: avisos best-effort (rules-engine); no bloquean el guardado. */
+  validation_warnings?: string[];
+}
+
+export interface ContractPolicyRuleLinkCreateRequest {
+  ruleset_code: string;
+  rule_code?: string | null;
+  relation_type?: string;
+  notes?: string | null;
+}
+
+/** Body `POST .../contract-policies/preview`. */
+export interface ContractPolicyPreviewRequest {
+  product_type?: string | null;
+  country_code?: string | null;
+  company_code?: string | null;
+  template_contract_id?: string | null;
+  template_company_code?: string | null;
+  client_terms?: Record<string, unknown>;
+}
+
+export interface ContractPolicyPreviewResponse {
+  resolved_policy: Record<string, unknown>;
+  template_config: Record<string, unknown>;
+  merged_preview: Record<string, unknown>;
+  related_rule_links: Record<string, unknown>[];
 }
