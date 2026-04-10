@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { Observable, firstValueFrom, isObservable, of, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ApiHttpError } from '@pleniu/shared-http';
 
 import { authGuard } from './auth.guard';
 import { AUTH_VALIDATE_HANDLER, AuthValidateHandler } from './auth-validate.token';
@@ -103,6 +104,44 @@ describe('authGuard', () => {
 
     await runGuard('/app/x');
     expect(store.userToken()).toBeNull();
+  });
+
+  it('si validate falla con ApiHttpError 401 limpia sesión', async () => {
+    const authError = new ApiHttpError(401, [{ code: 'UNAUTHORIZED', message: 'No autenticado' }]);
+    setup(throwError(() => authError));
+
+    const store = TestBed.inject(SessionStore);
+    store.setUserToken('t');
+
+    await runGuard('/app/x');
+    expect(store.userToken()).toBeNull();
+  });
+
+  it('si validate falla con error transitorio (status 0) conserva la sesión y retorna true', async () => {
+    const transientError = new ApiHttpError(0, [{ code: 'NETWORK_ERROR', message: 'Sin conexión' }]);
+    setup(throwError(() => transientError));
+
+    const store = TestBed.inject(SessionStore);
+    store.setUserToken('t');
+    store.setClaims({ role: 'customer' });
+    vi.advanceTimersByTime(SESSION_CLAIMS_TTL_MS + 1);
+
+    const result = await runGuard('/app/x');
+    expect(result).toBe(true);
+    expect(store.userToken()).not.toBeNull();
+  });
+
+  it('si validate falla con error transitorio sin claims previos retorna true y conserva token', async () => {
+    const transientError = new ApiHttpError(0, [{ code: 'NETWORK_ERROR', message: 'Sin conexión' }]);
+    setup(throwError(() => transientError));
+
+    const store = TestBed.inject(SessionStore);
+    store.setUserToken('t');
+    // No claims set — simulates fresh reload with no prior validate
+
+    const result = await runGuard('/app/x');
+    expect(result).toBe(true);
+    expect(store.userToken()).not.toBeNull();
   });
 });
 

@@ -18,7 +18,14 @@ export const adminGuard: CanActivateFn = (route, state) => {
     void router.navigate(['/staff/access/change-password'], { queryParams: { returnUrl: state.url } });
     return false;
   }
-  if (!store.adminToken() || store.claims()?.role !== 'admin') {
+  if (!store.adminToken()) {
+    void router.navigate(['/auth/forbidden']);
+    return false;
+  }
+  // Only enforce role when claims are hydrated. If claims are absent (e.g. a
+  // transient validate error on reload) but the admin token is present, allow
+  // through—the backend enforces authorization on every API call.
+  if (store.claims() !== null && store.claims()?.role !== 'admin') {
     void router.navigate(['/auth/forbidden']);
     return false;
   }

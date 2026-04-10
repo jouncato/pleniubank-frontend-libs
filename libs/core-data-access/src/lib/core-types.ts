@@ -228,4 +228,5 @@ export interface ContractPolicyValuePatchRequest {
   value?: unknown;
   effective_from?: string | null;
   effective_to?: string | null;
+  company_code?: string | null;
 }

@@ -70,7 +70,7 @@
   --pb-text: var(--pb-gray-900);
   /* Texto tecleado en inputs/select/textarea sobre fondo claro: no seguir --pb-text en theme-dark */
   --pb-text-input: var(--pb-gray-900);
-  --pb-text-muted: var(--pb-gray-500);
+  --pb-text-muted: var(--pb-gray-700);
   /* Etiquetas sobre campos de texto (inputs, PrimeNG float/ifta, p-textbox / p-textfield) */
   --pb-text-label: var(--pb-gray-700);
   --pb-border: var(--pb-gray-200);
