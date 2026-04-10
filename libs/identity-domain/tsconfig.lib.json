@@ -9,7 +9,9 @@
     "types": [],
     "paths": {
       "shared-auth": ["../../dist/shared-auth"],
-      "shared-http": ["../../dist/shared-http"]
+      "@pleniu/shared-auth": ["../../dist/shared-auth"],
+      "shared-http": ["../../dist/shared-http"],
+      "@pleniu/shared-http": ["../../dist/shared-http"]
     }
   },
   "include": [

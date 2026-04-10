@@ -8,7 +8,8 @@
     "declarationMap": true,
     "types": [],
     "paths": {
-      "shared-http": ["../../dist/shared-http"]
+      "shared-http": ["../../dist/shared-http"],
+      "@pleniu/shared-http": ["../../dist/shared-http"]
     }
   },
   "include": [

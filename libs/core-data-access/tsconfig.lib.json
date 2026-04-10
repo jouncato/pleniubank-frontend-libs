@@ -7,7 +7,9 @@
     "types": [],
     "paths": {
       "core-domain": ["../../dist/core-domain"],
-      "shared-http": ["../../dist/shared-http"]
+      "@pleniu/core-domain": ["../../dist/core-domain"],
+      "shared-http": ["../../dist/shared-http"],
+      "@pleniu/shared-http": ["../../dist/shared-http"]
     }
   },
   "include": ["src/**/*.ts"],

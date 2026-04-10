@@ -9,8 +9,11 @@
     "types": [],
     "paths": {
       "identity-domain": ["../../dist/identity-domain"],
+      "@pleniu/identity-domain": ["../../dist/identity-domain"],
       "shared-auth": ["../../dist/shared-auth"],
-      "shared-http": ["../../dist/shared-http"]
+      "@pleniu/shared-auth": ["../../dist/shared-auth"],
+      "shared-http": ["../../dist/shared-http"],
+      "@pleniu/shared-http": ["../../dist/shared-http"]
     }
   },
   "include": [

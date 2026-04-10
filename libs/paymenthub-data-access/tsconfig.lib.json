@@ -7,7 +7,9 @@
     "types": [],
     "paths": {
       "paymenthub-domain": ["../../dist/paymenthub-domain"],
-      "shared-http": ["../../dist/shared-http"]
+      "@pleniu/paymenthub-domain": ["../../dist/paymenthub-domain"],
+      "shared-http": ["../../dist/shared-http"],
+      "@pleniu/shared-http": ["../../dist/shared-http"]
     }
   },
   "include": ["src/**/*.ts"],

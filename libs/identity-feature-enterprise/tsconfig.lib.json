@@ -9,10 +9,15 @@
     "types": [],
     "paths": {
       "identity-data-access": ["../../dist/identity-data-access"],
+      "@pleniu/identity-data-access": ["../../dist/identity-data-access"],
       "identity-domain": ["../../dist/identity-domain"],
+      "@pleniu/identity-domain": ["../../dist/identity-domain"],
       "shared-auth": ["../../dist/shared-auth"],
+      "@pleniu/shared-auth": ["../../dist/shared-auth"],
       "shared-http": ["../../dist/shared-http"],
-      "ui": ["../../dist/ui"]
+      "@pleniu/shared-http": ["../../dist/shared-http"],
+      "ui": ["../../dist/ui"],
+      "@pleniu/ui": ["../../dist/ui"]
     }
   },
   "include": [
