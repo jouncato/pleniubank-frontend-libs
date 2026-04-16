@@ -1,30 +1,4 @@
 <div class="pl-root">
-  <header class="pl-header">
-    <div class="pl-container pl-header__inner">
-      <a routerLink="/" class="pl-header-logo-link" aria-label="Inicio">
-        <pb-logo [clickable]="false" size="md" variant="color" />
-      </a>
-      <nav class="pl-nav" aria-label="Navegación">
-        <a routerLink="/" class="pl-nav__link">Inicio</a>
-      </nav>
-      <div class="pl-header__actions">
-        @if (customerSignInUrl) {
-          <a
-            [href]="customerSignInUrl"
-            class="pl-btn pl-btn--outline"
-            rel="noopener noreferrer"
-          >
-            Ya tengo cuenta
-          </a>
-        } @else {
-          <a routerLink="/onboarding/party/access/login" class="pl-btn pl-btn--outline">
-            Ya tengo cuenta
-          </a>
-        }
-      </div>
-    </div>
-  </header>
-
   <section class="pl-hero" aria-labelledby="party-type-title">
     <div class="pl-container">
       <div class="pl-hero__content">
@@ -44,7 +18,7 @@
       <p class="pl-section__sub pl-section__sub--spaced">Ambos caminos son 100% digitales.</p>
 
       <div class="pl-choice-grid">
-        <a class="pl-card pl-card--link" routerLink="/onboarding/party/customer/register">
+        <a class="pl-card pl-card--link" routerLink="/customer/v0.1.0/party/customer/register">
           <div class="pl-card__icon pl-card__icon--blue" aria-hidden="true">👤</div>
           <h3 class="pl-card__title">Soy una persona</h3>
           <p class="pl-card__desc">
@@ -52,7 +26,7 @@
           </p>
           <span class="pl-card__cta">Continuar registro</span>
         </a>
-        <a class="pl-card pl-card--link" routerLink="/onboarding/party/organization/register">
+        <a class="pl-card pl-card--link" routerLink="/customer/v0.1.0/party/organization/register">
           <div class="pl-card__icon pl-card__icon--teal" aria-hidden="true">🏢</div>
           <h3 class="pl-card__title">Soy una empresa</h3>
           <p class="pl-card__desc">Organización: usuarios, KYB y operación B2B.</p>
@@ -66,7 +40,7 @@
             ¿Ya tienes cuenta? Ir al portal de cliente
           </a>
         } @else {
-          <a routerLink="/onboarding/party/access/login" class="pl-secondary-cta__link">
+          <a routerLink="/customer/v0.1.0/party/access/login" class="pl-secondary-cta__link">
             ¿Ya tienes cuenta? Iniciar sesión
           </a>
         }

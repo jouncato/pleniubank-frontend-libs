@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
-import { PbLogoComponent } from '@pleniu/ui';
 
 /**
  * HU-1 / BIAN Party Reference: elección de tipo de Party antes del registro.
@@ -11,7 +10,7 @@ import { PbLogoComponent } from '@pleniu/ui';
   selector: 'lib-party-type-selector',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [RouterLink, PbLogoComponent],
+  imports: [RouterLink],
   templateUrl: './party-type-selector.html',
   styleUrl: './party-type-selector.scss',
 })

@@ -8,6 +8,9 @@ import { PbLogoComponent } from '@pleniu/ui';
 import { EnterpriseOnboardingStore } from '../../enterprise-onboarding.store';
 import { RegisterEnterpriseVm, type RegisterEnterpriseStep } from '../../vm/register-enterprise';
 
+const ENTERPRISE_PASSWORD_MIN_LENGTH = 12;
+const ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
+
 @Component({
   selector: 'lib-enterprise-register-wizard',
   imports: [ReactiveFormsModule, RouterLink, PbLogoComponent],
@@ -19,7 +22,7 @@ export class EnterpriseRegisterWizard implements OnInit {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(RegisterEnterpriseVm);
   readonly customerSignInUrl = inject(CUSTOMER_PORTAL_SIGN_IN_URL);
-  private readonly onboarding = inject(EnterpriseOnboardingStore);
+  protected readonly onboarding = inject(EnterpriseOnboardingStore);
   private readonly enterpriseApi = inject(IdentityEnterpriseApiService);
 
   readonly stepLabels = ['Empresa', 'Principal', 'Administrador', 'Confirmar'] as const;
@@ -27,6 +30,13 @@ export class EnterpriseRegisterWizard implements OnInit {
   readonly documentTypes: EnterpriseDocumentType[] = ['NIT', 'CC', 'CE', 'PP', 'TI'];
   readonly sectors = signal<EconomicSectorPublicDto[]>([]);
   readonly sectorsError = signal<string | null>(null);
+  private readonly companyStep0Fields = [
+    'business_name',
+    'document_type',
+    'document_number',
+    'company_phone',
+    'economic_sector_id',
+  ] as const;
 
   readonly companyForm = this.fb.nonNullable.group({
     business_name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
@@ -40,13 +50,27 @@ export class EnterpriseRegisterWizard implements OnInit {
   readonly principalForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     full_name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
-    password: ['', [Validators.required, Validators.minLength(12)]],
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(ENTERPRISE_PASSWORD_MIN_LENGTH),
+        Validators.pattern(ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN),
+      ],
+    ],
   });
 
   readonly adminForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     full_name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
-    password: ['', [Validators.required, Validators.minLength(12)]],
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(ENTERPRISE_PASSWORD_MIN_LENGTH),
+        Validators.pattern(ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN),
+      ],
+    ],
   });
 
   confirmCorrect = false;
@@ -96,9 +120,63 @@ export class EnterpriseRegisterWizard implements OnInit {
     return this.vm.currentStep();
   }
 
+  get principalPasswordValue(): string {
+    return this.principalForm.controls.password.value;
+  }
+
+  get principalHasMinLengthPassword(): boolean {
+    return this.principalPasswordValue.length >= ENTERPRISE_PASSWORD_MIN_LENGTH;
+  }
+
+  get principalHasUpperPassword(): boolean {
+    return /[A-Z]/.test(this.principalPasswordValue);
+  }
+
+  get principalHasLowerPassword(): boolean {
+    return /[a-z]/.test(this.principalPasswordValue);
+  }
+
+  get principalHasNumberPassword(): boolean {
+    return /\d/.test(this.principalPasswordValue);
+  }
+
+  get principalHasSymbolPassword(): boolean {
+    return /[^A-Za-z0-9]/.test(this.principalPasswordValue);
+  }
+
+  get adminPasswordValue(): string {
+    return this.adminForm.controls.password.value;
+  }
+
+  get adminHasMinLengthPassword(): boolean {
+    return this.adminPasswordValue.length >= ENTERPRISE_PASSWORD_MIN_LENGTH;
+  }
+
+  get adminHasUpperPassword(): boolean {
+    return /[A-Z]/.test(this.adminPasswordValue);
+  }
+
+  get adminHasLowerPassword(): boolean {
+    return /[a-z]/.test(this.adminPasswordValue);
+  }
+
+  get adminHasNumberPassword(): boolean {
+    return /\d/.test(this.adminPasswordValue);
+  }
+
+  get adminHasSymbolPassword(): boolean {
+    return /[^A-Za-z0-9]/.test(this.adminPasswordValue);
+  }
+
+  isCompanyStep0Invalid(): boolean {
+    return this.companyStep0Fields.some((field) => this.companyForm.controls[field].invalid);
+  }
+
   nextFromCompany(): void {
-    if (this.companyForm.invalid) {
-      this.companyForm.markAllAsTouched();
+    if (this.isCompanyStep0Invalid()) {
+      for (const field of this.companyStep0Fields) {
+        this.companyForm.controls[field].markAsTouched();
+      }
       return;
     }
     const v = this.companyForm.getRawValue();
@@ -162,7 +240,7 @@ export class EnterpriseRegisterWizard implements OnInit {
     this.vm.continueToEmailVerification();
   }
 
-  /** Sincroniza sessionStorage con los formularios antes del POST (paso confirmación editable). */
+  /** Sincroniza sessionStorage con los formularios antes del POST (paso confirmación de solo lectura). */
   private persistAllFromFormsForSubmit(): void {
     const cv = this.companyForm.getRawValue();
     const selected = this.sectors().find((x) => x.sector_id === cv.economic_sector_id);

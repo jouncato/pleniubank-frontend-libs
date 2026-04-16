@@ -50,7 +50,7 @@ describe('ForgotPasswordForm', () => {
   });
 
   it('muestra countdown y deshabilita submit durante el cooldown', () => {
-    component.form.setValue({ email: 'cliente@example.com', method: 'otp' });
+    component.form.setValue({ email: 'cliente@example.com' });
     vm.state = 'rate_limited';
     vm.isRateLimited = true;
     vm.rateLimitMessage = 'Demasiados intentos. Espera 60 segundos.';
@@ -64,7 +64,7 @@ describe('ForgotPasswordForm', () => {
   });
 
   it('rehabilita submit cuando el cooldown termina', () => {
-    component.form.setValue({ email: 'cliente@example.com', method: 'otp' });
+    component.form.setValue({ email: 'cliente@example.com' });
     vm.state = 'idle';
     vm.isRateLimited = false;
     vm.rateLimitMessage = null;

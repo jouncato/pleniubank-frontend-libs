@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { PasswordResetMethod } from 'identity-domain';
 
 import { ForgotPasswordVm } from '../../vm/forgot-password';
 
@@ -18,7 +17,6 @@ export class ForgotPasswordForm {
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    method: ['otp' as PasswordResetMethod],
   });
 
   constructor(protected readonly vm: ForgotPasswordVm) {}
@@ -28,26 +26,17 @@ export class ForgotPasswordForm {
       this.form.markAllAsTouched();
       return;
     }
-    const { email, method } = this.form.getRawValue();
-    this.vm.submit({ email, method });
+    const { email } = this.form.getRawValue();
+    this.vm.submit({ email, method: 'link' });
   }
 
   buildResetQueryParams(): Record<string, string> | null {
-    if (!this.vm.submittedEmail) {
+    if (!this.vm.submittedEmail || !this.vm.debugResetToken) {
       return null;
     }
-    if (this.vm.submittedMethod === 'otp' && this.vm.debugResetCode) {
-      return {
-        email: this.vm.submittedEmail,
-        code: this.vm.debugResetCode,
-      };
-    }
-    if (this.vm.submittedMethod === 'link' && this.vm.debugResetToken) {
-      return {
-        email: this.vm.submittedEmail,
-        token: this.vm.debugResetToken,
-      };
-    }
-    return null;
+    return {
+      email: this.vm.submittedEmail,
+      token: this.vm.debugResetToken,
+    };
   }
 }

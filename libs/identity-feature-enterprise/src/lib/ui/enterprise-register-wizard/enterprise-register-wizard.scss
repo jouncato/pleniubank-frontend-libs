@@ -139,6 +139,20 @@
   border-color: var(--pl-blue, #0272de);
 }
 
+.password-hints {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.25rem;
+  color: #6b7280;
+  font-size: 0.8125rem;
+}
+
+.password-hints li.valid {
+  color: #15803d;
+  font-weight: 600;
+}
+
 .confirm-edit {
   display: grid;
   gap: var(--pb-space-8, 0.75rem);
@@ -155,6 +169,13 @@
   font-weight: 700;
   color: var(--pl-dark, #111827);
   grid-column: 1 / -1;
+}
+
+.confirm-view {
+  margin: 0;
+  color: #1f2937;
+  font-size: 0.95rem;
+  line-height: 1.45;
 }
 
 .ent-reg-success {

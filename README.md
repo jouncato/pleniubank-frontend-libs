@@ -2,6 +2,8 @@
 
 Monorepo de librerías Angular compartidas para los portales de PleniuBank.
 
+> **Nota**: Este proyecto es una librería Angular, no una aplicación. No requiere Docker ni contenerización. Las librerías se publican a GitHub Packages y se consumen desde los portales.
+
 ## Paquetes
 
 | Paquete | Descripción |
