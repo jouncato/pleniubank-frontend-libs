@@ -94,12 +94,10 @@ export class EnterpriseRegisterWizard implements OnInit {
       this.principalForm.patchValue({
         email: s.principalEmail,
         full_name: s.principalFullName,
-        password: '',
       });
       this.adminForm.patchValue({
         email: s.adminEmail,
         full_name: s.adminFullName,
-        password: '',
       });
     }
   }
@@ -268,7 +266,10 @@ export class EnterpriseRegisterWizard implements OnInit {
     if (!this.confirmCorrect) {
       return;
     }
-    if (this.companyForm.invalid || this.principalForm.invalid || this.adminForm.invalid) {
+    const principalPasswordOk = this.principalForm.controls.password.valid;
+    const adminPasswordOk = this.adminForm.controls.password.valid;
+    if (this.companyForm.invalid || this.principalForm.controls.email.invalid || this.principalForm.controls.full_name.invalid || !principalPasswordOk ||
+        this.adminForm.controls.email.invalid || this.adminForm.controls.full_name.invalid || !adminPasswordOk) {
       this.companyForm.markAllAsTouched();
       this.principalForm.markAllAsTouched();
       this.adminForm.markAllAsTouched();
