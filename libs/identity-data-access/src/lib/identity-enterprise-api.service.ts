@@ -145,9 +145,11 @@ export class IdentityEnterpriseApiService {
   }
 
   createSubEnterprise(enterpriseId: string, payload: CreateSubEnterpriseRequest): Observable<CreateSubEnterpriseEnvelope> {
-    return this.http.post<CreateSubEnterpriseEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/${encodeURIComponent(enterpriseId)}/sub-enterprises`,
-      payload,
-    );
+    return this.http
+      .post<CreateSubEnterpriseEnvelope | CreateSubEnterpriseEnvelope['data']>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/${encodeURIComponent(enterpriseId)}/sub-enterprises`,
+        payload,
+      )
+      .pipe(map((body) => asApiEnvelope<CreateSubEnterpriseEnvelope['data']>(body)));
   }
 }
