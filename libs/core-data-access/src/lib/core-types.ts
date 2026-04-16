@@ -224,6 +224,17 @@ export interface ContractPolicyValueCreateRequest {
   effective_to?: string | null;
 }
 
+export interface ContractPolicyValueBatchCreateRequest {
+  definition_ids: string[];
+  level: number;
+  product_type?: string | null;
+  country_code?: string | null;
+  company_code?: string | null;
+  value: unknown;
+  effective_from?: string | null;
+  effective_to?: string | null;
+}
+
 export interface ContractPolicyValuePatchRequest {
   value?: unknown;
   effective_from?: string | null;

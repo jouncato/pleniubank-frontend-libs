@@ -10,6 +10,7 @@ import type {
   ContractPolicyResolveDto,
   ContractPolicyRuleLinkCreateRequest,
   ContractPolicyRuleLinkDto,
+  ContractPolicyValueBatchCreateRequest,
   ContractPolicyValueCreateRequest,
   ContractPolicyValueDto,
   ContractPolicyValuePatchRequest,
@@ -59,6 +60,12 @@ export class CoreContractPoliciesApiService {
 
   createValue(body: ContractPolicyValueCreateRequest): Observable<ApiEnvelope<ContractPolicyValueDto>> {
     return this.http.post<ApiEnvelope<ContractPolicyValueDto>>(`${this.base}/values`, body);
+  }
+
+  createValuesBatch(
+    body: ContractPolicyValueBatchCreateRequest,
+  ): Observable<ApiEnvelope<ContractPolicyValueDto[]>> {
+    return this.http.post<ApiEnvelope<ContractPolicyValueDto[]>>(`${this.base}/values/batch`, body);
   }
 
   patchValue(
