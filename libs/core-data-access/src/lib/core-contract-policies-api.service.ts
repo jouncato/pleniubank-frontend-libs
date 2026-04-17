@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 
 import type {
+  ContractPolicyBindingDto,
   ContractPolicyDefinitionDto,
   ContractPolicyPreviewRequest,
   ContractPolicyPreviewResponse,
@@ -79,6 +80,19 @@ export class CoreContractPoliciesApiService {
     return this.http.get<ApiEnvelope<ContractPolicyRuleLinkDto[]>>(
       `${this.base}/definitions/${definitionId}/rule-links`,
     );
+  }
+
+  listBindings(
+    rulesetCode: string,
+    relationType: string = 'binds',
+  ): Observable<ApiEnvelope<ContractPolicyBindingDto[]>> {
+    let params = new HttpParams().set('ruleset_code', rulesetCode);
+    if (relationType !== '') {
+      params = params.set('relation_type', relationType);
+    }
+    return this.http.get<ApiEnvelope<ContractPolicyBindingDto[]>>(`${this.base}/bindings`, {
+      params,
+    });
   }
 
   createRuleLink(

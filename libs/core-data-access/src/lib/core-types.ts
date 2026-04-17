@@ -224,13 +224,17 @@ export interface ContractPolicyValueCreateRequest {
   effective_to?: string | null;
 }
 
+export interface ContractPolicyValueBatchItem {
+  definition_id: string;
+  value: unknown;
+}
+
 export interface ContractPolicyValueBatchCreateRequest {
-  definition_ids: string[];
+  values: ContractPolicyValueBatchItem[];
   level: number;
   product_type?: string | null;
   country_code?: string | null;
   company_code?: string | null;
-  value: unknown;
   effective_from?: string | null;
   effective_to?: string | null;
 }
@@ -261,6 +265,22 @@ export interface ContractPolicyRuleLinkCreateRequest {
   rule_code?: string | null;
   relation_type?: string;
   notes?: string | null;
+}
+
+/**
+ * `GET .../contract-policies/bindings?ruleset_code=X` — flattened view of
+ * `contract_policy_rule_links` joined with the definition's `param_key`, used
+ * by the backoffice to show "this ruleset consumes N policies" and to power
+ * the "orphan policy" filter in the catalog.
+ */
+export interface ContractPolicyBindingDto {
+  link_id: string;
+  definition_id: string;
+  param_key: string;
+  ruleset_code: string;
+  rule_code: string;
+  relation_type: string;
+  notes: string | null;
 }
 
 /** Body `POST .../contract-policies/preview`. */

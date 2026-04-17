@@ -4,3 +4,4 @@
 
 export * from './lib/identity-domain';
 export * from './lib/identity-admin';
+export * from './lib/identity-enterprise';
