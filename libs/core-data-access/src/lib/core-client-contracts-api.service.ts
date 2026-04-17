@@ -11,6 +11,7 @@ import type {
   ClientContractPatchRequest,
   CompanyCodeOptionDto,
 } from './core-types';
+import type { ContractTemplateDto } from 'core-domain';
 
 export interface ListClientContractsParams {
   company_code: string;
@@ -66,6 +67,50 @@ export class CoreClientContractsApiService {
 
   create(body: ClientContractCreateRequest): Observable<ApiEnvelope<ClientContractDto>> {
     return this.http.post<ApiEnvelope<ClientContractDto>>(this.base, body);
+  }
+
+  /**
+   * Lists contract templates (products) inherited by a business unit.
+   * Core endpoint: GET /client-contracts/sub-enterprise/{id}/templates
+   */
+  listSubEnterpriseTemplates(
+    subEnterpriseId: string,
+  ): Observable<ApiEnvelope<ContractTemplateDto[]>> {
+    return this.http.get<ApiEnvelope<ContractTemplateDto[]>>(
+      `${this.base}/sub-enterprise/${encodeURIComponent(subEnterpriseId)}/templates`,
+    );
+  }
+
+  /**
+   * Lists client contracts already issued under a business unit.
+   * Core endpoint: GET /client-contracts/sub-enterprise/{id}/contracts
+   */
+  listSubEnterpriseContracts(
+    subEnterpriseId: string,
+    options: {
+      cursor?: string | null;
+      limit?: number;
+      include_terminated?: boolean;
+      status?: string | null;
+    } = {},
+  ): Observable<ApiEnvelope<ClientContractDto[]>> {
+    let hp = new HttpParams();
+    if (options.cursor) {
+      hp = hp.set('cursor', options.cursor);
+    }
+    if (options.limit != null) {
+      hp = hp.set('limit', String(options.limit));
+    }
+    if (options.include_terminated) {
+      hp = hp.set('include_terminated', 'true');
+    }
+    if (options.status) {
+      hp = hp.set('status', options.status);
+    }
+    return this.http.get<ApiEnvelope<ClientContractDto[]>>(
+      `${this.base}/sub-enterprise/${encodeURIComponent(subEnterpriseId)}/contracts`,
+      { params: hp },
+    );
   }
 
   /**

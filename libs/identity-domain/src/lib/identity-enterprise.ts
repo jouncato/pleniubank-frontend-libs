@@ -132,6 +132,50 @@ export interface CreateUserEnterpriseResponse {
   is_active: boolean;
 }
 
+/** Categoría operativa con la que se crea una Unidad (sub-empresa). */
+export type BusinessUnitType =
+  | 'sucursal'
+  | 'planilla'
+  | 'operacion'
+  | 'franquicia'
+  | 'centro_costo';
+
+/** Propósito de negocio que habilita productos financieros sobre la Unidad. */
+export type BusinessUnitPurpose =
+  | 'nomina'
+  | 'anticipo_nomina'
+  | 'libranza'
+  | 'cobranza'
+  | 'otro';
+
+/** Región operativa de la Unidad (país obligatorio, ciudad opcional). */
+export interface BusinessUnitRegion {
+  /** ISO-3166 alpha-2 (ej. "CO", "MX"). */
+  country_code: string;
+  city?: string;
+}
+
+/** Responsable operativo de la Unidad (aparece en auditoría / comunicaciones). */
+export interface BusinessUnitOperationsLead {
+  full_name: string;
+  role?: string;
+}
+
+/**
+ * Forma recomendada del `metadata_` de una Unidad (sub-empresa).
+ * Identity acepta cualquier JSON; estos campos son los que la UI tipa y muestra.
+ */
+export interface BusinessUnitMetadata {
+  unit_type?: BusinessUnitType;
+  region?: BusinessUnitRegion;
+  /** Razón social legal si es distinta del nombre comercial. */
+  legal_name?: string;
+  operations_lead?: BusinessUnitOperationsLead;
+  operations_purposes?: BusinessUnitPurpose[];
+  /** Campos adicionales libres (forwards-compatibility). */
+  [key: string]: unknown;
+}
+
 export interface CreateSubEnterpriseRequest {
   business_name: string;
   document_type: EnterpriseDocumentType;
@@ -139,7 +183,7 @@ export interface CreateSubEnterpriseRequest {
   company_code: string;
   email: string;
   phone: string;
-  metadata_?: Record<string, unknown>;
+  metadata_?: BusinessUnitMetadata;
 }
 
 export interface CreateSubEnterpriseResponse {
@@ -171,6 +215,8 @@ export interface SubEnterpriseSummaryDto {
   email: string;
   phone: string;
   status: string;
+  /** Present when the list API includes business-unit metadata (e.g. unit_type). */
+  metadata_?: BusinessUnitMetadata;
   created_at: string;
   updated_at?: string | null;
 }
@@ -187,7 +233,7 @@ export interface SubEnterpriseDetailDto {
   phone: string;
   status: string;
   user_count: number;
-  metadata_?: Record<string, unknown>;
+  metadata_?: BusinessUnitMetadata;
   created_at: string;
   updated_at?: string | null;
 }
