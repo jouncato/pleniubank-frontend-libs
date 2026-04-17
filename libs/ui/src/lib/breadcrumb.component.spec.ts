@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, RouterOutlet, provideRouter } from '@angular/router';
 
-import { BreadcrumbComponent, breadcrumbFromParam } from './breadcrumb.component';
+import { BreadcrumbComponent, breadcrumbFromParam, collectBreadcrumbTrail } from './breadcrumb.component';
 
 @Component({
   imports: [BreadcrumbComponent, RouterOutlet],
@@ -84,6 +84,12 @@ describe('BreadcrumbComponent', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
+  });
+
+  it('collectBreadcrumbTrail devuelve la misma cadena que pinta el componente', async () => {
+    await createHost(true);
+    const trail = collectBreadcrumbTrail(router.routerState.snapshot.root);
+    expect(trail.map((t) => t.label)).toEqual(['Dashboard', 'Prestamos', 'Prestamo #abc123', 'Pagos']);
   });
 
   it('renders the full breadcrumb trail on desktop', async () => {

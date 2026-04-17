@@ -21,6 +21,46 @@ interface BreadcrumbViewModel {
   isCurrent: boolean;
 }
 
+/** Entradas de miga sin `isCurrent` (útil p. ej. para «volver al padre» en shells de portal). */
+export type BreadcrumbTrailItem = Omit<BreadcrumbViewModel, 'isCurrent'>;
+
+function resolveBreadcrumbLabel(route: ActivatedRouteSnapshot): string | null {
+  const value = route.data['breadcrumb'] as BreadcrumbValue;
+  if (value === false || value === undefined || value === null) {
+    return null;
+  }
+
+  const resolved = typeof value === 'function' ? value(route) : value;
+  const normalized = resolved?.trim();
+  return normalized ? normalized : null;
+}
+
+/**
+ * Recorre el árbol de rutas activas y devuelve la cadena de migas (misma lógica que {@link BreadcrumbComponent}).
+ */
+export function collectBreadcrumbTrail(
+  route: ActivatedRouteSnapshot,
+  parentUrl = '',
+  items: BreadcrumbTrailItem[] = [],
+): BreadcrumbTrailItem[] {
+  for (const child of route.children) {
+    if (child.outlet !== PRIMARY_OUTLET) {
+      continue;
+    }
+
+    const routeUrl = child.url.map((segment) => segment.path).join('/');
+    const nextUrl = routeUrl ? `${parentUrl}/${routeUrl}` : parentUrl;
+    const label = resolveBreadcrumbLabel(child);
+    if (label) {
+      items.push({ label, url: nextUrl || '/' });
+    }
+
+    collectBreadcrumbTrail(child, nextUrl, items);
+  }
+
+  return items;
+}
+
 /**
  * Helper para labels dinamicos como `Prestamo #abc123`.
  */
@@ -97,7 +137,7 @@ export function truncateBreadcrumbValue(value: string, maxLength = 6): string {
       margin: 0;
       padding: 0;
       list-style: none;
-      color: #667085;
+      color: var(--pb-breadcrumbs-list-color, #667085);
       font-size: 0.95rem;
     }
 
@@ -110,7 +150,7 @@ export function truncateBreadcrumbValue(value: string, maxLength = 6): string {
 
     .pb-breadcrumbs__item::before {
       content: '/';
-      color: #98a2b3;
+      color: var(--pb-breadcrumb-sep, #98a2b3);
     }
 
     .pb-breadcrumbs__item:first-child::before,
@@ -137,21 +177,21 @@ export function truncateBreadcrumbValue(value: string, maxLength = 6): string {
     }
 
     .pb-breadcrumbs__link {
-      color: #0b63b6;
+      color: var(--pb-breadcrumb-link, #0b63b6);
       text-decoration: none;
       font-weight: 600;
     }
 
     .pb-breadcrumbs__current {
-      color: #101828;
+      color: var(--pb-breadcrumb-current, #101828);
       font-weight: 700;
     }
 
     .pb-breadcrumbs__toggle {
       border: 0;
       padding: 0.35rem 0.7rem;
-      background: #f2f4f7;
-      color: #344054;
+      background: var(--pb-breadcrumb-toggle-bg, #f2f4f7);
+      color: var(--pb-breadcrumb-toggle-fg, #344054);
       font-weight: 700;
       cursor: pointer;
     }
@@ -201,42 +241,8 @@ export class BreadcrumbComponent {
   }
 
   private refresh(): void {
-    const items = this.buildBreadcrumbs(this.router.routerState.snapshot.root);
+    const items = collectBreadcrumbTrail(this.router.routerState.snapshot.root);
     this.items.set(items.map((item, index) => ({ ...item, isCurrent: index === items.length - 1 })));
-  }
-
-  private buildBreadcrumbs(
-    route: ActivatedRouteSnapshot,
-    parentUrl = '',
-    items: Omit<BreadcrumbViewModel, 'isCurrent'>[] = [],
-  ): Omit<BreadcrumbViewModel, 'isCurrent'>[] {
-    for (const child of route.children) {
-      if (child.outlet !== PRIMARY_OUTLET) {
-        continue;
-      }
-
-      const routeUrl = child.url.map((segment) => segment.path).join('/');
-      const nextUrl = routeUrl ? `${parentUrl}/${routeUrl}` : parentUrl;
-      const label = this.resolveLabel(child);
-      if (label) {
-        items.push({ label, url: nextUrl || '/' });
-      }
-
-      this.buildBreadcrumbs(child, nextUrl, items);
-    }
-
-    return items;
-  }
-
-  private resolveLabel(route: ActivatedRouteSnapshot): string | null {
-    const value = route.data['breadcrumb'] as BreadcrumbValue;
-    if (value === false || value === undefined || value === null) {
-      return null;
-    }
-
-    const resolved = typeof value === 'function' ? value(route) : value;
-    const normalized = resolved?.trim();
-    return normalized ? normalized : null;
   }
 
   private isNavigationBoundary(event: Event): event is NavigationEnd | NavigationSkipped {
