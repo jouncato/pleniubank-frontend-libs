@@ -159,3 +159,52 @@ export type InviteUserEnvelope = ApiEnvelope<InviteUserResponse>;
 export type AcceptInviteEnvelope = ApiEnvelope<AcceptInviteResponse>;
 export type CreateUserEnterpriseEnvelope = ApiEnvelope<CreateUserEnterpriseResponse>;
 export type CreateSubEnterpriseEnvelope = ApiEnvelope<CreateSubEnterpriseResponse>;
+
+/** Lightweight row used in sub-enterprise (business unit) listings. */
+export interface SubEnterpriseSummaryDto {
+  sub_enterprise_id: string;
+  enterprise_id: string;
+  business_name: string;
+  company_code: string;
+  document_type: EnterpriseDocumentType;
+  document_number: string;
+  email: string;
+  phone: string;
+  status: string;
+  created_at: string;
+  updated_at?: string | null;
+}
+
+/** Full detail of a business unit, including user count and metadata. */
+export interface SubEnterpriseDetailDto {
+  sub_enterprise_id: string;
+  enterprise_id: string;
+  business_name: string;
+  document_type: EnterpriseDocumentType;
+  document_number: string;
+  company_code: string;
+  email: string;
+  phone: string;
+  status: string;
+  user_count: number;
+  metadata_?: Record<string, unknown>;
+  created_at: string;
+  updated_at?: string | null;
+}
+
+/** PATCH payload for a business unit. All fields optional but at least one should be set. */
+export interface UpdateSubEnterpriseRequest {
+  business_name?: string;
+  email?: string;
+  phone?: string;
+}
+
+/** Query params for listing business units under a parent enterprise. */
+export interface SubEnterprisesListParams {
+  status?: 'active' | 'inactive';
+  search?: string;
+  limit?: number;
+}
+
+export type SubEnterprisesListEnvelope = ApiEnvelope<SubEnterpriseSummaryDto[]>;
+export type SubEnterpriseDetailEnvelope = ApiEnvelope<SubEnterpriseDetailDto>;

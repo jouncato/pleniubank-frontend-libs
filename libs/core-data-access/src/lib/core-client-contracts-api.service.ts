@@ -67,4 +67,26 @@ export class CoreClientContractsApiService {
   create(body: ClientContractCreateRequest): Observable<ApiEnvelope<ClientContractDto>> {
     return this.http.post<ApiEnvelope<ClientContractDto>>(this.base, body);
   }
+
+  /**
+   * Lists financial products assigned to the authenticated beneficiary (customer portal).
+   * Resolves company_code server-side via the session's sub-enterprise, so no params are needed.
+   */
+  listMyAssignedContracts(options: {
+    cursor?: string | null;
+    limit?: number;
+    includeTerminated?: boolean;
+  } = {}): Observable<ApiEnvelope<ClientContractDto[]>> {
+    let hp = new HttpParams();
+    if (options.cursor) {
+      hp = hp.set('cursor', options.cursor);
+    }
+    if (options.limit != null) {
+      hp = hp.set('limit', String(options.limit));
+    }
+    if (options.includeTerminated) {
+      hp = hp.set('include_terminated', 'true');
+    }
+    return this.http.get<ApiEnvelope<ClientContractDto[]>>(`${this.base}/me`, { params: hp });
+  }
 }

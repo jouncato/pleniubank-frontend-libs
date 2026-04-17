@@ -23,6 +23,12 @@ import {
   ResendEnterpriseEmailOtpEnvelope,
   ResendEnterpriseEmailOtpRequest,
   ResendEnterpriseEmailOtpResponse,
+  SubEnterpriseDetailDto,
+  SubEnterpriseDetailEnvelope,
+  SubEnterpriseSummaryDto,
+  SubEnterprisesListEnvelope,
+  SubEnterprisesListParams,
+  UpdateSubEnterpriseRequest,
   VerifyEnterpriseEmailEnvelope,
   VerifyEnterpriseEmailRequest,
   VerifyEnterpriseEmailResponse,
@@ -151,5 +157,63 @@ export class IdentityEnterpriseApiService {
         payload,
       )
       .pipe(map((body) => asApiEnvelope<CreateSubEnterpriseEnvelope['data']>(body)));
+  }
+
+  /** List business units (sub-enterprises) under a parent enterprise. */
+  listSubEnterprises(
+    enterpriseId: string,
+    params: SubEnterprisesListParams = {},
+  ): Observable<SubEnterprisesListEnvelope> {
+    let httpParams = new HttpParams();
+    if (params.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    if (params.search && params.search.trim()) {
+      httpParams = httpParams.set('search', params.search.trim());
+    }
+    if (params.limit && params.limit > 0) {
+      httpParams = httpParams.set('limit', String(params.limit));
+    }
+    return this.http
+      .get<SubEnterprisesListEnvelope | SubEnterpriseSummaryDto[]>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/${encodeURIComponent(enterpriseId)}/sub-enterprises`,
+        { params: httpParams },
+      )
+      .pipe(
+        map((body) =>
+          Array.isArray(body)
+            ? ({ data: body } as SubEnterprisesListEnvelope)
+            : asApiEnvelope<SubEnterpriseSummaryDto[]>(body),
+        ),
+      );
+  }
+
+  /** Fetch full detail of a business unit (includes user_count). */
+  getSubEnterprise(subEnterpriseId: string): Observable<SubEnterpriseDetailEnvelope> {
+    return this.http
+      .get<SubEnterpriseDetailEnvelope | SubEnterpriseDetailDto>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}`,
+      )
+      .pipe(map((body) => asApiEnvelope<SubEnterpriseDetailDto>(body)));
+  }
+
+  /** Partial update (contact data) of a business unit. */
+  updateSubEnterprise(
+    subEnterpriseId: string,
+    payload: UpdateSubEnterpriseRequest,
+  ): Observable<SubEnterpriseDetailEnvelope> {
+    return this.http
+      .patch<SubEnterpriseDetailEnvelope | SubEnterpriseDetailDto>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}`,
+        payload,
+      )
+      .pipe(map((body) => asApiEnvelope<SubEnterpriseDetailDto>(body)));
+  }
+
+  /** Soft delete / deactivate a business unit. Backend returns 204 No Content. */
+  deactivateSubEnterprise(subEnterpriseId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}`,
+    );
   }
 }

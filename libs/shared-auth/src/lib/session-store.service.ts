@@ -14,6 +14,14 @@ export interface SessionClaims {
   user_id?: string;
   role?: UserRole;
   enterprise_id?: string;
+  /** Razón social de la empresa contratante (Identity validate). */
+  enterprise_name?: string;
+  /** Unidad de negocio (sub-empresa) a la que está vinculado el usuario, si aplica. */
+  sub_enterprise_id?: string;
+  /** Razón social de la unidad de negocio (Identity validate). */
+  sub_enterprise_name?: string;
+  /** Código de identificación de nómina de la unidad de negocio. */
+  company_code?: string;
   customer_id?: string;
   two_factor_enabled?: boolean;
   email?: string;
