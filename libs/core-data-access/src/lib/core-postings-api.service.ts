@@ -72,17 +72,8 @@ export class CorePostingsApiService {
     let params = new HttpParams()
       .set('page', String(filters.page))
       .set('size', String(filters.size));
-    if (filters.sort) {
-      params = params.set('sort', filters.sort);
-    }
     if (filters.status) {
       params = params.set('status', filters.status);
-    }
-    if (filters.from) {
-      params = params.set('from', filters.from);
-    }
-    if (filters.to) {
-      params = params.set('to', filters.to);
     }
     return this.http.get<ApiEnvelope<PostingListResponse>>(this.base, { params });
   }

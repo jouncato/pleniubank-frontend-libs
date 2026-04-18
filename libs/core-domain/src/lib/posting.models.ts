@@ -76,9 +76,6 @@ export interface PostingFilters {
   status?: PostingStatus;
   page: number;
   size: number;
-  sort?: string;
-  from?: string;
-  to?: string;
 }
 
 export interface PostingListResponse {
