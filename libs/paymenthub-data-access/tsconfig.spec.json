@@ -2,11 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/spec",
-    "types": ["vitest/globals"],
-    "paths": {
-      "paymenthub-domain": ["../paymenthub-domain/src/public-api.ts"],
-      "shared-http": ["../shared-http/src/public-api.ts"]
-    }
+    "types": ["vitest/globals"]
   },
   "include": ["src/**/*.d.ts", "src/**/*.spec.ts"]
 }

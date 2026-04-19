@@ -83,8 +83,8 @@ describe('RulesApiService', () => {
     const [, opts] = http.get.mock.calls[0];
     expect(opts.params.get('ruleset_code')).toBe('CREDIT_APPROVAL');
     expect(opts.params.get('decision')).toBe('REJECTED');
-    expect(opts.params.get('page')).toBe('1');
-    expect(opts.params.get('size')).toBe('50');
+    expect(opts.params.get('limit')).toBe('50');
+    expect(opts.params.get('offset')).toBe('0');
   });
 
   it('deleteRule llama DELETE', () => {
