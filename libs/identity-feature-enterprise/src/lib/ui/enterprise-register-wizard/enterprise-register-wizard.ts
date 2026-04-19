@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { EconomicSectorPublicDto, EnterpriseDocumentType } from 'identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
-import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
+import { CUSTOMER_PORTAL_SIGN_IN_URL, EMBEDDED_PORTAL_IDENTITY_CHROME } from '@pleniu/shared-auth';
 import { PbLogoComponent } from '@pleniu/ui';
 import { EnterpriseOnboardingStore } from '../../enterprise-onboarding.store';
 import { RegisterEnterpriseVm, type RegisterEnterpriseStep } from '../../vm/register-enterprise';
@@ -22,6 +22,7 @@ export class EnterpriseRegisterWizard implements OnInit {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(RegisterEnterpriseVm);
   readonly customerSignInUrl = inject(CUSTOMER_PORTAL_SIGN_IN_URL);
+  readonly embeddedHostShell = inject(EMBEDDED_PORTAL_IDENTITY_CHROME, { optional: true }) === true;
   protected readonly onboarding = inject(EnterpriseOnboardingStore);
   private readonly enterpriseApi = inject(IdentityEnterpriseApiService);
 

@@ -27,6 +27,10 @@ Monorepo de librerías Angular compartidas para los portales de PleniuBank.
 
 ## Prerrequisitos
 
+### Entornos: Linux, Windows y WSL
+
+Los comandos `npm` siguen siendo los mismos en **Linux**, **macOS**, **WSL** y **Windows** (PowerShell o `cmd`). La diferencia habitual es el **`.npmrc` con el token** de GitHub Packages: en Linux/macOS suele vivir en `~/.npmrc`; en Windows también puedes usar `%USERPROFILE%\.npmrc` o el `.npmrc` del proyecto. En PowerShell, para definir un token solo en la sesión: `$env:NPM_TOKEN = "..."` (si tus scripts lo consumen).
+
 - Node.js 20+ (recomendado 22)
 - npm 11+
 - Acceso a GitHub Packages para scope `@pleniu` (configurado en `.npmrc`)

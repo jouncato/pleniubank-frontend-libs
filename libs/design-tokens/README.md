@@ -2,6 +2,10 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
 
+### Linux, Windows y WSL
+
+Los comandos `ng` y `npm` son los mismos en **Linux**, **macOS**, **WSL** y **Windows** (PowerShell). Para rutas, token de GitHub Packages y scripts del monorepo, sigue el [README raíz](../../README.md).
+
 ## CSS tokens (épica X-03)
 
 - Archivo fuente: [`src/lib/tokens.css`](./src/lib/tokens.css) — variables `--pleniu-color-*`, spacing, tipografía, breakpoints, sombras.

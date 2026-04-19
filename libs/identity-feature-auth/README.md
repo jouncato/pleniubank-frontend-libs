@@ -2,6 +2,10 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
 
+### Linux, Windows y WSL
+
+Los comandos `ng` y `npm` son los mismos en **Linux**, **macOS**, **WSL** y **Windows** (PowerShell). Para `cd` / `Copy-Item`, variables de entorno y token de GitHub Packages al publicar, sigue el [README raíz](../../README.md) del monorepo.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:

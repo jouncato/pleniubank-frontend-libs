@@ -1,30 +1,32 @@
-<div class="pl-root customer-onb">
-  <header class="pl-header">
-    <div class="pl-container pl-header__inner">
-      <a routerLink="/" class="pl-header-logo-link" aria-label="Inicio">
-        <pb-logo [clickable]="false" size="md" variant="color" />
-      </a>
-      <nav class="pl-nav" aria-label="Navegación">
-        <a routerLink="/" class="pl-nav__link">Inicio</a>
-        <a routerLink="/onboarding/party/register" class="pl-nav__link">Tipo de cuenta</a>
-      </nav>
-      <div class="pl-header__actions">
-        @if (customerSignInUrl) {
-          <a
-            [href]="customerSignInUrl"
-            class="pl-btn pl-btn--outline"
-            rel="noopener noreferrer"
-          >
-            Ya tengo cuenta
-          </a>
-        } @else {
-          <a routerLink="/onboarding/party/access/login" class="pl-btn pl-btn--outline">
-            Ya tengo cuenta
-          </a>
-        }
+<div class="pl-root customer-onb" [class.customer-onb--embedded]="embeddedHostShell">
+  @if (!embeddedHostShell) {
+    <header class="pl-header">
+      <div class="pl-container pl-header__inner">
+        <a routerLink="/" class="pl-header-logo-link" aria-label="Inicio">
+          <pb-logo [clickable]="false" size="md" variant="color" alt="Pleniu" />
+        </a>
+        <nav class="pl-nav" aria-label="Navegación">
+          <a routerLink="/" class="pl-nav__link">Inicio</a>
+          <a routerLink="/onboarding/party/register" class="pl-nav__link">Tipo de cuenta</a>
+        </nav>
+        <div class="pl-header__actions">
+          @if (customerSignInUrl) {
+            <a
+              [href]="customerSignInUrl"
+              class="pl-btn pl-btn--outline"
+              rel="noopener noreferrer"
+            >
+              Ya tengo cuenta
+            </a>
+          } @else {
+            <a routerLink="/onboarding/party/access/login" class="pl-btn pl-btn--outline">
+              Ya tengo cuenta
+            </a>
+          }
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
+  }
 
   <div class="customer-onb__stepper-wrap pl-container">
     <p class="customer-onb__step-summary" aria-live="polite">
@@ -66,10 +68,12 @@
     <router-outlet />
   </section>
 
-  <footer class="pl-footer pl-footer--compact">
-    <div class="pl-container pl-footer__bottom">
-      <span>© 2026 Pleniu Bank S.A.S. — Colombia</span>
-      <span class="pl-footer__legal-badge">Regulado SFC</span>
-    </div>
-  </footer>
+  @if (!embeddedHostShell) {
+    <footer class="pl-footer pl-footer--compact">
+      <div class="pl-container pl-footer__bottom">
+        <span>© 2026 Pleniu S.A.S. — Colombia</span>
+        <span class="pl-footer__legal-badge">Regulado SFC</span>
+      </div>
+    </footer>
+  }
 </div>

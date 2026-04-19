@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
-import { CUSTOMER_PORTAL_SIGN_IN_URL } from '@pleniu/shared-auth';
+import { CUSTOMER_PORTAL_SIGN_IN_URL, EMBEDDED_PORTAL_IDENTITY_CHROME } from '@pleniu/shared-auth';
 import { PbLogoComponent } from '@pleniu/ui';
 
 const CUSTOMER_BASE = '/onboarding/party/customer';
@@ -20,6 +20,7 @@ type OnbSegment = 'register' | 'verify-contact' | 'verify-email' | 'verify-phone
 export class CustomerOnboardingShell {
   private readonly router = inject(Router);
   readonly customerSignInUrl = inject(CUSTOMER_PORTAL_SIGN_IN_URL);
+  readonly embeddedHostShell = inject(EMBEDDED_PORTAL_IDENTITY_CHROME, { optional: true }) === true;
 
   readonly steps = [
     { n: 1, label: 'Tus datos' },
