@@ -96,3 +96,36 @@ cd pleniubank-frontend-libs
 npm install
 npm run build:all
 ```
+
+---
+
+## Despliegue de contenedor: build local, Artifact Registry, permisos en GCP y docker-compose (solo pull)
+
+Este repositorio es un **monorepo de librerías Angular** (`@pleniu/*`): **no genera una imagen Docker de producción** propia. Las imágenes que se publican en Google Artifact Registry son las de los **portales** y **microservicios** que consumen estas libs en tiempo de build.
+
+### 1. Crear imágenes en local
+
+No aplica un único `docker build` aquí. Para obtener una imagen publicable:
+
+1. Compila las libs si el portal las consume por `file:` local: `npm install && npm run build:all` en este repo.
+2. Construye la imagen del **portal** correspondiente desde su repositorio (`pleniubank-customer-portal`, `pleniubank-backoffice-portal`, `pleniubank-public-portal`) siguiendo su README (PAT + `--secret id=github_token`).
+
+### 2. Subir a Google Artifact Registry
+
+El `docker push` se hace desde el repo del **portal** o del **backend** hacia `us-central1-docker.pkg.dev/pleniu-system-dev/plenu-core-repo/<nombre-servicio>:<tag>`. Ver README de ese servicio.
+
+### 3. Permitir que otros servidores en Google Cloud descarguen la imagen
+
+Las imágenes que incluyen el resultado del build de `@pleniu/*` son las de los portales. A la cuenta de servicio del servidor que haga `docker compose pull`, otorga **`roles/artifactregistry.reader`** sobre el proyecto/registry donde está `plenu-core-repo` (misma tabla que en los README de Core o portales).
+
+### 4. Despliegue remoto: solo pull + `up` (sin build)
+
+En el servidor solo se usan imágenes ya publicadas; el `docker-compose.yml` referencia `image: …/pleniubank-customer-portal:latest` (u otro servicio), **sin** `build:`.
+
+```bash
+docker compose pull
+docker compose up -d
+docker compose up -d --pull always --no-build
+```
+
+Plantillas: [`../pleniubank-infra-platform/gcp-deploy-docker/`](../pleniubank-infra-platform/gcp-deploy-docker/README.md).
