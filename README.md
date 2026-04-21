@@ -4,6 +4,10 @@ Monorepo de librerías Angular compartidas para los portales de PleniuBank.
 
 > **Nota**: Este proyecto es una librería Angular, no una aplicación. No requiere Docker ni contenerización. Las librerías se publican a GitHub Packages y se consumen desde los portales.
 
+> **README estándar PleniuBank v1.0** (variante librería) — referencia: [`docs-proyecto-plenibank/templates/README.template.md`](../docs-proyecto-plenibank/templates/README.template.md).
+> Secciones aplicables: 1) Stack/paquetes · 2) Variables (`NODE_AUTH_TOKEN` para `npm publish` y consumo desde portales) · 3) Quickstart local (`npm ci && npm run build:all && npm run test:all`) · 5) Build/Publish (GitHub Packages vía workflow `publish.yml` en tag `libs-v*`). N/A: §4 Docker, §6 VM edge, §7 K8s, §8 Migraciones, §9 Troubleshooting de runtime de servicio.
+> Versionado: tag semver `libs-v<MAJOR.MINOR.PATCH>`; los portales referencian con `^<version>` en `package.json`.
+
 ## Paquetes
 
 | Paquete | Descripción |
