@@ -178,6 +178,14 @@ export class CoreWebSocketEventsService {
       base = 'wss://' + base.slice('https://'.length);
     } else if (base.startsWith('http://')) {
       base = 'ws://' + base.slice('http://'.length);
+    } else if (base.startsWith('/') || base === '') {
+      // Same-origin (`coreBaseUrl` configurado como path relativo, p. ej. `/api/core`).
+      // El WS va por una ruta dedicada `/ws/events` proxiada por el portal, así que
+      // ignoramos el prefijo del baseUrl y resolvemos el origen actual del navegador.
+      const loc = typeof window !== 'undefined' ? window.location : null;
+      const protocol = loc?.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = loc?.host ?? 'localhost';
+      return `${protocol}//${host}/ws/events`;
     }
     return `${base}/ws/events`;
   }
