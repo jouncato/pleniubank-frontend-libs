@@ -10,6 +10,9 @@ function verifyEnterpriseEmailUserMessage(status: number, raw: string): string {
   if (status === 404) {
     return 'Proceso expirado, reinicia el registro empresa.';
   }
+  if (status === 422) {
+    return 'Datos inválidos. Reinicia el proceso de registro.';
+  }
   const key = raw.trim();
   const known: Record<string, string> = {
     'Invalid verification code': 'Código incorrecto.',
@@ -103,6 +106,16 @@ export class VerifyEnterpriseEmailVm {
       return;
     }
 
+    // Validar formato UUID antes de enviar al backend (evita 422 de Pydantic)
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidPattern.test(userId)) {
+      console.error('[VerifyEnterpriseEmailVm] Invalid UUID format for userId:', userId);
+      this.state.set('expired');
+      this.errorMessage.set('Proceso expirado, reinicia el registro empresa.');
+      this.resendInfo.set(null);
+      return;
+    }
+
     this.resendSubmitting.set(true);
     this.resendInfo.set(null);
     this.errorMessage.set(null);
@@ -140,6 +153,15 @@ export class VerifyEnterpriseEmailVm {
       return;
     }
 
+    // Validar formato UUID antes de enviar al backend (evita 422 de Pydantic)
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidPattern.test(userId)) {
+      console.error('[VerifyEnterpriseEmailVm] Invalid UUID format for userId:', userId);
+      this.state.set('expired');
+      this.errorMessage.set('Proceso expirado, reinicia el registro empresa.');
+      return;
+    }
+
     this.state.set('submitting');
     this.errorMessage.set(null);
     this.resendInfo.set(null);
@@ -148,9 +170,13 @@ export class VerifyEnterpriseEmailVm {
       next: () => {
         this.state.set('idle');
         if (role === 'principal') {
-          void this.router.navigate(['/onboarding/party/organization/verify-email'], { queryParams: { role: 'admin' } });
+          // Solo el principal verifica - luego va directo al login
+          void this.router.navigate(['/onboarding/party/access/login'], {
+            queryParams: { returnUrl: '/app/enterprise/kyb' },
+          });
           return;
         }
+        // Este código ya no se ejecuta para admin (eliminado del flujo)
         void this.router.navigate(['/onboarding/party/access/login'], {
           queryParams: { returnUrl: '/app/enterprise/kyb' },
         });

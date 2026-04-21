@@ -87,13 +87,14 @@ export class RegisterEnterpriseVm {
         if (mapped.status === 409) {
           this.conflictError.set(true);
           const raw = (mapped.errors[0]?.message ?? '').toLowerCase();
-          if (raw.includes('email')) {
+          console.error('[RegisterEnterpriseVm] 409 Conflict error:', mapped.errors);
+          if (raw.includes('enterprise document')) {
             this.errorMessage.set(
-              'Uno de los correos (empresa, representante o administrador) ya está registrado. Usa otros o inicia sesión.',
+              'El NIT/documento de la empresa ya está registrado. Usa otro número de documento.',
             );
-          } else if (raw.includes('document')) {
+          } else if (raw.includes('email')) {
             this.errorMessage.set(
-              'El documento de la empresa ya está registrado. Si ya iniciaste el proceso, continúa con la verificación por correo.',
+              'El correo del representante o del administrador ya está registrado. Usa otros correos o inicia sesión.',
             );
           } else {
             this.errorMessage.set(

@@ -109,6 +109,9 @@
                 <label for="cp">Teléfono empresa</label>
                 <input id="cp" type="tel" formControlName="company_phone" autocomplete="tel" />
 
+                <label for="ce">Correo empresa</label>
+                <input id="ce" type="email" formControlName="company_email" autocomplete="email" />
+
                 <label for="sec">Sector económico</label>
                 @if (!sectorsError()) {
                   <select id="sec" formControlName="economic_sector_id">
@@ -137,14 +140,6 @@
               <h2 class="panel__title">Representante legal</h2>
               <p class="panel__subtitle">Persona que firma en nombre de la empresa (usuario principal).</p>
               <form [formGroup]="principalForm" (ngSubmit)="nextFromPrincipal()" novalidate>
-                <label for="ce-step2">Correo empresa</label>
-                <input
-                  id="ce-step2"
-                  type="email"
-                  [formControl]="companyForm.controls.company_email"
-                  autocomplete="email"
-                />
-
                 <label for="pe">Correo</label>
                 <input id="pe" type="email" formControlName="email" autocomplete="email" />
 
@@ -166,7 +161,7 @@
                   <button
                     type="submit"
                     class="pl-btn pl-btn--primary"
-                    [disabled]="principalForm.invalid || companyForm.controls.company_email.invalid"
+                    [disabled]="principalForm.invalid"
                   >
                     Siguiente
                   </button>
@@ -242,6 +237,11 @@
 
               @if (vm.errorMessage()) {
                 <p class="error" aria-live="polite">{{ vm.errorMessage() }}</p>
+                @if (vm.errorMessage()?.includes('correo de la empresa')) {
+                  <button type="button" class="pl-btn pl-btn--outline pl-btn--sm" (click)="goToStep(0)">
+                    Volver al paso 1: Datos de la empresa
+                  </button>
+                }
               }
               @if (vm.conflictError()) {
                 <p class="error">Si necesitas ayuda, contacta soporte.</p>

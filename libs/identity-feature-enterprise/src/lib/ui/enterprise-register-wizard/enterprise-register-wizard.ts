@@ -265,15 +265,101 @@ export class EnterpriseRegisterWizard implements OnInit {
 
   submit(): void {
     if (!this.confirmCorrect) {
+      console.warn('[EnterpriseRegisterWizard] Submit blocked: confirmCorrect is false');
+      this.vm.errorMessage.set('Debes confirmar que los datos son correctos.');
       return;
     }
     const principalPasswordOk = this.principalForm.controls.password.valid;
     const adminPasswordOk = this.adminForm.controls.password.valid;
-    if (this.companyForm.invalid || this.principalForm.controls.email.invalid || this.principalForm.controls.full_name.invalid || !principalPasswordOk ||
-        this.adminForm.controls.email.invalid || this.adminForm.controls.full_name.invalid || !adminPasswordOk) {
+
+    // Check for missing company_email (old sessionStorage data)
+    const companyEmailValue = this.companyForm.controls.company_email.value;
+    if (!companyEmailValue || !companyEmailValue.trim()) {
+      console.error('[EnterpriseRegisterWizard] Missing company_email - likely old sessionStorage data');
+      this.vm.errorMessage.set('Falta el correo de la empresa. Vuelve al paso 1 para completarlo.');
+      return;
+    }
+
+    // Debug: log form states with individual field details
+    console.log('[EnterpriseRegisterWizard] Form validation:', {
+      confirmCorrect: this.confirmCorrect,
+      companyFormInvalid: this.companyForm.invalid,
+      companyFormErrors: this.companyForm.errors,
+      companyFields: {
+        business_name: { value: this.companyForm.controls.business_name.value, invalid: this.companyForm.controls.business_name.invalid },
+        document_type: { value: this.companyForm.controls.document_type.value, invalid: this.companyForm.controls.document_type.invalid },
+        document_number: { value: this.companyForm.controls.document_number.value, invalid: this.companyForm.controls.document_number.invalid },
+        company_email: { value: this.companyForm.controls.company_email.value, invalid: this.companyForm.controls.company_email.invalid },
+        company_phone: { value: this.companyForm.controls.company_phone.value, invalid: this.companyForm.controls.company_phone.invalid },
+        economic_sector_id: { value: this.companyForm.controls.economic_sector_id.value, invalid: this.companyForm.controls.economic_sector_id.invalid },
+      },
+      principalFields: {
+        email: { value: this.principalForm.controls.email.value, invalid: this.principalForm.controls.email.invalid },
+        full_name: { value: this.principalForm.controls.full_name.value, invalid: this.principalForm.controls.full_name.invalid },
+        password: { value: '***', invalid: this.principalForm.controls.password.invalid, valid: this.principalForm.controls.password.valid },
+      },
+      adminFields: {
+        email: { value: this.adminForm.controls.email.value, invalid: this.adminForm.controls.email.invalid },
+        full_name: { value: this.adminForm.controls.full_name.value, invalid: this.adminForm.controls.full_name.invalid },
+        password: { value: '***', invalid: this.adminForm.controls.password.invalid, valid: this.adminForm.controls.password.valid },
+      },
+    });
+
+    // Identify specific validation failures
+    const failedFields: string[] = [];
+    const passwordErrors: string[] = [];
+
+    if (this.companyForm.controls.business_name.invalid) failedFields.push('Razón social');
+    if (this.companyForm.controls.document_type.invalid) failedFields.push('Tipo de documento');
+    if (this.companyForm.controls.document_number.invalid) failedFields.push('Número de documento');
+    if (this.companyForm.controls.company_email.invalid) failedFields.push('Correo empresa');
+    if (this.companyForm.controls.company_phone.invalid) failedFields.push('Teléfono empresa');
+    if (this.companyForm.controls.economic_sector_id.invalid) failedFields.push('Sector económico');
+    if (this.principalForm.controls.email.invalid) failedFields.push('Correo del representante');
+    if (this.principalForm.controls.full_name.invalid) failedFields.push('Nombre del representante');
+
+    // Detailed password validation messages
+    if (!principalPasswordOk) {
+      const pwd = this.principalPasswordValue;
+      const missing: string[] = [];
+      if (pwd.length < ENTERPRISE_PASSWORD_MIN_LENGTH) missing.push(`mínimo ${ENTERPRISE_PASSWORD_MIN_LENGTH} caracteres`);
+      if (!/[A-Z]/.test(pwd)) missing.push('una mayúscula');
+      if (!/[a-z]/.test(pwd)) missing.push('una minúscula');
+      if (!/\d/.test(pwd)) missing.push('un número');
+      if (!/[^A-Za-z0-9]/.test(pwd)) missing.push('un símbolo');
+      if (missing.length > 0) {
+        passwordErrors.push(`Contraseña del representante: falta ${missing.join(', ')}`);
+      }
+      failedFields.push('Contraseña del representante');
+    }
+
+    if (this.adminForm.controls.email.invalid) failedFields.push('Correo del administrador');
+    if (this.adminForm.controls.full_name.invalid) failedFields.push('Nombre del administrador');
+
+    if (!adminPasswordOk) {
+      const pwd = this.adminPasswordValue;
+      const missing: string[] = [];
+      if (pwd.length < ENTERPRISE_PASSWORD_MIN_LENGTH) missing.push(`mínimo ${ENTERPRISE_PASSWORD_MIN_LENGTH} caracteres`);
+      if (!/[A-Z]/.test(pwd)) missing.push('una mayúscula');
+      if (!/[a-z]/.test(pwd)) missing.push('una minúscula');
+      if (!/\d/.test(pwd)) missing.push('un número');
+      if (!/[^A-Za-z0-9]/.test(pwd)) missing.push('un símbolo');
+      if (missing.length > 0) {
+        passwordErrors.push(`Contraseña del administrador: falta ${missing.join(', ')}`);
+      }
+      failedFields.push('Contraseña del administrador');
+    }
+
+    if (failedFields.length > 0) {
       this.companyForm.markAllAsTouched();
       this.principalForm.markAllAsTouched();
       this.adminForm.markAllAsTouched();
+      console.warn('[EnterpriseRegisterWizard] Submit blocked: validation failed for fields:', failedFields, 'Password errors:', passwordErrors);
+      // Show specific password errors if any, otherwise generic message
+      const errorMsg = passwordErrors.length > 0
+        ? passwordErrors.join('. ')
+        : `Revisa los siguientes campos: ${failedFields.join(', ')}`;
+      this.vm.errorMessage.set(errorMsg);
       return;
     }
     this.persistAllFromFormsForSubmit();
