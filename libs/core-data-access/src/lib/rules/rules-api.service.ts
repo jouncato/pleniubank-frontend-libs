@@ -5,13 +5,26 @@ import { map } from 'rxjs/operators';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 
 import type {
+  AuditLog,
+  AuditVerifyResult,
+  BulkDecideRequest,
+  BulkDecideResponse,
+  CreateProposalRequest,
   CreateRuleRequest,
   CreateRuleSetRequest,
+  CreateTestCaseRequest,
+  DecideProposalRequest,
   Evaluation,
   EvaluationFilters,
+  Proposal,
   Rule,
+  RuleDiff,
   RuleSet,
   RuleVersion,
+  SimulateRequest,
+  SimulateResponse,
+  TestCase,
+  TestSuiteReport,
   UpdateRuleRequest,
   UpdateRuleSetRequest,
 } from './rules.models';
@@ -138,5 +151,101 @@ export class RulesApiService {
     return this.http
       .get<unknown>(`${this.base}/evaluations/${encodeURIComponent(id)}`)
       .pipe(map((body) => RulesApiService.asEnvelope<Evaluation>(body)));
+  }
+
+  getProposals(rulesetCode?: string, status?: string): Observable<ApiEnvelope<Proposal[]>> {
+    let params = new HttpParams();
+    if (rulesetCode) params = params.set('ruleset_code', rulesetCode);
+    if (status) params = params.set('status', status);
+    return this.http
+      .get<unknown>(`${this.base}/proposals`, { params })
+      .pipe(map((body) => RulesApiService.asEnvelope<Proposal[]>(body)));
+  }
+
+  getProposal(id: string): Observable<ApiEnvelope<Proposal>> {
+    return this.http
+      .get<unknown>(`${this.base}/proposals/${encodeURIComponent(id)}`)
+      .pipe(map((body) => RulesApiService.asEnvelope<Proposal>(body)));
+  }
+
+  createProposal(body: CreateProposalRequest): Observable<ApiEnvelope<Proposal>> {
+    return this.http
+      .post<unknown>(`${this.base}/proposals`, body)
+      .pipe(map((res) => RulesApiService.asEnvelope<Proposal>(res)));
+  }
+
+  approveProposal(id: string, body: DecideProposalRequest): Observable<ApiEnvelope<Proposal>> {
+    return this.http
+      .post<unknown>(`${this.base}/proposals/${encodeURIComponent(id)}/approve`, body)
+      .pipe(map((res) => RulesApiService.asEnvelope<Proposal>(res)));
+  }
+
+  rejectProposal(id: string, body: DecideProposalRequest): Observable<ApiEnvelope<Proposal>> {
+    return this.http
+      .post<unknown>(`${this.base}/proposals/${encodeURIComponent(id)}/reject`, body)
+      .pipe(map((res) => RulesApiService.asEnvelope<Proposal>(res)));
+  }
+
+  getProposalDiff(id: string): Observable<ApiEnvelope<RuleDiff>> {
+    return this.http
+      .get<unknown>(`${this.base}/proposals/${encodeURIComponent(id)}/diff`)
+      .pipe(map((body) => RulesApiService.asEnvelope<RuleDiff>(body)));
+  }
+
+  bulkDecideProposals(body: BulkDecideRequest): Observable<ApiEnvelope<BulkDecideResponse>> {
+    return this.http
+      .post<unknown>(`${this.base}/proposals/bulk-decide`, body)
+      .pipe(map((res) => RulesApiService.asEnvelope<BulkDecideResponse>(res)));
+  }
+
+  getTestCases(rulesetCode: string, isActive?: boolean, countryCode?: string, page = 1, pageSize = 20): Observable<ApiEnvelope<{ items: TestCase[]; total: number; page: number; page_size: number }>> {
+    let params = new HttpParams().set('page', String(page)).set('page_size', String(pageSize));
+    if (isActive !== undefined) params = params.set('is_active', String(isActive));
+    if (countryCode) params = params.set('country_code', countryCode);
+    return this.http
+      .get<unknown>(`${this.base}/admin/rulesets/${encodeURIComponent(rulesetCode)}/test-cases`, { params })
+      .pipe(map((body) => RulesApiService.asEnvelope<{ items: TestCase[]; total: number; page: number; page_size: number }>(body)));
+  }
+
+  createTestCase(rulesetCode: string, body: CreateTestCaseRequest): Observable<ApiEnvelope<TestCase>> {
+    return this.http
+      .post<unknown>(`${this.base}/admin/rulesets/${encodeURIComponent(rulesetCode)}/test-cases`, body)
+      .pipe(map((res) => RulesApiService.asEnvelope<TestCase>(res)));
+  }
+
+  deleteTestCase(rulesetCode: string, testCaseId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.base}/admin/rulesets/${encodeURIComponent(rulesetCode)}/test-cases/${encodeURIComponent(testCaseId)}`,
+    );
+  }
+
+  runTestSuite(rulesetCode: string, proposalId?: string): Observable<ApiEnvelope<TestSuiteReport>> {
+    let params = new HttpParams();
+    if (proposalId) params = params.set('proposal_id', proposalId);
+    return this.http
+      .post<unknown>(`${this.base}/admin/rulesets/${encodeURIComponent(rulesetCode)}/run-tests`, null, { params })
+      .pipe(map((res) => RulesApiService.asEnvelope<TestSuiteReport>(res)));
+  }
+
+  simulate(body: SimulateRequest): Observable<SimulateResponse> {
+    return this.http.post<SimulateResponse>(`${this.base}/simulate`, body);
+  }
+
+  getAuditLogs(rulesetCode?: string, from?: string, to?: string, page = 1, pageSize = 50): Observable<ApiEnvelope<AuditLog[]>> {
+    let params = new HttpParams().set('page', String(page)).set('page_size', String(pageSize));
+    if (rulesetCode) params = params.set('ruleset_code', rulesetCode);
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http
+      .get<unknown>(`${this.base}/admin/audit`, { params })
+      .pipe(map((body) => RulesApiService.asEnvelope<AuditLog[]>(body)));
+  }
+
+  verifyAuditChain(rulesetCode?: string): Observable<ApiEnvelope<AuditVerifyResult>> {
+    let params = new HttpParams();
+    if (rulesetCode) params = params.set('ruleset_code', rulesetCode);
+    return this.http
+      .get<unknown>(`${this.base}/admin/audit/verify`, { params })
+      .pipe(map((body) => RulesApiService.asEnvelope<AuditVerifyResult>(body)));
   }
 }
