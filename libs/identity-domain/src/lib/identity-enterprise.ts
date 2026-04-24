@@ -241,6 +241,8 @@ export interface SubEnterpriseDetailDto {
 /** PATCH payload for a business unit. All fields optional but at least one should be set. */
 export interface UpdateSubEnterpriseRequest {
   business_name?: string;
+  document_type?: EnterpriseDocumentType;
+  document_number?: string;
   email?: string;
   phone?: string;
 }
