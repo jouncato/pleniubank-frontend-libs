@@ -7,7 +7,7 @@ import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
 import { VerifyEnterpriseEmailVm } from './verify-enterprise-email';
 
 describe('VerifyEnterpriseEmailVm', () => {
-  it('tras verificar principal navega a verificación admin', () => {
+  it('tras verificar principal navega al login con retorno KYB', () => {
     const navigations: { commands: unknown[]; extras?: { queryParams?: Record<string, string> } }[] = [];
     const router = {
       navigate: (commands: unknown[], extras?: { queryParams?: Record<string, string> }) => {
@@ -16,8 +16,8 @@ describe('VerifyEnterpriseEmailVm', () => {
       },
     };
     const onboardingState = {
-      principalUserId: 'p1',
-      adminUserId: 'a1',
+      principalUserId: '11111111-1111-4111-8111-111111111111',
+      adminUserId: '22222222-2222-4222-8222-222222222222',
       principalEmail: 'p@x.com',
       adminEmail: 'a@x.com',
       wizardStep: 3,
@@ -62,8 +62,8 @@ describe('VerifyEnterpriseEmailVm', () => {
     const vm = TestBed.inject(VerifyEnterpriseEmailVm);
     vm.submit('1234');
     expect(navigations.length).toBe(1);
-    expect(navigations[0]?.commands).toEqual(['/onboarding/party/organization/verify-email']);
-    expect(navigations[0]?.extras?.queryParams).toEqual({ role: 'admin' });
+    expect(navigations[0]?.commands).toEqual(['/onboarding/party/access/login']);
+    expect(navigations[0]?.extras?.queryParams).toEqual({ returnUrl: '/app/enterprise/kyb' });
   });
 });
 

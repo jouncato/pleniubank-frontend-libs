@@ -8,6 +8,7 @@ import {
   ForgotPasswordRequest,
   LoginEnvelope,
   LoginRequest,
+  LoginResponse,
   CustomerMfaPatchRequest,
   StaffChangePasswordRequest,
   StaffPatchProfileRequest,
@@ -25,6 +26,17 @@ import {
 } from 'identity-domain';
 
 export type RefreshTokenPayload = { access_token: string; refresh_token?: string };
+export type SwitchContextPayload = {
+  enterprise_id: string;
+  sub_enterprise_id?: string | null;
+};
+
+export interface IdentityHealthResponse {
+  status: string;
+  service: string;
+  version: string;
+  checks?: Record<string, string>;
+}
 
 /** POST /api/v1/auth/phone-challenge | resend-phone-otp */
 export type PhoneOtpChallengePayload = {
@@ -49,6 +61,10 @@ export function unwrapRefreshResponse(
   body: ApiEnvelope<RefreshTokenPayload> | RefreshTokenPayload,
 ): RefreshTokenPayload {
   return unwrapEnvelopeData(body);
+}
+
+export function unwrapLoginResponse(body: LoginEnvelope | LoginResponse): LoginResponse {
+  return unwrapEnvelopeData(body as ApiEnvelope<LoginResponse> | LoginResponse);
 }
 
 function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
@@ -208,6 +224,17 @@ export class IdentityAuthApiService {
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/refresh`,
       {},
     );
+  }
+
+  switchContext(payload: SwitchContextPayload): Observable<LoginEnvelope | LoginResponse> {
+    return this.http.post<LoginEnvelope | LoginResponse>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/switch-context`,
+      payload,
+    );
+  }
+
+  getHealth(): Observable<IdentityHealthResponse> {
+    return this.http.get<IdentityHealthResponse>(`${this.apiConfig.identityBaseUrl}/api/v1/health`);
   }
 
   validate(): Observable<ValidateEnvelope> {

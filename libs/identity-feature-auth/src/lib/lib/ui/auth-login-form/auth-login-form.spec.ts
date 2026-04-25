@@ -7,6 +7,11 @@ import { PORTAL_APP } from '@pleniu/shared-auth';
 import { LoginVm } from '../../vm/login';
 import { AuthLoginForm } from './auth-login-form';
 
+const testLocalize = (messageParts: TemplateStringsArray, ...expressions: unknown[]): string =>
+  messageParts.reduce((message, part, index) => `${message}${expressions[index - 1] ?? ''}${part}`);
+
+(globalThis as typeof globalThis & { $localize?: typeof testLocalize }).$localize ??= testLocalize;
+
 describe('AuthLoginForm', () => {
   let component: AuthLoginForm;
   let fixture: ComponentFixture<AuthLoginForm>;

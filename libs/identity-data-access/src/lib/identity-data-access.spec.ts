@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { API_CONFIG } from '@pleniu/shared-http';
 import {
   IdentityAuthApiService,
@@ -61,10 +62,14 @@ describe('unwrapRefreshResponse / unwrapValidateResponse (FE-OBS-002)', () => {
 });
 
 describe('IdentityAuthApiService', () => {
-  it('should be created', () => {
+  let httpMock: HttpTestingController;
+  let service: IdentityAuthApiService;
+
+  beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
+        provideHttpClientTesting(),
         IdentityAuthApiService,
         {
           provide: API_CONFIG,
@@ -72,6 +77,28 @@ describe('IdentityAuthApiService', () => {
         },
       ],
     });
-    expect(TestBed.inject(IdentityAuthApiService)).toBeTruthy();
+    service = TestBed.inject(IdentityAuthApiService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.verify());
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('reads identity health checks for dynamic flags', () => {
+    service.getHealth().subscribe((body) => {
+      expect(body.checks?.['delegated_subject']).toBe('on');
+    });
+
+    const req = httpMock.expectOne('http://localhost:8082/api/v1/health');
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      status: 'ok',
+      service: 'identity',
+      version: 'test',
+      checks: { delegated_subject: 'on' },
+    });
   });
 });

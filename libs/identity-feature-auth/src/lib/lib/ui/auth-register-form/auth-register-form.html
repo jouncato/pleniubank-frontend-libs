@@ -1,33 +1,33 @@
 <div class="pl-container">
-  <h2 class="visually-hidden">Formulario de registro</h2>
+  <h2 class="visually-hidden" i18n="@@auth.register.hiddenTitle">Formulario de registro</h2>
   <div class="pl-form-card reg-form">
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <label for="fullName">Nombre completo</label>
+      <label for="fullName" i18n="@@auth.register.fullNameLabel">Nombre completo</label>
       <input id="fullName" type="text" autocomplete="name" formControlName="fullName" />
       @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
         <p class="field-error">Ingresa tu nombre completo (minimo 3 caracteres).</p>
       }
 
-      <label for="email">Correo electronico</label>
+      <label for="email" i18n="@@auth.register.emailLabel">Correo electronico</label>
       <input id="email" type="email" autocomplete="email" formControlName="email" />
       @if (form.controls.email.touched && form.controls.email.invalid) {
         <p class="field-error">Ingresa un correo valido.</p>
       }
 
-      <label for="phone">Telefono celular</label>
+      <label for="phone" i18n="@@auth.register.phoneLabel">Telefono celular</label>
       <input id="phone" type="tel" autocomplete="tel" formControlName="phone" />
       @if (form.controls.phone.touched && form.controls.phone.invalid) {
         <p class="field-error">Ingresa un telefono valido (7 a 20 caracteres).</p>
       }
 
-      <label for="documentType">Tipo de documento</label>
+      <label for="documentType" i18n="@@auth.register.documentTypeLabel">Tipo de documento</label>
       <select id="documentType" formControlName="documentType">
         @for (option of documentTypeOptions; track option.value) {
           <option [value]="option.value">{{ option.label }}</option>
         }
       </select>
 
-      <label for="documentNumber">Numero de documento</label>
+      <label for="documentNumber" i18n="@@auth.register.documentNumberLabel">Numero de documento</label>
       <input id="documentNumber" type="text" autocomplete="off" formControlName="documentNumber" />
       @if (form.controls.documentNumber.touched && form.controls.documentNumber.invalid) {
         <p class="field-error">Ingresa un documento valido (5 a 32 caracteres).</p>

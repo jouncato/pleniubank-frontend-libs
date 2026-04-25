@@ -15,6 +15,8 @@ export interface ListCustomersParams {
   cursor?: string | null;
   limit?: number;
   document_type?: string | null;
+  q?: string | null;
+  document_number?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -39,7 +41,25 @@ export class CoreCustomersApiService {
     if (params.document_type) {
       hp = hp.set('document_type', params.document_type);
     }
+    if (params.q) {
+      hp = hp.set('q', params.q);
+    }
+    if (params.document_number) {
+      hp = hp.set('document_number', params.document_number);
+    }
     return this.http.get<ApiEnvelope<CustomerDto[]>>(this.base, { params: hp });
+  }
+
+  search(params: {
+    query: string;
+    limit?: number;
+    document_number?: string | null;
+  }): Observable<ApiEnvelope<CustomerDto[]>> {
+    return this.list({
+      q: params.query,
+      document_number: params.document_number,
+      limit: params.limit ?? 10,
+    });
   }
 
   getById(customerId: string): Observable<ApiEnvelope<CustomerDto>> {

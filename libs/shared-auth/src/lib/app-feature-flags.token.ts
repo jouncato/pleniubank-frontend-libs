@@ -7,6 +7,8 @@ export interface AppFeatureFlags {
   amortization: boolean;
 }
 
+export type AppFeatureFlagPatch = Partial<AppFeatureFlags>;
+
 export const APP_FEATURE_FLAGS = new InjectionToken<AppFeatureFlags>('APP_FEATURE_FLAGS');
 
 export const DEFAULT_APP_FEATURE_FLAGS: AppFeatureFlags = {

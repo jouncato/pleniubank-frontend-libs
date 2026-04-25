@@ -4,6 +4,11 @@ import { provideRouter } from '@angular/router';
 import { AuthRegisterForm } from './auth-register-form';
 import { RegisterVm } from '../../vm/register';
 
+const testLocalize = (messageParts: TemplateStringsArray, ...expressions: unknown[]): string =>
+  messageParts.reduce((message, part, index) => `${message}${expressions[index - 1] ?? ''}${part}`);
+
+(globalThis as typeof globalThis & { $localize?: typeof testLocalize }).$localize ??= testLocalize;
+
 describe('AuthRegisterForm', () => {
   let component: AuthRegisterForm;
   let fixture: ComponentFixture<AuthRegisterForm>;

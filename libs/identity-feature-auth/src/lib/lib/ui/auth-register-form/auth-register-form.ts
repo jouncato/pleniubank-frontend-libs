@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { RegisterDocumentType } from 'identity-domain';
+import { RegisterDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
 import { RegisterVm } from '../../vm/register';
 
 const PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
 const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
-const DOCUMENT_PATTERN = /^[A-Za-z0-9-]{5,32}$/;
 
 @Component({
   selector: 'lib-auth-register-form',
@@ -33,7 +32,7 @@ export class AuthRegisterForm {
     documentType: ['CC' as RegisterDocumentType, [Validators.required]],
     documentNumber: [
       '',
-      [Validators.required, Validators.minLength(5), Validators.maxLength(32), Validators.pattern(DOCUMENT_PATTERN)],
+      [Validators.required, Validators.minLength(5), Validators.maxLength(32)],
     ],
     password: [
       '',
@@ -43,7 +42,12 @@ export class AuthRegisterForm {
     acceptedTerms: [false, [Validators.requiredTrue]],
   });
 
-  constructor(protected readonly vm: RegisterVm) {}
+  constructor(protected readonly vm: RegisterVm) {
+    this.form.controls.documentNumber.addValidators((control) => this.documentNumberValidator(control));
+    this.form.controls.documentType.valueChanges.subscribe(() => {
+      this.form.controls.documentNumber.updateValueAndValidity({ onlySelf: true });
+    });
+  }
 
   get passwordValue(): string {
     return this.form.controls.password.value;
@@ -103,5 +107,14 @@ export class AuthRegisterForm {
       document_number: raw.documentNumber.trim(),
       consent: raw.acceptedTerms,
     });
+  }
+
+  private documentNumberValidator(control: AbstractControl<string>): ValidationErrors | null {
+    const result = validateCountryDocument({
+      country: 'CO',
+      documentType: this.form.controls.documentType.value,
+      documentNumber: control.value,
+    });
+    return result.valid ? null : { countryDocument: result.error };
   }
 }

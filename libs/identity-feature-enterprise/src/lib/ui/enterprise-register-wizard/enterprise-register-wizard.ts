@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { EconomicSectorPublicDto, EnterpriseDocumentType } from 'identity-domain';
+import { EconomicSectorPublicDto, EnterpriseDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 import { CUSTOMER_PORTAL_SIGN_IN_URL, EMBEDDED_PORTAL_IDENTITY_CHROME } from '@pleniu/shared-auth';
 import { PbLogoComponent } from '@pleniu/ui';
@@ -82,6 +82,11 @@ export class EnterpriseRegisterWizard implements OnInit {
   }
 
   constructor() {
+    this.companyForm.controls.document_number.addValidators((control) => this.companyDocumentNumberValidator(control));
+    this.companyForm.controls.document_type.valueChanges.subscribe(() => {
+      this.companyForm.controls.document_number.updateValueAndValidity({ onlySelf: true });
+    });
+
     const s = this.onboarding.state();
     if (s) {
       this.companyForm.patchValue({
@@ -101,6 +106,15 @@ export class EnterpriseRegisterWizard implements OnInit {
         full_name: s.adminFullName,
       });
     }
+  }
+
+  private companyDocumentNumberValidator(control: AbstractControl<string>): ValidationErrors | null {
+    const result = validateCountryDocument({
+      country: 'CO',
+      documentType: this.companyForm.controls.document_type.value,
+      documentNumber: control.value,
+    });
+    return result.valid ? null : { countryDocument: result.error };
   }
 
   ngOnInit(): void {

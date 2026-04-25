@@ -70,6 +70,11 @@ export interface ResetPasswordResponse {
 export interface LoginResponse {
   access_token: string;
   refresh_token?: string;
+  expires_in?: number;
+  user_id?: string;
+  role?: string;
+  enterprise_id?: string | null;
+  sub_enterprise_id?: string | null;
   /** JWT firmado con secreto admin; solo si el usuario es admin de plataforma. */
   admin_access_token?: string | null;
   /** Operadores de plataforma con contraseña inicial o política de cambio forzado. */

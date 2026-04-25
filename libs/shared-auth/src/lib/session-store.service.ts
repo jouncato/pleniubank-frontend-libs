@@ -95,6 +95,11 @@ export class SessionStore {
     this._claimsValidatedAt.set(claims ? Date.now() : null);
   }
 
+  switchEnterprise(accessToken: string, claims: SessionClaims): void {
+    this.setUserToken(accessToken);
+    this.setClaims({ ...(this._claims() ?? {}), ...claims });
+  }
+
   /** Fuerza un nuevo POST /validate en el próximo authGuard (p. ej. tras verificar teléfono y refresh JWT). */
   invalidateClaimsCache(): void {
     this._claimsValidatedAt.set(null);

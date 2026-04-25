@@ -8,6 +8,8 @@
     "paths": {
       "core-domain": ["../../dist/core-domain"],
       "@pleniu/core-domain": ["../../dist/core-domain"],
+      "rules-types": ["../../dist/rules-types"],
+      "@pleniu/rules-types": ["../../dist/rules-types"],
       "shared-http": ["../../dist/shared-http"],
       "@pleniu/shared-http": ["../../dist/shared-http"]
     }

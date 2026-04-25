@@ -2,7 +2,7 @@
   <section class="pl-hero pl-hero--compact" aria-labelledby="login-hero-title">
     <div class="pl-container">
       <div class="pl-hero__content">
-        <h1 id="login-hero-title" class="pl-hero__title">Iniciar sesion</h1>
+        <h1 id="login-hero-title" class="pl-hero__title" i18n="@@auth.login.title">Iniciar sesion</h1>
         @if (portal === 'public') {
           <p class="pl-hero__sub login-context-hint" role="note">
             Tras validar tus datos te llevamos al portal de cliente para operar tus productos (cuentas, préstamos
@@ -24,10 +24,10 @@
       <h2 class="visually-hidden">Credenciales</h2>
       <div class="pl-form-card login-form">
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-          <label for="email">Correo electronico</label>
+          <label for="email" i18n="@@auth.login.emailLabel">Correo electronico</label>
           <input id="email" type="email" autocomplete="email" formControlName="email" />
 
-          <label for="password">Contrasena</label>
+          <label for="password" i18n="@@auth.login.passwordLabel">Contrasena</label>
           <input id="password" type="password" autocomplete="current-password" formControlName="password" />
 
           <p class="error" *ngIf="vm.rateLimitMessage as message" role="status" aria-live="polite">{{ message }}</p>

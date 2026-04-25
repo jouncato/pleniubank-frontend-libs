@@ -6,7 +6,11 @@
     "outDir": "../../out-tsc/lib",
     "declaration": true,
     "declarationMap": true,
-    "types": []
+    "types": [],
+    "paths": {
+      "rules-types": ["../../dist/rules-types"],
+      "@pleniu/rules-types": ["../../dist/rules-types"]
+    }
   },
   "include": [
     "src/**/*.ts"
