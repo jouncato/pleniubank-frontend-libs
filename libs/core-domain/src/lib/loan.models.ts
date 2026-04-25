@@ -70,4 +70,10 @@ export interface SimulateLoanResponse {
   total_interest: string | number | null;
   total_cost: string | number | null;
   schedule: Record<string, unknown>;
+  /**
+   * ID de la evaluación del motor de reglas asociada a la simulación
+   * (HU-RE-043/044). Sólo presente cuando el motor evaluó la solicitud
+   * y permite consumir explicación / disputa desde el portal.
+   */
+  evaluation_id?: string | null;
 }

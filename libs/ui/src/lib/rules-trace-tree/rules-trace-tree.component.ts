@@ -217,6 +217,7 @@ export class RulesTraceTreeComponent {
       case 'fail': return '✗';
       case 'skipped': return '⊘';
       case 'error': return '!';
+      default: return '';
     }
   }
 
@@ -226,6 +227,7 @@ export class RulesTraceTreeComponent {
       case 'fail': return 'No cumple';
       case 'skipped': return 'Omitido';
       case 'error': return 'Error';
+      default: return '';
     }
   }
 
