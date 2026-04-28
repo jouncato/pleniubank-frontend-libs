@@ -20,6 +20,8 @@
       "@pleniu/identity-feature-auth": ["./libs/identity-feature-auth/src/public-api.ts"],
       "identity-feature-enterprise": ["./libs/identity-feature-enterprise/src/public-api.ts"],
       "@pleniu/identity-feature-enterprise": ["./libs/identity-feature-enterprise/src/public-api.ts"],
+      "loan-domain": ["./libs/loan-domain/src/public-api.ts"],
+      "@pleniu/loan-domain": ["./libs/loan-domain/src/public-api.ts"],
       "core-domain": ["./libs/core-domain/src/public-api.ts"],
       "@pleniu/core-domain": ["./libs/core-domain/src/public-api.ts"],
       "rules-types": ["./libs/rules-types/src/public-api.ts"],
@@ -29,7 +31,13 @@
       "paymenthub-domain": ["./libs/paymenthub-domain/src/public-api.ts"],
       "@pleniu/paymenthub-domain": ["./libs/paymenthub-domain/src/public-api.ts"],
       "paymenthub-data-access": ["./libs/paymenthub-data-access/src/public-api.ts"],
-      "@pleniu/paymenthub-data-access": ["./libs/paymenthub-data-access/src/public-api.ts"]
+      "@pleniu/paymenthub-data-access": ["./libs/paymenthub-data-access/src/public-api.ts"],
+      "loan-data-access": ["./libs/loan-data-access/src/public-api.ts"],
+      "@pleniu/loan-data-access": ["./libs/loan-data-access/src/public-api.ts"],
+      "loan-ui-kit": ["./libs/loan-ui-kit/src/public-api.ts"],
+      "@pleniu/loan-ui-kit": ["./libs/loan-ui-kit/src/public-api.ts"],
+      "loan-state": ["./libs/loan-state/src/public-api.ts"],
+      "@pleniu/loan-state": ["./libs/loan-state/src/public-api.ts"]
     },
     "strict": true,
     "noImplicitOverride": true,
@@ -68,6 +76,8 @@
     { "path": "./libs/identity-feature-auth/tsconfig.spec.json" },
     { "path": "./libs/identity-feature-enterprise/tsconfig.lib.json" },
     { "path": "./libs/identity-feature-enterprise/tsconfig.spec.json" },
+    { "path": "./libs/loan-domain/tsconfig.lib.json" },
+    { "path": "./libs/loan-domain/tsconfig.spec.json" },
     { "path": "./libs/core-domain/tsconfig.lib.json" },
     { "path": "./libs/core-domain/tsconfig.spec.json" },
     { "path": "./libs/rules-types/tsconfig.lib.json" },
@@ -77,6 +87,12 @@
     { "path": "./libs/paymenthub-domain/tsconfig.lib.json" },
     { "path": "./libs/paymenthub-domain/tsconfig.spec.json" },
     { "path": "./libs/paymenthub-data-access/tsconfig.lib.json" },
-    { "path": "./libs/paymenthub-data-access/tsconfig.spec.json" }
+    { "path": "./libs/paymenthub-data-access/tsconfig.spec.json" },
+    { "path": "./libs/loan-data-access/tsconfig.lib.json" },
+    { "path": "./libs/loan-data-access/tsconfig.spec.json" },
+    { "path": "./libs/loan-ui-kit/tsconfig.lib.json" },
+    { "path": "./libs/loan-ui-kit/tsconfig.spec.json" },
+    { "path": "./libs/loan-state/tsconfig.lib.json" },
+    { "path": "./libs/loan-state/tsconfig.spec.json" }
   ]
 }

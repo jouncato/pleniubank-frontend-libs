@@ -1,0 +1,18 @@
+{
+  "name": "@pleniu/loan-state",
+  "version": "0.1.0",
+  "description": "NgRx signal stores for BIAN Lending Arrangements — shared state layer for Pleniu portals",
+  "peerDependencies": {
+    "@angular/common": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@ngrx/signals": "^21.0.0",
+    "rxjs": "^7.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false,
+  "main": "./src/public-api.ts",
+  "module": "./src/public-api.ts",
+  "types": "./src/public-api.ts"
+}

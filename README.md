@@ -22,12 +22,16 @@ Monorepo de librerías Angular compartidas para los portales de PleniuBank.
 | `@pleniu/identity-feature-enterprise` | Componentes enterprise (KYB, Invite, SwitchContext) |
 | `@pleniu/core-domain` | Modelos de Account, Loan, Product, Posting, Contract |
 | `@pleniu/core-data-access` | API services de Core Banking |
+| `@pleniu/loan-domain` | Tipos BIAN de Lending (enums, VOs, types) |
+| `@pleniu/loan-data-access` | API services BIAN de Lending Arrangements |
+| `@pleniu/loan-ui-kit` | Componentes Angular reutilizables de Lending (badges, tabla cuotas, timeline) |
 
 ## Documentación del SDK
 
 - [docs/SDK_OVERVIEW.md](./docs/SDK_OVERVIEW.md) — mapa de paquetes y scripts
 - [docs/SECURITY_CONTRACT.md](./docs/SECURITY_CONTRACT.md) — tokens, guards, PII
 - [docs/CHANGELOG.md](./docs/CHANGELOG.md) — notas de versión (manual)
+- [docs/migration/libranza-to-lending-arrangement.md](./docs/migration/libranza-to-lending-arrangement.md) — **⚠️ Migration guide**: de servicios legacy (CoreLoansApiService, payrollProviderGuard) a `@pleniu/loan-data-access`
 
 ## Prerrequisitos
 

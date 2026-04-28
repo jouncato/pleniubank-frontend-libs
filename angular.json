@@ -313,6 +313,32 @@
         }
       }
     },
+    "loan-domain": {
+      "projectType": "library",
+      "root": "libs/loan-domain",
+      "sourceRoot": "libs/loan-domain/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/loan-domain/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/loan-domain/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/loan-domain/tsconfig.spec.json"
+          }
+        }
+      }
+    },
     "paymenthub-domain": {
       "projectType": "library",
       "root": "libs/paymenthub-domain",
@@ -339,6 +365,58 @@
         }
       }
     },
+    "loan-ui-kit": {
+      "projectType": "library",
+      "root": "libs/loan-ui-kit",
+      "sourceRoot": "libs/loan-ui-kit/src",
+      "prefix": "pleniu",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/loan-ui-kit/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/loan-ui-kit/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/loan-ui-kit/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "loan-data-access": {
+      "projectType": "library",
+      "root": "libs/loan-data-access",
+      "sourceRoot": "libs/loan-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/loan-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/loan-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/loan-data-access/tsconfig.spec.json"
+          }
+        }
+      }
+    },
     "paymenthub-data-access": {
       "projectType": "library",
       "root": "libs/paymenthub-data-access",
@@ -361,6 +439,32 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "tsConfig": "libs/paymenthub-data-access/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "loan-state": {
+      "projectType": "library",
+      "root": "libs/loan-state",
+      "sourceRoot": "libs/loan-state/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/loan-state/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/loan-state/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/loan-state/tsconfig.spec.json"
           }
         }
       }

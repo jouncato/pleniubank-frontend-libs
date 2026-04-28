@@ -72,6 +72,11 @@ export class CoreClientContractsApiService {
   /**
    * Lists contract templates (products) inherited by a business unit.
    * Core endpoint: GET /client-contracts/sub-enterprise/{id}/templates
+   *
+   * @deprecated Since v0.5.0. For BIAN lending products use `LendingArrangementService.getAll()`
+   * from `@pleniu/loan-data-access` instead. This method is specific to the libranza/payroll
+   * product model and will be removed on 2026-12-31.
+   * See `docs/migration/libranza-to-lending-arrangement.md`.
    */
   listSubEnterpriseTemplates(
     subEnterpriseId: string,
@@ -84,6 +89,11 @@ export class CoreClientContractsApiService {
   /**
    * Lists client contracts already issued under a business unit.
    * Core endpoint: GET /client-contracts/sub-enterprise/{id}/contracts
+   *
+   * @deprecated Since v0.5.0. For BIAN lending arrangements use `LendingArrangementService.getAll()`
+   * from `@pleniu/loan-data-access` instead. This method is specific to the libranza/payroll
+   * product model and will be removed on 2026-12-31.
+   * See `docs/migration/libranza-to-lending-arrangement.md`.
    */
   listSubEnterpriseContracts(
     subEnterpriseId: string,

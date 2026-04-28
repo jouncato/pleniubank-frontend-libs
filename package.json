@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "build:all": "ng build design-tokens && ng build ui && ng build shared-http && ng build shared-auth && ng build shared-observability && ng build identity-domain && ng build identity-data-access && ng build identity-feature-auth && ng build identity-feature-enterprise && ng build core-domain && ng build core-data-access && ng build paymenthub-domain && ng build paymenthub-data-access",
+    "build:all": "ng build design-tokens && ng build ui && ng build shared-http && ng build shared-auth && ng build shared-observability && ng build identity-domain && ng build identity-data-access && ng build identity-feature-auth && ng build identity-feature-enterprise && ng build loan-domain && ng build core-domain && ng build core-data-access && ng build paymenthub-domain && ng build paymenthub-data-access && ng build loan-data-access && ng build loan-state",
     "build:identity-feature-auth": "ng build identity-domain && ng build shared-http && ng build shared-auth && ng build identity-data-access && ng build identity-feature-auth",
     "build:all:prod": "npm run build:all -- --configuration production",
-    "test:all": "ng test shared-http --watch=false && ng test shared-auth --watch=false && ng test identity-domain --watch=false && ng test identity-data-access --watch=false && ng test identity-feature-auth --watch=false && ng test identity-feature-enterprise --watch=false && ng test core-domain --watch=false && ng test core-data-access --watch=false && ng test paymenthub-domain --watch=false && ng test paymenthub-data-access --watch=false",
+    "test:all": "ng test shared-http --watch=false && ng test shared-auth --watch=false && ng test identity-domain --watch=false && ng test identity-data-access --watch=false && ng test identity-feature-auth --watch=false && ng test identity-feature-enterprise --watch=false && ng test loan-domain --watch=false && ng test core-domain --watch=false && ng test core-data-access --watch=false && ng test paymenthub-domain --watch=false && ng test paymenthub-data-access --watch=false && ng test loan-data-access --watch=false && ng test loan-state --watch=false",
     "verify": "npm run build:all && npm run test:all"
   },
   "prettier": {
@@ -30,6 +30,7 @@
     "@angular/forms": "^21.1.0",
     "@angular/platform-browser": "^21.1.0",
     "@angular/router": "^21.1.0",
+    "@ngrx/signals": "^21.1.0",
     "@sentry/angular": "^10.47.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

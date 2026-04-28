@@ -1,5 +1,9 @@
 /** Tipos alineados con respuestas Core (préstamos, clientes, cuentas). */
 
+/**
+ * @deprecated Since v0.5.0. Use `LendingArrangementResponseDto` from `@pleniu/loan-data-access` instead.
+ * Sunset: 2026-12-31. See `docs/migration/libranza-to-lending-arrangement.md`.
+ */
 export interface LoanDto {
   id: string;
   version: number;
@@ -16,6 +20,10 @@ export interface LoanDto {
   updated_at: string | null;
 }
 
+/**
+ * @deprecated Since v0.5.0. Use `CreateLendingArrangementDto` from `@pleniu/loan-data-access` instead.
+ * Sunset: 2026-12-31. See `docs/migration/libranza-to-lending-arrangement.md`.
+ */
 export interface CreateLoanRequest {
   customer_id: string;
   employer_id: string;
@@ -26,6 +34,10 @@ export interface CreateLoanRequest {
   instance_parameters: Record<string, unknown>;
 }
 
+/**
+ * @deprecated Since v0.5.0. Use `UpdateLendingArrangementDto` from `@pleniu/loan-data-access` instead.
+ * Sunset: 2026-12-31. See `docs/migration/libranza-to-lending-arrangement.md`.
+ */
 export interface UpdateLoanRequest {
   version: number;
   status?: string;
@@ -34,6 +46,10 @@ export interface UpdateLoanRequest {
   instance_parameters?: Record<string, unknown>;
 }
 
+/**
+ * @deprecated Since v0.5.0. Use `PaymentDto` from `@pleniu/loan-data-access` instead.
+ * Sunset: 2026-12-31. See `docs/migration/libranza-to-lending-arrangement.md`.
+ */
 export interface PaymentLineDto {
   posting_id: string;
   amount: string;

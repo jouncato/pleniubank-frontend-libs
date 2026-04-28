@@ -5,3 +5,4 @@ export * from './lib/product.models';
 export * from './lib/posting.models';
 export * from './lib/client-contract.models';
 export * from './lib/contract-template.models';
+export * from '@pleniu/loan-domain';
