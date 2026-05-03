@@ -25,22 +25,25 @@ export class LendingArrangementService {
   ): Observable<LendingArrangement> {
     const body: CreateLendingArrangementRequest = toCreateRequest(payload);
     return this.http
-      .post<LendingArrangementResponse>(`${this.baseUrl}/lending-arrangements`, body)
-      .pipe(map(toDomain));
+      .post<{ data: LendingArrangementResponse } | LendingArrangementResponse>(`${this.baseUrl}/lending-arrangements`, body)
+      .pipe(map((res) => {
+        const dto = 'data' in res && res.data ? (res as { data: LendingArrangementResponse }).data : (res as LendingArrangementResponse);
+        return toDomain(dto);
+      }));
   }
 
   getById(arrangementId: string): Observable<LendingArrangement> {
     return this.http
-      .get<LendingArrangementResponse>(`${this.baseUrl}/lending-arrangements/${arrangementId}`)
-      .pipe(map(toDomain));
+      .get<{ data: LendingArrangementResponse }>(`${this.baseUrl}/lending-arrangements/${arrangementId}`)
+      .pipe(map((res) => toDomain(res.data ?? (res as unknown as LendingArrangementResponse))));
   }
 
   getVersions(arrangementId: string): Observable<LendingArrangement[]> {
     return this.http
-      .get<{ items: LendingArrangementResponse[] }>(
+      .get<ListLendingArrangementsResponse>(
         `${this.baseUrl}/lending-arrangements/${arrangementId}/versions`,
       )
-      .pipe(map((res) => res.items.map(toDomain)));
+      .pipe(map((res) => res.data.map(toDomain)));
   }
 
   list(
@@ -55,43 +58,43 @@ export class LendingArrangementService {
     if (params.pageSize != null) p = p.set('page_size', String(params.pageSize));
     return this.http
       .get<ListLendingArrangementsResponse>(`${this.baseUrl}/lending-arrangements`, { params: p })
-      .pipe(map((res) => ({ items: res.items.map(toDomain), total: res.total })));
+      .pipe(map((res) => ({ items: res.data.map(toDomain), total: res.meta.total })));
   }
 
   activate(arrangementId: string, reason?: string): Observable<LendingArrangement> {
     return this.http
-      .post<LendingArrangementResponse>(
+      .post<{ data: LendingArrangementResponse } | LendingArrangementResponse>(
         `${this.baseUrl}/lending-arrangements/${arrangementId}/activate`,
         { reason },
       )
-      .pipe(map(toDomain));
+      .pipe(map((res) => { const dto = 'data' in res && res.data ? (res as { data: LendingArrangementResponse }).data : (res as LendingArrangementResponse); return toDomain(dto); }));
   }
 
   suspend(arrangementId: string, reason: string): Observable<LendingArrangement> {
     return this.http
-      .post<LendingArrangementResponse>(
+      .post<{ data: LendingArrangementResponse } | LendingArrangementResponse>(
         `${this.baseUrl}/lending-arrangements/${arrangementId}/suspend`,
         { reason },
       )
-      .pipe(map(toDomain));
+      .pipe(map((res) => { const dto = 'data' in res && res.data ? (res as { data: LendingArrangementResponse }).data : (res as LendingArrangementResponse); return toDomain(dto); }));
   }
 
   resume(arrangementId: string): Observable<LendingArrangement> {
     return this.http
-      .post<LendingArrangementResponse>(
+      .post<{ data: LendingArrangementResponse } | LendingArrangementResponse>(
         `${this.baseUrl}/lending-arrangements/${arrangementId}/resume`,
         {},
       )
-      .pipe(map(toDomain));
+      .pipe(map((res) => { const dto = 'data' in res && res.data ? (res as { data: LendingArrangementResponse }).data : (res as LendingArrangementResponse); return toDomain(dto); }));
   }
 
   close(arrangementId: string, reason?: string): Observable<LendingArrangement> {
     return this.http
-      .post<LendingArrangementResponse>(
+      .post<{ data: LendingArrangementResponse } | LendingArrangementResponse>(
         `${this.baseUrl}/lending-arrangements/${arrangementId}/close`,
         { reason },
       )
-      .pipe(map(toDomain));
+      .pipe(map((res) => { const dto = 'data' in res && res.data ? (res as { data: LendingArrangementResponse }).data : (res as LendingArrangementResponse); return toDomain(dto); }));
   }
 
   amend(
@@ -105,28 +108,28 @@ export class LendingArrangementService {
     },
   ): Observable<LendingArrangement> {
     return this.http
-      .post<LendingArrangementResponse>(
+      .post<{ data: LendingArrangementResponse } | LendingArrangementResponse>(
         `${this.baseUrl}/lending-arrangements/${arrangementId}/amend`,
         changes,
       )
-      .pipe(map(toDomain));
+      .pipe(map((res) => { const dto = 'data' in res && res.data ? (res as { data: LendingArrangementResponse }).data : (res as LendingArrangementResponse); return toDomain(dto); }));
   }
 
   markDefaulted(arrangementId: string, reason: string): Observable<LendingArrangement> {
     return this.http
-      .post<LendingArrangementResponse>(
+      .post<{ data: LendingArrangementResponse } | LendingArrangementResponse>(
         `${this.baseUrl}/lending-arrangements/${arrangementId}/mark-defaulted`,
         { reason },
       )
-      .pipe(map(toDomain));
+      .pipe(map((res) => { const dto = 'data' in res && res.data ? (res as { data: LendingArrangementResponse }).data : (res as LendingArrangementResponse); return toDomain(dto); }));
   }
 
   writeOff(arrangementId: string, reason: string): Observable<LendingArrangement> {
     return this.http
-      .post<LendingArrangementResponse>(
+      .post<{ data: LendingArrangementResponse } | LendingArrangementResponse>(
         `${this.baseUrl}/lending-arrangements/${arrangementId}/write-off`,
         { reason },
       )
-      .pipe(map(toDomain));
+      .pipe(map((res) => { const dto = 'data' in res && res.data ? (res as { data: LendingArrangementResponse }).data : (res as LendingArrangementResponse); return toDomain(dto); }));
   }
 }

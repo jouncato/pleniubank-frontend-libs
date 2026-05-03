@@ -20,8 +20,8 @@ export function toDomain(dto: LendingArrangementResponse): LendingArrangement {
     companyCode: dto.company_code,
     jurisdiction: dto.jurisdiction,
     currency: dto.currency,
-    principal: money(dto.principal_amount, dto.currency),
-    nominalRate: dto.nominal_rate,
+    principal: money((dto.principal_amount ?? '0').replace(/\.?0+$/, '') || '0', dto.currency ?? 'COP'),
+    nominalRate: dto.nominal_rate != null ? Number(dto.nominal_rate) : undefined,
     rateType: asEnum<RateType>(dto.rate_type, RateType as unknown as Record<string, string>),
     dayCountConvention: asEnum<DayCountConvention>(dto.day_count_convention, DayCountConvention as unknown as Record<string, string>),
     repaymentFrequency: asEnum<RepaymentFrequency>(dto.repayment_frequency, RepaymentFrequency as unknown as Record<string, string>),
@@ -32,7 +32,7 @@ export function toDomain(dto: LendingArrangementResponse): LendingArrangement {
     status: asEnum<LendingStatus>(dto.status, LendingStatus as unknown as Record<string, string>),
     statusReason: dto.status_reason,
     createdAt: dto.created_at,
-    createdBy: dto.created_by,
+    createdBy: dto.created_by ?? '',
     updatedAt: dto.updated_at,
     updatedBy: dto.updated_by,
     correlationId: dto.correlation_id,
@@ -42,6 +42,9 @@ export function toDomain(dto: LendingArrangementResponse): LendingArrangement {
 export function toCreateRequest(
   payload: Partial<LendingArrangement> & {
     borrowerPartyId?: string;
+    employerPartyId?: string;
+    coborrowerPartyIds?: string[];
+    guarantorPartyIds?: string[];
     productType: ProductType;
     extensionData?: Record<string, unknown>;
   },
@@ -50,6 +53,7 @@ export function toCreateRequest(
     product_id: payload.productId ?? '',
     product_type: payload.productType,
     customer_id: payload.customerId ?? '',
+    borrower_party_id: payload.borrowerPartyId ?? payload.customerId ?? '',
     company_code: payload.companyCode,
     jurisdiction: payload.jurisdiction ?? '',
     currency: payload.currency ?? '',
@@ -63,5 +67,8 @@ export function toCreateRequest(
     maturity_date: payload.maturityDate,
     channel: payload.channel,
     extension_data: payload.extensionData,
+    employer_party_id: payload.employerPartyId,
+    coborrower_party_ids: payload.coborrowerPartyIds,
+    guarantor_party_ids: payload.guarantorPartyIds,
   };
 }
