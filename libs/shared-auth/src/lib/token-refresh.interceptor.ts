@@ -22,7 +22,12 @@ function shouldRefresh(error: HttpErrorResponse, req: HttpRequest<unknown>): boo
   if (code === 'Admin token has expired' || code === 'ADMIN_TOKEN_EXPIRED') {
     return true;
   }
-  if (req.url.includes('/api/v1/admin/') || req.url.includes('/api/identity/api/v1/admin/')) {
+  if (
+    req.url.includes('/api/v1/admin/') ||
+    req.url.includes('/api/identity/api/v1/admin/') ||
+    req.url.includes('/api/identity/api/v1/enterprise/') ||
+    req.url.includes('/api/identity/api/v1/sub-enterprise/')
+  ) {
     return true;
   }
   return false;
@@ -98,7 +103,10 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
           take(1),
           switchMap(() => {
             const isAdminRoute =
-              req.url.includes('/api/v1/admin/') || req.url.includes('/api/identity/api/v1/admin/');
+              req.url.includes('/api/v1/admin/') ||
+              req.url.includes('/api/identity/api/v1/admin/') ||
+              req.url.includes('/api/identity/api/v1/enterprise/') ||
+              req.url.includes('/api/identity/api/v1/sub-enterprise/');
             const token =
               isAdminRoute && sessionStore.adminToken()
                 ? sessionStore.adminToken()!
@@ -121,7 +129,12 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
             sessionStore.setAdminToken(response.admin_access_token);
           }
           retryToken$.next(response.access_token);
-          const retryToken = response.admin_access_token && req.url.includes('/api/v1/admin/')
+          const isAdminRetryRoute =
+            req.url.includes('/api/v1/admin/') ||
+            req.url.includes('/api/identity/api/v1/admin/') ||
+            req.url.includes('/api/identity/api/v1/enterprise/') ||
+            req.url.includes('/api/identity/api/v1/sub-enterprise/');
+          const retryToken = response.admin_access_token && isAdminRetryRoute
             ? response.admin_access_token
             : response.access_token;
           return next(cloneWithToken(req, retryToken));
