@@ -21,7 +21,7 @@ export class ResetPasswordVm {
 
   constructor(private readonly identityApi: IdentityAuthApiService) {}
 
-  submit(payload: ResetPasswordRequest): void {
+  submit(payload: ResetPasswordRequest, onSettled?: () => void): void {
     if (this.state === 'submitting') {
       return;
     }
@@ -38,6 +38,7 @@ export class ResetPasswordVm {
           data.status === 'password_reset'
             ? 'Contraseña actualizada correctamente.'
             : 'La contraseña fue actualizada.';
+        onSettled?.();
       },
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);
@@ -45,21 +46,16 @@ export class ResetPasswordVm {
         this.state = 'error';
         if (mappedError.status === 0) {
           this.errorMessage = 'Error de conexión. Verifica tu red e intenta de nuevo.';
-          return;
-        }
-        if (code === 'RESET_CREDENTIAL_EXPIRED') {
+        } else if (code === 'RESET_CREDENTIAL_EXPIRED') {
           this.errorMessage = 'El código o enlace expiró. Solicita uno nuevo.';
-          return;
-        }
-        if (code === 'RESET_TEMP_LOCKED') {
+        } else if (code === 'RESET_TEMP_LOCKED') {
           this.errorMessage = 'Demasiados intentos. Espera antes de volver a intentar.';
-          return;
-        }
-        if (code === 'RESET_CREDENTIAL_INVALID') {
+        } else if (code === 'RESET_CREDENTIAL_INVALID') {
           this.errorMessage = 'Código o enlace inválido.';
-          return;
+        } else {
+          this.errorMessage = 'No fue posible restablecer la contraseña.';
         }
-        this.errorMessage = 'No fue posible restablecer la contraseña.';
+        onSettled?.();
       },
     });
   }

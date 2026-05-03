@@ -25,7 +25,7 @@ import {
   VerifyOtpRequest,
 } from 'identity-domain';
 
-export type RefreshTokenPayload = { access_token: string; refresh_token?: string };
+export type RefreshTokenPayload = { access_token: string; refresh_token?: string; admin_access_token?: string | null };
 export type SwitchContextPayload = {
   enterprise_id: string;
   sub_enterprise_id?: string | null;
@@ -219,8 +219,8 @@ export class IdentityAuthApiService {
     return this.http.post(`${this.apiConfig.identityBaseUrl}/api/v1/auth/logout`, {}, { observe: 'response' });
   }
 
-  refresh(): Observable<ApiEnvelope<{ access_token: string; refresh_token?: string }>> {
-    return this.http.post<ApiEnvelope<{ access_token: string; refresh_token?: string }>>(
+  refresh(): Observable<ApiEnvelope<RefreshTokenPayload>> {
+    return this.http.post<ApiEnvelope<RefreshTokenPayload>>(
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/refresh`,
       {},
     );

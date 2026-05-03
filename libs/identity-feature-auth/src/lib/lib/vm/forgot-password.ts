@@ -6,6 +6,7 @@ import {
 } from 'identity-domain';
 import { IdentityAuthApiService } from '@pleniu/identity-data-access';
 import { mapHttpError } from '@pleniu/shared-http';
+import { PORTAL_APP } from '@pleniu/shared-auth';
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 
@@ -29,6 +30,7 @@ export class ForgotPasswordVm {
   submittedEmail: string | null = null;
   submittedMethod: PasswordResetMethod = 'otp';
   private readonly rateLimit = inject(AuthRateLimitService);
+  private readonly portalApp = inject(PORTAL_APP);
 
   constructor(private readonly identityApi: IdentityAuthApiService) {
     this.applyStoredRateLimit();
@@ -64,13 +66,14 @@ export class ForgotPasswordVm {
     this.submittedEmail = payload.email;
     this.submittedMethod = payload.method;
 
-    this.identityApi.forgotPassword(payload).subscribe({
+    const portalHint = this.portalApp === 'backoffice' ? 'backoffice' : 'customer';
+    this.identityApi.forgotPassword({ ...payload, portal: portalHint }).subscribe({
       next: (response) => {
         this.rateLimit.reset();
         const data = extractPayload(response);
         this.state = 'success';
         this.successMessage =
-          data.message || 'Si la cuenta existe, enviamos instrucciones para restablecer la contrasena.';
+          data.message || 'Si la cuenta existe, enviamos instrucciones para restablecer la contraseña.';
         this.debugResetCode = data.debug_reset_code ?? null;
         this.debugResetToken = data.debug_reset_token ?? null;
       },
@@ -84,10 +87,10 @@ export class ForgotPasswordVm {
         this.rateLimit.reset();
         this.state = 'error';
         if (mappedError.status === 0) {
-          this.errorMessage = 'Error de conexion. Verifica tu red e intenta de nuevo.';
+          this.errorMessage = 'Error de conexión. Verifica tu red e intenta de nuevo.';
           return;
         }
-        this.errorMessage = 'No fue posible iniciar la recuperacion en este momento.';
+        this.errorMessage = 'No fue posible iniciar la recuperación en este momento.';
       },
     });
   }

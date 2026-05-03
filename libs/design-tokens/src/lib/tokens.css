@@ -7,6 +7,7 @@
   /* Brand */
   --pb-color-primary: #0272de;
   --pb-color-primary-dark: #0056b3;
+  --pb-color-blue-600: #0b63b6;
   --pb-color-primary-light: #00aeff;
   --pb-color-accent-lime: #cad215;
   --pb-color-accent-cyan: #03d3ff;
@@ -75,7 +76,16 @@
   --pb-text-label: var(--pb-gray-700);
   --pb-border: var(--pb-gray-200);
   --pb-border-strong: var(--pb-gray-300);
+  /* WCAG 3:1 mínimo para bordes de campos de formulario sobre fondo blanco */
+  --pb-border-input: var(--pb-gray-400);
   --pb-link: var(--pb-color-primary);
+
+  /* Content hierarchy palette — portales internos (Backoffice / Customer) */
+  --pb-content-title: #2c2c2c;
+  --pb-content-subtitle: #3c3c3c;
+  --pb-content-body: #494949;
+  --pb-border-table: #303030;
+  --pb-border-form: #7e7e7e;
   --pb-danger: var(--pb-status-error);
   --pb-success: var(--pb-status-ok);
   --pb-warning: var(--pb-status-warn);

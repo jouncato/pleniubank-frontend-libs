@@ -11,9 +11,21 @@ import { signInPathForPortal } from './sign-in-path';
 
 const retryToken$ = new BehaviorSubject<string | null>(null);
 
-function shouldRefresh(error: HttpErrorResponse): boolean {
+function shouldRefresh(error: HttpErrorResponse, req: HttpRequest<unknown>): boolean {
+  if (error.status !== 401) {
+    return false;
+  }
   const code = error.error?.errors?.[0]?.code;
-  return error.status === 401 && code === 'TOKEN_EXPIRED';
+  if (code === 'TOKEN_EXPIRED') {
+    return true;
+  }
+  if (code === 'Admin token has expired' || code === 'ADMIN_TOKEN_EXPIRED') {
+    return true;
+  }
+  if (req.url.includes('/api/v1/admin/') || req.url.includes('/api/identity/api/v1/admin/')) {
+    return true;
+  }
+  return false;
 }
 
 function cloneWithToken(req: HttpRequest<unknown>, token: string): HttpRequest<unknown> {
@@ -46,13 +58,17 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
   const loginPath = signInPathForPortal(inject(PORTAL_APP));
   const cookieSession = strategy === 'httpOnlyCookie';
 
-  if (!refreshHandler || req.url.includes('/auth/refresh')) {
+  const isPublicEndpoint =
+    req.url.includes('/auth/refresh') ||
+    req.url.endsWith('/health') ||
+    req.url.endsWith('/readiness');
+  if (!refreshHandler || isPublicEndpoint) {
     return next(req);
   }
 
   return next(req).pipe(
     catchError((error: unknown) => {
-      if (!(error instanceof HttpErrorResponse) || !shouldRefresh(error)) {
+      if (!(error instanceof HttpErrorResponse) || !shouldRefresh(error, req)) {
         return throwError(() => mapHttpError(error));
       }
 
@@ -80,7 +96,15 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
         return retryToken$.pipe(
           filter((token): token is string => Boolean(token)),
           take(1),
-          switchMap((token) => next(cloneWithToken(req, token))),
+          switchMap(() => {
+            const isAdminRoute =
+              req.url.includes('/api/v1/admin/') || req.url.includes('/api/identity/api/v1/admin/');
+            const token =
+              isAdminRoute && sessionStore.adminToken()
+                ? sessionStore.adminToken()!
+                : (sessionStore.userToken() ?? retryToken$.getValue() ?? '');
+            return next(cloneWithToken(req, token));
+          }),
         );
       }
 
@@ -93,8 +117,14 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
           if (response.refresh_token) {
             sessionStore.setRefreshToken(response.refresh_token);
           }
+          if (response.admin_access_token != null) {
+            sessionStore.setAdminToken(response.admin_access_token);
+          }
           retryToken$.next(response.access_token);
-          return next(cloneWithToken(req, response.access_token));
+          const retryToken = response.admin_access_token && req.url.includes('/api/v1/admin/')
+            ? response.admin_access_token
+            : response.access_token;
+          return next(cloneWithToken(req, retryToken));
         }),
         catchError(() => logoutAndRedirect(sessionStore, router, loginPath)),
         finalize(() => sessionStore.setRefreshing(false)),

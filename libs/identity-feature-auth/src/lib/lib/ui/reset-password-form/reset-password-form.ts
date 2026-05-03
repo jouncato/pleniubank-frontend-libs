@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -23,6 +23,8 @@ export class ResetPasswordForm {
     confirmPassword: ['', [Validators.required]],
   });
 
+  private readonly cdr = inject(ChangeDetectorRef);
+
   constructor(protected readonly vm: ResetPasswordVm) {
     this.prefillFromQuery();
   }
@@ -44,11 +46,14 @@ export class ResetPasswordForm {
       return;
     }
 
-    this.vm.submit({
-      email: raw.email,
-      new_password: raw.newPassword,
-      token: raw.token.trim(),
-    });
+    this.vm.submit(
+      {
+        email: raw.email,
+        new_password: raw.newPassword,
+        token: raw.token.trim(),
+      },
+      () => this.cdr.markForCheck(),
+    );
   }
 
   private prefillFromQuery(): void {

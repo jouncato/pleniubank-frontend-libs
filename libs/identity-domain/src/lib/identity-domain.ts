@@ -45,6 +45,7 @@ export type PasswordResetMethod = 'otp' | 'link';
 export interface ForgotPasswordRequest {
   email: string;
   method: PasswordResetMethod;
+  portal?: 'customer' | 'backoffice';
 }
 
 export interface ForgotPasswordResponse {
