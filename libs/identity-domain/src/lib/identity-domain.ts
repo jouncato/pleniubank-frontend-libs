@@ -29,6 +29,15 @@ export interface VerificationResponse {
   phone_verified: boolean;
   identity_verified: boolean;
   is_active: boolean;
+  /** JWT access token for auto-login after successful verification */
+  access_token?: string | null;
+  token_type?: string;
+  /** Token expiration in seconds */
+  expires_in?: number | null;
+  /** User role for the session */
+  role?: string | null;
+  /** User ID for the session */
+  user_id?: string | null;
 }
 
 export interface ResendEmailOtpRequest {

@@ -85,11 +85,23 @@ export class VerifyEmailVm {
         this.state.set('idle');
         this.errorMessage.set(null);
         const result = unwrapVerificationResponse(raw);
+
+        // Auto-login if tokens are provided (user is active and fully verified)
+        if (result.access_token && result.is_active && result.identity_verified) {
+          this.sessionStore.setUserToken(result.access_token);
+          this.sessionStore.setRegistrationId(null);
+          void this.router.navigate(['/app']);
+          return;
+        }
+
+        // Continue to complete page if identity verified (legacy flow without tokens)
         if (result.identity_verified && result.is_active) {
           this.sessionStore.setRegistrationId(null);
           void this.router.navigate(['/onboarding/party/customer/complete']);
           return;
         }
+
+        // Continue to phone verification if needed
         void this.router.navigate(['/onboarding/party/customer/verify-phone'], {
           state: { registrationId },
         });

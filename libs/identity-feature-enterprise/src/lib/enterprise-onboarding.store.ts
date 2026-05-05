@@ -81,6 +81,15 @@ export class EnterpriseOnboardingStore {
     sessionStorage.removeItem(STORAGE_KEY);
   }
 
+  /** Reset user IDs when starting a new registration to avoid stale data from sessionStorage. */
+  resetUserIds(): void {
+    this.patch({
+      enterpriseId: undefined,
+      principalUserId: undefined,
+      adminUserId: undefined,
+    });
+  }
+
   toRegisterRequest(principal: RegisterEnterprisePersonRequest, admin: RegisterEnterprisePersonRequest): RegisterEnterpriseRequest {
     const s = this._state();
     if (!s) {

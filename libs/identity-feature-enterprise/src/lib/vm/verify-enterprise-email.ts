@@ -1,10 +1,41 @@
 import { Injectable, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { SessionStore } from '@pleniu/shared-auth';
 import { mapHttpError } from '@pleniu/shared-http';
 import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
 
 export type EnterpriseEmailRole = 'principal' | 'admin';
+
+/** Decodifica el payload de un JWT (base64url → JSON). Compatible con browser y Node. */
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) {
+      return null;
+    }
+    const payloadSegment = parts[1];
+    // base64url → base64
+    const b64 = payloadSegment.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = b64 + '==='.slice((b64.length + 3) % 4);
+    // Libs frontend: atob siempre disponible (browser + jsdom/test env).
+    const decoded = atob(padded);
+    // Unicode-safe decode (para caracteres no-ASCII en claims)
+    const json = decodeURIComponent(
+      decoded
+        .split('')
+        .map((c: string) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
+        .join(''),
+    );
+    const parsed: unknown = JSON.parse(json);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 function verifyEnterpriseEmailUserMessage(status: number, raw: string): string {
   if (status === 404) {
@@ -71,6 +102,7 @@ export class VerifyEnterpriseEmailVm {
     private readonly onboarding: EnterpriseOnboardingStore,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
+    private readonly sessionStore: SessionStore,
   ) {}
 
   getRole(): EnterpriseEmailRole {
@@ -167,10 +199,41 @@ export class VerifyEnterpriseEmailVm {
     this.resendInfo.set(null);
 
     this.api.verifyEnterpriseEmail({ user_id: userId, code }).subscribe({
-      next: () => {
+      next: (env) => {
         this.state.set('idle');
+        const data = env.data;
+
+        // Auto-login if tokens are provided
+        if (data?.access_token) {
+          this.sessionStore.setUserToken(data.access_token);
+
+          // Decode and set claims from token for guard compatibility
+          const claims = decodeJwtPayload(data.access_token);
+          if (claims) {
+            this.sessionStore.setClaims({
+              user_id: typeof claims['sub'] === 'string' ? claims['sub'] : undefined,
+              role: typeof claims['role'] === 'string' ? claims['role'] : undefined,
+              enterprise_id: typeof claims['enterprise_id'] === 'string' ? claims['enterprise_id'] : undefined,
+            });
+          }
+
+          // Clear onboarding state as registration is complete
+          this.onboarding.clear();
+
+          if (data?.is_active) {
+            // User is fully active - navigate to main KYB dashboard
+            void this.router.navigate(['/app/enterprise/kyb']);
+          } else {
+            // User verified email but pending KYB completion
+            // Redirect directly to KYB flow with limited token
+            void this.router.navigate(['/app/enterprise/kyb']);
+          }
+          return;
+        }
+
+        // Fallback: redirect to login for manual authentication
+        // (when no token was provided - should not happen in normal flow)
         if (role === 'principal') {
-          // Solo el principal verifica - luego va directo al login
           void this.router.navigate(['/onboarding/party/access/login'], {
             queryParams: { returnUrl: '/app/enterprise/kyb' },
           });

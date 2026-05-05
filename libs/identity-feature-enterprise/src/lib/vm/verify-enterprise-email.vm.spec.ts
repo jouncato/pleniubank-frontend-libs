@@ -1,13 +1,20 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
+import { vi } from 'vitest';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
+import { SessionStore } from '@pleniu/shared-auth';
 
 import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
 import { VerifyEnterpriseEmailVm } from './verify-enterprise-email';
 
 describe('VerifyEnterpriseEmailVm', () => {
-  it('tras verificar principal navega al login con retorno KYB', () => {
+  const createTestBed = (options: {
+    apiResponse: { data: unknown };
+    role: 'principal' | 'admin';
+    onboardingState: unknown;
+    sessionStoreMock?: { setUserToken: ReturnType<typeof vi.fn>; clear: ReturnType<typeof vi.fn> };
+  }) => {
     const navigations: { commands: unknown[]; extras?: { queryParams?: Record<string, string> } }[] = [];
     const router = {
       navigate: (commands: unknown[], extras?: { queryParams?: Record<string, string> }) => {
@@ -15,6 +22,46 @@ describe('VerifyEnterpriseEmailVm', () => {
         return Promise.resolve(true);
       },
     };
+    const sessionStoreMock = options.sessionStoreMock ?? {
+      setUserToken: vi.fn(),
+      clear: vi.fn(),
+    };
+    const onboardingStoreMock = {
+      state: () => options.onboardingState,
+      clear: vi.fn(),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        VerifyEnterpriseEmailVm,
+        {
+          provide: IdentityEnterpriseApiService,
+          useValue: {
+            verifyEnterpriseEmail: () => of(options.apiResponse),
+            resendEnterpriseEmailOtp: () => of({ data: { status: 'sent' } }),
+          },
+        },
+        {
+          provide: EnterpriseOnboardingStore,
+          useValue: onboardingStoreMock,
+        },
+        { provide: SessionStore, useValue: sessionStoreMock },
+        { provide: Router, useValue: router },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParamMap: { get: (k: string) => (k === 'role' ? options.role : null) },
+            },
+          },
+        },
+      ],
+    });
+
+    return { vm: TestBed.inject(VerifyEnterpriseEmailVm), navigations, sessionStoreMock, onboardingStoreMock };
+  };
+
+  it('tras verificar con tokens activos navega directo al panel de empresa (auto-login)', () => {
     const onboardingState = {
       principalUserId: '11111111-1111-4111-8111-111111111111',
       adminUserId: '22222222-2222-4222-8222-222222222222',
@@ -23,7 +70,7 @@ describe('VerifyEnterpriseEmailVm', () => {
       wizardStep: 3,
       company: {
         business_name: 'Co',
-        document_type: 'NIT' as const,
+        document_type: 'NIT',
         document_number: '1',
         company_email: 'c@x.com',
         company_phone: '1',
@@ -32,38 +79,79 @@ describe('VerifyEnterpriseEmailVm', () => {
       principalFullName: 'P',
       adminFullName: 'A',
     };
-    TestBed.configureTestingModule({
-      providers: [
-        VerifyEnterpriseEmailVm,
-        {
-          provide: IdentityEnterpriseApiService,
-          useValue: {
-            verifyEnterpriseEmail: () => of({ data: { ok: true } }),
-            resendEnterpriseEmailOtp: () => of({ data: { status: 'sent' } }),
-          },
-        },
-        {
-          provide: EnterpriseOnboardingStore,
-          useValue: {
-            state: () => onboardingState,
-          },
-        },
-        { provide: Router, useValue: router },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              queryParamMap: { get: (k: string) => (k === 'role' ? 'principal' : null) },
-            },
-          },
-        },
-      ],
+    const apiResponse = {
+      data: {
+        user_id: '11111111-1111-4111-8111-111111111111',
+        enterprise_id: '33333333-3333-4333-8333-333333333333',
+        email_verified: true,
+        enterprise_status: 'pending_kyb',
+        enterprise_emails_complete: true,
+        principal_email_verified: true,
+        admin_email_verified: true,
+        is_active: true,
+        access_token: 'mock-jwt-token',
+        expires_in: 3600,
+        role: 'enterprise_principal',
+      },
+    };
+
+    const { vm, navigations, sessionStoreMock, onboardingStoreMock } = createTestBed({
+      apiResponse,
+      role: 'principal',
+      onboardingState,
     });
-    const vm = TestBed.inject(VerifyEnterpriseEmailVm);
+
     vm.submit('1234');
+
+    expect(navigations.length).toBe(1);
+    expect(navigations[0]?.commands).toEqual(['/app/enterprise/kyb']);
+    expect(sessionStoreMock.setUserToken).toHaveBeenCalledWith('mock-jwt-token');
+    expect(onboardingStoreMock.clear).toHaveBeenCalled();
+  });
+
+  it('tras verificar sin tokens (usuario no activo) navega al login con retorno KYB', () => {
+    const onboardingState = {
+      principalUserId: '11111111-1111-4111-8111-111111111111',
+      adminUserId: '22222222-2222-4222-8222-222222222222',
+      principalEmail: 'p@x.com',
+      adminEmail: 'a@x.com',
+      wizardStep: 3,
+      company: {
+        business_name: 'Co',
+        document_type: 'NIT',
+        document_number: '1',
+        company_email: 'c@x.com',
+        company_phone: '1',
+        sector: '',
+      },
+      principalFullName: 'P',
+      adminFullName: 'A',
+    };
+    const apiResponse = {
+      data: {
+        user_id: '11111111-1111-4111-8111-111111111111',
+        enterprise_id: '33333333-3333-4333-8333-333333333333',
+        email_verified: true,
+        enterprise_status: 'pending_kyb',
+        enterprise_emails_complete: true,
+        principal_email_verified: true,
+        admin_email_verified: true,
+        is_active: false, // Usuario no activo - no hay tokens
+      },
+    };
+
+    const { vm, navigations, sessionStoreMock } = createTestBed({
+      apiResponse,
+      role: 'principal',
+      onboardingState,
+    });
+
+    vm.submit('1234');
+
     expect(navigations.length).toBe(1);
     expect(navigations[0]?.commands).toEqual(['/onboarding/party/access/login']);
     expect(navigations[0]?.extras?.queryParams).toEqual({ returnUrl: '/app/enterprise/kyb' });
+    expect(sessionStoreMock.setUserToken).not.toHaveBeenCalled();
   });
 });
 

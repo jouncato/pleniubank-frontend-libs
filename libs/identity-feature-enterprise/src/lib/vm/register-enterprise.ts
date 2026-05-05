@@ -27,6 +27,9 @@ export class RegisterEnterpriseVm {
     if (persisted) {
       this.currentStep.set(Math.min(3, Math.max(0, persisted.wizardStep)) as RegisterEnterpriseStep);
     }
+    // Reset stale user IDs from previous registration attempts to avoid
+    // sending incorrect user_id to the verification endpoint.
+    this.onboarding.resetUserIds();
   }
 
   setStep(step: RegisterEnterpriseStep): void {

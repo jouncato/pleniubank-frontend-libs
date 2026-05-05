@@ -58,6 +58,13 @@ export interface VerifyEnterpriseEmailResponse {
   principal_email_verified: boolean;
   admin_email_verified: boolean;
   is_active: boolean;
+  /** JWT access token for auto-login after successful verification */
+  access_token?: string | null;
+  token_type?: string;
+  /** Token expiration in seconds */
+  expires_in?: number | null;
+  /** User role for the session */
+  role?: string | null;
 }
 
 export interface ResendEnterpriseEmailOtpRequest {
