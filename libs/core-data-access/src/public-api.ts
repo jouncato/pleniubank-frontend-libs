@@ -11,3 +11,4 @@ export * from './lib/core-internal-accounts-api.service';
 export * from './lib/core-health-api.service';
 export * from './lib/core-contract-policies-api.service';
 export * from './lib/rules';
+export * from './lib/core-help-tooltips-api.service';
