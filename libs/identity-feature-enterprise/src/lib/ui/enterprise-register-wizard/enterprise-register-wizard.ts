@@ -220,6 +220,8 @@ export class EnterpriseRegisterWizard implements OnInit {
       principalEmail: v.email,
       principalFullName: v.full_name,
     });
+    // Store password in memory (not persisted to storage for security)
+    this.onboarding.setPrincipalPassword(v.password);
     this.vm.next();
   }
 
@@ -234,6 +236,8 @@ export class EnterpriseRegisterWizard implements OnInit {
       adminEmail: v.email,
       adminFullName: v.full_name,
     });
+    // Store password in memory (not persisted to storage for security)
+    this.onboarding.setAdminPassword(v.password);
     this.vm.next();
   }
 
@@ -275,6 +279,9 @@ export class EnterpriseRegisterWizard implements OnInit {
       adminEmail: av.email,
       adminFullName: av.full_name,
     });
+    // Store passwords in memory for the submit (not persisted to storage for security)
+    this.onboarding.setPrincipalPassword(pv.password);
+    this.onboarding.setAdminPassword(av.password);
   }
 
   submit(): void {

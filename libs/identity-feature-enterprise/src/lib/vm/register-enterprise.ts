@@ -59,12 +59,17 @@ export class RegisterEnterpriseVm {
     this.errorMessage.set(null);
     this.conflictError.set(false);
 
+    // Store passwords in memory for the request
+    this.onboarding.setPrincipalPassword(principal.password);
+    this.onboarding.setAdminPassword(admin.password);
+
     let body;
     try {
-      body = this.onboarding.toRegisterRequest(principal, admin);
-    } catch {
+      body = this.onboarding.toRegisterRequest();
+    } catch (err) {
       this.submitting.set(false);
-      this.errorMessage.set('Faltan datos del formulario. Completa todos los pasos.');
+      const errorMsg = err instanceof Error ? err.message : 'Faltan datos del formulario. Completa todos los pasos.';
+      this.errorMessage.set(errorMsg);
       return;
     }
 

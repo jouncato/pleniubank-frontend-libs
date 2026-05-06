@@ -46,6 +46,21 @@ export class EnterpriseOnboardingStore {
 
   readonly state = this._state.asReadonly();
 
+  // Passwords kept in memory only (not persisted to storage for security)
+  private readonly _principalPassword = signal<string>('');
+  private readonly _adminPassword = signal<string>('');
+
+  readonly principalPassword = this._principalPassword.asReadonly();
+  readonly adminPassword = this._adminPassword.asReadonly();
+
+  setPrincipalPassword(password: string): void {
+    this._principalPassword.set(password);
+  }
+
+  setAdminPassword(password: string): void {
+    this._adminPassword.set(password);
+  }
+
   patch(partial: Partial<EnterpriseOnboardingPersisted>): void {
     const prev = this._state();
     const co = prev?.company;
@@ -79,6 +94,8 @@ export class EnterpriseOnboardingStore {
   clear(): void {
     this._state.set(null);
     sessionStorage.removeItem(STORAGE_KEY);
+    this._principalPassword.set('');
+    this._adminPassword.set('');
   }
 
   /** Reset user IDs when starting a new registration to avoid stale data from sessionStorage. */
@@ -90,13 +107,25 @@ export class EnterpriseOnboardingStore {
     });
   }
 
-  toRegisterRequest(principal: RegisterEnterprisePersonRequest, admin: RegisterEnterprisePersonRequest): RegisterEnterpriseRequest {
+  getPasswords(): { principalPassword: string; adminPassword: string } {
+    return {
+      principalPassword: this._principalPassword(),
+      adminPassword: this._adminPassword(),
+    };
+  }
+
+  toRegisterRequest(): RegisterEnterpriseRequest {
     const s = this._state();
     if (!s) {
       throw new Error('Enterprise onboarding state missing');
     }
     if (!s.company.economic_sector_id?.trim()) {
       throw new Error('economic_sector_id required');
+    }
+    const principalPassword = this._principalPassword();
+    const adminPassword = this._adminPassword();
+    if (!principalPassword || !adminPassword) {
+      throw new Error('Passwords required');
     }
     return {
       business_name: s.company.business_name,
@@ -106,8 +135,16 @@ export class EnterpriseOnboardingStore {
       company_phone: s.company.company_phone,
       economic_sector_id: s.company.economic_sector_id.trim(),
       sector: s.company.sector || undefined,
-      principal,
-      admin,
+      principal: {
+        email: s.principalEmail,
+        full_name: s.principalFullName,
+        password: principalPassword,
+      },
+      admin: {
+        email: s.adminEmail,
+        full_name: s.adminFullName,
+        password: adminPassword,
+      },
     };
   }
 }
