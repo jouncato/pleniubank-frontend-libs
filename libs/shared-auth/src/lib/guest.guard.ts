@@ -1,9 +1,10 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
 import { PORTAL_APP } from './portal-app.token';
 import { SessionStore } from './session-store.service';
+import { isValidReturnUrl } from './return-url';
 
-export const guestGuard: CanActivateFn = () => {
+export const guestGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const sessionStore = inject(SessionStore);
   const router = inject(Router);
   const portal = inject(PORTAL_APP);
@@ -17,7 +18,8 @@ export const guestGuard: CanActivateFn = () => {
     return false;
   }
 
-  const redirectTo = portal === 'backoffice' ? '/admin/dashboard' : '/app/dashboard';
-  void router.navigate([redirectTo]);
+  const returnUrl = route.queryParamMap.get('returnUrl');
+  const defaultDest = portal === 'backoffice' ? '/admin/dashboard' : '/app/dashboard';
+  void router.navigateByUrl(isValidReturnUrl(returnUrl) ? returnUrl : defaultDest);
   return false;
 };

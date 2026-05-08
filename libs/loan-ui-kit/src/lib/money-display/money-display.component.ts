@@ -7,8 +7,15 @@ import { formatMoney } from '@pleniu/loan-domain';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<span class="money-display" [attr.title]="raw()">{{ formatted() }}</span>`,
   styles: `
+    :host-context(td) {
+      display: block;
+      text-align: right;
+    }
+
     .money-display {
+      display: inline-block;
       font-variant-numeric: tabular-nums;
+      text-align: right;
       white-space: nowrap;
     }
   `,

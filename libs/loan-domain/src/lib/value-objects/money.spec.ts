@@ -58,12 +58,14 @@ describe('formatMoney()', () => {
     expect(formatted).toContain('10');
     expect(formatted).toContain('000');
     expect(formatted).toContain('000');
+    expect(formatted).toContain('COP');
   });
 
   it('should format with en-US locale', () => {
     const m = money('1500.50', 'USD');
     const formatted = formatMoney(m, 'en-US');
     expect(formatted).toContain('1,500.50');
+    expect(formatted).toContain('USD');
   });
 
   it('should default to es-CO locale', () => {

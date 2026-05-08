@@ -11,9 +11,12 @@ export function money(amount: string | number, currency: string): Money {
 }
 
 export function formatMoney(m: Money, locale = 'es-CO'): string {
-  return new Intl.NumberFormat(locale, {
+  const currency = m.currency.toUpperCase();
+  const formatted = new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: m.currency,
+    currency,
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(Number(m.amount));
+  return `${formatted} ${currency}`;
 }

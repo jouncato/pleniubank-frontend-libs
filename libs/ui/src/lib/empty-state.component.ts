@@ -13,6 +13,7 @@ export type EmptyStateIcon =
   | 'users'
   | 'enterprises'
   | 'search'
+  | 'help'
   | 'default';
 
 @Component({
@@ -40,6 +41,13 @@ export type EmptyStateIcon =
             <svg viewBox="0 0 64 64" focusable="false">
               <rect x="14" y="12" width="36" height="40" rx="8"></rect>
               <path d="M23 24h18M23 32h18M23 40h10"></path>
+            </svg>
+          }
+          @case ('help') {
+            <svg viewBox="0 0 64 64" focusable="false">
+              <circle cx="32" cy="32" r="18"></circle>
+              <path d="M26 26a6 6 0 0 1 12 3c0 3-6 3-6 6"></path>
+              <circle cx="32" cy="43" r="1.5"></circle>
             </svg>
           }
           @default {
