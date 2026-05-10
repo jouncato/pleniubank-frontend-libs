@@ -1,5 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { API_CONFIG, type ApiConfig } from '@pleniu/shared-http';
 import { SessionStore } from './session-store.service';
 import { SESSION_STRATEGY } from './session-strategy.token';
 
@@ -16,6 +17,35 @@ function isPublicIdentityRoute(url: string): boolean {
   );
 }
 
+function startsWithConfiguredBase(url: string, baseUrl?: string): boolean {
+  if (!baseUrl) {
+    return false;
+  }
+  const base = baseUrl.replace(/\/$/, '');
+  return url === base || url.startsWith(`${base}/`);
+}
+
+function isCoreApiRoute(url: string, apiConfig: ApiConfig | null): boolean {
+  return startsWithConfiguredBase(url, apiConfig?.coreBaseUrl) || url.includes('/api/core/');
+}
+
+function isIdentityAdminApiRoute(url: string, apiConfig: ApiConfig | null): boolean {
+  const isIdentityScoped = startsWithConfiguredBase(url, apiConfig?.identityBaseUrl);
+  const isIdentityAdminPath =
+    url.includes('/api/v1/admin/') ||
+    url.includes('/api/v1/enterprise/') ||
+    url.includes('/api/v1/sub-enterprise/') ||
+    url.includes('/api/v1/economic-sectors');
+
+  if (isIdentityScoped) {
+    return isIdentityAdminPath;
+  }
+  if (isCoreApiRoute(url, apiConfig)) {
+    return false;
+  }
+  return isIdentityAdminPath;
+}
+
 export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
   const strategy = inject(SESSION_STRATEGY);
 
@@ -24,6 +54,7 @@ export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const sessionStore = inject(SessionStore);
+  const apiConfig = inject(API_CONFIG, { optional: true });
 
   if (isPublicIdentityRoute(req.url)) {
     return next(req);
@@ -34,11 +65,7 @@ export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
   // `admin_access_token` firma con ADMIN_JWT_SECRET_KEY: sirve para la API admin de Identity (`/api/v1/admin/*`),
   // endpoints de enterprise management (`/api/v1/enterprise/`, `/api/v1/sub-enterprise/`) y economic-sectors.
   // Core (platform, internal-accounts, audit) debe recibir el JWT de sesión normal.
-  const isIdentityAdminApi =
-    u.includes('/api/v1/admin/') ||
-    u.includes('/api/identity/api/v1/enterprise/') ||
-    u.includes('/api/identity/api/v1/sub-enterprise/') ||
-    u.includes('/api/identity/api/v1/economic-sectors');
+  const isIdentityAdminApi = isIdentityAdminApiRoute(u, apiConfig);
   const token = isIdentityAdminApi
     ? (sessionStore.adminToken() ?? sessionStore.userToken())
     : sessionStore.userToken();
