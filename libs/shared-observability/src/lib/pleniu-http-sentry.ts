@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/browser';
 
 export type PleniuHttpFailureContext = {
   correlationId?: string;

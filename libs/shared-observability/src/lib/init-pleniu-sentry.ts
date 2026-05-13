@@ -1,4 +1,5 @@
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/browser';
+import type { Scope } from '@sentry/core';
 
 import type { PleniuSentryInitConfig } from './pleniu-sentry.types';
 
@@ -28,7 +29,7 @@ export function initPleniuSentry(config: PleniuSentryInitConfig): void {
     integrations: [Sentry.browserTracingIntegration()],
     tracesSampleRate,
     sendDefaultPii: false,
-    initialScope: (scope) => {
+    initialScope: (scope: Scope) => {
       scope.setTag('portal', config.portal);
       return scope;
     },

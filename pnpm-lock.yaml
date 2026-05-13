@@ -32,6 +32,12 @@ importers:
       '@sentry/angular':
         specifier: ^10.47.0
         version: 10.53.1(@angular/common@21.2.12(@angular/core@21.2.12(@angular/compiler@21.2.12)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.12(@angular/compiler@21.2.12)(rxjs@7.8.2))(@angular/router@21.2.12(@angular/common@21.2.12(@angular/core@21.2.12(@angular/compiler@21.2.12)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.12(@angular/compiler@21.2.12)(rxjs@7.8.2))(@angular/platform-browser@21.2.12(@angular/common@21.2.12(@angular/core@21.2.12(@angular/compiler@21.2.12)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.12(@angular/compiler@21.2.12)(rxjs@7.8.2)))(rxjs@7.8.2))(rxjs@7.8.2)
+      '@sentry/browser':
+        specifier: ^10.48.0
+        version: 10.53.1
+      '@sentry/core':
+        specifier: ^10.48.0
+        version: 10.53.1
       rxjs:
         specifier: ~7.8.0
         version: 7.8.2

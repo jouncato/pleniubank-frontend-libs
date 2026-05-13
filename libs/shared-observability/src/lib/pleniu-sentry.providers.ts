@@ -8,26 +8,27 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import * as Sentry from '@sentry/angular';
+import * as SentryAngular from '@sentry/angular';
+import * as SentryBrowser from '@sentry/browser';
 import { SessionStore, type SessionClaims } from '@pleniu/shared-auth';
 
 import type { PleniuSentryInitConfig } from './pleniu-sentry.types';
 import { isPleniuSentryEnabled } from './init-pleniu-sentry';
 
 function applySentryUserFromClaims(c: SessionClaims | null): void {
-  if (!Sentry.getClient()) {
+  if (!SentryBrowser.getClient()) {
     return;
   }
-  const scope = Sentry.getGlobalScope();
+  const scope = SentryBrowser.getGlobalScope();
   if (c?.user_id) {
-    Sentry.setUser({
+    SentryBrowser.setUser({
       id: c.user_id,
       email: c.email,
       username: c.role,
     });
     scope.setTag('enterprise_id', c.enterprise_id ?? '');
   } else {
-    Sentry.setUser(null);
+    SentryBrowser.setUser(null);
     scope.setTag('enterprise_id', '');
   }
 }
@@ -42,12 +43,12 @@ export function pleniuSentryProviders(config: PleniuSentryInitConfig): Provider[
   }
 
   return [
-    { provide: ErrorHandler, useValue: Sentry.createErrorHandler({ showDialog: false, logErrors: false }) },
+    { provide: ErrorHandler, useValue: SentryAngular.createErrorHandler({ showDialog: false, logErrors: false }) },
     {
       provide: APP_INITIALIZER,
       multi: true,
       useFactory: () => {
-        const trace = inject(Sentry.TraceService);
+        const trace = inject(SentryAngular.TraceService);
         void trace;
         return () => undefined;
       },

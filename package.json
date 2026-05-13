@@ -32,6 +32,8 @@
     "@angular/router": "^21.1.0",
     "@ngrx/signals": "^21.1.0",
     "@sentry/angular": "^10.47.0",
+    "@sentry/browser": "^10.48.0",
+    "@sentry/core": "^10.48.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

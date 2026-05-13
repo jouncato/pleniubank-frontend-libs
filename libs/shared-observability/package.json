@@ -5,7 +5,9 @@
                              "@angular/core":  "^21.2.0",
                              "@angular/router":  "^21.2.0",
                              "@pleniu/shared-auth":  "0.0.1",
-                             "@sentry/angular":  "^10.0.0"
+                             "@sentry/angular":  "^10.0.0",
+                             "@sentry/browser":  "^10.0.0",
+                             "@sentry/core":  "^10.0.0"
                          },
     "dependencies":  {
                          "tslib":  "^2.3.0"
