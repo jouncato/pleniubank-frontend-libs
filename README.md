@@ -5,7 +5,7 @@ Monorepo de librerías Angular compartidas para los portales de PleniuBank.
 > **Nota**: Este proyecto es una librería Angular, no una aplicación. No requiere Docker ni contenerización. Las librerías se publican a GitHub Packages y se consumen desde los portales.
 
 > **README estándar PleniuBank v1.0** (variante librería) — referencia: [`docs-proyecto-plenibank/templates/README.template.md`](../docs-proyecto-plenibank/templates/README.template.md).
-> Secciones aplicables: 1) Stack/paquetes · 2) Variables (`NODE_AUTH_TOKEN` para `npm publish` y consumo desde portales) · 3) Quickstart local (`npm ci && npm run build:all && npm run test:all`) · 5) Build/Publish (GitHub Packages vía workflow `publish.yml` en tag `libs-v*`). N/A: §4 Docker, §6 VM edge, §7 K8s, §8 Migraciones, §9 Troubleshooting de runtime de servicio.
+> Secciones aplicables: 1) Stack/paquetes · 2) Variables (`NODE_AUTH_TOKEN` para `pnpm publish` y consumo desde portales) · 3) Quickstart local (`pnpm install --frozen-lockfile && pnpm run build:all && pnpm run test:all`) · 5) Build/Publish (GitHub Packages vía workflow `publish.yml` en tag `libs-v*`). N/A: §4 Docker, §6 VM edge, §7 K8s, §8 Migraciones, §9 Troubleshooting de runtime de servicio.
 > Versionado: tag semver `libs-v<MAJOR.MINOR.PATCH>`; los portales referencian con `^<version>` en `package.json`.
 
 ## Paquetes
@@ -37,10 +37,11 @@ Monorepo de librerías Angular compartidas para los portales de PleniuBank.
 
 ### Entornos: Linux, Windows y WSL
 
-Los comandos `npm` siguen siendo los mismos en **Linux**, **macOS**, **WSL** y **Windows** (PowerShell o `cmd`). La diferencia habitual es el **`.npmrc` con el token** de GitHub Packages: en Linux/macOS suele vivir en `~/.npmrc`; en Windows también puedes usar `%USERPROFILE%\.npmrc` o el `.npmrc` del proyecto. En PowerShell, para definir un token solo en la sesión: `$env:NPM_TOKEN = "..."` (si tus scripts lo consumen).
+Los comandos `pnpm` son los mismos en **Linux**, **macOS**, **WSL** y **Windows** (PowerShell o `cmd`). La diferencia habitual sigue siendo el **`.npmrc` con el token** de GitHub Packages: en Linux/macOS suele vivir en `~/.npmrc`; en Windows también puedes usar `%USERPROFILE%\.npmrc` o el `.npmrc` del proyecto. En PowerShell, para definir un token solo en la sesión: `$env:NPM_TOKEN = "..."` (si tus scripts lo consumen).
 
 - Node.js 20+ (recomendado 22)
-- npm 11+
+- corepack habilitado
+- pnpm 10+
 - Acceso a GitHub Packages para scope `@pleniu` (configurado en `.npmrc`)
 
 Si es la primera vez, configurar token de GitHub Packages:
@@ -53,16 +54,17 @@ Si es la primera vez, configurar token de GitHub Packages:
 ## Desarrollo
 
 ```bash
-npm install
-npm run build:all          # Compila todas las librerias en orden topologico
-npm run test:all           # Ejecuta tests de todas las librerias
-npm run verify             # build:all + test:all
+corepack enable
+pnpm install --frozen-lockfile
+pnpm run build:all          # Compila todas las librerias en orden topologico
+pnpm run test:all           # Ejecuta tests de todas las librerias
+pnpm run verify             # build:all + test:all
 ```
 
 ### Compilar una libreria especifica (con sus dependencias)
 
 ```bash
-npm run build:identity-feature-auth    # Compila cadena de deps para auth feature
+pnpm run build:identity-feature-auth    # Compila cadena de deps para auth feature
 ```
 
 ## Orden de build
@@ -81,6 +83,7 @@ Las librerías se compilan en orden topológico de dependencias:
 Se publica automaticamente a GitHub Packages al crear un tag `libs-v*`:
 
 ```bash
+corepack enable
 git tag libs-v1.0.0
 git push origin libs-v1.0.0
 ```
@@ -101,8 +104,8 @@ Para desarrollo local de portales, compilar primero las librerias:
 
 ```bash
 cd pleniubank-frontend-libs
-npm install
-npm run build:all
+pnpm install --frozen-lockfile
+pnpm run build:all
 ```
 
 ---
@@ -115,7 +118,7 @@ Este repositorio es un **monorepo de librerías Angular** (`@pleniu/*`): **no ge
 
 No aplica un único `docker build` aquí. Para obtener una imagen publicable:
 
-1. Compila las libs si el portal las consume por `file:` local: `npm install && npm run build:all` en este repo.
+1. Compila las libs si el portal las consume por `file:` local: `pnpm install --frozen-lockfile && pnpm run build:all` en este repo.
 2. Construye la imagen del **portal** correspondiente desde su repositorio (`pleniubank-customer-portal`, `pleniubank-backoffice-portal`, `pleniubank-public-portal`) siguiendo su README (PAT + `--secret id=github_token`).
 
 ### 2. Subir a Google Artifact Registry

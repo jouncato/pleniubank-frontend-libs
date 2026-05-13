@@ -16,16 +16,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
           registry-url: https://npm.pkg.github.com
-      - run: npm ci
-      - run: npm run build:all
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm run build:all
       - name: Publish all packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for pkg in dist/*/; do
             cd "$pkg"
-            npm publish --access restricted
+            corepack pnpm publish --access restricted --no-git-checks
             cd ../..
           done

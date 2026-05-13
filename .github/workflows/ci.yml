@@ -10,7 +10,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run build:all
-      - run: npm run test:all
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm run build:all
+      - run: corepack pnpm run test:all
