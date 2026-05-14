@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { IdentityAuthApiService } from '@pleniu/identity-data-access';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
@@ -11,6 +12,9 @@ describe('ForgotPasswordVm', () => {
   let vm: ForgotPasswordVm;
   let api: {
     forgotPassword: ReturnType<typeof vi.fn>;
+  };
+  let router: {
+    navigate: ReturnType<typeof vi.fn>;
   };
 
   function createRateLimitError() {
@@ -28,11 +32,15 @@ describe('ForgotPasswordVm', () => {
     api = {
       forgotPassword: vi.fn(),
     };
+    router = {
+      navigate: vi.fn(),
+    };
     TestBed.configureTestingModule({
       providers: [
         AuthRateLimitService,
         ForgotPasswordVm,
         { provide: IdentityAuthApiService, useValue: api },
+        { provide: Router, useValue: router },
       ],
     });
     vm = TestBed.inject(ForgotPasswordVm);
@@ -62,6 +70,9 @@ describe('ForgotPasswordVm', () => {
     expect(vm.debugResetCode).toBe('123456');
     expect(vm.submittedEmail).toBe('cliente@example.com');
     expect(vm.isRateLimited).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/auth/recovery-sent'], {
+      state: { email: 'cliente@example.com' },
+    });
   });
 
   it('debe mapear error 429', () => {

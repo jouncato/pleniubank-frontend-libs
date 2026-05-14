@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { VerifyOtpRequest } from 'identity-domain';
-import { SessionStore } from '@pleniu/shared-auth';
+import { PORTAL_APP, SessionStore, signInPathForPortal } from '@pleniu/shared-auth';
 import { IdentityAuthApiService, unwrapVerificationResponse } from '@pleniu/identity-data-access';
 import { ApiHttpError, mapHttpError } from '@pleniu/shared-http';
 
@@ -28,6 +28,7 @@ export class VerifyPhoneVm {
   resendSecondsLeft = 0;
 
   private resendTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly portal = inject(PORTAL_APP);
 
   constructor(
     private readonly identityApi: IdentityAuthApiService,
@@ -149,18 +150,9 @@ export class VerifyPhoneVm {
         this.state = 'success';
         const result = unwrapVerificationResponse(raw);
 
-        // Auto-login if tokens are provided (user is active and fully verified)
-        if (result.access_token && result.is_active && result.identity_verified) {
-          this.sessionStore.setUserToken(result.access_token);
-          this.sessionStore.setRegistrationId(null);
-          void this.router.navigate(['/app']);
-          return;
-        }
-
-        // Continue to complete page if identity verified (legacy flow without tokens)
         if (result.identity_verified && result.is_active) {
-          this.sessionStore.setRegistrationId(null);
-          void this.router.navigate(['/onboarding/party/customer/complete']);
+          this.sessionStore.clear();
+          void this.router.navigate([signInPathForPortal(this.portal)]);
           return;
         }
 

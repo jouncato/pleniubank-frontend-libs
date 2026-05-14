@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   ForgotPasswordRequest,
   ForgotPasswordResponse,
@@ -6,7 +7,7 @@ import {
 } from 'identity-domain';
 import { IdentityAuthApiService } from '@pleniu/identity-data-access';
 import { mapHttpError } from '@pleniu/shared-http';
-import { PORTAL_APP } from '@pleniu/shared-auth';
+import { PORTAL_APP, recoverySentPathForPortal } from '@pleniu/shared-auth';
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 
@@ -31,6 +32,7 @@ export class ForgotPasswordVm {
   submittedMethod: PasswordResetMethod = 'otp';
   private readonly rateLimit = inject(AuthRateLimitService);
   private readonly portalApp = inject(PORTAL_APP);
+  private readonly router = inject(Router);
 
   constructor(private readonly identityApi: IdentityAuthApiService) {
     this.applyStoredRateLimit();
@@ -48,13 +50,18 @@ export class ForgotPasswordVm {
     return this.rateLimit.message();
   }
 
-  submit(payload: ForgotPasswordRequest): void {
+  submit(
+    payload: ForgotPasswordRequest,
+    options: { navigateOnSuccess?: boolean; onSettled?: () => void } = {},
+  ): void {
     this.rateLimit.sync();
     if (this.rateLimit.isBlocked()) {
       this.state = 'rate_limited';
+      options.onSettled?.();
       return;
     }
     if (this.state === 'submitting') {
+      options.onSettled?.();
       return;
     }
 
@@ -76,21 +83,30 @@ export class ForgotPasswordVm {
           data.message || 'Si la cuenta existe, enviamos instrucciones para restablecer la contraseña.';
         this.debugResetCode = data.debug_reset_code ?? null;
         this.debugResetToken = data.debug_reset_token ?? null;
+        if (options.navigateOnSuccess !== false) {
+          void this.router.navigate([recoverySentPathForPortal(this.portalApp)], {
+            state: { email: payload.email },
+          });
+        }
+        options.onSettled?.();
       },
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);
         if (mappedError.status === 429) {
           this.rateLimit.register429();
           this.state = 'rate_limited';
+          options.onSettled?.();
           return;
         }
         this.rateLimit.reset();
         this.state = 'error';
         if (mappedError.status === 0) {
           this.errorMessage = 'Error de conexión. Verifica tu red e intenta de nuevo.';
+          options.onSettled?.();
           return;
         }
         this.errorMessage = 'No fue posible iniciar la recuperación en este momento.';
+        options.onSettled?.();
       },
     });
   }

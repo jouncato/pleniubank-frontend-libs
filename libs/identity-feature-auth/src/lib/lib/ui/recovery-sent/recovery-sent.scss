@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.recovery-card {
+  max-width: 520px;
+  width: 100%;
+  margin: 2.5rem auto;
+  padding: 2.5rem 2rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #111827;
+  box-shadow:
+    0 24px 60px rgba(2, 114, 222, 0.12),
+    0 2px 10px rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.recovery-card__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 1rem;
+  border-radius: 999px;
+  background: rgba(2, 114, 222, 0.1);
+  color: #0272de;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.recovery-card__eyebrow {
+  margin: 0 0 0.35rem;
+  color: #0272de;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.recovery-card__message {
+  margin: 1rem 0 1.5rem;
+  color: #4b5563;
+  font-size: 0.975rem;
+  line-height: 1.6;
+}
+
+.recovery-card__primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 1.25rem;
+  border-radius: 10px;
+  background: #0272de;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.recovery-card__primary:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.recovery-card__resend {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1.5rem;
+}
+
+.recovery-card__link-button {
+  border: 0;
+  background: transparent;
+  color: #0272de;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.recovery-card__link-button:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.recovery-card__status,
+.recovery-card__hint,
+.recovery-card__error {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.recovery-card__status {
+  color: #047857;
+}
+
+.recovery-card__hint {
+  color: #6b7280;
+}
+
+.recovery-card__error {
+  color: #f91c50;
+}

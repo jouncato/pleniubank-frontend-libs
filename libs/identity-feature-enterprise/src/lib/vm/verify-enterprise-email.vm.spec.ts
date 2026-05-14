@@ -13,7 +13,7 @@ describe('VerifyEnterpriseEmailVm', () => {
     apiResponse: { data: unknown };
     role: 'principal' | 'admin';
     onboardingState: unknown;
-    sessionStoreMock?: { setUserToken: ReturnType<typeof vi.fn>; clear: ReturnType<typeof vi.fn> };
+    sessionStoreMock?: { clear: ReturnType<typeof vi.fn> };
   }) => {
     const navigations: { commands: unknown[]; extras?: { queryParams?: Record<string, string> } }[] = [];
     const router = {
@@ -23,7 +23,6 @@ describe('VerifyEnterpriseEmailVm', () => {
       },
     };
     const sessionStoreMock = options.sessionStoreMock ?? {
-      setUserToken: vi.fn(),
       clear: vi.fn(),
     };
     const onboardingStoreMock = {
@@ -61,7 +60,7 @@ describe('VerifyEnterpriseEmailVm', () => {
     return { vm: TestBed.inject(VerifyEnterpriseEmailVm), navigations, sessionStoreMock, onboardingStoreMock };
   };
 
-  it('tras verificar con tokens activos navega directo al panel de empresa (auto-login)', () => {
+  it('tras verificar redirige al login sin iniciar sesión automáticamente', () => {
     const onboardingState = {
       principalUserId: '11111111-1111-4111-8111-111111111111',
       adminUserId: '22222222-2222-4222-8222-222222222222',
@@ -104,12 +103,12 @@ describe('VerifyEnterpriseEmailVm', () => {
     vm.submit('1234');
 
     expect(navigations.length).toBe(1);
-    expect(navigations[0]?.commands).toEqual(['/app/enterprise/kyb']);
-    expect(sessionStoreMock.setUserToken).toHaveBeenCalledWith('mock-jwt-token');
+    expect(navigations[0]?.commands).toEqual(['/onboarding/party/access/login']);
+    expect(sessionStoreMock.clear).toHaveBeenCalled();
     expect(onboardingStoreMock.clear).toHaveBeenCalled();
   });
 
-  it('tras verificar sin tokens (usuario no activo) navega al login con retorno KYB', () => {
+  it('tras verificar sin tokens navega al login sin returnUrl', () => {
     const onboardingState = {
       principalUserId: '11111111-1111-4111-8111-111111111111',
       adminUserId: '22222222-2222-4222-8222-222222222222',
@@ -150,8 +149,8 @@ describe('VerifyEnterpriseEmailVm', () => {
 
     expect(navigations.length).toBe(1);
     expect(navigations[0]?.commands).toEqual(['/onboarding/party/access/login']);
-    expect(navigations[0]?.extras?.queryParams).toEqual({ returnUrl: '/app/enterprise/kyb' });
-    expect(sessionStoreMock.setUserToken).not.toHaveBeenCalled();
+    expect(navigations[0]?.extras?.queryParams).toBeUndefined();
+    expect(sessionStoreMock.clear).toHaveBeenCalled();
   });
 });
 

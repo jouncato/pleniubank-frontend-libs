@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { authRoutesForPortal, PORTAL_APP, type PortalAppKind } from '@pleniu/shared-auth';
 
 import { ForgotPasswordVm } from '../../vm/forgot-password';
 
@@ -14,6 +15,8 @@ import { ForgotPasswordVm } from '../../vm/forgot-password';
 })
 export class ForgotPasswordForm {
   private readonly fb = inject(FormBuilder);
+  private readonly portal = inject<PortalAppKind>(PORTAL_APP);
+  protected readonly routes = authRoutesForPortal(this.portal);
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -30,13 +33,4 @@ export class ForgotPasswordForm {
     this.vm.submit({ email, method: 'link' });
   }
 
-  buildResetQueryParams(): Record<string, string> | null {
-    if (!this.vm.submittedEmail || !this.vm.debugResetToken) {
-      return null;
-    }
-    return {
-      email: this.vm.submittedEmail,
-      token: this.vm.debugResetToken,
-    };
-  }
 }

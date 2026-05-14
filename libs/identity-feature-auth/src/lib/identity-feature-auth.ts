@@ -5,4 +5,5 @@ export type AuthFeature =
   | 'verify-phone'
   | 'login'
   | 'forgot-password'
+  | 'recovery-sent'
   | 'reset-password';

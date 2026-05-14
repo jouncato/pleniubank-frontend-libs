@@ -10,6 +10,7 @@ export * from './lib/lib/ui/auth-login-form/auth-login-form';
 export * from './lib/lib/ui/party-type-selector/party-type-selector';
 export * from './lib/lib/ui/forgot-password-placeholder/forgot-password-placeholder';
 export * from './lib/lib/ui/forgot-password-form/forgot-password-form';
+export * from './lib/lib/ui/recovery-sent/recovery-sent';
 export * from './lib/lib/ui/reset-password-form/reset-password-form';
 export * from './lib/lib/ui/security-settings/security-settings';
 export * from './lib/lib/ui/customer-change-password-form/customer-change-password-form';
