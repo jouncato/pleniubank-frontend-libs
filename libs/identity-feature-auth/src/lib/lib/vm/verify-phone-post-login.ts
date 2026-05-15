@@ -96,7 +96,7 @@ export class VerifyPhonePostLoginVm {
     const uid = this.sessionStore.claims()?.user_id?.trim();
     const digits = code.replace(/\D/g, '').slice(0, 6);
     if (digits.length !== 6) {
-      this.errorMessage.set('Introduce los 6 dígitos del SMS.');
+      this.errorMessage.set('Introduce los 6 dígitos del código enviado por SMS o correo.');
       return;
     }
     if (!uid) {
@@ -201,13 +201,13 @@ export class VerifyPhonePostLoginVm {
         if (this.state() === 'error') {
           this.state.set('ready');
         }
-        this.autoRenewNotice.set('El código anterior caducó; te enviamos uno nuevo por SMS.');
+        this.autoRenewNotice.set('El código anterior caducó; te enviamos uno nuevo por SMS y correo.');
         this.consumeChallengeResponse(raw, { bumpReissue: true });
       },
       error: () => {
         this.autoRenewInFlight = false;
         this.autoRenewNotice.set(
-          'El código expiró. Pulsa «Reenviar código por SMS» para recibir uno nuevo.',
+          'El código expiró. Pulsa «Reenviar código (SMS y correo)» para recibir uno nuevo.',
         );
         this.otpExpiresSecondsLeft.set(null);
       },

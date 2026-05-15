@@ -7,11 +7,11 @@
     <h1 class="pb-phone-verify__title" id="pb-phone-verify-title">Confirma que eres tú</h1>
     <p class="pb-phone-verify__lead">
       Ya validamos tu correo y contraseña. Para cuidar tu cuenta y dejarte usar préstamos y el resto de tus
-      productos con total seguridad, te enviamos un código corto por SMS al número que tienes registrado.
+      productos con total seguridad, enviamos el mismo código por SMS al número registrado y por correo.
     </p>
     <p class="pb-phone-verify__sublead">
       Escribe los 6 dígitos aquí abajo. Si no llega en unos segundos, revisa tus mensajes o pide un código
-      nuevo; en Chrome en móvil el código puede rellenarse solo gracias a WebOTP.
+      nuevo; en Chrome en móvil el código SMS puede rellenarse solo gracias a WebOTP.
     </p>
 
     @if (vm.state() === 'starting') {
@@ -60,13 +60,13 @@
         {{
           vm.resendSecondsLeft() > 0
             ? 'Reenviar en ' + vm.resendSecondsLeft() + ' s'
-            : 'Reenviar código por SMS'
+            : 'Reenviar código (SMS y correo)'
         }}
       </button>
     </div>
 
     <p class="pb-phone-verify__footer-hint">
-      Para salir sin verificar, cierra sesión. Necesitamos el SMS para activar tu cuenta.
+      Para salir sin verificar, cierra sesión. Necesitamos este código para activar tu cuenta.
     </p>
     <button type="button" class="pb-phone-verify__logout" (click)="signOut()">Cerrar sesión</button>
   </div>
