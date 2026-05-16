@@ -70,9 +70,24 @@ export interface ResetPasswordRequest {
   new_password: string;
   code?: string;
   token?: string;
+  portal?: 'customer' | 'backoffice';
 }
 
 export interface ResetPasswordResponse {
+  status: string;
+  sessions_revoked: boolean;
+  confirmation_required?: boolean;
+  confirmation_expires_in_seconds?: number;
+  debug_confirmation_token?: string | null;
+}
+
+export interface ConfirmPasswordResetRequest {
+  email: string;
+  confirmation_token: string;
+  portal?: 'customer' | 'backoffice';
+}
+
+export interface ConfirmPasswordResetResponse {
   status: string;
   sessions_revoked: boolean;
 }
@@ -133,5 +148,6 @@ export type LoginEnvelope = ApiEnvelope<LoginResponse>;
 export type ValidateEnvelope = ApiEnvelope<ValidateResponse>;
 export type ForgotPasswordEnvelope = ApiEnvelope<ForgotPasswordResponse>;
 export type ResetPasswordEnvelope = ApiEnvelope<ResetPasswordResponse>;
+export type ConfirmPasswordResetEnvelope = ApiEnvelope<ConfirmPasswordResetResponse>;
 
 export * from './identity-enterprise';

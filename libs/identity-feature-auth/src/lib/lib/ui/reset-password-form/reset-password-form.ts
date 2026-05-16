@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
+import { APP_PASSWORD_COMPLEXITY_PATTERN, APP_PASSWORD_MIN_LENGTH } from '../../password-policy';
 import { ResetPasswordVm } from '../../vm/reset-password';
 
 @Component({
@@ -22,11 +23,12 @@ export class ResetPasswordForm {
     newPassword: ['', [Validators.required, Validators.minLength(12)]],
     confirmPassword: ['', [Validators.required]],
   });
+  readonly minLength = APP_PASSWORD_MIN_LENGTH;
 
   private readonly cdr = inject(ChangeDetectorRef);
 
   constructor(protected readonly vm: ResetPasswordVm) {
-    this.prefillFromQuery();
+    this.prefillAndMaybeConfirmFromQuery();
   }
 
   submit(): void {
@@ -51,15 +53,31 @@ export class ResetPasswordForm {
         email: raw.email,
         new_password: raw.newPassword,
         token: raw.token.trim(),
+        portal: this.detectPortal(),
       },
       () => this.cdr.markForCheck(),
     );
   }
 
-  private prefillFromQuery(): void {
+  get hasMinLength(): boolean {
+    return (this.form.controls.newPassword.value || '').length >= APP_PASSWORD_MIN_LENGTH;
+  }
+
+  get hasComplexity(): boolean {
+    return APP_PASSWORD_COMPLEXITY_PATTERN.test(this.form.controls.newPassword.value || '');
+  }
+
+  get passwordsMatch(): boolean {
+    const raw = this.form.getRawValue();
+    return !!raw.newPassword && raw.newPassword === raw.confirmPassword;
+  }
+
+  private prefillAndMaybeConfirmFromQuery(): void {
     const qp = this.route.snapshot.queryParamMap;
     const email = qp.get('email');
     const token = qp.get('token');
+    const confirmationToken = qp.get('confirmation_token');
+    const flow = (qp.get('flow') || '').trim().toLowerCase();
 
     if (email) {
       this.form.controls.email.setValue(email);
@@ -67,5 +85,23 @@ export class ResetPasswordForm {
     if (token) {
       this.form.controls.token.setValue(token);
     }
+    if (flow === 'confirm' && email && confirmationToken) {
+      this.vm.confirm(
+        {
+          email,
+          confirmation_token: confirmationToken,
+          portal: this.detectPortal(),
+        },
+        () => this.cdr.markForCheck(),
+      );
+    }
+  }
+
+  private detectPortal(): 'customer' | 'backoffice' {
+    const path = (this.route.snapshot.routeConfig?.path || '').toLowerCase();
+    if (path.includes('backoffice')) {
+      return 'backoffice';
+    }
+    return 'customer';
   }
 }

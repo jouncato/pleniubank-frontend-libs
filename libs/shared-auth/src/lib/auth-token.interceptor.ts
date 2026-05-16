@@ -13,6 +13,7 @@ function isPublicIdentityRoute(url: string): boolean {
     url.includes('/auth/verify-phone') ||
     url.includes('/auth/forgot-password') ||
     url.includes('/auth/reset-password') ||
+    url.includes('/auth/confirm-password-reset') ||
     url.includes('/health')
   );
 }

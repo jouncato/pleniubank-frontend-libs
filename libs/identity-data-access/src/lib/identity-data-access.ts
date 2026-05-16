@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 import type { SessionClaims } from '@pleniu/shared-auth';
 import {
+  ConfirmPasswordResetEnvelope,
+  ConfirmPasswordResetRequest,
   ForgotPasswordEnvelope,
   ForgotPasswordRequest,
   LoginEnvelope,
@@ -277,6 +279,13 @@ export class IdentityAuthApiService {
   resetPassword(payload: ResetPasswordRequest): Observable<ResetPasswordEnvelope> {
     return this.http.post<ResetPasswordEnvelope>(
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/reset-password`,
+      payload,
+    );
+  }
+
+  confirmPasswordReset(payload: ConfirmPasswordResetRequest): Observable<ConfirmPasswordResetEnvelope> {
+    return this.http.post<ConfirmPasswordResetEnvelope>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/confirm-password-reset`,
       payload,
     );
   }

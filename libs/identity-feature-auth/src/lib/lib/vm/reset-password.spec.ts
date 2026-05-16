@@ -10,11 +10,13 @@ describe('ResetPasswordVm', () => {
   let vm: ResetPasswordVm;
   let api: {
     resetPassword: ReturnType<typeof vi.fn>;
+    confirmPasswordReset: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     api = {
       resetPassword: vi.fn(),
+      confirmPasswordReset: vi.fn(),
     };
     TestBed.configureTestingModule({
       providers: [
@@ -25,8 +27,8 @@ describe('ResetPasswordVm', () => {
     vm = TestBed.inject(ResetPasswordVm);
   });
 
-  it('debe quedar en success cuando backend confirma reset', () => {
-    api.resetPassword.mockReturnValue(of({ data: { status: 'password_reset', sessions_revoked: true } }));
+  it('debe quedar en success cuando backend solicita confirmación', () => {
+    api.resetPassword.mockReturnValue(of({ data: { status: 'confirmation_required', sessions_revoked: false } }));
 
     vm.submit({
       email: 'cliente@example.com',
@@ -35,7 +37,7 @@ describe('ResetPasswordVm', () => {
     });
 
     expect(vm.state).toBe('success');
-    expect(vm.successMessage).toContain('actualizada');
+    expect(vm.successMessage).toContain('confirmar');
   });
 
   it('debe mapear credential expirada', () => {
@@ -78,5 +80,18 @@ describe('ResetPasswordVm', () => {
 
     expect(vm.state).toBe('error');
     expect(vm.errorMessage).toContain('conexión');
+  });
+
+  it('debe confirmar cambio de contraseña con token de confirmación', () => {
+    api.confirmPasswordReset.mockReturnValue(of({ data: { status: 'password_reset_confirmed', sessions_revoked: true } }));
+
+    vm.confirm({
+      email: 'cliente@example.com',
+      confirmation_token: 'token-confirmation',
+      portal: 'customer',
+    });
+
+    expect(vm.state).toBe('success');
+    expect(vm.successMessage).toContain('confirmado');
   });
 });
