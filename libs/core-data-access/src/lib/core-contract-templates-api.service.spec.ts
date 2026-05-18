@@ -60,4 +60,20 @@ describe('CoreContractTemplatesApiService', () => {
       payload,
     );
   });
+
+  it('deactivate llama PATCH al endpoint /{id}/deactivate', () => {
+    const http = {
+      get: vi.fn(),
+      post: vi.fn(),
+      patch: vi.fn().mockReturnValue(of({ data: { id: 'tpl-1', is_active: false } })),
+    };
+    const service = new CoreContractTemplatesApiService(http as never, apiConfig);
+
+    service.deactivate('tpl-1').subscribe();
+
+    expect(http.patch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/v1/contract-templates/tpl-1/deactivate',
+      {},
+    );
+  });
 });

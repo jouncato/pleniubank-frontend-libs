@@ -35,4 +35,11 @@ export class CoreContractTemplatesApiService {
   create(body: CreateContractTemplateRequest): Observable<ApiEnvelope<ContractTemplateDto>> {
     return this.http.post<ApiEnvelope<ContractTemplateDto>>(this.base, body);
   }
+
+  deactivate(templateId: string): Observable<ApiEnvelope<ContractTemplateDto>> {
+    return this.http.patch<ApiEnvelope<ContractTemplateDto>>(
+      `${this.base}/${templateId}/deactivate`,
+      {},
+    );
+  }
 }
