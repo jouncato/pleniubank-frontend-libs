@@ -76,6 +76,10 @@ export class CoreContractPoliciesApiService {
     return this.http.patch<ApiEnvelope<ContractPolicyValueDto>>(`${this.base}/values/${valueId}`, body);
   }
 
+  deleteValue(valueId: string): Observable<ApiEnvelope<{ deleted: boolean }>> {
+    return this.http.delete<ApiEnvelope<{ deleted: boolean }>>(`${this.base}/values/${valueId}`);
+  }
+
   listRuleLinks(definitionId: string): Observable<ApiEnvelope<ContractPolicyRuleLinkDto[]>> {
     return this.http.get<ApiEnvelope<ContractPolicyRuleLinkDto[]>>(
       `${this.base}/definitions/${definitionId}/rule-links`,

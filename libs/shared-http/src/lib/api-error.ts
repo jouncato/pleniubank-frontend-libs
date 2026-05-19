@@ -110,12 +110,23 @@ export class ApiHttpError extends Error {
   }
 }
 
+function isHttpErrorLike(error: unknown): error is HttpErrorResponse {
+  if (error instanceof HttpErrorResponse) {
+    return true;
+  }
+  if (error !== null && typeof error === 'object') {
+    const e = error as Record<string, unknown>;
+    return typeof e['status'] === 'number' && 'error' in e && ('url' in e || 'headers' in e);
+  }
+  return false;
+}
+
 export function mapHttpError(error: unknown): ApiHttpError {
   if (error instanceof ApiHttpError) {
     return error;
   }
 
-  if (!(error instanceof HttpErrorResponse)) {
+  if (!isHttpErrorLike(error)) {
     return new ApiHttpError(0, [{ code: 'UNKNOWN', message: 'Error inesperado' }]);
   }
 

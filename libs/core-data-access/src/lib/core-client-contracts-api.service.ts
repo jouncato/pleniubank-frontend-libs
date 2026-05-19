@@ -10,6 +10,7 @@ import type {
   ClientContractDto,
   ClientContractPatchRequest,
   CompanyCodeOptionDto,
+  EligibilitySummaryDto,
 } from './core-types';
 import type { ContractTemplateDto } from 'core-domain';
 
@@ -121,6 +122,11 @@ export class CoreClientContractsApiService {
       `${this.base}/sub-enterprise/${encodeURIComponent(subEnterpriseId)}/contracts`,
       { params: hp },
     );
+  }
+
+  listEligibilitySummary(companyCode: string): Observable<ApiEnvelope<EligibilitySummaryDto>> {
+    const params = new HttpParams().set('company_code', companyCode);
+    return this.http.get<ApiEnvelope<EligibilitySummaryDto>>(`${this.base}/eligibility-summary`, { params });
   }
 
   /**

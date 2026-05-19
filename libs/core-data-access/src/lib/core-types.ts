@@ -141,6 +141,26 @@ export interface CompanyCodeOptionDto {
   business_name: string;
 }
 
+/** Distribución de clientes por categoría de riesgo crediticio. */
+export interface RiskDistributionDto {
+  LOW: number;
+  MEDIUM: number;
+  HIGH: number;
+  VERY_HIGH: number;
+  unknown: number;
+}
+
+/** Resumen de elegibilidad por empresa (LB-ST-125). Fuente: GET /client-contracts/eligibility-summary */
+export interface EligibilitySummaryDto {
+  company_code: string;
+  total_active_contracts: number;
+  customers_with_credit_history: number;
+  avg_internal_score: number;
+  total_settled: number;
+  total_defaults: number;
+  risk_distribution: RiskDistributionDto;
+}
+
 /** Alineado a Core `PrimaryPaymentIdentifierResponse` (v1: solo IBAN en enum BD). */
 export type PaymentSchemeV1 = 'IBAN';
 

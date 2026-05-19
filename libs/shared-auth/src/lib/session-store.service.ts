@@ -38,6 +38,8 @@ export interface SessionClaims {
   is_active?: boolean;
   /** Ámbito JWT (p. ej. plt_admin); solo lectura en UI de perfil. */
   scope?: string;
+  /** Salario mensual declarado del beneficiario (Identity validate, B2C empleado). */
+  salary_amount?: number;
 }
 
 @Injectable({ providedIn: 'root' })

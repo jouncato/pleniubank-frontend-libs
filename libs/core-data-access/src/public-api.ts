@@ -12,3 +12,6 @@ export * from './lib/core-health-api.service';
 export * from './lib/core-contract-policies-api.service';
 export * from './lib/rules';
 export * from './lib/core-help-tooltips-api.service';
+export * from './lib/core-payroll-advances-api.service';
+export * from './lib/core-scoring-api.service';
+export * from './lib/core-notifications-api.service';
