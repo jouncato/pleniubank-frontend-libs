@@ -60,6 +60,10 @@ export interface PaymentLineDto {
   type: string;
 }
 
+/**
+ * @deprecated Since v0.6.0. Use `CustomerDto` from `core-domain` instead.
+ * Sunset: 2027-03-01.
+ */
 export interface CustomerDto {
   id: string;
   version_id: string;
@@ -82,6 +86,10 @@ export interface CustomerDto {
   metadata: Record<string, unknown> | null;
 }
 
+/**
+ * @deprecated Since v0.6.0. Use `CreateCustomerRequest` from `core-domain` instead.
+ * Sunset: 2027-03-01.
+ */
 export interface CreateCustomerRequest {
   full_name: string;
   document_type: string;
@@ -95,6 +103,10 @@ export interface CreateCustomerRequest {
   metadata?: Record<string, unknown> | null;
 }
 
+/**
+ * @deprecated Since v0.6.0. Use `UpdateCustomerRequest` from `core-domain` instead.
+ * Sunset: 2027-03-01.
+ */
 export interface UpdateCustomerRequest {
   full_name?: string | null;
   email?: string | null;
@@ -105,6 +117,10 @@ export interface UpdateCustomerRequest {
   metadata?: Record<string, unknown> | null;
 }
 
+/**
+ * @deprecated Since v0.6.0. Use `ClientContractDto` from `core-domain` instead.
+ * Sunset: 2027-03-01.
+ */
 export interface ClientContractDto {
   id: string;
   customer_id: string;
@@ -121,18 +137,44 @@ export interface ClientContractDto {
   deactivation_reason?: string | null;
 }
 
+/**
+ * @deprecated Since v0.6.0. Use `ClientContractPatchRequest` from `core-domain` instead.
+ * Sunset: 2027-03-01.
+ */
 export interface ClientContractPatchRequest {
   status?: string | null;
   terms?: Record<string, unknown> | null;
   deactivation_reason?: string | null;
 }
 
-/** Body `POST /api/v1/client-contracts` — Core `ClientContractCreateRequest`. */
+/**
+ * @deprecated Since v0.6.0. Use `ClientContractCreateRequest` from `core-domain` instead.
+ * Sunset: 2027-03-01. Body `POST /api/v1/client-contracts` — Core `ClientContractCreateRequest`.
+ */
 export interface ClientContractCreateRequest {
   customer_id: string;
   company_code: string;
   template_contract_id: string;
   terms: Record<string, unknown>;
+}
+
+/** Historial crediticio del cliente (GET /customers/{id}/credit-history). */
+export interface CustomerCreditHistoryDto {
+  customer_id: string;
+  total_advances_count: number;
+  total_advances_settled: number;
+  total_advances_defaulted: number;
+  total_amount_borrowed: number;
+  total_amount_repaid: number;
+  avg_days_late: number;
+  max_days_late: number;
+  on_time_payment_rate: number;
+  internal_credit_score: number | null;
+  risk_category: string | null;
+  first_advance_date: string | null;
+  last_advance_date: string | null;
+  last_settlement_date: string | null;
+  last_default_date: string | null;
 }
 
 /** Opciones de company_code permitidas para el usuario (sub-empresas sincronizadas en Core). */
@@ -161,15 +203,26 @@ export interface EligibilitySummaryDto {
   risk_distribution: RiskDistributionDto;
 }
 
-/** Alineado a Core `PrimaryPaymentIdentifierResponse` (v1: solo IBAN en enum BD). */
+/**
+ * @deprecated Since v0.6.0. Use `PaymentSchemeV1` from `core-domain` instead.
+ * Sunset: 2027-03-01.
+ */
 export type PaymentSchemeV1 = 'IBAN';
 
+/**
+ * @deprecated Since v0.6.0. Use `PrimaryPaymentIdentifierDto` from `core-domain` instead.
+ * Sunset: 2027-03-01.
+ */
 export interface PrimaryPaymentIdentifierDto {
   scheme: PaymentSchemeV1;
   display_value_masked: string;
   country_code: string | null;
 }
 
+/**
+ * @deprecated Since v0.6.0. Use `AccountDto` from `core-domain` instead.
+ * Sunset: 2027-03-01.
+ */
 export interface AccountDto {
   id: string;
   version_id: string;

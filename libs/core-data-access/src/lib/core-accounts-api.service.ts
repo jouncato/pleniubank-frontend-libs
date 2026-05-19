@@ -78,6 +78,12 @@ export class CoreAccountsApiService {
     return this.http.post<ApiEnvelope<AccountDto>>(`${this.base}/${accountId}/flags`, body);
   }
 
+  removeFlag(accountId: string, flag: string): Observable<ApiEnvelope<AccountDto>> {
+    return this.http.delete<ApiEnvelope<AccountDto>>(
+      `${this.base}/${accountId}/flags/${encodeURIComponent(flag)}`,
+    );
+  }
+
   getBalances(accountId: string, params: GetBalancesParams = {}): Observable<ApiEnvelope<AccountBalancePayloadDto>> {
     let hp = new HttpParams();
     if (params.at) {

@@ -7,6 +7,7 @@ import { corePublicV1Base } from './core-api-base';
 
 import type {
   CreateCustomerRequest,
+  CustomerCreditHistoryDto,
   CustomerDto,
   UpdateCustomerRequest,
 } from './core-types';
@@ -76,5 +77,9 @@ export class CoreCustomersApiService {
 
   listVersions(customerId: string): Observable<ApiEnvelope<CustomerDto[]>> {
     return this.http.get<ApiEnvelope<CustomerDto[]>>(`${this.base}/${customerId}/versions`);
+  }
+
+  getCreditHistory(customerId: string): Observable<ApiEnvelope<CustomerCreditHistoryDto>> {
+    return this.http.get<ApiEnvelope<CustomerCreditHistoryDto>>(`${this.base}/${customerId}/credit-history`);
   }
 }

@@ -14,6 +14,40 @@ import type {
 } from './core-types';
 import type { ContractTemplateDto } from 'core-domain';
 
+export interface BulkAssignContractRequest {
+  sub_enterprise_id: string;
+  template_contract_id: string;
+  customer_ids: string[];
+  terms?: Record<string, unknown>;
+}
+
+export interface BulkAssignContractResultEntry {
+  customer_id: string;
+  status: 'created' | 'skipped' | 'error';
+  client_contract_id: string | null;
+  reason: string | null;
+}
+
+export interface BulkAssignContractResponse {
+  assigned: number;
+  skipped: number;
+  errors: number;
+  entries: BulkAssignContractResultEntry[];
+}
+
+export interface ContractAuditEntryDto {
+  id: string;
+  action: string;
+  changes: Record<string, unknown>;
+  performed_by: string | null;
+  performed_at: string;
+}
+
+export interface ListClientContractAuditParams {
+  page?: number;
+  page_size?: number;
+}
+
 export interface ListClientContractsParams {
   company_code: string;
   customer_id?: string | null;
@@ -149,5 +183,22 @@ export class CoreClientContractsApiService {
       hp = hp.set('include_terminated', 'true');
     }
     return this.http.get<ApiEnvelope<ClientContractDto[]>>(`${this.base}/me`, { params: hp });
+  }
+
+  bulkAssign(body: BulkAssignContractRequest): Observable<ApiEnvelope<BulkAssignContractResponse>> {
+    return this.http.post<ApiEnvelope<BulkAssignContractResponse>>(`${this.base}/bulk-assign`, body);
+  }
+
+  getContractAudit(
+    contractId: string,
+    params: ListClientContractAuditParams = {},
+  ): Observable<ApiEnvelope<ContractAuditEntryDto[]>> {
+    let hp = new HttpParams();
+    if (params.page != null) hp = hp.set('page', String(params.page));
+    if (params.page_size != null) hp = hp.set('page_size', String(params.page_size));
+    return this.http.get<ApiEnvelope<ContractAuditEntryDto[]>>(
+      `${this.base}/${contractId}/audit`,
+      { params: hp },
+    );
   }
 }

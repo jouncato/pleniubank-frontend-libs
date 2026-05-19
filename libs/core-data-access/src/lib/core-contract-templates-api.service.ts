@@ -36,6 +36,10 @@ export class CoreContractTemplatesApiService {
     return this.http.post<ApiEnvelope<ContractTemplateDto>>(this.base, body);
   }
 
+  getById(templateId: string): Observable<ApiEnvelope<ContractTemplateDto>> {
+    return this.http.get<ApiEnvelope<ContractTemplateDto>>(`${this.base}/${templateId}`);
+  }
+
   deactivate(templateId: string): Observable<ApiEnvelope<ContractTemplateDto>> {
     return this.http.patch<ApiEnvelope<ContractTemplateDto>>(
       `${this.base}/${templateId}/deactivate`,

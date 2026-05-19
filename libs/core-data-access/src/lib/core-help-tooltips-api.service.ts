@@ -48,6 +48,11 @@ export interface HelpTooltipListMeta {
   has_more: boolean;
 }
 
+/**
+ * @deprecated Since v0.6.0. Use `CoreHelpTooltipsPublicApiService` for B2C/public endpoints
+ * and `CoreHelpTooltipsAdminApiService` for admin/platform endpoints.
+ * Sunset: 2027-03-01.
+ */
 @Injectable({ providedIn: 'root' })
 export class CoreHelpTooltipsApiService {
   private readonly publicBase: string;
