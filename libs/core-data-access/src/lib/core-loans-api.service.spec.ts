@@ -5,7 +5,7 @@ import { CoreLoansApiService } from './core-loans-api.service';
 describe('CoreLoansApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
-    identityBaseUrl: 'http://localhost:8082',
+    identityBaseUrl: 'http://localhost:8080',
   };
 
   it('arma query params de list con employer_id y limit', () => {

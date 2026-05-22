@@ -5,7 +5,7 @@ import { CorePayrollAdvancesApiService } from './core-payroll-advances-api.servi
 describe('CorePayrollAdvancesApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
-    identityBaseUrl: 'http://localhost:8082',
+    identityBaseUrl: 'http://localhost:8080',
   };
 
   const mockHttp = () => ({

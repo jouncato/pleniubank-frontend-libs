@@ -5,7 +5,7 @@ import { CoreCustomersApiService } from './core-customers-api.service';
 describe('CoreCustomersApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
-    identityBaseUrl: 'http://localhost:8082',
+    identityBaseUrl: 'http://localhost:8080',
   };
 
   it('adds server-side search params to list', () => {

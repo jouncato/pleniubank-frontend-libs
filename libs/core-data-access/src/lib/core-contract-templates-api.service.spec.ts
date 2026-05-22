@@ -5,7 +5,7 @@ import { CoreContractTemplatesApiService } from './core-contract-templates-api.s
 describe('CoreContractTemplatesApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
-    identityBaseUrl: 'http://localhost:8082',
+    identityBaseUrl: 'http://localhost:8080',
   };
 
   it('arma query params de list con company_code, cursor y limit', () => {

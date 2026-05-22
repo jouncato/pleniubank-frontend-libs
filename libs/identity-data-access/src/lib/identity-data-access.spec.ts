@@ -73,7 +73,7 @@ describe('IdentityAuthApiService', () => {
         IdentityAuthApiService,
         {
           provide: API_CONFIG,
-          useValue: { identityBaseUrl: 'http://localhost:8082', coreBaseUrl: 'http://localhost:8000' },
+          useValue: { identityBaseUrl: 'http://localhost:8080', coreBaseUrl: 'http://localhost:8000' },
         },
       ],
     });
@@ -92,7 +92,7 @@ describe('IdentityAuthApiService', () => {
       expect(body.checks?.['delegated_subject']).toBe('on');
     });
 
-    const req = httpMock.expectOne('http://localhost:8082/api/v1/health');
+    const req = httpMock.expectOne('http://localhost:8080/api/v1/health');
     expect(req.request.method).toBe('GET');
     req.flush({
       status: 'ok',

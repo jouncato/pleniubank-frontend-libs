@@ -5,7 +5,7 @@ import { CoreClientContractsApiService } from './core-client-contracts-api.servi
 describe('CoreClientContractsApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
-    identityBaseUrl: 'http://localhost:8082',
+    identityBaseUrl: 'http://localhost:8080',
   };
 
   const mockHttp = () => ({

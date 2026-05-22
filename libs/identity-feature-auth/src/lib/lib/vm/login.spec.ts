@@ -186,14 +186,14 @@ describe('LoginVm', () => {
     const { service } = setup({
       portal: 'public',
       postLoginPortal: {
-        customerPortalOrigin: 'http://localhost:4201',
+        customerPortalOrigin: 'http://localhost:4205',
         allowCrossOriginTokenHandoff: true,
       },
     });
 
     service.login(payload);
 
-    expect(assign).toHaveBeenCalledWith('http://localhost:4201/app/dashboard');
+    expect(assign).toHaveBeenCalledWith('http://localhost:4205/app/dashboard');
     vi.unstubAllGlobals();
   });
 
@@ -203,12 +203,12 @@ describe('LoginVm', () => {
     const { service } = setup({
       portal: 'public',
       enterpriseId: 'ent-123',
-      postLoginPortal: { customerPortalOrigin: 'http://localhost:4201' },
+      postLoginPortal: { customerPortalOrigin: 'http://localhost:4205' },
     });
 
     service.login(payload);
 
-    expect(assign).toHaveBeenCalledWith('http://localhost:4201/app/dashboard');
+    expect(assign).toHaveBeenCalledWith('http://localhost:4205/app/dashboard');
     vi.unstubAllGlobals();
   });
 
@@ -229,12 +229,12 @@ describe('LoginVm', () => {
     vi.stubGlobal('location', { ...globalThis.location, assign: assign });
     const { service } = setup({
       portal: 'public',
-      postLoginPortal: { customerPortalOrigin: 'http://localhost:4201' },
+      postLoginPortal: { customerPortalOrigin: 'http://localhost:4205' },
     });
 
     service.login(payload, '/app/personal/accounts/list');
 
-    expect(assign).toHaveBeenCalledWith('http://localhost:4201/app/personal/accounts/list');
+    expect(assign).toHaveBeenCalledWith('http://localhost:4205/app/personal/accounts/list');
     vi.unstubAllGlobals();
   });
 

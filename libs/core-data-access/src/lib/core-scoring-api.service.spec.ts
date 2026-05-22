@@ -5,7 +5,7 @@ import { CoreScoringApiService } from './core-scoring-api.service';
 describe('CoreScoringApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
-    identityBaseUrl: 'http://localhost:8082',
+    identityBaseUrl: 'http://localhost:8080',
   };
 
   const mockHttp = () => ({

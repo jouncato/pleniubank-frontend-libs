@@ -5,7 +5,7 @@ import { RulesApiService } from './rules-api.service';
 describe('RulesApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
-    identityBaseUrl: 'http://localhost:8082',
+    identityBaseUrl: 'http://localhost:8080',
     rulesEngineBaseUrl: 'http://localhost:8095',
   };
 

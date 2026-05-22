@@ -5,7 +5,7 @@ import { CoreContractPoliciesApiService } from './core-contract-policies-api.ser
 describe('CoreContractPoliciesApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
-    identityBaseUrl: 'http://localhost:8082',
+    identityBaseUrl: 'http://localhost:8080',
   };
 
   it('listValues GET sin definition_id omite query param', () => {
