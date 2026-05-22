@@ -30,24 +30,24 @@ export class AuthShell {
     const path = rawUrl.split('?')[0]?.replace(/\/+$/, '') ?? '';
     return (
       path.endsWith('/onboarding/party/register') ||
-      path.endsWith('/customer/v0.1.0/party/register') ||
+      path.endsWith('/customer/party/register') ||
       path.endsWith('/onboarding/party/customer/register') ||
-      path.endsWith('/customer/v0.1.0/party/customer/register') ||
+      path.endsWith('/customer/party/customer/register') ||
       path.endsWith('/onboarding/party/organization/register') ||
-      path.endsWith('/customer/v0.1.0/party/organization/register') ||
+      path.endsWith('/customer/party/organization/register') ||
       path.endsWith('/onboarding/party/access/login') ||
-      path.endsWith('/customer/v0.1.0/party/access/login') ||
-      path.endsWith('/customer/v0.1.0/party/access/forgot-password') ||
-      path.endsWith('/customer/v0.1.0/party/access/reset-password') ||
+      path.endsWith('/customer/party/access/login') ||
+      path.endsWith('/customer/party/access/forgot-password') ||
+      path.endsWith('/customer/party/access/reset-password') ||
       path.endsWith('/backoffice/party/access/login') ||
       path.endsWith('/onboarding/party/customer/verify-contact') ||
-      path.endsWith('/customer/v0.1.0/party/customer/verify-contact') ||
+      path.endsWith('/customer/party/customer/verify-contact') ||
       path.endsWith('/onboarding/party/customer/verify-email') ||
-      path.endsWith('/customer/v0.1.0/party/customer/verify-email') ||
+      path.endsWith('/customer/party/customer/verify-email') ||
       path.endsWith('/onboarding/party/customer/verify-phone') ||
-      path.endsWith('/customer/v0.1.0/party/customer/verify-phone') ||
+      path.endsWith('/customer/party/customer/verify-phone') ||
       path.endsWith('/onboarding/party/customer/complete') ||
-      path.endsWith('/customer/v0.1.0/party/customer/complete')
+      path.endsWith('/customer/party/customer/complete')
     );
   }
 }

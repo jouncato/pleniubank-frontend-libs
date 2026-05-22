@@ -27,18 +27,18 @@ export class PartyTypeSelector {
   readonly personRegisterLink = computed(() =>
     this.portalApp === 'public'
       ? ['/onboarding/party/customer/register']
-      : ['/customer/v0.1.0/party/customer/register'],
+      : ['/customer/party/customer/register'],
   );
 
   readonly enterpriseRegisterLink = computed(() =>
     this.portalApp === 'public'
       ? ['/onboarding/party/organization/register']
-      : ['/customer/v0.1.0/party/organization/register'],
+      : ['/customer/party/organization/register'],
   );
 
   readonly portalLoginLink = computed(() =>
     this.portalApp === 'public'
       ? ['/onboarding/party/access/login']
-      : ['/customer/v0.1.0/party/access/login'],
+      : ['/customer/party/access/login'],
   );
 }
