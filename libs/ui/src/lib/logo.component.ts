@@ -11,7 +11,7 @@ type LogoSize = 'sm' | 'md' | 'lg';
   standalone: true,
   imports: [NgIf, NgClass],
   template: `
-    <a *ngIf="clickable" [href]="href" class="pb-logo" [ngClass]="size" aria-label="Pleniu Bank">
+    <a *ngIf="clickable" [href]="href" class="pb-logo" [ngClass]="size" aria-label="Pleniu Colombia S.A.">
       <img
         [src]="resolvedSrc"
         [width]="imgWidth"
@@ -64,7 +64,7 @@ export class PbLogoComponent {
   @Input() size: LogoSize = 'md';
   @Input() clickable = false;
   @Input() href = '/';
-  @Input() alt = 'Pleniu Bank';
+  @Input() alt = 'Pleniu Colombia S.A.';
   @Input() loading: 'eager' | 'lazy' = 'eager';
 
   get resolvedSrc(): string {
