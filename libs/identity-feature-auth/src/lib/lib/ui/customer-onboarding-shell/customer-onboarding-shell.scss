@@ -5,7 +5,9 @@
 }
 
 .customer-onb--embedded .customer-onb__stepper-wrap {
-  padding-top: 8px;
+  width: min(390px, 100%);
+  padding: 8px 16px 22px;
+  box-sizing: border-box;
 }
 
 .customer-onb__stepper-wrap {
@@ -19,6 +21,11 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--pl-dark);
+}
+
+.customer-onb__step-summary span,
+.customer-onb__step-summary strong {
+  display: block;
 }
 
 @media (max-width: 639px) {
@@ -121,5 +128,81 @@
 }
 
 .customer-onb__outlet-section {
-  padding-top: 32px;
+  padding-top: 24px;
+}
+
+.customer-onb--embedded {
+  min-height: auto;
+  background: transparent;
+}
+
+.customer-onb--embedded .customer-onb__outlet-section {
+  padding: 0 0 48px;
+  background: transparent;
+}
+
+.customer-onb--embedded .pl-container {
+  width: min(390px, 100%);
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
+
+.customer-onb--embedded .customer-onb__step-summary {
+  display: block;
+  margin: 0 0 12px;
+  border: 1px solid #e8e8ea;
+  border-radius: 16px;
+  padding: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 21, 40, 0.06);
+}
+
+.customer-onb--embedded .customer-onb__step-summary span {
+  margin-bottom: 4px;
+  color: #0272de;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.customer-onb--embedded .customer-onb__step-summary strong {
+  color: #001528;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+.customer-onb--embedded .customer-onb-stepper__list {
+  display: none;
+}
+
+.customer-onb--embedded .customer-onb-stepper__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: #e7e0ec;
+}
+
+.customer-onb--embedded .customer-onb-stepper {
+  padding: 0 16px;
+}
+
+.customer-onb--embedded .customer-onb-stepper__bar-fill {
+  background: #0272de;
+  border-radius: 999px;
+}
+
+@media (max-width: 639px) {
+  .customer-onb--embedded .customer-onb__step-summary {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .customer-onb--embedded .pl-container,
+  .customer-onb--embedded .customer-onb__stepper-wrap {
+    width: min(430px, 100%);
+  }
 }

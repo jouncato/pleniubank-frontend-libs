@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { RegisterDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
@@ -16,6 +16,7 @@ const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
 })
 export class AuthRegisterForm {
   private readonly fb = inject(FormBuilder);
+  readonly legalModalOpen = signal(false);
 
   readonly documentTypeOptions: ReadonlyArray<{ value: RegisterDocumentType; label: string }> = [
     { value: 'CC', label: 'Cedula de ciudadania (CC)' },
@@ -84,6 +85,14 @@ export class AuthRegisterForm {
       delete nextErrors['mismatch'];
       confirmControl.setErrors(Object.keys(nextErrors).length > 0 ? nextErrors : null);
     }
+  }
+
+  openLegalModal(): void {
+    this.legalModalOpen.set(true);
+  }
+
+  closeLegalModal(): void {
+    this.legalModalOpen.set(false);
   }
 
   submit(): void {

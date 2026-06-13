@@ -1,70 +1,100 @@
 <div class="pl-container">
   <h2 class="visually-hidden" i18n="@@auth.register.hiddenTitle">Formulario de registro</h2>
   <div class="pl-form-card reg-form">
+    <header class="reg-form__head">
+      <p class="reg-form__eyebrow">Registro persona natural</p>
+      <h2>Crea tu cuenta</h2>
+      <p>Completa tus datos para iniciar de forma segura.</p>
+    </header>
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <label for="fullName" i18n="@@auth.register.fullNameLabel">Nombre completo</label>
-      <input id="fullName" type="text" autocomplete="name" formControlName="fullName" />
-      @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
-        <p class="field-error">Ingresa tu nombre completo (minimo 3 caracteres).</p>
-      }
-
-      <label for="email" i18n="@@auth.register.emailLabel">Correo electronico</label>
-      <input id="email" type="email" autocomplete="email" formControlName="email" />
-      @if (form.controls.email.touched && form.controls.email.invalid) {
-        <p class="field-error">Ingresa un correo valido.</p>
-      }
-
-      <label for="phone" i18n="@@auth.register.phoneLabel">Telefono celular</label>
-      <input id="phone" type="tel" autocomplete="tel" formControlName="phone" />
-      @if (form.controls.phone.touched && form.controls.phone.invalid) {
-        <p class="field-error">Ingresa un telefono valido (7 a 20 caracteres).</p>
-      }
-
-      <label for="documentType" i18n="@@auth.register.documentTypeLabel">Tipo de documento</label>
-      <select id="documentType" formControlName="documentType">
-        @for (option of documentTypeOptions; track option.value) {
-          <option [value]="option.value">{{ option.label }}</option>
+      <div class="reg-form__field">
+        <label for="fullName" i18n="@@auth.register.fullNameLabel">Nombre completo</label>
+        <input id="fullName" type="text" autocomplete="name" formControlName="fullName" placeholder="Tu nombre completo" />
+        @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+          <p class="field-error">Ingresa tu nombre completo (minimo 3 caracteres).</p>
         }
-      </select>
+      </div>
 
-      <label for="documentNumber" i18n="@@auth.register.documentNumberLabel">Numero de documento</label>
-      <input id="documentNumber" type="text" autocomplete="off" formControlName="documentNumber" />
-      @if (form.controls.documentNumber.touched && form.controls.documentNumber.invalid) {
-        <p class="field-error">Ingresa un documento valido (5 a 32 caracteres).</p>
-      }
+      <div class="reg-form__field">
+        <label for="email" i18n="@@auth.register.emailLabel">Correo electronico</label>
+        <input id="email" type="email" autocomplete="email" formControlName="email" placeholder="correo@ejemplo.com" />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <p class="field-error">Ingresa un correo valido.</p>
+        }
+      </div>
 
-      <label for="password">Contrasena</label>
-      <input
-        id="password"
-        type="password"
-        autocomplete="new-password"
-        formControlName="password"
-        (input)="onPasswordInput()"
-      />
-      <ul class="password-hints" aria-live="polite">
-        <li [class.valid]="hasMinLengthPassword">Minimo 12 caracteres</li>
-        <li [class.valid]="hasUpperPassword">Al menos una letra mayuscula</li>
-        <li [class.valid]="hasLowerPassword">Al menos una letra minuscula</li>
-        <li [class.valid]="hasNumberPassword">Al menos un numero</li>
-        <li [class.valid]="hasSymbolPassword">Al menos un simbolo</li>
-      </ul>
+      <div class="reg-form__field">
+        <label for="phone" i18n="@@auth.register.phoneLabel">Telefono celular</label>
+        <input id="phone" type="tel" autocomplete="tel" formControlName="phone" placeholder="+57 300 000 0000" />
+        @if (form.controls.phone.touched && form.controls.phone.invalid) {
+          <p class="field-error">Ingresa un telefono valido (7 a 20 caracteres).</p>
+        }
+      </div>
 
-      <label for="confirmPassword">Confirmar contrasena</label>
-      <input
-        id="confirmPassword"
-        type="password"
-        autocomplete="new-password"
-        formControlName="confirmPassword"
-        (input)="onPasswordInput()"
-      />
-      @if (form.controls.confirmPassword.hasError('mismatch')) {
-        <p class="field-error">Las contrasenas no coinciden.</p>
-      }
+      <div class="reg-form__row">
+        <div class="reg-form__field">
+          <label for="documentType" i18n="@@auth.register.documentTypeLabel">Tipo de documento</label>
+          <select id="documentType" formControlName="documentType">
+            @for (option of documentTypeOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="reg-form__field">
+          <label for="documentNumber" i18n="@@auth.register.documentNumberLabel">Numero de documento</label>
+          <input id="documentNumber" type="text" autocomplete="off" formControlName="documentNumber" placeholder="1234567890" />
+          @if (form.controls.documentNumber.touched && form.controls.documentNumber.invalid) {
+            <p class="field-error">Ingresa un documento valido (5 a 32 caracteres).</p>
+          }
+        </div>
+      </div>
+
+      <div class="reg-form__field">
+        <label for="password">Contrasena</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="new-password"
+          formControlName="password"
+          placeholder="Crea una contraseña segura"
+          (input)="onPasswordInput()"
+        />
+        <ul class="password-hints" aria-live="polite">
+          <li [class.valid]="hasMinLengthPassword">Minimo 12 caracteres</li>
+          <li [class.valid]="hasUpperPassword">Al menos una letra mayuscula</li>
+          <li [class.valid]="hasLowerPassword">Al menos una letra minuscula</li>
+          <li [class.valid]="hasNumberPassword">Al menos un numero</li>
+          <li [class.valid]="hasSymbolPassword">Al menos un simbolo</li>
+        </ul>
+      </div>
+
+      <div class="reg-form__field">
+        <label for="confirmPassword">Confirmar contrasena</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          autocomplete="new-password"
+          formControlName="confirmPassword"
+          placeholder="Repite tu contraseña"
+          (input)="onPasswordInput()"
+        />
+        @if (form.controls.confirmPassword.hasError('mismatch')) {
+          <p class="field-error">Las contrasenas no coinciden.</p>
+        }
+      </div>
 
       <label class="terms">
         <input type="checkbox" formControlName="acceptedTerms" />
         <span>
-          Acepto terminos y condiciones y autorizo el tratamiento de datos.
+          Acepto los
+          <button type="button" class="terms__link" (click)="openLegalModal()">
+            términos y condiciones
+          </button>
+          y autorizo el
+          <button type="button" class="terms__link" (click)="openLegalModal()">
+            tratamiento de datos
+          </button>.
         </span>
       </label>
       @if (form.controls.acceptedTerms.touched && form.controls.acceptedTerms.invalid) {
@@ -91,3 +121,62 @@
     </nav>
   </div>
 </div>
+
+@if (legalModalOpen()) {
+  <div class="legal-modal" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
+    <button type="button" class="legal-modal__backdrop" aria-label="Cerrar términos" (click)="closeLegalModal()"></button>
+    <section class="legal-modal__panel">
+      <header class="legal-modal__header">
+        <div>
+          <p class="legal-modal__eyebrow">Información legal</p>
+          <h2 id="legal-modal-title">Términos y tratamiento de datos</h2>
+        </div>
+        <button type="button" class="legal-modal__close" aria-label="Cerrar" (click)="closeLegalModal()">×</button>
+      </header>
+
+      <div class="legal-modal__content">
+        <section>
+          <h3>Términos y condiciones de uso</h3>
+          <p>
+            Al crear una cuenta aceptas usar los servicios digitales de forma responsable, entregar
+            información veraz y mantener protegidas tus credenciales de acceso. La disponibilidad de
+            productos, funcionalidades y canales puede variar según validaciones internas, requisitos
+            operativos y políticas vigentes de la plataforma.
+          </p>
+        </section>
+
+        <section>
+          <h3>Autorización para tratamiento de datos</h3>
+          <p>
+            Autorizas el tratamiento de los datos personales suministrados para gestionar tu registro,
+            validar tu identidad, operar los servicios solicitados, prevenir fraude, atender solicitudes
+            de soporte y cumplir obligaciones legales o contractuales aplicables.
+          </p>
+        </section>
+
+        <section>
+          <h3>Canales y comunicaciones</h3>
+          <p>
+            Podremos contactarte por medios digitales, telefónicos o presenciales relacionados con tu
+            registro, seguridad de cuenta, verificación, operación del servicio y comunicaciones
+            informativas asociadas a los productos que solicites o uses.
+          </p>
+        </section>
+
+        <section>
+          <h3>Actualización de este texto</h3>
+          <p>
+            Este contenido es estático y editable directamente en el archivo del formulario de registro.
+            Puedes ajustarlo en cualquier momento, compilar la aplicación y desplegar una nueva versión.
+          </p>
+        </section>
+      </div>
+
+      <footer class="legal-modal__actions">
+        <button type="button" class="legal-modal__button" (click)="closeLegalModal()">
+          Entendido
+        </button>
+      </footer>
+    </section>
+  </div>
+}
