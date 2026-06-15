@@ -35,19 +35,20 @@
 .login-form input {
   width: 100%;
   box-sizing: border-box;
-  min-height: 44px;
+  min-height: 46px;
   padding: 0 14px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 10px;
-  background: var(--pl-white);
-  color: var(--pl-dark);
+  border: 1.5px solid #d8d8da;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #001528;
   font-size: 15px;
-  font-family: inherit;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: border-color 0.15s;
 }
 
 .login-form input:focus-visible {
   outline: none;
-  border-color: var(--pl-blue);
+  border-color: #0272de;
 }
 
 .login-form__submit {
@@ -85,9 +86,10 @@
 
 .login-footer a {
   font-weight: 600;
-  color: var(--pl-blue);
+  color: #0272de;
   text-decoration: underline;
   text-underline-offset: 3px;
+  font-family: 'Geist', 'Inter', system-ui, sans-serif;
 }
 
 .login-footer a:hover {

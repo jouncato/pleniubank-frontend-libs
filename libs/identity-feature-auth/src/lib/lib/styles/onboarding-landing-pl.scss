@@ -100,8 +100,8 @@
 
 .pl-btn--outline {
   background: transparent;
-  color: var(--pl-blue);
-  border-color: var(--pl-blue);
+  color: #0272de;
+  border-color: #0272de;
 }
 
 .pl-btn--block {
@@ -258,10 +258,10 @@
 
 .pl-card {
   background: var(--pl-white);
-  border-radius: var(--pl-radius);
-  padding: 28px;
-  box-shadow: var(--pl-shadow);
-  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 21, 40, 0.06);
+  border: 1px solid #e8e8ea;
   transition:
     transform 0.18s,
     box-shadow 0.18s;
@@ -277,8 +277,8 @@
 }
 
 .pl-card--link:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 32px rgb(2 114 222 / 0.14);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 24px rgba(2, 114, 222, 0.12);
 }
 
 .pl-card--link:focus-visible {
