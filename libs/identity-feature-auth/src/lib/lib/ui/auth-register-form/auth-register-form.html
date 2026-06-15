@@ -16,18 +16,18 @@
       </div>
 
       <div class="reg-form__field">
-        <label for="email" i18n="@@auth.register.emailLabel">Correo electronico</label>
+        <label for="email" i18n="@@auth.register.emailLabel">Correo electrónico</label>
         <input id="email" type="email" autocomplete="email" formControlName="email" placeholder="correo@ejemplo.com" />
         @if (form.controls.email.touched && form.controls.email.invalid) {
-          <p class="field-error">Ingresa un correo valido.</p>
+          <p class="field-error">Ingresa un correo válido.</p>
         }
       </div>
 
       <div class="reg-form__field">
-        <label for="phone" i18n="@@auth.register.phoneLabel">Telefono celular</label>
+        <label for="phone" i18n="@@auth.register.phoneLabel">Teléfono celular</label>
         <input id="phone" type="tel" autocomplete="tel" formControlName="phone" placeholder="+57 300 000 0000" />
         @if (form.controls.phone.touched && form.controls.phone.invalid) {
-          <p class="field-error">Ingresa un telefono valido (7 a 20 caracteres).</p>
+          <p class="field-error">Ingresa un teléfono válido (7 a 20 caracteres).</p>
         }
       </div>
 
@@ -42,16 +42,16 @@
         </div>
 
         <div class="reg-form__field">
-          <label for="documentNumber" i18n="@@auth.register.documentNumberLabel">Numero de documento</label>
+          <label for="documentNumber" i18n="@@auth.register.documentNumberLabel">Número de documento</label>
           <input id="documentNumber" type="text" autocomplete="off" formControlName="documentNumber" placeholder="1234567890" />
           @if (form.controls.documentNumber.touched && form.controls.documentNumber.invalid) {
-            <p class="field-error">Ingresa un documento valido (5 a 32 caracteres).</p>
+            <p class="field-error">Ingresa un documento válido (5 a 32 caracteres).</p>
           }
         </div>
       </div>
 
       <div class="reg-form__field">
-        <label for="password">Contrasena</label>
+        <label for="password">Contraseña</label>
         <input
           id="password"
           type="password"
@@ -61,16 +61,16 @@
           (input)="onPasswordInput()"
         />
         <ul class="password-hints" aria-live="polite">
-          <li [class.valid]="hasMinLengthPassword">Minimo 12 caracteres</li>
-          <li [class.valid]="hasUpperPassword">Al menos una letra mayuscula</li>
-          <li [class.valid]="hasLowerPassword">Al menos una letra minuscula</li>
-          <li [class.valid]="hasNumberPassword">Al menos un numero</li>
-          <li [class.valid]="hasSymbolPassword">Al menos un simbolo</li>
+          <li [class.valid]="hasMinLengthPassword">Mínimo 12 caracteres</li>
+          <li [class.valid]="hasUpperPassword">Al menos una letra mayúscula</li>
+          <li [class.valid]="hasLowerPassword">Al menos una letra minúscula</li>
+          <li [class.valid]="hasNumberPassword">Al menos un número</li>
+          <li [class.valid]="hasSymbolPassword">Al menos un símbolo</li>
         </ul>
       </div>
 
       <div class="reg-form__field">
-        <label for="confirmPassword">Confirmar contrasena</label>
+        <label for="confirmPassword">Confirmar contraseña</label>
         <input
           id="confirmPassword"
           type="password"
@@ -80,7 +80,7 @@
           (input)="onPasswordInput()"
         />
         @if (form.controls.confirmPassword.hasError('mismatch')) {
-          <p class="field-error">Las contrasenas no coinciden.</p>
+          <p class="field-error">Las contraseñas no coinciden.</p>
         }
       </div>
 
@@ -98,7 +98,7 @@
         </span>
       </label>
       @if (form.controls.acceptedTerms.touched && form.controls.acceptedTerms.invalid) {
-        <p class="field-error">Debes aceptar los terminos para continuar.</p>
+        <p class="field-error">Debes aceptar los términos para continuar.</p>
       }
 
       @if (vm.errorMessage(); as error) {
