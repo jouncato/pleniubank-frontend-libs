@@ -263,3 +263,19 @@ export interface SubEnterprisesListParams {
 
 export type SubEnterprisesListEnvelope = ApiEnvelope<SubEnterpriseSummaryDto[]>;
 export type SubEnterpriseDetailEnvelope = ApiEnvelope<SubEnterpriseDetailDto>;
+
+/** User linked to a sub-enterprise (returned by GET /sub-enterprise/:id/users). */
+export interface SubEnterpriseUserDto {
+  user_id: string;
+  full_name: string;
+  email: string;
+  role: string;
+  status: string;
+  customer_id?: string | null;
+  created_at: string;
+}
+
+export interface SubEnterpriseUsersListEnvelope {
+  data: SubEnterpriseUserDto[];
+  total: number;
+}

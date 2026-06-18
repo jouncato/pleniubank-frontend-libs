@@ -28,6 +28,7 @@ import {
   SubEnterpriseSummaryDto,
   SubEnterprisesListEnvelope,
   SubEnterprisesListParams,
+  SubEnterpriseUsersListEnvelope,
   UpdateSubEnterpriseRequest,
   VerifyEnterpriseEmailEnvelope,
   VerifyEnterpriseEmailRequest,
@@ -147,6 +148,13 @@ export class IdentityEnterpriseApiService {
     return this.http.post<CreateUserEnterpriseEnvelope>(
       `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}/users`,
       payload,
+    );
+  }
+
+  /** List active users linked to a sub-enterprise (business unit). */
+  listSubEnterpriseUsers(subEnterpriseId: string): Observable<SubEnterpriseUsersListEnvelope> {
+    return this.http.get<SubEnterpriseUsersListEnvelope>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}/users`,
     );
   }
 

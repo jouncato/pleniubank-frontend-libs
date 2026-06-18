@@ -115,6 +115,18 @@ function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
   if (typeof raw['scope'] === 'string' && raw['scope'].trim()) {
     out.scope = raw['scope'].trim();
   }
+  if (typeof raw['enterprise_name'] === 'string' && raw['enterprise_name'].trim()) {
+    out.enterprise_name = raw['enterprise_name'].trim();
+  }
+  if (raw['sub_enterprise_id'] != null) {
+    out.sub_enterprise_id = String(raw['sub_enterprise_id']);
+  }
+  if (typeof raw['sub_enterprise_name'] === 'string' && raw['sub_enterprise_name'].trim()) {
+    out.sub_enterprise_name = raw['sub_enterprise_name'].trim();
+  }
+  if (typeof raw['company_code'] === 'string' && raw['company_code'].trim()) {
+    out.company_code = raw['company_code'].trim();
+  }
   return out;
 }
 

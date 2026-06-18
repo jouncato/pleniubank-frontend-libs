@@ -14,6 +14,8 @@ export interface LoanDto {
   instance_parameters: Record<string, unknown> | null;
   created_at: string | null;
   updated_at: string | null;
+  customer_name?: string | null;
+  employer_name?: string | null;
 }
 
 export interface CreateLoanRequest {

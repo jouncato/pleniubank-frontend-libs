@@ -21,6 +21,8 @@ export interface ListLoansParams {
   customer_id?: string | null;
   /** Obligatorio para tokens enterprise (Core). */
   employer_id?: string | null;
+  /** Búsqueda server-side por referencia (ID o fragmento de UUID). */
+  search?: string | null;
 }
 
 /**
@@ -61,6 +63,9 @@ export class CoreLoansApiService {
     }
     if (params.employer_id) {
       hp = hp.set('employer_id', params.employer_id);
+    }
+    if (params.search) {
+      hp = hp.set('search', params.search);
     }
     return this.http.get<ApiEnvelope<LoanDto[]>>(this.base, { params: hp });
   }

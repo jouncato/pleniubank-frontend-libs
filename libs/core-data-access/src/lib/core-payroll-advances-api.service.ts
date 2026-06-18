@@ -106,6 +106,8 @@ export interface PayrollAdvanceDto {
   contract_version_id: string | null;
   created_at: string;
   updated_at: string | null;
+  employer_name?: string | null;
+  customer_name?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
