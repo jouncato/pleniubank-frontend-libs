@@ -10,7 +10,7 @@ export type TransactionDomain = 'ACCOUNT' | 'LENDING' | 'PAYMENT' | 'RULES' | 'C
 export type TransactionType = 'POSTING_BATCH' | 'PAYMENT' | 'TRANSFER' | 'DISBURSEMENT' | 'REPAYMENT' | 'REVERSAL' | 'FEE' | 'EVALUATION';
 
 /** Estado normalizado del Hub (cross-domain). Usar este para renderizar UI. */
-export type HubStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'UNKNOWN';
+export type HubStatus = 'INITIATED' | 'PENDING' | 'COMPLETED' | 'FAILED' | 'REVERSED' | 'CANCELLED' | 'UNKNOWN';
 
 /** Evento individual en la línea de tiempo de una transacción. */
 export interface TimelineEvent {

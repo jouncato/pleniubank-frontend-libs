@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 /** Estados normalizados cross-domain del Transaction Hub. */
-export type HubStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'UNKNOWN';
+export type HubStatus = 'INITIATED' | 'PENDING' | 'COMPLETED' | 'FAILED' | 'REVERSED' | 'CANCELLED' | 'UNKNOWN';
 
 @Component({
   selector: 'pleniu-hub-status-badge',
@@ -34,6 +34,14 @@ export type HubStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'UNKN
       background: #fee2e2;
       color: #991b1b;
     }
+    .badge--initiated {
+      background: #f0f9ff;
+      color: #0369a1;
+    }
+    .badge--reversed {
+      background: #fef3c7;
+      color: #92400e;
+    }
     .badge--cancelled {
       background: #f3f4f6;
       color: #374151;
@@ -49,12 +57,16 @@ export class HubStatusBadgeComponent {
 
   readonly label = computed(() => {
     switch (this.status()) {
+      case 'INITIATED':
+        return 'Iniciada';
       case 'PENDING':
         return 'Pendiente';
       case 'COMPLETED':
         return 'Completada';
       case 'FAILED':
         return 'Fallida';
+      case 'REVERSED':
+        return 'Reversada';
       case 'CANCELLED':
         return 'Cancelada';
       case 'UNKNOWN':
