@@ -6,6 +6,7 @@ export interface ClientContractCreateRequest {
   company_code: string;
   template_contract_id: string;
   terms: Record<string, unknown>;
+  business_unit_assignment_id?: string | null;
 }
 
 export interface ClientContractDto {

@@ -388,3 +388,36 @@ export interface ContractPolicyPreviewResponse {
   merged_preview: Record<string, unknown>;
   related_rule_links: Record<string, unknown>[];
 }
+
+/** Business Unit Product Assignment alineados con Core. */
+
+export interface BusinessUnitAssignmentDto {
+  id: string;
+  sub_enterprise_id: string;
+  company_code: string;
+  template_contract_id: string;
+  product_type: string;
+  status: string;
+  terms: Record<string, unknown>;
+  effective_from: string;
+  effective_to: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string | null;
+  updated_by: string | null;
+}
+
+export interface BusinessUnitAssignmentCreateRequest {
+  sub_enterprise_id: string;
+  company_code: string;
+  template_contract_id: string;
+  terms?: Record<string, unknown>;
+  effective_from?: string | null;
+  effective_to?: string | null;
+}
+
+export interface BusinessUnitAssignmentPatchRequest {
+  status?: string | null;
+  terms?: Record<string, unknown> | null;
+  effective_to?: string | null;
+}
