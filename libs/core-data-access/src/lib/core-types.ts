@@ -156,6 +156,8 @@ export interface ClientContractCreateRequest {
   company_code: string;
   template_contract_id: string;
   terms: Record<string, unknown>;
+  /** FK a BusinessUnitProductAssignment. Obligatorio (ADR-012). */
+  business_unit_assignment_id: string;
 }
 
 /** Historial crediticio del cliente (GET /customers/{id}/credit-history). */

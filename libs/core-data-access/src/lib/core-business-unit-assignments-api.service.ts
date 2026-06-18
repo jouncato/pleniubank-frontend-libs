@@ -71,4 +71,14 @@ export class CoreBusinessUnitAssignmentsApiService {
       `${this.base}/sub-enterprise/${encodeURIComponent(subEnterpriseId)}/available-products`,
     );
   }
+
+  findActiveByTemplate(
+    companyCode: string,
+    templateContractId: string,
+  ): Observable<ApiEnvelope<BusinessUnitAssignmentDto>> {
+    const params = new HttpParams()
+      .set('company_code', companyCode)
+      .set('template_contract_id', templateContractId);
+    return this.http.get<ApiEnvelope<BusinessUnitAssignmentDto>>(`${this.base}/by-template`, { params });
+  }
 }

@@ -6,11 +6,14 @@ export interface ClientContractCreateRequest {
   company_code: string;
   template_contract_id: string;
   terms: Record<string, unknown>;
-  business_unit_assignment_id?: string | null;
+  /** FK a BusinessUnitProductAssignment. Obligatorio (ADR-012). */
+  business_unit_assignment_id: string;
 }
 
 export interface ClientContractDto {
   id: string;
+  /** FK a BusinessUnitProductAssignment (Nivel 2 jerarquía ADR-012). */
+  business_unit_assignment_id?: string | null;
   customer_id: string;
   company_code: string;
   template_contract_id: string;
