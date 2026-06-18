@@ -82,14 +82,14 @@ describe('RegisterVm', () => {
     expect(vm.errorMessage()).toContain('Demasiados intentos');
   });
 
-  it('shows Identity message on 409 when errors[0].message is present', () => {
+  it('shows Spanish message on 409 when backend says Document already registered', () => {
     api.register.mockReturnValue(
       throwError(
         () =>
           new HttpErrorResponse({
             status: 409,
             error: {
-              errors: [{ code: 'REGISTRATION_EXISTS', message: 'El correo ya esta registrado.' }],
+              errors: [{ code: 'CONFLICT', message: 'Document already registered' }],
             },
           }),
       ),
@@ -99,7 +99,27 @@ describe('RegisterVm', () => {
     vm.submit(registerPayload);
 
     expect(vm.state()).toBe('error');
-    expect(vm.errorMessage()).toBe('El correo ya esta registrado.');
+    expect(vm.errorMessage()).toBe('Ya existe una cuenta con este número de documento.');
+  });
+
+  it('shows Spanish message on 409 when backend says Email already registered', () => {
+    api.register.mockReturnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: {
+              errors: [{ code: 'CONFLICT', message: 'Email already registered' }],
+            },
+          }),
+      ),
+    );
+    const vm = TestBed.inject(RegisterVm);
+
+    vm.submit(registerPayload);
+
+    expect(vm.state()).toBe('error');
+    expect(vm.errorMessage()).toBe('Ya existe una cuenta con este correo electrónico.');
   });
 
   it('uses fallback copy on 409 when envelope has no usable message', () => {
@@ -118,7 +138,7 @@ describe('RegisterVm', () => {
 
     expect(vm.state()).toBe('error');
     expect(vm.errorMessage()).toBe(
-      'No pudimos completar la operación. Revisa los datos e inténtalo de nuevo.',
+      'Ya existe un registro con la información ingresada.',
     );
   });
 });

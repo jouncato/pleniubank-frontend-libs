@@ -3,12 +3,10 @@ import { EnterpriseDocumentType } from './identity-enterprise';
 
 /** Roles permitidos en `POST /api/v1/admin/users` (Identity `UserRole`). */
 export type AdminCreateUserRole =
-  | 'customer'
-  | 'employee'
   | 'admin'
-  | 'enterprise_principal'
-  | 'enterprise_admin'
-  | 'enterprise_operator';
+  | 'employee'
+  | 'risk_officer'
+  | 'compliance_officer';
 
 export interface AdminCreateUserRequest {
   email: string;
@@ -60,7 +58,7 @@ export interface AdminUserDetailDto {
 
 export interface AdminPatchUserRequest {
   status?: 'active' | 'inactive';
-  role?: AdminCreateUserRole;
+  role?: string;
 }
 
 export interface AdminUsersListParams {

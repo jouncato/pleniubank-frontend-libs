@@ -96,12 +96,16 @@ export class RegisterVm {
             messageFromApiEnvelope(mappedError, 'Revisa los datos ingresados e intenta nuevamente.'),
           );
         } else if (mappedError.status === 409) {
-          this.errorMessage.set(
-            messageFromApiEnvelope(
-              mappedError,
-              'Ya existe un registro con la informacion ingresada.',
-            ),
-          );
+          const raw = (mappedError.errors[0]?.message ?? '').toLowerCase();
+          let conflictMsg: string;
+          if (raw.includes('document')) {
+            conflictMsg = 'Ya existe una cuenta con este número de documento.';
+          } else if (raw.includes('email')) {
+            conflictMsg = 'Ya existe una cuenta con este correo electrónico.';
+          } else {
+            conflictMsg = 'Ya existe un registro con la información ingresada.';
+          }
+          this.errorMessage.set(conflictMsg);
         } else {
           this.errorMessage.set(messageFromApiEnvelope(mappedError, generic));
         }
