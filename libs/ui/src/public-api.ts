@@ -17,6 +17,7 @@ export * from './lib/pickers/customer-picker.component';
 export * from './lib/pickers/product-picker.component';
 export * from './lib/pickers/unit-picker.component';
 export * from './lib/transaction-status-badge.component';
+export * from './lib/hub-status-badge.component';
 export * from './lib/transaction-timeline.component';
 export * from './lib/decision-badge.component';
 export * from './lib/rules-trace-tree/rules-trace-tree.component';
