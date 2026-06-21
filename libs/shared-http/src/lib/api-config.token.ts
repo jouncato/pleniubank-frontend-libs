@@ -31,6 +31,12 @@ export interface ApiConfig {
    * Si falta, el backoffice no puede invocar re-análisis desde el navegador.
    */
   aiServiceBaseUrl?: string;
+  /**
+   * Motor Unificado de Extractos y Notificaciones (MUE), sin barra final.
+   * Ej.: `/api/mue` (proxy same-origin) o `http://localhost:8030`.
+   * Si falta, los servicios MUE* no deben usarse.
+   */
+  mueBaseUrl?: string;
 }
 
 export const API_CONFIG = new InjectionToken<ApiConfig>('API_CONFIG');
