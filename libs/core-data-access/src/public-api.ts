@@ -20,4 +20,5 @@ export * from './lib/core-scoring-api.service';
 export * from './lib/core-notifications-api.service';
 export * from './lib/core-payroll-advance-country-rules-api.service';
 export * from './lib/core-transaction-hub-api.service';
+export * from './lib/core-employment-profiles-api.service';
 export * from './lib/mue-api.service';

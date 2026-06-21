@@ -7,4 +7,5 @@ export * from './lib/client-contract.models';
 export * from './lib/contract-template.models';
 export * from './lib/business-unit-assignment.models';
 export * from './lib/transaction-hub.models';
+export * from './lib/employment-profile.models';
 export * from '@pleniu/loan-domain';
