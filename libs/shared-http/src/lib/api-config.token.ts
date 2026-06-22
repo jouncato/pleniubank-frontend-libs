@@ -37,6 +37,12 @@ export interface ApiConfig {
    * Si falta, los servicios MUE* no deben usarse.
    */
   mueBaseUrl?: string;
+  /**
+   * Scoring Service (pleniubank-scoring-service), sin barra final.
+   * Ej.: `/api/scoring` (proxy same-origin) o `http://localhost:8007`.
+   * Si falta, las páginas de scoring no realizan llamadas al servicio.
+   */
+  scoringBaseUrl?: string;
 }
 
 export const API_CONFIG = new InjectionToken<ApiConfig>('API_CONFIG');
