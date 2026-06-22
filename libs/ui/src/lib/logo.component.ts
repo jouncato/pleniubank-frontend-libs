@@ -72,23 +72,9 @@ export class PbLogoComponent {
   private document = inject(DOCUMENT);
 
   get resolvedSrc(): string {
-    const baseAsset = this.variant === 'color' ? BRAND_ASSETS.logoColor : 
-                     this.variant === 'white' ? BRAND_ASSETS.logoWhite : 
-                     this.onDark ? BRAND_ASSETS.logoWhite : BRAND_ASSETS.logoColor;
-    
-    // Detectar si estamos en contexto de backoffice por el base href
-    const baseElement = this.document.querySelector('base');
-    const baseHref = baseElement?.getAttribute('href') || '/';
-    
-    // Si el base href contiene /backoffice/, ajustar la URL del asset
-    if (baseHref.includes('/backoffice/')) {
-      // Para backoffice, los assets deben estar bajo /backoffice/assets/
-      if (baseAsset.startsWith('/assets/')) {
-        return baseAsset.replace('/assets/', '/backoffice/assets/');
-      }
-    }
-    
-    return baseAsset;
+    if (this.variant === 'color') return BRAND_ASSETS.logoColor;
+    if (this.variant === 'white') return BRAND_ASSETS.logoWhite;
+    return this.onDark ? BRAND_ASSETS.logoWhite : BRAND_ASSETS.logoColor;
   }
 
   /** Dimensiones de layout (relación de aspecto ~1.83 del PNG de marca). max-height en CSS acota la vista. */
