@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NgIf, NgClass } from '@angular/common';
 import { BRAND_ASSETS } from './brand-assets';
+import { inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 type LogoVariant = 'color' | 'white' | 'auto';
 type LogoSize = 'sm' | 'md' | 'lg';
@@ -67,10 +69,26 @@ export class PbLogoComponent {
   @Input() alt = 'Pleniu Colombia S.A.';
   @Input() loading: 'eager' | 'lazy' = 'eager';
 
+  private document = inject(DOCUMENT);
+
   get resolvedSrc(): string {
-    if (this.variant === 'color') return BRAND_ASSETS.logoColor;
-    if (this.variant === 'white') return BRAND_ASSETS.logoWhite;
-    return this.onDark ? BRAND_ASSETS.logoWhite : BRAND_ASSETS.logoColor;
+    const baseAsset = this.variant === 'color' ? BRAND_ASSETS.logoColor : 
+                     this.variant === 'white' ? BRAND_ASSETS.logoWhite : 
+                     this.onDark ? BRAND_ASSETS.logoWhite : BRAND_ASSETS.logoColor;
+    
+    // Detectar si estamos en contexto de backoffice por el base href
+    const baseElement = this.document.querySelector('base');
+    const baseHref = baseElement?.getAttribute('href') || '/';
+    
+    // Si el base href contiene /backoffice/, ajustar la URL del asset
+    if (baseHref.includes('/backoffice/')) {
+      // Para backoffice, los assets deben estar bajo /backoffice/assets/
+      if (baseAsset.startsWith('/assets/')) {
+        return baseAsset.replace('/assets/', '/backoffice/assets/');
+      }
+    }
+    
+    return baseAsset;
   }
 
   /** Dimensiones de layout (relación de aspecto ~1.83 del PNG de marca). max-height en CSS acota la vista. */
