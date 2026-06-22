@@ -2,6 +2,7 @@
   <section class="pl-hero pl-hero--compact" aria-labelledby="login-hero-title">
     <div class="pl-container">
       <div class="pl-hero__content">
+        <pb-logo class="login-hero-brand" variant="auto" size="md" [onDark]="true" />
         <h1 id="login-hero-title" class="pl-hero__title" i18n="@@auth.login.title">Iniciar sesión</h1>
         @if (portal === 'public') {
           <p class="pl-hero__sub login-context-hint" role="note">

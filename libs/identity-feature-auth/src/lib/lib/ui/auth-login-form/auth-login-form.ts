@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PORTAL_APP, type PortalAppKind } from '@pleniu/shared-auth';
+import { PbLogoComponent } from '@pleniu/ui';
 import { LoginVm } from '../../vm/login';
 
 @Component({
   selector: 'lib-auth-login-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PbLogoComponent],
   templateUrl: './auth-login-form.html',
   styleUrl: './auth-login-form.scss',
 })
