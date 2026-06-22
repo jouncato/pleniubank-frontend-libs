@@ -25,17 +25,6 @@ export interface ListLoansParams {
   search?: string | null;
 }
 
-/**
- * @deprecated Since v0.5.0. Use `LendingArrangementService` from `@pleniu/loan-data-access` instead.
- *
- * This service targets the pre-BIAN Core `/api/v1/loans` endpoint.
- * The BIAN-aligned replacement is `LendingArrangementService` which targets `/api/v1/lending-arrangements`.
- *
- * Sunset: 2026-12-31. See migration guide:
- * `docs/migration/libranza-to-lending-arrangement.md`
- *
- * @see LendingArrangementService
- */
 @Injectable({ providedIn: 'root' })
 export class CoreLoansApiService {
   private readonly base: string;
@@ -44,7 +33,7 @@ export class CoreLoansApiService {
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    this.base = `${corePublicV1Base(apiConfig)}/loans`;
+    this.base = `${corePublicV1Base(apiConfig)}/lending-arrangements`;
   }
 
   list(params: ListLoansParams = {}): Observable<ApiEnvelope<LoanDto[]>> {

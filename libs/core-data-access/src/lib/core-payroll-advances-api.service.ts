@@ -49,6 +49,7 @@ export interface RepayPayrollAdvanceRequest {
   repayment_amount: number;
   repayment_is_full: boolean;
   denomination?: string;
+  effective_date?: string | null;
 }
 
 export interface RepayPayrollAdvanceResponse {
