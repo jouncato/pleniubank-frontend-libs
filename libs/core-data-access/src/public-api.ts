@@ -23,3 +23,7 @@ export * from './lib/core-statements-api.service';
 export * from './lib/core-transaction-hub-api.service';
 export * from './lib/core-employment-profiles-api.service';
 export * from './lib/mue-api.service';
+export * from './lib/core-external-accounts-api.service';
+export * from './lib/core-enterprise-notifications-api.service';
+export * from './lib/core-credit-approval-api.service';
+export * from './lib/core-customer-evaluations-api.service';

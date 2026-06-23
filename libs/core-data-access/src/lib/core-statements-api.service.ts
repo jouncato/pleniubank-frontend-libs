@@ -37,7 +37,23 @@ export class CoreStatementsApiService {
 
   /** Download statement as CSV blob. */
   exportCsv(filters: Omit<StatementFilters, 'limit' | 'product_type'>): Observable<Blob> {
-    let params = new HttpParams().set('account_id', filters.account_id);
+    let params = new HttpParams()
+      .set('account_id', filters.account_id)
+      .set('format', 'csv');
+    if (filters.date_from) {
+      params = params.set('date_from', filters.date_from);
+    }
+    if (filters.date_to) {
+      params = params.set('date_to', filters.date_to);
+    }
+    return this.http.get(`${this.base}/export`, { params, responseType: 'blob' });
+  }
+
+  /** Download statement as PDF blob. */
+  exportPdf(filters: Omit<StatementFilters, 'limit' | 'product_type'>): Observable<Blob> {
+    let params = new HttpParams()
+      .set('account_id', filters.account_id)
+      .set('format', 'pdf');
     if (filters.date_from) {
       params = params.set('date_from', filters.date_from);
     }
