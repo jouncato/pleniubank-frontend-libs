@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   ForgotPasswordRequest,
@@ -23,31 +23,25 @@ function extractPayload(response: unknown): ForgotPasswordResponse {
   providedIn: 'root',
 })
 export class ForgotPasswordVm {
-  state: 'idle' | 'submitting' | 'success' | 'rate_limited' | 'error' = 'idle';
-  errorMessage: string | null = null;
-  successMessage: string | null = null;
-  debugResetCode: string | null = null;
-  debugResetToken: string | null = null;
-  submittedEmail: string | null = null;
-  submittedMethod: PasswordResetMethod = 'otp';
+  readonly state = signal<'idle' | 'submitting' | 'success' | 'rate_limited' | 'error'>('idle');
+  readonly errorMessage = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
+  readonly submittedEmail = signal<string | null>(null);
+  readonly submittedMethod = signal<PasswordResetMethod>('otp');
+  readonly debugResetCode = signal<string | null>(null);
+  readonly debugResetToken = signal<string | null>(null);
+
   private readonly rateLimit = inject(AuthRateLimitService);
   private readonly portalApp = inject(PORTAL_APP);
   private readonly router = inject(Router);
+  private readonly identityApi = inject(IdentityAuthApiService);
 
-  constructor(private readonly identityApi: IdentityAuthApiService) {
+  readonly isRateLimited = computed(() => this.rateLimit.isBlocked());
+  readonly remainingSeconds = computed(() => this.rateLimit.remainingSeconds());
+  readonly rateLimitMessage = computed(() => this.rateLimit.message());
+
+  constructor() {
     this.applyStoredRateLimit();
-  }
-
-  get isRateLimited(): boolean {
-    return this.rateLimit.isBlocked();
-  }
-
-  get remainingSeconds(): number {
-    return this.rateLimit.remainingSeconds();
-  }
-
-  get rateLimitMessage(): string | null {
-    return this.rateLimit.message();
   }
 
   submit(
@@ -56,33 +50,34 @@ export class ForgotPasswordVm {
   ): void {
     this.rateLimit.sync();
     if (this.rateLimit.isBlocked()) {
-      this.state = 'rate_limited';
+      this.state.set('rate_limited');
       options.onSettled?.();
       return;
     }
-    if (this.state === 'submitting') {
+    if (this.state() === 'submitting') {
       options.onSettled?.();
       return;
     }
 
-    this.state = 'submitting';
-    this.errorMessage = null;
-    this.successMessage = null;
-    this.debugResetCode = null;
-    this.debugResetToken = null;
-    this.submittedEmail = payload.email;
-    this.submittedMethod = payload.method;
+    this.state.set('submitting');
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+    this.debugResetCode.set(null);
+    this.debugResetToken.set(null);
+    this.submittedEmail.set(payload.email);
+    this.submittedMethod.set(payload.method);
 
     const portalHint = this.portalApp === 'backoffice' ? 'backoffice' : 'customer';
     this.identityApi.forgotPassword({ ...payload, portal: portalHint }).subscribe({
       next: (response) => {
         this.rateLimit.reset();
         const data = extractPayload(response);
-        this.state = 'success';
-        this.successMessage =
-          data.message || 'Si la cuenta existe, enviamos instrucciones para restablecer la contraseña.';
-        this.debugResetCode = data.debug_reset_code ?? null;
-        this.debugResetToken = data.debug_reset_token ?? null;
+        this.state.set('success');
+        this.successMessage.set(
+          data.message || 'Si la cuenta existe, enviamos instrucciones para restablecer la contraseña.',
+        );
+        this.debugResetCode.set(data.debug_reset_code ?? null);
+        this.debugResetToken.set(data.debug_reset_token ?? null);
         if (options.navigateOnSuccess !== false) {
           void this.router.navigate([recoverySentPathForPortal(this.portalApp)], {
             state: { email: payload.email },
@@ -94,18 +89,17 @@ export class ForgotPasswordVm {
         const mappedError = mapHttpError(error);
         if (mappedError.status === 429) {
           this.rateLimit.register429();
-          this.state = 'rate_limited';
+          this.state.set('rate_limited');
           options.onSettled?.();
           return;
         }
         this.rateLimit.reset();
-        this.state = 'error';
-        if (mappedError.status === 0) {
-          this.errorMessage = 'Error de conexión. Verifica tu red e intenta de nuevo.';
-          options.onSettled?.();
-          return;
-        }
-        this.errorMessage = 'No fue posible iniciar la recuperación en este momento.';
+        this.state.set('error');
+        this.errorMessage.set(
+          mappedError.status === 0
+            ? 'Error de conexión. Verifica tu red e intenta de nuevo.'
+            : 'No fue posible iniciar la recuperación en este momento.',
+        );
         options.onSettled?.();
       },
     });
@@ -114,7 +108,7 @@ export class ForgotPasswordVm {
   private applyStoredRateLimit(): void {
     this.rateLimit.sync();
     if (this.rateLimit.isBlocked()) {
-      this.state = 'rate_limited';
+      this.state.set('rate_limited');
     }
   }
 }

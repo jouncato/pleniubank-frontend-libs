@@ -7,6 +7,7 @@ export * from './lib/auth-refresh.token';
 export * from './lib/auth-validate.token';
 export * from './lib/auth-token.interceptor';
 export * from './lib/token-refresh.interceptor';
+export * from './lib/token-refresh-coordinator.service';
 export * from './lib/csrf.interceptor';
 export * from './lib/auth.guard';
 export * from './lib/admin.guard';

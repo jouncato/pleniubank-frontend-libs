@@ -1,48 +1,20 @@
 import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, catchError, filter, finalize, switchMap, take, throwError } from 'rxjs';
+import { Observable, catchError, filter, finalize, switchMap, take, throwError } from 'rxjs';
 import { API_CONFIG, type ApiConfig, mapHttpError } from '@pleniu/shared-http';
 import { AUTH_REFRESH_HANDLER } from './auth-refresh.token';
 import { PORTAL_APP } from './portal-app.token';
 import { SESSION_STRATEGY } from './session-strategy.token';
 import { SessionStore } from './session-store.service';
 import { signInPathForPortal } from './sign-in-path';
-
-const retryToken$ = new BehaviorSubject<string | null>(null);
-
-function startsWithConfiguredBase(url: string, baseUrl?: string): boolean {
-  if (!baseUrl) {
-    return false;
-  }
-  const base = baseUrl.replace(/\/$/, '');
-  return url === base || url.startsWith(`${base}/`);
-}
-
-function isCoreApiRoute(url: string, apiConfig: ApiConfig | null): boolean {
-  return startsWithConfiguredBase(url, apiConfig?.coreBaseUrl) || url.includes('/api/core/');
-}
-
-function isIdentityAdminRoute(url: string, apiConfig: ApiConfig | null): boolean {
-  const isIdentityScoped = startsWithConfiguredBase(url, apiConfig?.identityBaseUrl);
-  const isIdentityAdminPath =
-    url.includes('/api/v1/admin/') ||
-    url.includes('/api/v1/enterprise/') ||
-    url.includes('/api/v1/sub-enterprise/');
-
-  if (isIdentityScoped) {
-    return isIdentityAdminPath;
-  }
-  if (isCoreApiRoute(url, apiConfig)) {
-    return false;
-  }
-  return isIdentityAdminPath;
-}
+import { isCoreApiRoute, isIdentityAdminApiRoute } from './interceptor-utils';
+import { TokenRefreshCoordinator } from './token-refresh-coordinator.service';
 
 function shouldRefresh(
   error: HttpErrorResponse,
   req: HttpRequest<unknown>,
-  apiConfig: ApiConfig | null,
+  apiConfig: ApiConfig | null | undefined,
 ): boolean {
   if (error.status !== 401) {
     return false;
@@ -54,7 +26,7 @@ function shouldRefresh(
   if (code === 'Admin token has expired' || code === 'ADMIN_TOKEN_EXPIRED') {
     return true;
   }
-  if (isIdentityAdminRoute(req.url, apiConfig)) {
+  if (isIdentityAdminApiRoute(req.url, apiConfig)) {
     return true;
   }
   return false;
@@ -90,6 +62,7 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
   const loginPath = signInPathForPortal(inject(PORTAL_APP));
   const apiConfig = inject(API_CONFIG, { optional: true });
   const cookieSession = strategy === 'httpOnlyCookie';
+  const { retryToken$ } = inject(TokenRefreshCoordinator);
 
   const isPublicEndpoint =
     req.url.includes('/auth/refresh') ||
@@ -130,7 +103,7 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
           filter((token): token is string => Boolean(token)),
           take(1),
           switchMap(() => {
-            const isAdminRoute = isIdentityAdminRoute(req.url, apiConfig);
+            const isAdminRoute = isIdentityAdminApiRoute(req.url, apiConfig);
             const token =
               isAdminRoute && sessionStore.adminToken()
                 ? sessionStore.adminToken()!
@@ -153,7 +126,7 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
             sessionStore.setAdminToken(response.admin_access_token);
           }
           retryToken$.next(response.access_token);
-          const isAdminRetryRoute = isIdentityAdminRoute(req.url, apiConfig);
+          const isAdminRetryRoute = isIdentityAdminApiRoute(req.url, apiConfig);
           const retryToken = response.admin_access_token && isAdminRetryRoute
             ? response.admin_access_token
             : response.access_token;
@@ -165,4 +138,3 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
     }),
   );
 };
-

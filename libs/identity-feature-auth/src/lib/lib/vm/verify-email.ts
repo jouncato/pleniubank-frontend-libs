@@ -3,19 +3,12 @@ import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { IdentityAuthApiService, unwrapVerificationResponse } from '@pleniu/identity-data-access';
 import { PORTAL_APP, SessionStore, signInPathForPortal } from '@pleniu/shared-auth';
-import { ApiHttpError, mapHttpError } from '@pleniu/shared-http';
+import { mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
+
+import { createCountdownTimer } from '../countdown-timer';
 
 const VERIFY_EMAIL_LOG = '[Pleniu auth/verify-email]';
-/** Alineado con el cooldown por defecto del identity-service (RESEND_EMAIL_OTP_COOLDOWN_SECONDS). */
 const RESEND_COOLDOWN_SEC = 60;
-
-function messageFromApiEnvelope(mapped: ApiHttpError, fallback: string): string {
-  const raw = mapped.errors[0]?.message?.trim() ?? '';
-  if (!raw || raw.startsWith('Http failure response for')) {
-    return fallback;
-  }
-  return raw;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -23,43 +16,16 @@ function messageFromApiEnvelope(mapped: ApiHttpError, fallback: string): string 
 export class VerifyEmailVm {
   readonly state = signal<'idle' | 'submitting' | 'resending' | 'error' | 'rate_limited'>('idle');
   readonly errorMessage = signal<string | null>(null);
-  /** Segundos hasta poder reenviar; 0 = disponible. */
   readonly resendSecondsLeft = signal(0);
 
-  private resendTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly resendTimer = createCountdownTimer(this.resendSecondsLeft);
+  private readonly identityApi = inject(IdentityAuthApiService);
+  private readonly sessionStore = inject(SessionStore);
+  private readonly router = inject(Router);
   private readonly portal = inject(PORTAL_APP);
 
-  constructor(
-    private readonly identityApi: IdentityAuthApiService,
-    private readonly sessionStore: SessionStore,
-    private readonly router: Router,
-  ) {
-    inject(DestroyRef).onDestroy(() => {
-      if (this.resendTimer) {
-        clearInterval(this.resendTimer);
-        this.resendTimer = null;
-      }
-    });
-  }
-
-  private startResendCooldown(seconds: number): void {
-    if (this.resendTimer) {
-      clearInterval(this.resendTimer);
-      this.resendTimer = null;
-    }
-    this.resendSecondsLeft.set(Math.max(0, seconds));
-    this.resendTimer = setInterval(() => {
-      const left = this.resendSecondsLeft() - 1;
-      if (left <= 0) {
-        this.resendSecondsLeft.set(0);
-        if (this.resendTimer) {
-          clearInterval(this.resendTimer);
-          this.resendTimer = null;
-        }
-      } else {
-        this.resendSecondsLeft.set(left);
-      }
-    }, 1000);
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.resendTimer.stop());
   }
 
   submit(code: string): void {
@@ -93,7 +59,6 @@ export class VerifyEmailVm {
           return;
         }
 
-        // Continue to phone verification if needed
         void this.router.navigate(['/onboarding/party/customer/verify-phone'], {
           state: { registrationId },
         });
@@ -104,7 +69,7 @@ export class VerifyEmailVm {
           mappedError.status === 422
             ? 'El código no es válido o expiró. Revisa tu correo o solicita uno nuevo.'
             : 'No pudimos verificar tu correo. Intenta nuevamente.';
-        this.errorMessage.set(messageFromApiEnvelope(mappedError, fallback));
+        this.errorMessage.set(resolveApiErrorMessage(mappedError, fallback));
         this.state.set('error');
         if (error instanceof HttpErrorResponse) {
           console.error(VERIFY_EMAIL_LOG, 'verify-email falló', {
@@ -139,26 +104,23 @@ export class VerifyEmailVm {
     this.identityApi.resendEmailOtp({ registration_id: registrationId }).subscribe({
       next: () => {
         this.state.set('idle');
-        this.startResendCooldown(RESEND_COOLDOWN_SEC);
+        this.resendTimer.start(RESEND_COOLDOWN_SEC);
       },
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);
         if (mappedError.status === 429) {
           this.errorMessage.set(
-            messageFromApiEnvelope(
-              mappedError,
-              'Debes esperar antes de solicitar otro código.',
-            ),
+            resolveApiErrorMessage(mappedError, 'Debes esperar antes de solicitar otro código.'),
           );
           this.state.set('rate_limited');
-          this.startResendCooldown(RESEND_COOLDOWN_SEC);
+          this.resendTimer.start(RESEND_COOLDOWN_SEC);
           return;
         }
         const fallback =
           mappedError.status === 404
             ? 'No encontramos un registro pendiente con ese identificador.'
             : 'No pudimos reenviar el código. Intenta nuevamente.';
-        this.errorMessage.set(messageFromApiEnvelope(mappedError, fallback));
+        this.errorMessage.set(resolveApiErrorMessage(mappedError, fallback));
         this.state.set('error');
         if (error instanceof HttpErrorResponse) {
           console.error(VERIFY_EMAIL_LOG, 'resend-email-otp falló', {

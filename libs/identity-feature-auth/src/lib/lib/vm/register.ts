@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable, isDevMode, signal } from '@angular/core';
+import { Injectable, inject, isDevMode, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { RegisterEnvelope, RegisterRequest, RegisterResponse } from 'identity-domain';
 import { IdentityAuthApiService } from '@pleniu/identity-data-access';
 import { SessionStore } from '@pleniu/shared-auth';
-import { ApiHttpError, mapHttpError } from '@pleniu/shared-http';
+import { mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
 
 const REGISTER_LOG = '[Pleniu auth/register]';
 
@@ -15,15 +15,6 @@ function unwrapRegisterPayload(body: RegisterEnvelope | RegisterResponse): Regis
   return body as RegisterResponse;
 }
 
-/** Mensaje del sobre Identity/Core; evita el texto genérico de Angular cuando falló el parseo. */
-function messageFromApiEnvelope(mapped: ApiHttpError, fallback: string): string {
-  const raw = mapped.errors[0]?.message?.trim() ?? '';
-  if (!raw || raw.startsWith('Http failure response for')) {
-    return fallback;
-  }
-  return raw;
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -31,11 +22,9 @@ export class RegisterVm {
   readonly state = signal<'idle' | 'submitting' | 'success' | 'error' | 'rate_limited'>('idle');
   readonly errorMessage = signal<string | null>(null);
 
-  constructor(
-    private readonly identityApi: IdentityAuthApiService,
-    private readonly sessionStore: SessionStore,
-    private readonly router: Router,
-  ) {}
+  private readonly identityApi = inject(IdentityAuthApiService);
+  private readonly sessionStore = inject(SessionStore);
+  private readonly router = inject(Router);
 
   submit(payload: RegisterRequest): void {
     if (this.state() === 'submitting') {
@@ -93,7 +82,7 @@ export class RegisterVm {
         const generic = 'No fue posible completar el registro. Intenta nuevamente.';
         if (mappedError.status === 422) {
           this.errorMessage.set(
-            messageFromApiEnvelope(mappedError, 'Revisa los datos ingresados e intenta nuevamente.'),
+            resolveApiErrorMessage(mappedError, 'Revisa los datos ingresados e intenta nuevamente.'),
           );
         } else if (mappedError.status === 409) {
           const raw = (mappedError.errors[0]?.message ?? '').toLowerCase();
@@ -107,11 +96,10 @@ export class RegisterVm {
           }
           this.errorMessage.set(conflictMsg);
         } else {
-          this.errorMessage.set(messageFromApiEnvelope(mappedError, generic));
+          this.errorMessage.set(resolveApiErrorMessage(mappedError, generic));
         }
         this.state.set('error');
       },
     });
   }
 }
-

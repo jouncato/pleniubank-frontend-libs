@@ -12,8 +12,8 @@
   <a class="recovery-card__primary" [routerLink]="routes.login">Volver al inicio de sesión</a>
 
   <div class="recovery-card__resend" aria-live="polite">
-    <p *ngIf="vm.successMessage && vm.state === 'success'" class="recovery-card__status">
-      {{ vm.successMessage }}
+    <p *ngIf="vm.successMessage() && vm.state() === 'success'" class="recovery-card__status">
+      {{ vm.successMessage() }}
     </p>
     <p *ngIf="vm.rateLimitMessage as message" class="recovery-card__error">{{ message }}</p>
     <p *ngIf="vm.errorMessage as error" class="recovery-card__error">{{ error }}</p>
@@ -21,10 +21,10 @@
     <button
       type="button"
       class="recovery-card__link-button"
-      [disabled]="!email || vm.state === 'submitting' || vm.isRateLimited"
+      [disabled]="!email || vm.state() === 'submitting' || vm.isRateLimited()"
       (click)="resend()"
     >
-      {{ vm.state === 'submitting' ? 'Reenviando enlace...' : '¿No recibiste el correo? Reenviar enlace' }}
+      {{ vm.state() === 'submitting' ? 'Reenviando enlace...' : '¿No recibiste el correo? Reenviar enlace' }}
     </button>
 
     <p *ngIf="!email" class="recovery-card__hint">

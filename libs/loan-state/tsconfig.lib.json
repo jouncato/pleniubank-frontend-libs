@@ -7,7 +7,9 @@
     "types": [],
     "paths": {
       "@pleniu/loan-domain": ["../../dist/loan-domain"],
-      "@pleniu/loan-data-access": ["../../dist/loan-data-access"]
+      "@pleniu/loan-data-access": ["../../dist/loan-data-access"],
+      "shared-http": ["../../dist/shared-http"],
+      "@pleniu/shared-http": ["../../dist/shared-http"]
     }
   },
   "include": ["src/**/*.ts"],

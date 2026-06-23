@@ -10,6 +10,7 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3
   standalone: true,
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['./picker.styles.css'],
   template: `
     <div class="pb-picker">
       <label class="pb-picker__label" [for]="inputId">{{ label }}</label>
@@ -49,73 +50,6 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3
         <button type="button" class="pb-picker__clear" (click)="clear()">Limpiar selección</button>
       }
     </div>
-  `,
-  styles: `
-    .pb-picker {
-      display: grid;
-      gap: 0.45rem;
-    }
-
-    .pb-picker__label {
-      font-weight: 700;
-      color: #344054;
-    }
-
-    .pb-picker__input {
-      width: 100%;
-      border: 1px solid #d0d5dd;
-      border-radius: 0.75rem;
-      padding: 0.72rem 0.85rem;
-      font: inherit;
-    }
-
-    .pb-picker__hint,
-    .pb-picker__error {
-      margin: 0;
-      font-size: 0.9rem;
-    }
-
-    .pb-picker__error {
-      color: #b42318;
-    }
-
-    .pb-picker__list {
-      display: grid;
-      gap: 0.25rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .pb-picker__option,
-    .pb-picker__clear {
-      border: 0;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .pb-picker__option {
-      width: 100%;
-      display: grid;
-      gap: 0.2rem;
-      text-align: left;
-      border-radius: 0.75rem;
-      padding: 0.65rem 0.75rem;
-      background: #f8fafc;
-      color: #101828;
-    }
-
-    .pb-picker__option small {
-      color: #667085;
-    }
-
-    .pb-picker__clear {
-      justify-self: start;
-      background: transparent;
-      color: #0b63b6;
-      font-weight: 700;
-      padding: 0;
-    }
   `,
 })
 export class CustomerPickerComponent {

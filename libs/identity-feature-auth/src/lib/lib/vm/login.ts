@@ -13,7 +13,7 @@ import {
   SessionStore,
   stashDevPortalTokenHandoff,
 } from '@pleniu/shared-auth';
-import { ApiHttpError, mapHttpError } from '@pleniu/shared-http';
+import { ApiHttpError, mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 
@@ -24,14 +24,6 @@ function unwrapLoginPayload(body: LoginEnvelope | LoginResponse): LoginResponse 
   return body as LoginResponse;
 }
 
-function messageFromApiEnvelope(mapped: ApiHttpError, fallback: string): string {
-  const raw = mapped.errors[0]?.message?.trim() ?? '';
-  if (!raw || raw.startsWith('Http failure response for')) {
-    return fallback;
-  }
-  return raw;
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -39,6 +31,9 @@ export class LoginVm {
   readonly state = signal<'idle' | 'submitting' | 'success' | 'locked' | 'rate_limited' | 'error'>('idle');
   readonly errorMessage = signal<string | null>(null);
 
+  private readonly identityApi = inject(IdentityAuthApiService);
+  private readonly sessionStore = inject(SessionStore);
+  private readonly router = inject(Router);
   private readonly portal = inject<PortalAppKind>(PORTAL_APP);
   private readonly rateLimit = inject(AuthRateLimitService);
   private readonly sessionStrategy = inject<SessionStrategy>(SESSION_STRATEGY);
@@ -46,11 +41,7 @@ export class LoginVm {
     POST_LOGIN_CUSTOMER_PORTAL,
   );
 
-  constructor(
-    private readonly identityApi: IdentityAuthApiService,
-    private readonly sessionStore: SessionStore,
-    private readonly router: Router,
-  ) {
+  constructor() {
     this.applyStoredRateLimit();
   }
 
@@ -90,11 +81,7 @@ export class LoginVm {
         } else {
           this.sessionStore.setUserToken(data.access_token);
           this.sessionStore.setRefreshToken(data.refresh_token ?? null);
-          if (data.admin_access_token) {
-            this.sessionStore.setAdminToken(data.admin_access_token);
-          } else {
-            this.sessionStore.setAdminToken(null);
-          }
+          this.sessionStore.setAdminToken(data.admin_access_token ?? null);
         }
         this.hydrateSession(returnUrl);
       },
@@ -107,7 +94,7 @@ export class LoginVm {
     if (mappedError.status === 423 || code === 'ACCOUNT_LOCKED') {
       this.rateLimit.reset();
       this.state.set('locked');
-      this.errorMessage.set(messageFromApiEnvelope(mappedError, 'Tu cuenta esta bloqueada.'));
+      this.errorMessage.set(resolveApiErrorMessage(mappedError, 'Tu cuenta esta bloqueada.'));
       return;
     }
     if (mappedError.status === 429) {
@@ -123,13 +110,13 @@ export class LoginVm {
     if (mappedError.status === 401) {
       this.errorMessage.set(
         code === 'USER_INACTIVE'
-          ? messageFromApiEnvelope(mappedError, inactiveFb)
-          : messageFromApiEnvelope(mappedError, badCredsFb),
+          ? resolveApiErrorMessage(mappedError, inactiveFb)
+          : resolveApiErrorMessage(mappedError, badCredsFb),
       );
       return;
     }
     this.errorMessage.set(
-      messageFromApiEnvelope(mappedError, 'No fue posible iniciar sesion. Intenta nuevamente.'),
+      resolveApiErrorMessage(mappedError, 'No fue posible iniciar sesion. Intenta nuevamente.'),
     );
   }
 
@@ -146,10 +133,7 @@ export class LoginVm {
           );
           return;
         }
-        this.sessionStore.setClaims({
-          ...claims,
-          email: claims.email,
-        });
+        this.sessionStore.setClaims({ ...claims });
         this.state.set('success');
         if (this.portal === 'backoffice' && claims.password_must_change === true) {
           const safeReturn = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
@@ -179,10 +163,6 @@ export class LoginVm {
     });
   }
 
-  /**
-   * Portal público con `customerPortalOrigin`: salto al customer (handoff dev si aplica).
-   * Sin origen externo en público: B2B usa el mismo destino por defecto que en customer (`/app/dashboard`).
-   */
   private navigateAfterSuccessfulValidate(
     claims: { enterprise_id?: string | null },
     role: string | undefined,

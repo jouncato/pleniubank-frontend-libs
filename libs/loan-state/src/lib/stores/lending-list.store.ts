@@ -4,6 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, pipe } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { LendingArrangementService } from '@pleniu/loan-data-access';
+import type { ApiHttpError } from '@pleniu/shared-http';
 import type { LendingArrangement, LendingStatus, ProductType } from '@pleniu/loan-domain';
 
 interface LendingListFilters {
@@ -36,26 +37,6 @@ export const LendingListStore = signalStore(
   withState(initialState),
   withMethods((store) => {
     const svc = inject(LendingArrangementService);
-
-    const loadFromState = (): void => {
-      patchState(store, { loading: true, error: null });
-      svc
-        .list({
-          ...store.filters(),
-          page: store.page(),
-          pageSize: store.pageSize(),
-        })
-        .pipe(
-          catchError((err: { message?: string }) => {
-            patchState(store, { error: err.message ?? 'Unknown error', loading: false });
-            return EMPTY;
-          }),
-        )
-        .subscribe((result: { items: LendingArrangement[]; total: number }) => {
-          patchState(store, { items: result.items, total: result.total, loading: false });
-        });
-    };
-
     return {
       load: rxMethod<void>(
         pipe(
@@ -71,35 +52,36 @@ export const LendingListStore = signalStore(
                 tap((r: { items: LendingArrangement[]; total: number }) =>
                   patchState(store, { items: r.items, total: r.total, loading: false }),
                 ),
-                catchError((err: { message?: string }) => {
-                  patchState(store, { error: err.message ?? 'Unknown error', loading: false });
+                catchError((err: ApiHttpError) => {
+                  patchState(store, { error: err.message ?? 'Error al cargar los préstamos', loading: false });
                   return EMPTY;
                 }),
               ),
           ),
         ),
       ),
-
-      setFilter(filters: LendingListFilters): void {
-        patchState(store, { filters, page: 1 });
-        loadFromState();
-      },
-
-      setPage(page: number): void {
-        patchState(store, { page });
-        loadFromState();
-      },
-
-      setPageSize(pageSize: number): void {
-        patchState(store, { pageSize, page: 1 });
-        loadFromState();
-      },
-
-      reset(): void {
-        patchState(store, initialState);
-      },
     };
   }),
+  withMethods((store) => ({
+    setFilter(filters: LendingListFilters): void {
+      patchState(store, { filters, page: 1 });
+      store.load();
+    },
+
+    setPage(page: number): void {
+      patchState(store, { page });
+      store.load();
+    },
+
+    setPageSize(pageSize: number): void {
+      patchState(store, { pageSize, page: 1 });
+      store.load();
+    },
+
+    reset(): void {
+      patchState(store, initialState);
+    },
+  })),
 );
 
 export type { LendingListFilters };

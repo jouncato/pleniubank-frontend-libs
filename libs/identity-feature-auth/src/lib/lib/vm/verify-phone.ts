@@ -1,153 +1,105 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { DestroyRef, Injectable, inject } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { VerifyOtpRequest } from 'identity-domain';
 import { PORTAL_APP, SessionStore, signInPathForPortal } from '@pleniu/shared-auth';
 import { IdentityAuthApiService, unwrapVerificationResponse } from '@pleniu/identity-data-access';
-import { ApiHttpError, mapHttpError } from '@pleniu/shared-http';
+import { mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
+
+import { createCountdownTimer } from '../countdown-timer';
 
 const VERIFY_PHONE_LOG = '[Pleniu auth/verify-phone]';
 const RESEND_COOLDOWN_SEC = 60;
-
-function messageFromApiEnvelope(mapped: ApiHttpError, fallback: string): string {
-  const raw = mapped.errors[0]?.message?.trim() ?? '';
-  if (!raw || raw.startsWith('Http failure response for')) {
-    return fallback;
-  }
-  return raw;
-}
 
 @Injectable({
   providedIn: 'root',
 })
 export class VerifyPhoneVm {
-  state: 'idle' | 'submitting' | 'resending' | 'success' | 'expired' | 'error' | 'rate_limited' = 'idle';
-  errorMessage: string | null = null;
-  countdown = 90;
-  /** Segundos hasta poder reenviar SMS; 0 = disponible. */
-  resendSecondsLeft = 0;
+  readonly state = signal<'idle' | 'submitting' | 'resending' | 'success' | 'expired' | 'error' | 'rate_limited'>('idle');
+  readonly errorMessage = signal<string | null>(null);
+  readonly resendSecondsLeft = signal(0);
 
-  private resendTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly resendTimer = createCountdownTimer(this.resendSecondsLeft);
   private readonly portal = inject(PORTAL_APP);
+  private readonly identityApi = inject(IdentityAuthApiService);
+  private readonly sessionStore = inject(SessionStore);
+  private readonly router = inject(Router);
 
-  constructor(
-    private readonly identityApi: IdentityAuthApiService,
-    private readonly sessionStore: SessionStore,
-    private readonly router: Router,
-  ) {
-    inject(DestroyRef).onDestroy(() => {
-      if (this.resendTimer) {
-        clearInterval(this.resendTimer);
-        this.resendTimer = null;
-      }
-    });
-  }
-
-  private startResendCooldown(seconds: number): void {
-    if (this.resendTimer) {
-      clearInterval(this.resendTimer);
-      this.resendTimer = null;
-    }
-    this.resendSecondsLeft = Math.max(0, seconds);
-    this.resendTimer = setInterval(() => {
-      const left = this.resendSecondsLeft - 1;
-      if (left <= 0) {
-        this.resendSecondsLeft = 0;
-        if (this.resendTimer) {
-          clearInterval(this.resendTimer);
-          this.resendTimer = null;
-        }
-      } else {
-        this.resendSecondsLeft = left;
-      }
-    }, 1000);
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.resendTimer.stop());
   }
 
   resendSms(): void {
-    if (this.state === 'resending' || this.resendSecondsLeft > 0) {
+    if (this.state() === 'resending' || this.resendSecondsLeft() > 0) {
       return;
     }
 
-    const registrationId =
-      (history.state && (history.state as { registrationId?: string }).registrationId) ??
-      this.sessionStore.getRegistrationId();
+    const registrationId = this.resolveRegistrationId();
     if (!registrationId) {
-      this.state = 'expired';
-      this.errorMessage = 'El proceso expiró. Reinicia el registro.';
+      this.state.set('expired');
+      this.errorMessage.set('El proceso expiró. Reinicia el registro.');
       return;
     }
 
-    this.state = 'resending';
-    this.errorMessage = null;
+    this.state.set('resending');
+    this.errorMessage.set(null);
 
     this.identityApi.resendRegistrationPhoneOtp({ registration_id: registrationId }).subscribe({
       next: () => {
-        this.state = 'idle';
-        this.startResendCooldown(RESEND_COOLDOWN_SEC);
+        this.state.set('idle');
+        this.resendTimer.start(RESEND_COOLDOWN_SEC);
       },
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);
         if (mappedError.status === 429) {
-          this.errorMessage = messageFromApiEnvelope(
-            mappedError,
-            'Debes esperar antes de solicitar otro código.',
-          );
-          this.state = 'rate_limited';
-          this.startResendCooldown(RESEND_COOLDOWN_SEC);
+          this.errorMessage.set(resolveApiErrorMessage(mappedError, 'Debes esperar antes de solicitar otro código.'));
+          this.state.set('rate_limited');
+          this.resendTimer.start(RESEND_COOLDOWN_SEC);
           return;
         }
         if (mappedError.status === 404) {
-          this.state = 'expired';
-          this.errorMessage = 'No encontramos un registro pendiente con ese identificador.';
+          this.state.set('expired');
+          this.errorMessage.set('No encontramos un registro pendiente con ese identificador.');
           return;
         }
         if (mappedError.status === 409) {
-          this.errorMessage = messageFromApiEnvelope(
-            mappedError,
-            'Este teléfono ya está verificado. Continúa con el inicio de sesión.',
-          );
-          this.state = 'error';
+          this.errorMessage.set(resolveApiErrorMessage(mappedError, 'Este teléfono ya está verificado. Continúa con el inicio de sesión.'));
+          this.state.set('error');
           return;
         }
         const fallback =
           mappedError.status === 422
             ? 'No pudimos reenviar el SMS. Revisa que el registro siga activo.'
             : 'No pudimos reenviar el código. Intenta nuevamente.';
-        this.errorMessage = messageFromApiEnvelope(mappedError, fallback);
-        this.state = 'error';
-        if (error instanceof HttpErrorResponse) {
-          console.error(VERIFY_PHONE_LOG, 'resend-registration-phone-otp falló', {
-            status: error.status,
-            url: error.url,
-            correlationId: mappedError.correlationId ?? null,
-            apiErrors: mappedError.errors,
-          });
-        }
+        this.errorMessage.set(resolveApiErrorMessage(mappedError, fallback));
+        this.state.set('error');
+        console.error(VERIFY_PHONE_LOG, 'resend-registration-phone-otp falló', {
+          status: mappedError.status,
+          correlationId: mappedError.correlationId ?? null,
+          apiErrors: mappedError.errors,
+        });
       },
     });
   }
 
   submit(code: string): void {
-    if (this.state === 'submitting') {
+    if (this.state() === 'submitting') {
       return;
     }
 
-    const registrationId =
-      (history.state && (history.state as { registrationId?: string }).registrationId) ??
-      this.sessionStore.getRegistrationId();
+    const registrationId = this.resolveRegistrationId();
     if (!registrationId) {
-      this.state = 'expired';
-      this.errorMessage = 'El proceso expiró. Reinicia el registro.';
+      this.state.set('expired');
+      this.errorMessage.set('El proceso expiró. Reinicia el registro.');
       return;
     }
 
-    this.state = 'submitting';
-    this.errorMessage = null;
+    this.state.set('submitting');
+    this.errorMessage.set(null);
 
     const payload: VerifyOtpRequest = { registration_id: registrationId, code };
     this.identityApi.verifyPhone(payload).subscribe({
       next: (raw) => {
-        this.state = 'success';
+        this.state.set('success');
         const result = unwrapVerificationResponse(raw);
 
         if (result.identity_verified && result.is_active) {
@@ -172,16 +124,23 @@ export class VerifyPhoneVm {
       },
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);
-        this.state = mappedError.status === 404 ? 'expired' : 'error';
+        this.state.set(mappedError.status === 404 ? 'expired' : 'error');
         const raw = mappedError.errors[0]?.message?.trim() ?? '';
         if (mappedError.status === 404) {
-          this.errorMessage = 'Proceso expirado, reinicia registro.';
+          this.errorMessage.set('Proceso expirado, reinicia registro.');
         } else if (raw.length > 0) {
-          this.errorMessage = raw;
+          this.errorMessage.set(raw);
         } else {
-          this.errorMessage = 'Código inválido o expirado. Puedes solicitar un nuevo SMS.';
+          this.errorMessage.set('Código inválido o expirado. Puedes solicitar un nuevo SMS.');
         }
       },
     });
+  }
+
+  private resolveRegistrationId(): string | null {
+    return (
+      (history.state as { registrationId?: string } | null)?.registrationId ??
+      this.sessionStore.getRegistrationId()
+    );
   }
 }

@@ -1,7 +1,12 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { CustomerPickerComponent } from './customer-picker.component';
+import type { PickerOption } from './picker-option';
 
+/**
+ * Selector de producto. Delega toda la lógica UI a `<app-customer-picker>` —
+ * sin herencia, evitando el doble host element que generaba `extends`.
+ */
 @Component({
   selector: 'app-product-picker',
   standalone: true,
@@ -22,7 +27,16 @@ import { CustomerPickerComponent } from './customer-picker.component';
     />
   `,
 })
-export class ProductPickerComponent extends CustomerPickerComponent {
-  override label = 'Producto';
-  override placeholder = 'Buscar producto por nombre o identificador';
+export class ProductPickerComponent {
+  @Input() label = 'Producto';
+  @Input() placeholder = 'Buscar producto por nombre o identificador';
+  @Input() options: PickerOption[] = [];
+  @Input() value: string | null = null;
+  @Input() loading = false;
+  @Input() error: string | null = null;
+  @Input() minSearchLength = 2;
+  @Input() allowRawUuid = false;
+
+  @Output() readonly queryChange = new EventEmitter<string>();
+  @Output() readonly valueChange = new EventEmitter<string | null>();
 }

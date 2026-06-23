@@ -70,13 +70,13 @@ export class OtpChallenge implements AfterViewInit, OnDestroy {
 
   get submitting(): boolean {
     return this.channel === 'phone'
-      ? this.verifyPhoneVm.state === 'submitting' || this.verifyPhoneVm.state === 'resending'
+      ? this.verifyPhoneVm.state() === 'submitting' || this.verifyPhoneVm.state() === 'resending'
       : this.verifyEmailVm.state() === 'submitting';
   }
 
   get errorMessage(): string | null {
     return this.channel === 'phone'
-      ? this.verifyPhoneVm.errorMessage
+      ? this.verifyPhoneVm.errorMessage()
       : this.verifyEmailVm.errorMessage();
   }
 
@@ -98,20 +98,20 @@ export class OtpChallenge implements AfterViewInit, OnDestroy {
   }
 
   get resendPhoneBusy(): boolean {
-    return this.channel === 'phone' && this.verifyPhoneVm.state === 'resending';
+    return this.channel === 'phone' && this.verifyPhoneVm.state() === 'resending';
   }
 
   get resendPhoneDisabled(): boolean {
     if (this.channel !== 'phone') return true;
     return (
-      this.verifyPhoneVm.state === 'resending' ||
-      this.verifyPhoneVm.resendSecondsLeft > 0 ||
-      this.verifyPhoneVm.state === 'submitting'
+      this.verifyPhoneVm.state() === 'resending' ||
+      this.verifyPhoneVm.resendSecondsLeft() > 0 ||
+      this.verifyPhoneVm.state() === 'submitting'
     );
   }
 
   get resendPhoneSecondsLeft(): number {
-    return this.channel === 'phone' ? this.verifyPhoneVm.resendSecondsLeft : 0;
+    return this.channel === 'phone' ? this.verifyPhoneVm.resendSecondsLeft() : 0;
   }
 
   submit(): void {

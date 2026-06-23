@@ -22,7 +22,7 @@ export class RecoverySent {
   constructor(protected readonly vm: ForgotPasswordVm) {}
 
   resend(): void {
-    if (!this.email || this.vm.state === 'submitting' || this.vm.isRateLimited) {
+    if (!this.email || this.vm.state() === 'submitting' || this.vm.isRateLimited()) {
       return;
     }
     this.vm.submit(

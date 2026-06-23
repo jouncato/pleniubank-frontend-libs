@@ -1,4 +1,4 @@
-import { computed, Injectable, inject, signal } from '@angular/core';
+import { computed, DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
   IdentityAuthApiService,
@@ -6,8 +6,10 @@ import {
   unwrapValidateResponse,
 } from '@pleniu/identity-data-access';
 import { isValidReturnUrl, SessionStore } from '@pleniu/shared-auth';
-import { mapHttpError, type ApiHttpError } from '@pleniu/shared-http';
+import { mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
 import { switchMap, map } from 'rxjs/operators';
+
+import { createCountdownTimer } from '../countdown-timer';
 
 @Injectable({
   providedIn: 'root',
@@ -17,11 +19,8 @@ export class VerifyPhonePostLoginVm {
   readonly errorMessage = signal<string | null>(null);
   readonly debugOtpHint = signal<string | null>(null);
   readonly resendSecondsLeft = signal(0);
-  /** Segundos restantes de validez del OTP según Identity (`expires_in_seconds`). */
   readonly otpExpiresSecondsLeft = signal<number | null>(null);
-  /** Aviso tras caducidad automática o reemisión. */
   readonly autoRenewNotice = signal<string | null>(null);
-  /** Se incrementa cuando hay un código nuevo (limpia el input en la vista). */
   readonly otpReissuedTick = signal(0);
 
   readonly otpTtlLabel = computed(() => {
@@ -34,16 +33,24 @@ export class VerifyPhonePostLoginVm {
     return `${m}:${r.toString().padStart(2, '0')}`;
   });
 
-  private resendTimer: ReturnType<typeof setInterval> | null = null;
-  private otpExpiryTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly identityApi = inject(IdentityAuthApiService);
+  private readonly sessionStore = inject(SessionStore);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   private autoRenewInFlight = false;
 
-  constructor(
-    private readonly identityApi: IdentityAuthApiService,
-    private readonly sessionStore: SessionStore,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute,
-  ) {}
+  private readonly resendTimer = createCountdownTimer(this.resendSecondsLeft);
+  // otpExpiresSecondsLeft can be null (not started) so we need a separate writableSignal
+  // The expiry timer wraps a plain number-signal obtained indirectly
+  private otpExpiryHandle: ReturnType<typeof setInterval> | null = null;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      this.resendTimer.stop();
+      this.clearOtpExpiryTimer();
+    });
+  }
 
   startChallenge(): void {
     if (this.state() === 'starting') {
@@ -65,7 +72,7 @@ export class VerifyPhonePostLoginVm {
           return;
         }
         this.state.set('error');
-        this.errorMessage.set(this.firstMappedMessage(mapped, 'No se pudo enviar el código.'));
+        this.errorMessage.set(resolveApiErrorMessage(mapped, 'No se pudo enviar el código.'));
       },
     });
   }
@@ -84,10 +91,10 @@ export class VerifyPhonePostLoginVm {
         const mapped = mapHttpError(error);
         if (mapped.status === 429) {
           this.errorMessage.set('Espera unos segundos antes de reenviar el código.');
-          this.armResendCooldown(60);
+          this.resendTimer.start(60);
           return;
         }
-        this.errorMessage.set(this.firstMappedMessage(mapped, 'No se pudo reenviar el código.'));
+        this.errorMessage.set(resolveApiErrorMessage(mapped, 'No se pudo reenviar el código.'));
       },
     });
   }
@@ -119,10 +126,7 @@ export class VerifyPhonePostLoginVm {
       .subscribe({
         next: ({ claims }) => {
           this.clearOtpExpiryTimer();
-          this.sessionStore.setClaims({
-            ...claims,
-            email: claims.email,
-          });
+          this.sessionStore.setClaims({ ...claims });
           this.state.set('success');
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? undefined;
           const safe = isValidReturnUrl(returnUrl) ? returnUrl : '/app/dashboard';
@@ -134,20 +138,16 @@ export class VerifyPhonePostLoginVm {
           this.errorMessage.set(
             mapped.status === 422 || mapped.status === 404
               ? 'Código incorrecto o expirado.'
-              : this.firstMappedMessage(mapped, 'No se pudo verificar el código.'),
+              : resolveApiErrorMessage(mapped, 'No se pudo verificar el código.'),
           );
         },
       });
   }
 
   dispose(): void {
-    this.clearResendTimer();
+    this.resendTimer.stop();
     this.clearOtpExpiryTimer();
     this.autoRenewInFlight = false;
-  }
-
-  private firstMappedMessage(mapped: ApiHttpError, fallback: string): string {
-    return mapped.errors[0]?.message?.trim() || fallback;
   }
 
   private consumeChallengeResponse(
@@ -162,12 +162,10 @@ export class VerifyPhonePostLoginVm {
   }
 
   private applyChallengePayload(body: { expires_in_seconds: number; debug_otp?: string | null }): void {
-    if (body.debug_otp) {
-      this.debugOtpHint.set(`Código de prueba (solo desarrollo): ${body.debug_otp}`);
-    } else {
-      this.debugOtpHint.set(null);
-    }
-    this.armResendCooldown(60);
+    this.debugOtpHint.set(
+      body.debug_otp ? `Código de prueba (solo desarrollo): ${body.debug_otp}` : null,
+    );
+    this.resendTimer.start(60);
     this.armOtpExpiryCountdown(body.expires_in_seconds);
   }
 
@@ -175,7 +173,7 @@ export class VerifyPhonePostLoginVm {
     this.clearOtpExpiryTimer();
     const cap = Math.min(Math.max(1, Math.floor(seconds)), 7200);
     this.otpExpiresSecondsLeft.set(cap);
-    this.otpExpiryTimer = setInterval(() => {
+    this.otpExpiryHandle = setInterval(() => {
       const left = this.otpExpiresSecondsLeft();
       if (left === null || left <= 1) {
         this.otpExpiresSecondsLeft.set(0);
@@ -214,32 +212,10 @@ export class VerifyPhonePostLoginVm {
     });
   }
 
-  private armResendCooldown(seconds: number): void {
-    this.clearResendTimer();
-    const cap = Math.min(Math.max(1, seconds), 120);
-    this.resendSecondsLeft.set(cap);
-    this.resendTimer = setInterval(() => {
-      const left = this.resendSecondsLeft();
-      if (left <= 1) {
-        this.resendSecondsLeft.set(0);
-        this.clearResendTimer();
-        return;
-      }
-      this.resendSecondsLeft.set(left - 1);
-    }, 1000);
-  }
-
-  private clearResendTimer(): void {
-    if (this.resendTimer) {
-      clearInterval(this.resendTimer);
-      this.resendTimer = null;
-    }
-  }
-
   private clearOtpExpiryTimer(): void {
-    if (this.otpExpiryTimer) {
-      clearInterval(this.otpExpiryTimer);
-      this.otpExpiryTimer = null;
+    if (this.otpExpiryHandle !== null) {
+      clearInterval(this.otpExpiryHandle);
+      this.otpExpiryHandle = null;
     }
   }
 }
