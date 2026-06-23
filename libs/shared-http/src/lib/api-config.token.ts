@@ -39,7 +39,7 @@ export interface ApiConfig {
   mueBaseUrl?: string;
   /**
    * Scoring Service (pleniubank-scoring-service), sin barra final.
-   * Ej.: `/api/scoring` (proxy same-origin) o `http://localhost:8007`.
+   * Ej.: `/api/scoring` (proxy same-origin) o `http://localhost:8020`.
    * Si falta, las páginas de scoring no realizan llamadas al servicio.
    */
   scoringBaseUrl?: string;

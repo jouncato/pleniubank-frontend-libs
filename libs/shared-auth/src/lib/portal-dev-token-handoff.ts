@@ -1,5 +1,5 @@
 /**
- * Handoff de sesión entre orígenes distintos en local (p. ej. :4200 → :4201).
+ * Handoff de sesión entre orígenes distintos en local (p. ej. :4200 → :4200).
  * Solo debe usarse cuando `environment.allowCrossOriginTokenHandoff` es true;
  * en producción con SSO real o mismo sitio no aplica.
  */
