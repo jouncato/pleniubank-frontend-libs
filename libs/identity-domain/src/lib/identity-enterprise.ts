@@ -92,6 +92,7 @@ export interface EnterpriseMeSummaryResponse {
   enterprise_name: string;
   enterprise_status: string;
   kyb_complete: boolean;
+  kyb_status?: string | null;
   /** Prestadora de nómina (Identity); habilita anticipo en Core. */
   is_payroll_provider?: boolean;
   /** Usuario con rol `enterprise_principal` en Identity (referencia UI solo lectura para administradores). */

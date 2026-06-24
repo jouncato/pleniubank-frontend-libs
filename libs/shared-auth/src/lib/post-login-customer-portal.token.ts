@@ -11,6 +11,10 @@ export interface PostLoginCustomerPortalConfig {
   b2cPath: string;
   /** Path en el customer tras login B2B (p. ej. /app/dashboard). */
   b2bPath: string;
+  /** Path al que se redirige cuando el teléfono aún no está verificado tras el login. */
+  verifyPhonePath?: string;
+  /** Path al que se redirige cuando el staff debe cambiar su contraseña antes de continuar. */
+  changePasswordPath?: string;
 }
 
 export const POST_LOGIN_CUSTOMER_PORTAL = new InjectionToken<PostLoginCustomerPortalConfig>(
@@ -22,6 +26,8 @@ export const POST_LOGIN_CUSTOMER_PORTAL = new InjectionToken<PostLoginCustomerPo
       allowCrossOriginTokenHandoff: false,
       b2cPath: '/app/dashboard',
       b2bPath: '/app/dashboard',
+      verifyPhonePath: '/app/verify-phone',
+      changePasswordPath: '/staff/access/change-password',
     }),
   },
 );

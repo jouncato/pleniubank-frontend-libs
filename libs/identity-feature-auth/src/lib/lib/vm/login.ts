@@ -137,7 +137,8 @@ export class LoginVm {
         this.state.set('success');
         if (this.portal === 'backoffice' && claims.password_must_change === true) {
           const safeReturn = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
-          void this.router.navigate(['/staff/access/change-password'], {
+          const changePwdPath = this.postLoginCustomerPortal.changePasswordPath ?? '/staff/access/change-password';
+          void this.router.navigate([changePwdPath], {
             queryParams: safeReturn ? { returnUrl: safeReturn } : {},
           });
           return;
@@ -148,7 +149,8 @@ export class LoginVm {
           claims.phone_verified !== true
         ) {
           const safeReturn = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
-          void this.router.navigate(['/app/verify-phone'], {
+          const verifyPhonePath = this.postLoginCustomerPortal.verifyPhonePath ?? '/app/verify-phone';
+          void this.router.navigate([verifyPhonePath], {
             queryParams: safeReturn ? { returnUrl: safeReturn } : {},
           });
           return;

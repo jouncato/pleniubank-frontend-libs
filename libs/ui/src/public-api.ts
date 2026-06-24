@@ -13,6 +13,7 @@ export * from './lib/empty-state.component';
 export * from './lib/confirm-dialog.component';
 export * from './lib/error-state.component';
 export * from './lib/pickers/picker-option';
+export * from './lib/pickers/picker.component';
 export * from './lib/pickers/customer-picker.component';
 export * from './lib/pickers/product-picker.component';
 export * from './lib/pickers/unit-picker.component';

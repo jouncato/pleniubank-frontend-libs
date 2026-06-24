@@ -1,19 +1,16 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { CustomerPickerComponent } from './customer-picker.component';
 import type { PickerOption } from './picker-option';
+import { PickerComponent } from './picker.component';
 
-/**
- * Selector de producto. Delega toda la lógica UI a `<app-customer-picker>` —
- * sin herencia, evitando el doble host element que generaba `extends`.
- */
+/** Selector de producto. Delega el UI genérico a `<app-picker>` con defaults de producto. */
 @Component({
   selector: 'app-product-picker',
   standalone: true,
-  imports: [CustomerPickerComponent],
+  imports: [PickerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <app-customer-picker
+    <app-picker
       [label]="label"
       [placeholder]="placeholder"
       [options]="options"
