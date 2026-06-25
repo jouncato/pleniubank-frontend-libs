@@ -15,10 +15,10 @@ export const CUSTOMER_AUTH_ROUTES: AuthFlowRoutes = {
 };
 
 export const BACKOFFICE_AUTH_ROUTES: AuthFlowRoutes = {
-  login: '/backoffice/party/access/login',
-  forgotPassword: '/backoffice/party/access/forgot-password',
-  resetPassword: '/backoffice/party/access/reset-password',
-  recoverySent: '/auth/recovery-sent',
+  login: '/staff/access/login',
+  forgotPassword: '/staff/access/forgot-password',
+  resetPassword: '/staff/access/reset-password',
+  recoverySent: '/staff/access/recovery-sent',
 };
 
 export function authRoutesForPortal(portal: PortalAppKind): AuthFlowRoutes {

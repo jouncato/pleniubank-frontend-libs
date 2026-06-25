@@ -42,7 +42,7 @@ export class AuthShell {
       path.endsWith('/customer/party/access/login') ||
       path.endsWith('/customer/party/access/forgot-password') ||
       path.endsWith('/customer/party/access/reset-password') ||
-      path.endsWith('/backoffice/party/access/login') ||
+      path.endsWith('/staff/access/login') ||
       path.endsWith('/onboarding/party/customer/verify-contact') ||
       path.endsWith('/customer/party/customer/verify-contact') ||
       path.endsWith('/onboarding/party/customer/verify-email') ||

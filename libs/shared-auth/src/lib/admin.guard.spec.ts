@@ -39,7 +39,7 @@ describe('adminGuard', () => {
       adminGuard({} as never, { url: '/admin/x' } as never),
     );
     expect(result).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/backoffice/party/access/login'], {
+    expect(router.navigate).toHaveBeenCalledWith(['/staff/access/login'], {
       queryParams: { returnUrl: '/admin/x' },
     });
   });
