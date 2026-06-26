@@ -4,7 +4,7 @@ import { PORTAL_APP } from './portal-app.token';
 import { SessionStore } from './session-store.service';
 import { signInPathForPortal } from './sign-in-path';
 
-/** Rutas de plataforma admin: requiere JWT usuario + `admin_access_token` y claim `role === 'admin'`. */
+/** Rutas de plataforma admin: requiere JWT usuario + `admin_access_token` y rol operativo de plataforma. */
 export const adminGuard: CanActivateFn = (route, state) => {
   const store = inject(SessionStore);
   const router = inject(Router);
@@ -25,7 +25,8 @@ export const adminGuard: CanActivateFn = (route, state) => {
   // Only enforce role when claims are hydrated. If claims are absent (e.g. a
   // transient validate error on reload) but the admin token is present, allow
   // through—the backend enforces authorization on every API call.
-  if (store.claims() !== null && store.claims()?.role !== 'admin') {
+  const platformRoles = new Set(['admin', 'sre', 'devops']);
+  if (store.claims() !== null && !platformRoles.has(String(store.claims()?.role ?? '').toLowerCase())) {
     void router.navigate(['/auth/forbidden']);
     return false;
   }
