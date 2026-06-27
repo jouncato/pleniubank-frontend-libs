@@ -118,6 +118,14 @@ export class CoreFinancialAccountingApiService {
     this.base = `${coreAdminV1Base(apiConfig)}/chart-of-accounts`;
   }
 
+  listJournalTemplates(countryCode?: string): Observable<ApiEnvelope<JournalTemplateDto[]>> {
+    let hp = new HttpParams();
+    if (countryCode) hp = hp.set('country_code', countryCode);
+    return this.http.get<ApiEnvelope<JournalTemplateDto[]>>(
+      `${this.base}/journal-templates`, { params: hp }
+    );
+  }
+
   list(params: CoaListParams = {}): Observable<ApiEnvelope<ChartOfAccountDto[]>> {
     let hp = new HttpParams();
     if (params.country_code) hp = hp.set('country_code', params.country_code);
