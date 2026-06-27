@@ -109,6 +109,8 @@ export interface PayrollAdvanceDto {
   updated_at: string | null;
   employer_name?: string | null;
   customer_name?: string | null;
+  estimated_deduction_date?: string | null;
+  disbursed_at?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
