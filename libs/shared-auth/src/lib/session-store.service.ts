@@ -44,32 +44,41 @@ export interface SessionClaims {
 
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
-  private readonly strategy: SessionStrategy = inject(SESSION_STRATEGY);
-  private readonly useCookies = this.strategy === 'httpOnlyCookie';
+  private readonly strategy: SessionStrategy;
+  private readonly useCookies: boolean;
 
-  private readonly _userToken = signal<string | null>(
-    this.useCookies ? null : sessionStorage.getItem(USER_TOKEN_KEY),
-  );
-  private readonly _adminToken = signal<string | null>(
-    this.useCookies ? null : sessionStorage.getItem(ADMIN_TOKEN_KEY),
-  );
-  private readonly _refreshToken = signal<string | null>(
-    this.useCookies ? null : sessionStorage.getItem(REFRESH_TOKEN_KEY),
-  );
+  private readonly _userToken: ReturnType<typeof signal<string | null>>;
+  private readonly _adminToken: ReturnType<typeof signal<string | null>>;
+  private readonly _refreshToken: ReturnType<typeof signal<string | null>>;
+
   private readonly _claims = signal<SessionClaims | null>(null);
-  /** Marca de tiempo (ms) de la última hidratación de claims vía setClaims; null si no hay claims. */
   private readonly _claimsValidatedAt = signal<number | null>(null);
   private readonly _isRefreshing = signal(false);
 
-  readonly userToken = computed(() => this._userToken());
-  readonly adminToken = computed(() => this._adminToken());
-  readonly refreshToken = computed(() => this._refreshToken());
-  readonly claims = computed(() => this._claims());
-  readonly claimsValidatedAt = computed(() => this._claimsValidatedAt());
-  readonly isRefreshing = computed(() => this._isRefreshing());
-  readonly isAuthenticated = computed(() =>
-    this.useCookies ? Boolean(this._claims()) : Boolean(this._userToken()),
-  );
+  readonly userToken: ReturnType<typeof computed<string | null>>;
+  readonly adminToken: ReturnType<typeof computed<string | null>>;
+  readonly refreshToken: ReturnType<typeof computed<string | null>>;
+  readonly claims: ReturnType<typeof computed<SessionClaims | null>>;
+  readonly claimsValidatedAt: ReturnType<typeof computed<number | null>>;
+  readonly isRefreshing: ReturnType<typeof computed<boolean>>;
+  readonly isAuthenticated: ReturnType<typeof computed<boolean>>;
+
+  constructor() {
+    this.strategy = inject(SESSION_STRATEGY);
+    this.useCookies = this.strategy === 'httpOnlyCookie';
+    this._userToken = signal<string | null>(this.useCookies ? null : sessionStorage.getItem(USER_TOKEN_KEY));
+    this._adminToken = signal<string | null>(this.useCookies ? null : sessionStorage.getItem(ADMIN_TOKEN_KEY));
+    this._refreshToken = signal<string | null>(this.useCookies ? null : sessionStorage.getItem(REFRESH_TOKEN_KEY));
+    this.userToken = computed(() => this._userToken());
+    this.adminToken = computed(() => this._adminToken());
+    this.refreshToken = computed(() => this._refreshToken());
+    this.claims = computed(() => this._claims());
+    this.claimsValidatedAt = computed(() => this._claimsValidatedAt());
+    this.isRefreshing = computed(() => this._isRefreshing());
+    this.isAuthenticated = computed(() =>
+      this.useCookies ? Boolean(this._claims()) : Boolean(this._userToken()),
+    );
+  }
 
   setUserToken(token: string | null): void {
     this._userToken.set(token);
