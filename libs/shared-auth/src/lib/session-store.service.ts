@@ -1,4 +1,4 @@
-import { inject, Injectable, computed, signal } from '@angular/core';
+import { Inject, Injectable, computed, signal } from '@angular/core';
 import { UserRole } from './shared-auth';
 import { SESSION_STRATEGY, SessionStrategy } from './session-strategy.token';
 
@@ -63,8 +63,8 @@ export class SessionStore {
   readonly isRefreshing: ReturnType<typeof computed<boolean>>;
   readonly isAuthenticated: ReturnType<typeof computed<boolean>>;
 
-  constructor() {
-    this.strategy = inject(SESSION_STRATEGY);
+  constructor(@Inject(SESSION_STRATEGY) strategy: SessionStrategy) {
+    this.strategy = strategy;
     this.useCookies = this.strategy === 'httpOnlyCookie';
     this._userToken = signal<string | null>(this.useCookies ? null : sessionStorage.getItem(USER_TOKEN_KEY));
     this._adminToken = signal<string | null>(this.useCookies ? null : sessionStorage.getItem(ADMIN_TOKEN_KEY));
