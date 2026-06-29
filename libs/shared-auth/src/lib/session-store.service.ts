@@ -42,7 +42,7 @@ export interface SessionClaims {
   salary_amount?: number;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class SessionStore {
   private readonly strategy: SessionStrategy;
   private readonly useCookies: boolean;
