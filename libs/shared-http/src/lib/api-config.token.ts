@@ -43,6 +43,12 @@ export interface ApiConfig {
    * Si falta, las páginas de scoring no realizan llamadas al servicio.
    */
   scoringBaseUrl?: string;
+  /**
+   * Mock Services (pleniubank-mock-services), sin barra final.
+   * Ej.: `/mock-services/api` (proxy same-origin) o `http://localhost:8095`.
+   * Usado para configuración de servicios de infraestructura en desarrollo.
+   */
+  mockServicesBaseUrl?: string;
 }
 
 export const API_CONFIG = new InjectionToken<ApiConfig>('API_CONFIG');
