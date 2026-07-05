@@ -195,3 +195,13 @@ grep -r "from '@pleniu/[^']*/src" libs/     # debe devolver vacío
 2. Preguntas abiertas / supuestos
 3. Resumen del cambio (libs afectadas + tipo de bump)
 4. Estado final: ✅ / ⚠️ / ❌
+
+## Anti-alucinación / Contexto verificado
+
+> **NO inventar.** Antes de asumir endpoints, puertos, variables de entorno, rutas, nombres de archivo, versiones de librerías o frameworks, verificar en:
+> - El código fuente real de este repo.
+> - `README.md`, `pyproject.toml`, `package.json`, `angular.json`, `docker-compose.yml`, `.env.example`.
+> - `pleniubank-infra-platform/scripts/services.manifest.json` (topología de puertos).
+> - ADRs y documentación de producto de este repo.
+>
+> Si no está verificado, pedir aclaración. No propagar suposiciones a otros repos.
