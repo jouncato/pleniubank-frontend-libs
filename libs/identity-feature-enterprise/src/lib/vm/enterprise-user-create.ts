@@ -6,9 +6,7 @@ import { mapHttpError } from '@pleniu/shared-http';
 
 export type EnterpriseUserTargetMode = 'enterprise' | 'subEnterprise';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class EnterpriseUserCreateVm {
   readonly state = signal<'idle' | 'submitting' | 'success' | 'error'>('idle');
   readonly errorMessage = signal<string | null>(null);

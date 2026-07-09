@@ -301,31 +301,6 @@ export class EnterpriseRegisterWizard implements OnInit {
       return;
     }
 
-    // Debug: log form states with individual field details
-    console.log('[EnterpriseRegisterWizard] Form validation:', {
-      confirmCorrect: this.confirmCorrect,
-      companyFormInvalid: this.companyForm.invalid,
-      companyFormErrors: this.companyForm.errors,
-      companyFields: {
-        business_name: { value: this.companyForm.controls.business_name.value, invalid: this.companyForm.controls.business_name.invalid },
-        document_type: { value: this.companyForm.controls.document_type.value, invalid: this.companyForm.controls.document_type.invalid },
-        document_number: { value: this.companyForm.controls.document_number.value, invalid: this.companyForm.controls.document_number.invalid },
-        company_email: { value: this.companyForm.controls.company_email.value, invalid: this.companyForm.controls.company_email.invalid },
-        company_phone: { value: this.companyForm.controls.company_phone.value, invalid: this.companyForm.controls.company_phone.invalid },
-        economic_sector_id: { value: this.companyForm.controls.economic_sector_id.value, invalid: this.companyForm.controls.economic_sector_id.invalid },
-      },
-      principalFields: {
-        email: { value: this.principalForm.controls.email.value, invalid: this.principalForm.controls.email.invalid },
-        full_name: { value: this.principalForm.controls.full_name.value, invalid: this.principalForm.controls.full_name.invalid },
-        password: { value: '***', invalid: this.principalForm.controls.password.invalid, valid: this.principalForm.controls.password.valid },
-      },
-      adminFields: {
-        email: { value: this.adminForm.controls.email.value, invalid: this.adminForm.controls.email.invalid },
-        full_name: { value: this.adminForm.controls.full_name.value, invalid: this.adminForm.controls.full_name.invalid },
-        password: { value: '***', invalid: this.adminForm.controls.password.invalid, valid: this.adminForm.controls.password.valid },
-      },
-    });
-
     // Identify specific validation failures
     const failedFields: string[] = [];
     const passwordErrors: string[] = [];

@@ -7,6 +7,7 @@ import { EnterpriseUserCreateVm } from '../../vm/enterprise-user-create';
 @Component({
   selector: 'lib-enterprise-user-form',
   imports: [CommonModule, ReactiveFormsModule],
+  providers: [EnterpriseUserCreateVm],
   templateUrl: './enterprise-user-form.html',
   styleUrl: './enterprise-user-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
