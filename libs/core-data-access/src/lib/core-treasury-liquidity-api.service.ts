@@ -147,6 +147,117 @@ export interface SubLedgerBalanceDto {
   total_committed: string;
 }
 
+// AUDITORÍA Ola 14 — dashboard cruzado caja-vs-GL + vista por cuenta + alertas.
+
+export interface TreasuryDashboardCustodyPositionDto {
+  custody_master_id: string;
+  name: string;
+  purpose: string;
+  denomination: string;
+  contable: string;
+  disponible: string;
+  conciliado: string | null;
+}
+
+export interface TreasuryDashboardBreakDto {
+  id: string;
+  source_system: string;
+  discrepancy_type: string;
+  core_reference: string;
+  external_reference: string;
+  core_amount: string;
+  external_amount: string;
+  currency: string;
+  created_at: string;
+}
+
+export interface TreasuryDashboardAlertDto {
+  id: string;
+  rule_code: string;
+  rule_name: string;
+  metric_value: string;
+  threshold: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  triggered_at: string;
+}
+
+export interface TreasuryDashboardDto {
+  custody_positions: TreasuryDashboardCustodyPositionDto[];
+  open_reconciliation_breaks: TreasuryDashboardBreakDto[];
+  open_alerts: TreasuryDashboardAlertDto[];
+}
+
+export interface CustodyMovementDto {
+  posting_batch_id: string;
+  booking_timestamp: string;
+  amount: string;
+  denomination: string;
+  is_credit: boolean;
+  journal_entry_id: string | null;
+  has_gl_backing: boolean;
+}
+
+export interface CustodyAccountDetailDto {
+  custody_master_id: string;
+  denomination: string;
+  contable: string;
+  disponible: string;
+  conciliado: string | null;
+  movements: CustodyMovementDto[];
+  next_cursor: string | null;
+  has_more: boolean;
+}
+
+export interface AlertRuleDto {
+  id: string;
+  code: string;
+  name: string;
+  metric: string;
+  comparator: 'GT' | 'LT';
+  threshold_amount: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  is_active: boolean;
+  notify_channel: string | null;
+  created_at: string;
+}
+
+export interface GlLedgerLineDto {
+  entry_id: string;
+  entry_date: string;
+  trigger_event: string;
+  source_event_id: string | null;
+  description: string | null;
+  side: 'DEBIT' | 'CREDIT';
+  amount: string;
+  amount_driver: string;
+  running_balance: string;
+}
+
+export interface GlAccountLedgerPageDto {
+  account_code: string;
+  country_code: string;
+  total_debit: string;
+  total_credit: string;
+  has_more: boolean;
+  next_cursor: string | null;
+  lines: GlLedgerLineDto[];
+}
+
+export interface TriggeredAlertDto {
+  id: string;
+  rule_id: string;
+  rule_code: string;
+  rule_name: string;
+  triggered_at: string;
+  metric_value: string;
+  threshold: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  status: 'OPEN' | 'RESOLVED';
+  related_reference: string | null;
+  resolved_at: string | null;
+  resolved_by: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CoreTreasuryLiquidityApiService {
   private readonly base: string;
@@ -261,6 +372,77 @@ export class CoreTreasuryLiquidityApiService {
 
   deactivateSubLedger(assignmentId: string): Observable<ApiEnvelope<SubLedgerAssignmentDto>> {
     return this.http.delete<ApiEnvelope<SubLedgerAssignmentDto>>(`${this.base}/sub-ledgers/${assignmentId}`);
+  }
+
+  // AUDITORÍA Ola 14 — dashboard cruzado caja-vs-GL, vista por cuenta, alertas.
+
+  getTreasuryDashboard(): Observable<ApiEnvelope<TreasuryDashboardDto>> {
+    return this.http.get<ApiEnvelope<TreasuryDashboardDto>>(`${this.base}/gl-reporting/treasury/dashboard`);
+  }
+
+  getCustodyAccountDetail(
+    custodyId: string,
+    params: { denomination?: string; cursor?: string; limit?: number } = {},
+  ): Observable<ApiEnvelope<CustodyAccountDetailDto>> {
+    let hp = new HttpParams().set('denomination', params.denomination ?? 'COP');
+    if (params.cursor) {
+      hp = hp.set('cursor', params.cursor);
+    }
+    if (params.limit != null) {
+      hp = hp.set('limit', String(params.limit));
+    }
+    return this.http.get<ApiEnvelope<CustodyAccountDetailDto>>(
+      `${this.base}/master-custody-accounts/${custodyId}/detail`,
+      { params: hp },
+    );
+  }
+
+  exportCustodyAccountReportCsv(custodyId: string, denomination = 'COP'): Observable<Blob> {
+    const hp = new HttpParams().set('denomination', denomination);
+    return this.http.get(`${this.base}/master-custody-accounts/${custodyId}/detail/export.csv`, {
+      params: hp,
+      responseType: 'blob',
+    });
+  }
+
+  getAccountLedger(params: {
+    accountCode: string;
+    from: string;
+    to: string;
+    countryCode?: string;
+    cursor?: string;
+    limit?: number;
+  }): Observable<ApiEnvelope<GlAccountLedgerPageDto>> {
+    let hp = new HttpParams()
+      .set('account_code', params.accountCode)
+      .set('from', params.from)
+      .set('to', params.to)
+      .set('country', params.countryCode ?? 'CO');
+    if (params.cursor) {
+      hp = hp.set('cursor', params.cursor);
+    }
+    if (params.limit != null) {
+      hp = hp.set('limit', String(params.limit));
+    }
+    return this.http.get<ApiEnvelope<GlAccountLedgerPageDto>>(`${this.base}/gl-reporting/ledger`, { params: hp });
+  }
+
+  getAlertRules(): Observable<ApiEnvelope<AlertRuleDto[]>> {
+    return this.http.get<ApiEnvelope<AlertRuleDto[]>>(`${this.base}/treasury-alerts/rules`);
+  }
+
+  getTriggeredAlerts(params: { status?: 'OPEN' | 'RESOLVED'; severity?: string; limit?: number } = {}): Observable<ApiEnvelope<TriggeredAlertDto[]>> {
+    let hp = new HttpParams();
+    if (params.status) {
+      hp = hp.set('status', params.status);
+    }
+    if (params.severity) {
+      hp = hp.set('severity', params.severity);
+    }
+    if (params.limit != null) {
+      hp = hp.set('limit', String(params.limit));
+    }
+    return this.http.get<ApiEnvelope<TriggeredAlertDto[]>>(`${this.base}/treasury-alerts`, { params: hp });
   }
 }
 
