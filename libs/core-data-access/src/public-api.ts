@@ -29,3 +29,4 @@ export * from './lib/core-credit-approval-api.service';
 export * from './lib/core-customer-evaluations-api.service';
 export * from './lib/core-financial-accounting-api.service';
 export * from './lib/core-breb-keys-api.service';
+export * from './lib/core-treasury-liquidity-api.service';
