@@ -31,3 +31,4 @@ export * from './lib/core-financial-accounting-api.service';
 export * from './lib/core-breb-keys-api.service';
 export * from './lib/core-treasury-liquidity-api.service';
 export * from './lib/core-funding-config-api.service';
+export * from './lib/core-jurisdictions-api.service';

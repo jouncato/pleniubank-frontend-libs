@@ -1,11 +1,11 @@
 /**
- * Tenants soportados por la plataforma (HU-RE-049).
+ * Tenants soportados por la plataforma (ADR-016 / LB-ST-219).
  *
- * Alcance reducido: solo `CO` en esta fase. Para habilitar nuevos países
- * (MX, PE, ...), añádelos a `SUPPORTED_TENANTS` — no se requiere refactor
- * en `TenantContextService` ni en el interceptor.
+ * `CO` y `MX` habilitados. Para habilitar nuevos países (PE, ...), añádelos
+ * a `SUPPORTED_TENANTS` — no se requiere refactor en `TenantContextService`
+ * ni en el interceptor.
  */
-export const SUPPORTED_TENANTS = ['CO'] as const;
+export const SUPPORTED_TENANTS = ['CO', 'MX'] as const;
 
 export type SupportedTenant = (typeof SUPPORTED_TENANTS)[number];
 

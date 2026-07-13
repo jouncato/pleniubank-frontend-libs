@@ -17,6 +17,7 @@ export * from './lib/rules-role.guard';
 export * from './lib/enterprise-scope.guard';
 export * from './lib/enterprise-id-param.guard';
 export * from './lib/audit-access.guard';
+export * from './lib/jurisdiction-admin.guard';
 export * from './lib/platform-internal-ops.guard';
 export * from './lib/payroll-provider.guard';
 export * from './lib/guest.guard';

@@ -127,6 +127,9 @@ function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
   if (typeof raw['company_code'] === 'string' && raw['company_code'].trim()) {
     out.company_code = raw['company_code'].trim();
   }
+  if (typeof raw['country_code'] === 'string' && raw['country_code'].trim()) {
+    out.country_code = raw['country_code'].trim();
+  }
   return out;
 }
 

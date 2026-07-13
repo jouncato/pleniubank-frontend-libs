@@ -40,6 +40,8 @@ export interface SessionClaims {
   scope?: string;
   /** Salario mensual declarado del beneficiario (Identity validate, B2C empleado). */
   salary_amount?: number;
+  /** País/tenant emitido por Identity (ADR-016, LB-ST-210). Ausente en JWTs actuales (claim aún no emitida). */
+  country_code?: string;
 }
 
 @Injectable()

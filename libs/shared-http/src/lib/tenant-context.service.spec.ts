@@ -20,9 +20,9 @@ describe('TenantContextService', () => {
     expect(service.selectedCountry()).toBe('CO');
   });
 
-  it("setCountry('MX') no es soportado → fallback a CO", () => {
+  it("setCountry('MX') es soportado → fija el valor a MX", () => {
     service.setCountry('MX');
-    expect(service.selectedCountry()).toBe('CO');
+    expect(service.selectedCountry()).toBe('MX');
   });
 
   it("setCountry('PE') no es soportado → fallback a CO", () => {

@@ -96,11 +96,24 @@ describe('tenantContextInterceptor', () => {
     ctrl.verify();
   });
 
-  it('flag ON + service en CO + JWT con country_code no soportado → default CO', () => {
+  it('flag ON + service en CO + JWT con country_code=MX (soportado) → usa MX', () => {
     const { http, ctrl } = setupWithEnabled(true);
     http
       .get('/api/v1/loans', {
         headers: { Authorization: `Bearer ${makeJwtWithCountry('MX')}` },
+      })
+      .subscribe();
+    const req = ctrl.expectOne('/api/v1/loans');
+    expect(req.request.headers.get(TENANT_HEADER)).toBe('MX');
+    req.flush({});
+    ctrl.verify();
+  });
+
+  it('flag ON + service en CO + JWT con country_code no soportado (PE) → default CO', () => {
+    const { http, ctrl } = setupWithEnabled(true);
+    http
+      .get('/api/v1/loans', {
+        headers: { Authorization: `Bearer ${makeJwtWithCountry('PE')}` },
       })
       .subscribe();
     const req = ctrl.expectOne('/api/v1/loans');
@@ -129,6 +142,17 @@ describe('tenantContextInterceptor', () => {
     http.get('/api/v1/loans').subscribe();
     const req = ctrl.expectOne('/api/v1/loans');
     expect(req.request.headers.get(TENANT_HEADER)).toBe('CO');
+    req.flush({});
+    ctrl.verify();
+  });
+
+  it('service seleccionado explícitamente en MX → inyecta X-Tenant-Country: MX', () => {
+    const { http, ctrl } = setupWithEnabled(true);
+    const ctx = TestBed.inject(TenantContextService);
+    ctx.setCountry('MX');
+    http.get('/api/v1/loans').subscribe();
+    const req = ctrl.expectOne('/api/v1/loans');
+    expect(req.request.headers.get(TENANT_HEADER)).toBe('MX');
     req.flush({});
     ctrl.verify();
   });
