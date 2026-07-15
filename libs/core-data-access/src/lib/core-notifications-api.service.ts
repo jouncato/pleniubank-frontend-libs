@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
+import type { NotificationPreferencesResponse, UpdateNotificationPreferencesRequest } from 'core-domain';
 
 import { corePublicV1Base } from './core-api-base';
 
@@ -57,9 +58,32 @@ export class CoreNotificationsApiService {
     );
   }
 
+  markAsRead(notificationId: string): Observable<ApiEnvelope<InAppNotificationDto>> {
+    return this.http.patch<ApiEnvelope<InAppNotificationDto>>(
+      `${this.base}/notifications/${notificationId}/read`,
+      {},
+    );
+  }
+
   registerDeviceToken(body: DeviceTokenRequest): Observable<ApiEnvelope<{ registered: boolean; platform: string }>> {
     return this.http.post<ApiEnvelope<{ registered: boolean; platform: string }>>(
       `${this.base}/device-tokens`,
+      body,
+    );
+  }
+
+  /** `b2c-notification-preferences` (openspec `b2c-persona-closure`). */
+  getPreferences(): Observable<ApiEnvelope<NotificationPreferencesResponse>> {
+    return this.http.get<ApiEnvelope<NotificationPreferencesResponse>>(
+      `${this.base}/notification-preferences`,
+    );
+  }
+
+  updatePreferences(
+    body: UpdateNotificationPreferencesRequest,
+  ): Observable<ApiEnvelope<NotificationPreferencesResponse>> {
+    return this.http.put<ApiEnvelope<NotificationPreferencesResponse>>(
+      `${this.base}/notification-preferences`,
       body,
     );
   }
