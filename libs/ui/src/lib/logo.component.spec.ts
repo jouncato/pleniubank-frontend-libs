@@ -21,12 +21,13 @@ describe('PbLogoComponent', () => {
 
   it('should resolve color variant', () => {
     component.variant = 'color';
-    expect(component.resolvedSrc).toContain('/assets/brand/logo-pleniubank-color');
+    // Rutas relativas a propósito (sin "/" inicial): funcionan sin importar el base-href de despliegue.
+    expect(component.resolvedSrc).toContain('assets/brand/logo-pleniubank-color');
   });
 
   it('should resolve white variant on dark', () => {
     component.variant = 'auto';
     component.onDark = true;
-    expect(component.resolvedSrc).toContain('/assets/brand/logo-pleniubank-white');
+    expect(component.resolvedSrc).toContain('assets/brand/logo-pleniubank-white');
   });
 });

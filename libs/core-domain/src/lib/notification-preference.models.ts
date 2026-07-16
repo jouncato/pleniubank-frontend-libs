@@ -10,12 +10,12 @@ export interface NotificationPreference {
   event_type: string;
   channel: NotificationChannel;
   enabled: boolean;
-  /** Eventos de seguridad/regulatorios: IN_APP no se puede desactivar. */
-  locked: boolean;
+  /** Eventos de seguridad/regulatorios: IN_APP no se puede desactivar. Alineado con `mandatory` en Core (`customers_router.py`). */
+  mandatory: boolean;
 }
 
 export interface NotificationPreferencesResponse {
-  preferences: NotificationPreference[];
+  items: NotificationPreference[];
 }
 
 export interface NotificationPreferenceUpdate {

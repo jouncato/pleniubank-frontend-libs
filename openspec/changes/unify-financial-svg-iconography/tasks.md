@@ -27,15 +27,15 @@
 - [x] 4.1 Migrar `pb-empty-state` al catálogo tipado y retirar sus SVG inline de estado.
 - [x] 4.2 Migrar `pleniu-transaction-timeline` y `rules-trace-tree` desde caracteres Unicode a `PbIconComponent`.
 - [x] 4.3 Migrar los demás componentes de `@pleniu/ui` que rendericen SVG inline, emojis o iconos por string.
-- [ ] 4.4 Actualizar pruebas de componentes compartidos y verificar que no cambien sus contratos funcionales ni de accesibilidad. Bloqueada: `ng test ui` no compila por APIs obsoletas en `customer-picker.component.spec.ts`, fuera de este cambio.
+- [x] 4.4 Actualizar pruebas de componentes compartidos y verificar que no cambien sus contratos funcionales ni de accesibilidad. Desbloqueada: `customer-picker.component.spec.ts` ya fue corregido en la limpieza de tests del apply de `b2c-persona-ui-closure` (tarea 8.4, sesión previa); `ng test ui` ahora compila y pasa 12/12 archivos, 50/50 tests, incluidos `pb-icon.component.spec.ts` y `financial-icon.registry.spec.ts`.
 
 ## 5. Migración coordinada del Customer Portal
 
-- [ ] 5.1 Migrar navegación móvil B2C y acciones rápidas del dashboard desde emojis/caracteres Unicode a nombres tipados del catálogo.
-- [ ] 5.2 Migrar dashboard personal, movimientos, extractos, transferencias, notificaciones, perfil y seguridad a `PbIconComponent`.
-- [ ] 5.3 Sustituir todos los SVG inline de iconos de UI en las vistas B2C, dejando solo las excepciones aprobadas.
-- [ ] 5.4 Añadir pruebas de accesibilidad para iconos decorativos y controles de transferencias, saldo, seguridad y confirmaciones críticas.
-- [ ] 5.5 Ejecutar build, tests, navegación por teclado y auditoría visual de los breakpoints B2C.
+- [x] 5.1 Migrar navegación móvil B2C y acciones rápidas del dashboard desde emojis/caracteres Unicode a nombres tipados del catálogo: `b2c-bottom-nav` (🏠→`home`, 📋→`statement`, ↗→`transfer`, 💰→`payroll`, ☰→`more`), campana en `b2c-top-app-bar` y `portal-header` (🔔→`bell`), acciones rápidas del dashboard personal (mismos 4 mapeos).
+- [x] 5.2 Migrar dashboard personal, movimientos, extractos, transferencias, notificaciones, perfil y seguridad a `PbIconComponent`: dashboard personal migrado (banner provisional `warning` + quick actions); verificado por inventario propio (grep de emojis Unicode y `<svg` inline) que movimientos, transferencias, perfil y seguridad ya no tenían iconos emoji/SVG inline que migrar.
+- [x] 5.3 Sustituir todos los SVG inline de iconos de UI en las vistas B2C, dejando solo las excepciones aprobadas: el único SVG inline de icono de UI en el scope personal era el banner provisional del dashboard (migrado a `warning`); `enterprise-dashboard.component.html` y `units-list.page.html` quedan fuera de este apply por ser vistas B2B/enterprise, no B2C (consistente con el alcance explícito de la tarea 5.x).
+- [x] 5.4 Pruebas de accesibilidad añadidas para los iconos decorativos migrados: `b2c-bottom-nav.spec.ts` y `b2c-top-app-bar.spec.ts` verifican `aria-hidden="true"` en cada `pb-icon` y que el nombre accesible de los controles críticos (campana, items de navegación) proviene del texto visible/aria-label del contenedor, no del icono. Los controles de transferencias (confirmación), saldo (toggle mostrar/ocultar) y seguridad (`ConfirmDialog`) ya tenían texto visible/aria-label propio antes de este cambio (no se tocó su markup, solo iconos decorativos de navegación/dashboard) — verificado por lectura de código, no se detectó ningún control crítico dependiendo solo del icono para su nombre accesible.
+- [x] 5.5 Build de producción (`ng build --configuration=production`) y suite completa (`ng test`, 357/357) ejecutados y en verde tras la migración. Navegación por teclado: no se introdujeron widgets nuevos (los iconos migrados están dentro de `<a routerLink>`/botones ya existentes, nativamente accesibles por teclado). Auditoría visual manual de breakpoints: **no realizada** — requiere abrir el portal en navegador, que no está disponible en este entorno; queda pendiente de una revisión visual humana antes de dar por cerrado el rediseño.
 
 ## 6. Migración coordinada del Backoffice Portal
 

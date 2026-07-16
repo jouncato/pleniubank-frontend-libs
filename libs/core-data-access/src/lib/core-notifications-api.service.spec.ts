@@ -47,7 +47,7 @@ describe('CoreNotificationsApiService', () => {
   describe('getPreferences (b2c-notification-preferences)', () => {
     it('llama GET /customers/me/notification-preferences', () => {
       service.getPreferences().subscribe((response) => {
-        expect(response.data.preferences[0].locked).toBe(true);
+        expect(response.data.items[0].mandatory).toBe(true);
       });
 
       const req = httpTesting.expectOne(
@@ -56,8 +56,8 @@ describe('CoreNotificationsApiService', () => {
       expect(req.request.method).toBe('GET');
       req.flush({
         data: {
-          preferences: [
-            { event_type: 'breb_key_changed', channel: 'IN_APP', enabled: true, locked: true },
+          items: [
+            { event_type: 'breb_key_changed', channel: 'IN_APP', enabled: true, mandatory: true },
           ],
         },
       });
@@ -77,7 +77,7 @@ describe('CoreNotificationsApiService', () => {
       );
       expect(req.request.method).toBe('PUT');
       expect(req.request.body.preferences[0].event_type).toBe('transfer_received');
-      req.flush({ data: { preferences: [] } });
+      req.flush({ data: { items: [] } });
     });
   });
 });

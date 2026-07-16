@@ -60,6 +60,6 @@ describe('Interceptores globales aplican a los servicios B2C nuevos (sin bypass)
       'http://localhost:8000/api/v1/public/customers/me/notification-preferences',
     );
     expect(req.request.headers.get('X-Tenant-Country')).toBe('CO');
-    req.flush({ data: { preferences: [] } });
+    req.flush({ data: { items: [] } });
   });
 });
