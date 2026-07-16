@@ -36,4 +36,22 @@ describe('mapApiErrorToUserMessage — b2c-data-access codes', () => {
     const message = mapApiErrorToUserMessage(errorWithCode('SOME_UNMAPPED_CODE'));
     expect(message).toBe('Ocurrió un error inesperado.');
   });
+
+  /**
+   * `virtual-account-data-access` (tarea 2.3): `BREB_KEY_NOT_ELIGIBLE` (rechazo
+   * anti-enumeración del registro de llaves self-service) y `BREB_KEY_NOT_FOUND`
+   * (delete de llave inexistente/ya inactiva) NO se añaden explícitamente al
+   * mapper: el fallback genérico ya produce un mensaje que no revela detalle,
+   * igual que `NOT_ELIGIBLE`. Se documenta con este test para que una futura
+   * regresión accidental (p. ej. alguien añade un mensaje enriquecido) sea
+   * detectada.
+   */
+  it('BREB_KEY_NOT_ELIGIBLE y BREB_KEY_NOT_FOUND caen al mensaje genérico (sin código explícito en el mapper)', () => {
+    const notEligible = mapApiErrorToUserMessage(errorWithCode('BREB_KEY_NOT_ELIGIBLE'));
+    const notFound = mapApiErrorToUserMessage(errorWithCode('BREB_KEY_NOT_FOUND'));
+
+    expect(notEligible).toBe('Ocurrió un error inesperado.');
+    expect(notFound).toBe('Ocurrió un error inesperado.');
+    expect(notEligible).not.toMatch(/existe|registrad[oa]|otro usuario|otra cuenta|llave/i);
+  });
 });

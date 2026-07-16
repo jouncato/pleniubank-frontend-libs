@@ -10,5 +10,6 @@ export * from './lib/statement.models';
 export * from './lib/transaction-hub.models';
 export * from './lib/employment-profile.models';
 export * from './lib/transfer.models';
+export * from './lib/wallet.models';
 export * from './lib/notification-preference.models';
 export * from '@pleniu/loan-domain';
