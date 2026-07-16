@@ -8,7 +8,7 @@ describe('SessionStore', () => {
   });
 
   it('persiste user y admin en keys distintas', () => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({ providers: [SessionStore] });
     const store = TestBed.inject(SessionStore);
     store.setUserToken('user-jwt');
     store.setAdminToken('admin-jwt');
@@ -17,7 +17,7 @@ describe('SessionStore', () => {
   });
 
   it('clear elimina tokens del sessionStorage', () => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({ providers: [SessionStore] });
     const store = TestBed.inject(SessionStore);
     store.setUserToken('u');
     store.setAdminToken('a');

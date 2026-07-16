@@ -20,7 +20,7 @@ export function toDomain(dto: LendingArrangementResponse): LendingArrangement {
     companyCode: dto.company_code,
     jurisdiction: dto.jurisdiction,
     currency: dto.currency,
-    principal: money((dto.principal_amount ?? '0').replace(/\.?0+$/, '') || '0', dto.currency ?? 'COP'),
+    principal: money(dto.principal_amount ?? '0', dto.currency ?? 'COP'),
     nominalRate: dto.nominal_rate != null ? Number(dto.nominal_rate) : undefined,
     rateType: asEnum<RateType>(dto.rate_type, RateType as unknown as Record<string, string>),
     dayCountConvention: asEnum<DayCountConvention>(dto.day_count_convention, DayCountConvention as unknown as Record<string, string>),

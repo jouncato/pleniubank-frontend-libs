@@ -81,9 +81,9 @@ describe('RulesTraceTreeComponent', () => {
   });
 
   it('muestra icon según outcome', () => {
-    const icons = fixture.debugElement.queryAll(By.css('.icon'));
-    expect(icons[0].nativeElement.textContent.trim()).toBe('✓');
-    expect(icons[1].nativeElement.textContent.trim()).toBe('✗');
+    const icons = fixture.debugElement.queryAll(By.css('.icon pb-icon'));
+    expect(icons[0].componentInstance.name()).toBe('check');
+    expect(icons[1].componentInstance.name()).toBe('error');
   });
 
   it('muestra timings cuando showTimings=true', () => {

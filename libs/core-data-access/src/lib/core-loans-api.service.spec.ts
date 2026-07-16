@@ -20,7 +20,7 @@ describe('CoreLoansApiService', () => {
 
     expect(http.get).toHaveBeenCalledTimes(1);
     const [url, options] = http.get.mock.calls[0];
-    expect(url).toBe('http://localhost:8000/api/v1/loans');
+    expect(url).toBe('http://localhost:8000/api/v1/lending-arrangements');
     expect(options.params.get('employer_id')).toBe('ent-1');
     expect(options.params.get('limit')).toBe('50');
   });
@@ -40,7 +40,7 @@ describe('CoreLoansApiService', () => {
 
     service.simulate(payload).subscribe();
 
-    expect(http.post).toHaveBeenCalledWith('http://localhost:8000/api/v1/loans/simulate', payload);
+    expect(http.post).toHaveBeenCalledWith('http://localhost:8000/api/v1/lending-arrangements/simulate', payload);
   });
 
   it('update envia status y parametros a /loans/:id', () => {
@@ -59,6 +59,6 @@ describe('CoreLoansApiService', () => {
 
     service.update('loan-1', payload).subscribe();
 
-    expect(http.put).toHaveBeenCalledWith('http://localhost:8000/api/v1/loans/loan-1', payload);
+    expect(http.put).toHaveBeenCalledWith('http://localhost:8000/api/v1/lending-arrangements/loan-1', payload);
   });
 });

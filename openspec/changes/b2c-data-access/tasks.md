@@ -15,16 +15,16 @@
 
 ## 3. Servicios core (b2c-core-api-services)
 
-- [x] 3.1 `CoreTransfersApiService`: create (X-Idempotency-Key), list (cursor/filtros), get, resolveDestination; specs con HttpTestingController
+- [x] 3.1 `CoreTransfersApiService`: create (X-Idempotency-Key), list (array plano + meta.cursor), get; specs con HttpTestingController — **corregido tras verificar el contrato real ya implementado en core**: no existe endpoint `resolveDestination`/`resolve-destination` (la llave Bre-B solo se resuelve dentro de `create()`); se eliminó ese método y se ajustaron los campos de `Transfer` (`source_customer_id`/`destination_customer_id` en vez de `initiated_by`/`direction`)
 - [x] 3.2 `CoreStatementsApiService`: métodos customer `getCustomerStatement`/`exportCustomerStatement` → `{ blob, filename }` con parse de Content-Disposition + fallback (`content-disposition.util.ts`); specs
 - [x] 3.3 `CoreNotificationsApiService`: `listNotifications`/`markAsRead`/`markAllRead` ya existían; se añadieron `getPreferences`/`updatePreferences`; specs
 - [x] 3.4 Verificar que los servicios nuevos pasan por los interceptores (spec de integración `b2c-services-interceptors.integration.spec.ts`: `X-Tenant-Country` + `X-Correlation-ID`)
 
 ## 4. Servicios identity (b2c-identity-api-services)
 
-- [x] 4.1 `IdentityProfileApiService`: getMe, updateName, startPhoneChange/verifyPhoneChange, startEmailChange/verifyEmailChangeOtp (estado pendiente tipado); specs
-- [x] 4.2 `IdentitySessionsApiService`: list (marca current), revoke, revokeOthers; specs
-- [x] 4.3 Métodos de cierre en `IdentityProfileApiService`: requestClosure, getClosure, cancelClosure con máquina de estados tipada; specs
+- [x] 4.1 `IdentityProfileApiService`: getMe, updateName, startPhoneChange/verifyPhoneChange, startEmailChange/verifyEmailChangeOtp/**confirmEmailChange** (paso 3 real, no "fuera del portal" como se asumió); specs — **corregido** tras verificar `src/domain/models.py`/`auth_router.py` reales en identity: cuerpo plano (sin envelope), campos exactos (`customer_id`, `ua_summary`, etc.)
+- [x] 4.2 `IdentitySessionsApiService`: list (`{sessions:[...]}`, marca current), revoke (204), revokeOthers (`{revoked_count}`); specs
+- [x] 4.3 Métodos de cierre en `IdentityProfileApiService`: **requestClosureChallenge** (paso previo no contemplado originalmente, envía el OTP) + requestClosure, getClosure, cancelClosure con máquina de estados tipada (`requested|blocked|completed|cancelled|challenge_sent`); specs
 - [x] 4.4 Spec de anti-enumeración: el mapper no enriquece errores genéricos (cubierto en `error-message.mapper.spec.ts`, tarea 2.3)
 
 ## 5. Cierre

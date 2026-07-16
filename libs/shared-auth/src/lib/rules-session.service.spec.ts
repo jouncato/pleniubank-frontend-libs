@@ -30,6 +30,7 @@ describe('RulesSessionService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        SessionStore,
         { provide: SESSION_STRATEGY, useValue: 'bearerToken' as const },
       ],
     });

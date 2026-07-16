@@ -28,10 +28,13 @@ describe('TOKENS — API agrupada', () => {
     expect(TOKENS.typography.fontFamily).toBe(DESIGN_TOKENS_CSS_VARS['pb-font-family']);
     expect(TOKENS.spacing[16]).toBe(DESIGN_TOKENS_CSS_VARS['pb-space-16']);
     expect(TOKENS.breakpoint.sm).toBe(DESIGN_TOKENS_CSS_VARS['pb-break-sm']);
+    expect(TOKENS.icon.size.md).toBe(DESIGN_TOKENS_CSS_VARS['pb-icon-size-md']);
+    expect(TOKENS.icon.strokeWidth).toBe(DESIGN_TOKENS_CSS_VARS['pb-icon-stroke-width']);
   });
 
   it('la capa semántica referencia tokens base vía var(...)', () => {
     expect(TOKENS.semantic.surface).toBe('var(--pb-white)');
     expect(TOKENS.semantic.danger).toBe('var(--pb-status-error)');
+    expect(TOKENS.semantic.iconDanger).toBe('var(--pb-danger)');
   });
 });

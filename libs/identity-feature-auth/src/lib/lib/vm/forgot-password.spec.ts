@@ -65,11 +65,11 @@ describe('ForgotPasswordVm', () => {
 
     vm.submit({ email: 'cliente@example.com', method: 'otp' });
 
-    expect(vm.state).toBe('success');
-    expect(vm.successMessage).toContain('instrucciones');
-    expect(vm.debugResetCode).toBe('123456');
-    expect(vm.submittedEmail).toBe('cliente@example.com');
-    expect(vm.isRateLimited).toBe(false);
+    expect(vm.state()).toBe('success');
+    expect(vm.successMessage()).toContain('instrucciones');
+    expect(vm.debugResetCode()).toBe('123456');
+    expect(vm.submittedEmail()).toBe('cliente@example.com');
+    expect(vm.isRateLimited()).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/auth/recovery-sent'], {
       state: { email: 'cliente@example.com' },
     });
@@ -80,10 +80,10 @@ describe('ForgotPasswordVm', () => {
 
     vm.submit({ email: 'cliente@example.com', method: 'link' });
 
-    expect(vm.state).toBe('rate_limited');
-    expect(vm.isRateLimited).toBe(true);
-    expect(vm.remainingSeconds).toBe(60);
-    expect(vm.rateLimitMessage).toContain('60 segundos');
+    expect(vm.state()).toBe('rate_limited');
+    expect(vm.isRateLimited()).toBe(true);
+    expect(vm.remainingSeconds()).toBe(60);
+    expect(vm.rateLimitMessage()).toContain('60 segundos');
   });
 
   it('debe bloquear nuevos submits durante el cooldown', () => {
@@ -102,7 +102,7 @@ describe('ForgotPasswordVm', () => {
     vi.advanceTimersByTime(60_000);
     vm.submit({ email: 'cliente@example.com', method: 'link' });
 
-    expect(vm.remainingSeconds).toBe(120);
+    expect(vm.remainingSeconds()).toBe(120);
   });
 
   it('debe resetear el streak con un error no 429', () => {
@@ -122,9 +122,9 @@ describe('ForgotPasswordVm', () => {
     vm.submit({ email: 'cliente@example.com', method: 'link' });
     vi.advanceTimersByTime(60_000);
     vm.submit({ email: 'cliente@example.com', method: 'link' });
-    expect(vm.errorMessage).toContain('Error de conexion');
+    expect(vm.errorMessage()).toContain('Error de conexión');
     vm.submit({ email: 'cliente@example.com', method: 'link' });
 
-    expect(vm.remainingSeconds).toBe(60);
+    expect(vm.remainingSeconds()).toBe(60);
   });
 });

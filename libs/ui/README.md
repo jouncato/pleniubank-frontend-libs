@@ -6,6 +6,14 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 Los comandos `ng` y `npm` son los mismos en **Linux**, **macOS**, **WSL** y **Windows** (PowerShell). Para `cd` / `Copy-Item`, variables de entorno y token de GitHub Packages al publicar, sigue el [README raíz](../../README.md) del monorepo.
 
+## Iconografía financiera
+
+`PbIconComponent` y `PbIconName` constituyen la única API para iconos de interfaz. Usa `<pb-icon name="transfer" size="md" />` cuando el icono acompañe texto o una acción ya etiquetada. Para un icono que reemplace texto, usa `<pb-icon name="fraud-alert" [decorative]="false" label="Alerta de fraude" />`.
+
+El componente usa únicamente paths del registro propio, `currentColor`, viewBox 24 × 24 y tamaños soportados `xs`, `sm`, `md`, `lg`, `xl` y `2xl`. No acepta SVG, HTML ni URL arbitrarios. Los consumidores no deben añadir icon fonts, emojis decorativos, registros locales de paths ni SVG inline de iconos de UI.
+
+Los iconos interactivos viven dentro de botones o enlaces etiquetados, con foco visible y un objetivo táctil de al menos 44 × 44 CSS px. El color nunca comunica por sí solo un estado financiero crítico.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:

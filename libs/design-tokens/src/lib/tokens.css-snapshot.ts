@@ -71,6 +71,13 @@ export const TOKENS_CSS_ROOT_SNAPSHOT = `
   --pb-shadow-md: 0 4px 24px rgba(2, 114, 222, 0.12);
   --pb-sidebar-width: 240px;
   --pb-topbar-height: 60px;
+  --pb-icon-size-xs: 12px;
+  --pb-icon-size-sm: 16px;
+  --pb-icon-size-md: 20px;
+  --pb-icon-size-lg: 24px;
+  --pb-icon-size-xl: 32px;
+  --pb-icon-size-2xl: 40px;
+  --pb-icon-stroke-width: 1.8;
 
   --pb-surface: var(--pb-white);
   --pb-surface-alt: var(--pb-gray-100);
@@ -92,6 +99,11 @@ export const TOKENS_CSS_ROOT_SNAPSHOT = `
   --pb-success: var(--pb-status-ok);
   --pb-warning: var(--pb-status-warn);
   --pb-info: var(--pb-status-info);
+  --pb-icon-color-neutral: var(--pb-text-muted);
+  --pb-icon-color-info: var(--pb-info);
+  --pb-icon-color-success: var(--pb-success);
+  --pb-icon-color-warning: var(--pb-warning);
+  --pb-icon-color-danger: var(--pb-danger);
 
   --pb-break-md: 1024px;
   --pb-break-sm: 768px;

@@ -15,8 +15,8 @@
     <p *ngIf="vm.successMessage() && vm.state() === 'success'" class="recovery-card__status">
       {{ vm.successMessage() }}
     </p>
-    <p *ngIf="vm.rateLimitMessage as message" class="recovery-card__error">{{ message }}</p>
-    <p *ngIf="vm.errorMessage as error" class="recovery-card__error">{{ error }}</p>
+    <p *ngIf="vm.rateLimitMessage() as message" class="recovery-card__error">{{ message }}</p>
+    <p *ngIf="vm.errorMessage() as error" class="recovery-card__error">{{ error }}</p>
 
     <button
       type="button"

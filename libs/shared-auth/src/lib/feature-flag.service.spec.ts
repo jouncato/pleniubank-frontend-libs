@@ -25,6 +25,8 @@ describe('FeatureFlagService', () => {
     const service = TestBed.inject(FeatureFlagService);
     service.setFlags({ switchContext: false, amortization: true });
 
-    expect(service.snapshot()).toEqual({ switchContext: false, amortization: true });
+    // toMatchObject (no toEqual): DEFAULT_APP_FEATURE_FLAGS crece con nuevas flags (p. ej. b2c*);
+    // este test solo verifica las dos flags que setFlags() actualizó, no el objeto completo.
+    expect(service.snapshot()).toMatchObject({ switchContext: false, amortization: true });
   });
 });

@@ -82,6 +82,13 @@ export const DESIGN_TOKENS_CSS_VARS = {
   'pb-shadow-md': '0 4px 24px rgba(2, 114, 222, 0.12)',
   'pb-sidebar-width': '240px',
   'pb-topbar-height': '60px',
+  'pb-icon-size-xs': '12px',
+  'pb-icon-size-sm': '16px',
+  'pb-icon-size-md': '20px',
+  'pb-icon-size-lg': '24px',
+  'pb-icon-size-xl': '32px',
+  'pb-icon-size-2xl': '40px',
+  'pb-icon-stroke-width': '1.8',
 
   // Surfaces & text (semántico — alias sobre base)
   'pb-surface': 'var(--pb-white)',
@@ -105,6 +112,11 @@ export const DESIGN_TOKENS_CSS_VARS = {
   'pb-success': 'var(--pb-status-ok)',
   'pb-warning': 'var(--pb-status-warn)',
   'pb-info': 'var(--pb-status-info)',
+  'pb-icon-color-neutral': 'var(--pb-text-muted)',
+  'pb-icon-color-info': 'var(--pb-info)',
+  'pb-icon-color-success': 'var(--pb-success)',
+  'pb-icon-color-warning': 'var(--pb-warning)',
+  'pb-icon-color-danger': 'var(--pb-danger)',
 
   // Breakpoints (base)
   'pb-break-md': '1024px',
@@ -187,6 +199,17 @@ export const TOKENS = {
     base: DESIGN_TOKENS_CSS_VARS['pb-shadow'],
     md: DESIGN_TOKENS_CSS_VARS['pb-shadow-md'],
   },
+  icon: {
+    size: {
+      xs: DESIGN_TOKENS_CSS_VARS['pb-icon-size-xs'],
+      sm: DESIGN_TOKENS_CSS_VARS['pb-icon-size-sm'],
+      md: DESIGN_TOKENS_CSS_VARS['pb-icon-size-md'],
+      lg: DESIGN_TOKENS_CSS_VARS['pb-icon-size-lg'],
+      xl: DESIGN_TOKENS_CSS_VARS['pb-icon-size-xl'],
+      '2xl': DESIGN_TOKENS_CSS_VARS['pb-icon-size-2xl'],
+    },
+    strokeWidth: DESIGN_TOKENS_CSS_VARS['pb-icon-stroke-width'],
+  },
   breakpoint: {
     sm: DESIGN_TOKENS_CSS_VARS['pb-break-sm'],
     md: DESIGN_TOKENS_CSS_VARS['pb-break-md'],
@@ -202,5 +225,10 @@ export const TOKENS = {
     success: DESIGN_TOKENS_CSS_VARS['pb-success'],
     warning: DESIGN_TOKENS_CSS_VARS['pb-warning'],
     info: DESIGN_TOKENS_CSS_VARS['pb-info'],
+    iconNeutral: DESIGN_TOKENS_CSS_VARS['pb-icon-color-neutral'],
+    iconInfo: DESIGN_TOKENS_CSS_VARS['pb-icon-color-info'],
+    iconSuccess: DESIGN_TOKENS_CSS_VARS['pb-icon-color-success'],
+    iconWarning: DESIGN_TOKENS_CSS_VARS['pb-icon-color-warning'],
+    iconDanger: DESIGN_TOKENS_CSS_VARS['pb-icon-color-danger'],
   },
 } as const;

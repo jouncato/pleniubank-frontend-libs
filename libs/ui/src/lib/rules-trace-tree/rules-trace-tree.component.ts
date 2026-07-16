@@ -9,6 +9,8 @@ import {
 } from '@angular/core';
 import type { TraceStep, TraceStepOutcome } from '@pleniu/rules-types';
 
+import { PbIconComponent } from '../pb-icon.component';
+
 /**
  * Árbol de trazabilidad de una evaluación del motor de reglas (HU-RE-047).
  *
@@ -67,11 +69,11 @@ import type { TraceStep, TraceStepOutcome } from '@pleniu/rules-types';
               role="button"
               tabindex="0"
               [attr.aria-label]="expanded ? 'Colapsar' : 'Expandir'"
-            >▸</span>
+            ><pb-icon name="chevron-right" size="xs" /></span>
           } @else {
-            <span class="caret caret--leaf" aria-hidden="true">·</span>
+            <span class="caret caret--leaf"><pb-icon name="minus" size="xs" /></span>
           }
-          <span class="icon" [attr.aria-label]="outcomeLabel(step.outcome)">{{ outcomeIcon(step.outcome) }}</span>
+          <span class="icon"><pb-icon [name]="outcomeIcon(step.outcome)" size="sm" [decorative]="false" [label]="outcomeLabel(step.outcome)" /></span>
           <span class="title">{{ step.title }}</span>
           @if (showTimings() && step.duration_ms != null) {
             <span class="timing">{{ step.duration_ms }} ms</span>
@@ -181,7 +183,7 @@ import type { TraceStep, TraceStepOutcome } from '@pleniu/rules-types';
       font-family: 'SFMono-Regular', Menlo, monospace;
     }
   `,
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, PbIconComponent],
 })
 export class RulesTraceTreeComponent {
   readonly traceSteps = input.required<readonly TraceStep[]>();
@@ -211,13 +213,12 @@ export class RulesTraceTreeComponent {
     this.stepClicked.emit(step);
   }
 
-  outcomeIcon(o: TraceStepOutcome): string {
+  outcomeIcon(o: TraceStepOutcome): 'check' | 'error' | 'minus' | 'warning' {
     switch (o) {
-      case 'pass': return '✓';
-      case 'fail': return '✗';
-      case 'skipped': return '⊘';
-      case 'error': return '!';
-      default: return '';
+      case 'pass': return 'check';
+      case 'fail': return 'error';
+      case 'skipped': return 'minus';
+      case 'error': return 'warning';
     }
   }
 

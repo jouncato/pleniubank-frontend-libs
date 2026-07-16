@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
 
 import { ForgotPasswordVm } from '../../vm/forgot-password';
 import { ForgotPasswordForm } from './forgot-password-form';
@@ -8,29 +9,29 @@ describe('ForgotPasswordForm', () => {
   let component: ForgotPasswordForm;
   let fixture: ComponentFixture<ForgotPasswordForm>;
   let vm: {
-    state: string;
-    errorMessage: string | null;
-    successMessage: string | null;
-    debugResetCode: string | null;
-    debugResetToken: string | null;
-    submittedEmail: string | null;
-    submittedMethod: 'otp' | 'link';
-    isRateLimited: boolean;
-    rateLimitMessage: string | null;
+    state: ReturnType<typeof signal<string>>;
+    errorMessage: ReturnType<typeof signal<string | null>>;
+    successMessage: ReturnType<typeof signal<string | null>>;
+    debugResetCode: ReturnType<typeof signal<string | null>>;
+    debugResetToken: ReturnType<typeof signal<string | null>>;
+    submittedEmail: ReturnType<typeof signal<string | null>>;
+    submittedMethod: ReturnType<typeof signal<'otp' | 'link'>>;
+    isRateLimited: ReturnType<typeof signal<boolean>>;
+    rateLimitMessage: ReturnType<typeof signal<string | null>>;
     submit: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
     vm = {
-      state: 'idle',
-      errorMessage: null,
-      successMessage: null,
-      debugResetCode: null,
-      debugResetToken: null,
-      submittedEmail: null,
-      submittedMethod: 'otp',
-      isRateLimited: false,
-      rateLimitMessage: null,
+      state: signal('idle'),
+      errorMessage: signal<string | null>(null),
+      successMessage: signal<string | null>(null),
+      debugResetCode: signal<string | null>(null),
+      debugResetToken: signal<string | null>(null),
+      submittedEmail: signal<string | null>(null),
+      submittedMethod: signal<'otp' | 'link'>('otp'),
+      isRateLimited: signal(false),
+      rateLimitMessage: signal<string | null>(null),
       submit: vi.fn(),
     };
 
@@ -51,9 +52,9 @@ describe('ForgotPasswordForm', () => {
 
   it('muestra countdown y deshabilita submit durante el cooldown', () => {
     component.form.setValue({ email: 'cliente@example.com' });
-    vm.state = 'rate_limited';
-    vm.isRateLimited = true;
-    vm.rateLimitMessage = 'Demasiados intentos. Espera 60 segundos.';
+    vm.state.set('rate_limited');
+    vm.isRateLimited.set(true);
+    vm.rateLimitMessage.set('Demasiados intentos. Espera 60 segundos.');
 
     fixture.detectChanges();
 
@@ -65,9 +66,9 @@ describe('ForgotPasswordForm', () => {
 
   it('rehabilita submit cuando el cooldown termina', () => {
     component.form.setValue({ email: 'cliente@example.com' });
-    vm.state = 'idle';
-    vm.isRateLimited = false;
-    vm.rateLimitMessage = null;
+    vm.state.set('idle');
+    vm.isRateLimited.set(false);
+    vm.rateLimitMessage.set(null);
 
     fixture.detectChanges();
 

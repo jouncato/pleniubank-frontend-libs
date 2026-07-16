@@ -9,6 +9,7 @@ import type { LendingArrangementResponse } from '../dtos/lending-arrangement.dto
 const BASE = '/api/v1';
 
 const mockDto: LendingArrangementResponse = {
+  id: 'ROW-001',
   arrangement_id: 'ARR-001',
   version: 1,
   product_id: 'PROD-1',
@@ -84,7 +85,7 @@ describe('LendingArrangementService', () => {
     });
     controller
       .expectOne(`${BASE}/lending-arrangements/ARR-001/versions`)
-      .flush({ items: [mockDto] });
+      .flush({ data: [mockDto], meta: { total: 1, cursor: null, has_more: false }, errors: [] });
   });
 
   it('list() maps query params correctly', () => {
@@ -98,7 +99,7 @@ describe('LendingArrangementService', () => {
     expect(req.request.params.get('status')).toBe(LendingStatus.Active);
     expect(req.request.params.get('page')).toBe('2');
     expect(req.request.params.get('page_size')).toBe('10');
-    req.flush({ items: [mockDto], total: 1 });
+    req.flush({ data: [mockDto], meta: { total: 1, cursor: null, has_more: false }, errors: [] });
   });
 
   it('activate() calls correct path with reason body', () => {

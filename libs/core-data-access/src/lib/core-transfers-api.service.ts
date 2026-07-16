@@ -2,18 +2,16 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
-import type {
-  CreateTransferRequest,
-  ResolvedTransferDestination,
-  Transfer,
-  TransferKeyType,
-  TransferListFilters,
-  TransferListResponse,
-} from 'core-domain';
+import type { CreateTransferRequest, Transfer, TransferListFilters } from 'core-domain';
 
 import { corePublicV1Base } from './core-api-base';
 
-/** `b2c-transfers` (pleniubank-core, openspec change `b2c-persona-closure`). */
+/**
+ * `b2c-transfers` (pleniubank-core, openspec change `b2c-persona-closure`).
+ * No hay endpoint de resolución de destino: una llave Bre-B solo se resuelve
+ * server-side dentro de `create()`; el error `BREB_KEY_NOT_RESOLVABLE` llega
+ * en la respuesta de creación si la llave no es válida/verificada.
+ */
 @Injectable({ providedIn: 'root' })
 export class CoreTransfersApiService {
   private readonly base: string;
@@ -32,30 +30,17 @@ export class CoreTransfersApiService {
     });
   }
 
-  list(filters: TransferListFilters = {}): Observable<ApiEnvelope<TransferListResponse>> {
+  list(filters: TransferListFilters = {}): Observable<ApiEnvelope<Transfer[]>> {
     let params = new HttpParams();
     if (filters.account_id) params = params.set('account_id', filters.account_id);
     if (filters.date_from) params = params.set('date_from', filters.date_from);
     if (filters.date_to) params = params.set('date_to', filters.date_to);
-    if (filters.direction) params = params.set('direction', filters.direction);
     if (filters.cursor) params = params.set('cursor', filters.cursor);
     if (filters.limit !== undefined) params = params.set('limit', String(filters.limit));
-    return this.http.get<ApiEnvelope<TransferListResponse>>(this.base, { params });
+    return this.http.get<ApiEnvelope<Transfer[]>>(this.base, { params });
   }
 
   get(transferId: string): Observable<ApiEnvelope<Transfer>> {
     return this.http.get<ApiEnvelope<Transfer>>(`${this.base}/${transferId}`);
-  }
-
-  /** Resuelve una llave Bre-B local (HMAC) a una cuenta destino. Solo llaves activas y verificadas. */
-  resolveDestination(
-    keyType: TransferKeyType,
-    keyValue: string,
-  ): Observable<ApiEnvelope<ResolvedTransferDestination>> {
-    const params = new HttpParams().set('key_type', keyType).set('key_value', keyValue);
-    return this.http.get<ApiEnvelope<ResolvedTransferDestination>>(
-      `${this.base}/resolve-destination`,
-      { params },
-    );
   }
 }

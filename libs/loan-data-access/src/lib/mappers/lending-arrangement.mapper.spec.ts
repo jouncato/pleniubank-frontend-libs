@@ -3,6 +3,7 @@ import { toDomain, toCreateRequest } from './lending-arrangement.mapper';
 import type { LendingArrangementResponse } from '../dtos/lending-arrangement.dto';
 
 const mockDto: LendingArrangementResponse = {
+  id: 'ROW-001',
   arrangement_id: 'ARR-001',
   version: 2,
   product_id: 'PROD-X',

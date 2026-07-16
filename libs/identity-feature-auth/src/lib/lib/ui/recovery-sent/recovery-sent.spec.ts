@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
 
 import { ForgotPasswordVm } from '../../vm/forgot-password';
 import { RecoverySent } from './recovery-sent';
@@ -7,22 +8,22 @@ import { RecoverySent } from './recovery-sent';
 describe('RecoverySent', () => {
   let fixture: ComponentFixture<RecoverySent>;
   let vm: {
-    state: string;
-    successMessage: string | null;
-    errorMessage: string | null;
-    rateLimitMessage: string | null;
-    isRateLimited: boolean;
+    state: ReturnType<typeof signal<string>>;
+    successMessage: ReturnType<typeof signal<string | null>>;
+    errorMessage: ReturnType<typeof signal<string | null>>;
+    rateLimitMessage: ReturnType<typeof signal<string | null>>;
+    isRateLimited: ReturnType<typeof signal<boolean>>;
     submit: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
     history.replaceState({ email: 'cliente@example.com' }, '');
     vm = {
-      state: 'idle',
-      successMessage: null,
-      errorMessage: null,
-      rateLimitMessage: null,
-      isRateLimited: false,
+      state: signal('idle'),
+      successMessage: signal<string | null>(null),
+      errorMessage: signal<string | null>(null),
+      rateLimitMessage: signal<string | null>(null),
+      isRateLimited: signal(false),
       submit: vi.fn(),
     };
 

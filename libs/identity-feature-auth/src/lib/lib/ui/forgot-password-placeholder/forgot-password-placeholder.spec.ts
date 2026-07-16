@@ -26,10 +26,10 @@ describe('ForgotPasswordPlaceholder', () => {
   it('should render a single page heading and informative text', () => {
     const host: HTMLElement = fixture.nativeElement;
     const heading = host.querySelector('h1');
-    expect(heading?.textContent?.trim()).toBe('RecuperaciÃ³n de contraseÃ±a');
+    expect(heading?.textContent?.trim()).toBe('Recuperación de contraseña');
     expect(
       host.textContent?.includes(
-        'El envÃ­o automÃ¡tico de un enlace para restablecer la contraseÃ±a no estÃ¡ disponible todavÃ­a.',
+        'El envío automático de un enlace para restablecer la contraseña no está disponible todavía.',
       ),
     ).toBe(true);
   });
@@ -44,7 +44,7 @@ describe('ForgotPasswordPlaceholder', () => {
   it('should link back to login', () => {
     const host: HTMLElement = fixture.nativeElement;
     const loginLink = host.querySelector<HTMLAnchorElement>('a[routerlink="/onboarding/party/access/login"]');
-    expect(loginLink?.textContent?.trim()).toBe('Volver a iniciar sesiÃ³n');
+    expect(loginLink?.textContent?.trim()).toBe('Volver a iniciar sesión');
   });
 
   it('should wrap content in a main landmark labelled by the heading', () => {

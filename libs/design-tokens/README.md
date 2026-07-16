@@ -26,6 +26,7 @@ Los comandos `ng` y `npm` son los mismos en **Linux**, **macOS**, **WSL** y **Wi
 | Semántico (alias sobre base) | `--pb-surface`, `-surface-alt`, `-text`, `-text-muted`, `-border`, `-danger`, `-success`, `-warning`, `-info` | `TOKENS.semantic.*` |
 | Jerarquía de contenido (portales internos) | `--pb-content-{title,subtitle,body}`, `-border-table`, `-border-form` | *(solo CSS; sin equivalente TS aún)* |
 | Tema oscuro (preparación) | `.theme-dark` / `prefers-color-scheme: dark` redefinen la capa semántica (`surface`, `text`, `border`, …) | *(solo CSS; ver `tokens.css` líneas finales)* |
+| Iconografía | `--pb-icon-size-{xs,sm,md,lg,xl,2xl}`, `--pb-icon-stroke-width`, `--pb-icon-color-{neutral,info,success,warning,danger}` | `TOKENS.icon.*`, `TOKENS.semantic.icon*` |
 
 `DESIGN_TOKENS_CSS_VARS` (mapa plano, clave = nombre de variable sin `--`) es la fuente cruda que alimenta `TOKENS`; úsalo si necesitas iterar el catálogo completo (p. ej. para una página de documentación de tokens).
 
@@ -40,6 +41,12 @@ El mockup `docs-proyecto-plenibank/b2c-mobile-first` (Figma, "Fase 2 — Cliente
 | Tipografía Inter | `--pb-font-family` (Inter primero) | Ya alineado. |
 
 Mientras no se resuelva la discrepancia de color primario, el shell móvil B2C (`pleniubank-customer-portal`, cambio `b2c-persona-ui-closure`) debe consumir `--pb-color-primary` (token vigente), no el valor literal del mockup.
+
+### Iconografía financiera propia
+
+Los iconos de UI se consumen exclusivamente desde `@pleniu/ui` mediante `PbIconComponent`. Cada glifo usa `viewBox="0 0 24 24"`,  `stroke="currentColor"`, `stroke-width="1.8"`, `stroke-linecap="round"` y `stroke-linejoin="round"`. No se permiten icon fonts, emojis decorativos, paths SVG locales ni SVG inline de iconos de UI en consumidores.
+
+Los únicos SVG inline permitidos son logos de marca, ilustraciones y gráficos de datos aprobados; no pueden reutilizarse como iconos de interfaz. Los nuevos paths pertenecen a Pleniu y requieren revisión de Design/Frontend para validar retícula, simetría, semántica financiera y accesibilidad.
 
 ### Guía de migración desde variables ad-hoc
 

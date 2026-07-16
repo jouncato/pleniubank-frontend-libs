@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
+import { PbIconComponent } from './pb-icon.component';
+
 export interface TimelineStepUi {
   label: string;
   timestamp?: string;
@@ -11,11 +13,12 @@ export interface TimelineStepUi {
 @Component({
   selector: 'pleniu-transaction-timeline',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PbIconComponent],
   template: `
     <ol class="timeline" role="list" aria-label="Ciclo de vida de la transaccion">
       @for (step of steps; track step.label + ($index + '')) {
         <li class="timeline__step" [class]="'timeline__step timeline__step--' + step.status">
-          <span class="timeline__icon" aria-hidden="true">{{ icon(step.icon) }}</span>
+          <span class="timeline__icon"><pb-icon [name]="icon(step.icon)" size="sm" /></span>
           <div class="timeline__content">
             <strong>{{ step.label }}</strong>
             @if (step.timestamp) {
@@ -43,10 +46,8 @@ export interface TimelineStepUi {
 export class TransactionTimelineComponent {
   @Input({ required: true }) steps: TimelineStepUi[] = [];
 
-  icon(name: TimelineStepUi['icon']): string {
-    if (name === 'check') return '✓';
-    if (name === 'undo') return '↺';
-    if (name === 'x') return '✕';
-    return '⏳';
+  icon(name: TimelineStepUi['icon']): 'check' | 'undo' | 'error' | 'clock' {
+    if (name === 'x') return 'error';
+    return name;
   }
 }

@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { PbIconComponent } from './pb-icon.component';
+
 export type EmptyStateIcon =
   | 'accounts'
   | 'loans'
@@ -19,44 +21,11 @@ export type EmptyStateIcon =
 @Component({
   selector: 'pb-empty-state',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, PbIconComponent],
   template: `
     <section class="pb-empty-state" role="status" aria-live="polite">
-      <div class="pb-empty-state__icon" aria-hidden="true">
-        @switch (icon) {
-          @case ('accounts') {
-            <svg viewBox="0 0 64 64" focusable="false">
-              <rect x="10" y="18" width="44" height="28" rx="8"></rect>
-              <path d="M18 30h28"></path>
-              <circle cx="22" cy="38" r="2.5"></circle>
-            </svg>
-          }
-          @case ('search') {
-            <svg viewBox="0 0 64 64" focusable="false">
-              <circle cx="28" cy="28" r="14"></circle>
-              <path d="M39 39l11 11"></path>
-            </svg>
-          }
-          @case ('loans') {
-            <svg viewBox="0 0 64 64" focusable="false">
-              <rect x="14" y="12" width="36" height="40" rx="8"></rect>
-              <path d="M23 24h18M23 32h18M23 40h10"></path>
-            </svg>
-          }
-          @case ('help') {
-            <svg viewBox="0 0 64 64" focusable="false">
-              <circle cx="32" cy="32" r="18"></circle>
-              <path d="M26 26a6 6 0 0 1 12 3c0 3-6 3-6 6"></path>
-              <circle cx="32" cy="43" r="1.5"></circle>
-            </svg>
-          }
-          @default {
-            <svg viewBox="0 0 64 64" focusable="false">
-              <rect x="12" y="14" width="40" height="36" rx="10"></rect>
-              <path d="M22 28h20M22 36h12"></path>
-            </svg>
-          }
-        }
+      <div class="pb-empty-state__icon">
+        <pb-icon [name]="iconName()" size="xl" />
       </div>
 
       <div class="pb-empty-state__body">
@@ -96,15 +65,6 @@ export type EmptyStateIcon =
       color: #0b63b6;
     }
 
-    .pb-empty-state__icon svg {
-      width: 2.1rem;
-      height: 2.1rem;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2.2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
 
     .pb-empty-state__body {
       display: grid;
@@ -141,6 +101,13 @@ export type EmptyStateIcon =
 })
 export class EmptyStateComponent {
   @Input() icon: EmptyStateIcon = 'default';
+
+  iconName(): 'account' | 'loan' | 'search' | 'info' {
+    if (this.icon === 'accounts') return 'account';
+    if (this.icon === 'loans') return 'loan';
+    if (this.icon === 'search') return 'search';
+    return 'info';
+  }
   @Input({ required: true }) title = '';
   @Input() description = '';
   @Input() ctaLabel: string | null = null;

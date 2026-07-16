@@ -1,103 +1,120 @@
 /** Pleniu Colombia S.A. — B2C self-service profile domain models.
  *
- * Synchronised with the `b2c-profile`, `b2c-account-closure` and
- * `b2c-session-management` capabilities (`pleniubank-identity-service`
+ * Synchronised with `src/domain/models.py` in pleniubank-identity-service
+ * (`b2c-profile`, `b2c-account-closure`, `b2c-session-management` capabilities,
  * openspec change `b2c-profile-self-service`).
  */
 
+/** `CustomerSelfProfileResponse`. */
 export interface CustomerProfile {
   user_id: string;
+  customer_id: string;
   full_name: string;
   email: string;
   phone: string | null;
-  document_type: string;
-  /** Solo últimos 3 caracteres visibles; el resto llega enmascarado desde el backend. */
+  document_type: string | null;
+  /** Solo últimos caracteres visibles; enmascarado por el backend. */
   document_number_masked: string;
   country_code: string | null;
   email_verified: boolean;
   phone_verified: boolean;
   identity_verified: boolean;
   two_factor_enabled: boolean;
-  kyc_status: string | null;
+  kyc_status: string;
 }
 
+/** `CustomerProfilePatchRequest`. */
 export interface UpdateProfileNameRequest {
   full_name: string;
 }
 
+/** `PhoneChangeRequest`. */
 export interface StartPhoneChangeRequest {
   current_password: string;
   new_phone: string;
 }
 
-export interface StartPhoneChangeResponse {
+/** `ContactChangeChallengeResponse` (compartida por phone-change y email-change). */
+export interface ContactChangeChallengeResponse {
   status: string;
   expires_in_seconds: number;
-  debug_otp?: string | null;
+  debug_code?: string | null;
 }
 
+/** `PhoneChangeVerifyRequest`. */
 export interface VerifyPhoneChangeRequest {
   code: string;
 }
 
-export interface VerifyPhoneChangeResponse {
-  status: string;
-  phone: string;
-  phone_verified: boolean;
-}
-
+/** `EmailChangeRequest`. */
 export interface StartEmailChangeRequest {
   current_password: string;
   new_email: string;
 }
 
-export interface StartEmailChangeResponse {
-  status: string;
-  expires_in_seconds: number;
-  debug_otp?: string | null;
-}
-
+/** `EmailChangeVerifyRequest`. */
 export interface VerifyEmailChangeOtpRequest {
   code: string;
 }
 
 /**
- * Estado del cambio de email tras el paso 2 (OTP al email nuevo verificado).
- * El paso 3 (confirmación desde el email actual) ocurre fuera del portal
- * (enlace enviado por correo); `pending_confirmation` indica que aún falta.
+ * `EmailChangeVerifyResponse` — tras el OTP del email nuevo, el backend envía
+ * un enlace de confirmación al email actual y devuelve el token de depuración
+ * (solo en entornos no productivos) para pruebas E2E.
  */
-export interface ContactChangeState {
-  status: 'otp_verified_pending_confirmation' | 'completed' | 'expired';
-  pending_confirmation: boolean;
-  confirmation_expires_in_seconds?: number | null;
+export interface EmailChangeVerifyResponse {
+  status: string;
+  confirmation_expires_in_seconds: number;
+  debug_confirmation_token?: string | null;
 }
 
+/**
+ * `EmailChangeConfirmRequest` — paso 3: confirmación desde el email actual.
+ * El `confirmation_token` llega en el enlace del correo (query param); el
+ * portal debe capturarlo en una ruta de aterrizaje y llamar a este endpoint.
+ */
+export interface ConfirmEmailChangeRequest {
+  confirmation_token: string;
+}
+
+/** `ContactChangeResponse` — respuesta final de verify-phone y confirm-email. */
+export interface ContactChangeResponse {
+  status: string;
+}
+
+/** `AccountClosureRequest`. */
+export interface RequestClosureRequest {
+  current_password: string;
+  code: string;
+}
+
+export type ClosureStatus = 'requested' | 'blocked' | 'completed' | 'cancelled' | 'challenge_sent';
+
+/** `AccountClosureResponse`. */
+export interface ClosureState {
+  status: ClosureStatus;
+  reason?: string | null;
+  data_erasure_separate: boolean;
+  expires_in_seconds?: number | null;
+  debug_code?: string | null;
+}
+
+/** `CustomerSessionResponse`. */
 export interface UserSession {
   session_id: string;
-  device_label: string | null;
-  /** IP truncada (minimización de datos), p. ej. `190.10.20.0`. */
+  ua_summary: string | null;
   ip_truncated: string | null;
   created_at: string;
   last_seen_at: string;
   current: boolean;
 }
 
+/** `CustomerSessionsResponse`. */
 export interface SessionsListResponse {
-  items: UserSession[];
+  sessions: UserSession[];
 }
 
-export type ClosureStatus = 'requested' | 'blocked' | 'completed';
-
-/** Motivo de bloqueo del cierre; hoy solo `ACTIVE_OBLIGATIONS` (ver core `b2c-account-lifecycle`). */
-export interface ClosureState {
-  status: ClosureStatus | null;
-  reason?: string | null;
-  /** Referencia de la obligación bloqueante (p. ej. advance_id) para deep-link. */
-  reference_id?: string | null;
-  requested_at?: string | null;
-}
-
-export interface RequestClosureRequest {
-  current_password: string;
-  code: string;
+/** Respuesta de `POST /me/sessions/revoke-others`. */
+export interface RevokeOtherSessionsResponse {
+  revoked_count: number;
 }
