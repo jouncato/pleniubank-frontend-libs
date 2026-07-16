@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
@@ -35,8 +35,16 @@ export class CoreBrebKeysSelfServiceApiService {
     return this.http.get<ApiEnvelope<BrebKeySelfServiceListResponseDto>>(this.base);
   }
 
+  /**
+   * `register_own_breb_key` (core) exige `X-Idempotency-Key`. Se genera una
+   * fresca por cada llamada aquí (no expuesta al caller) — cada invocación de
+   * `register()` representa una acción explícita distinta del cliente, a
+   * diferencia de un reintento de red que deba reutilizar la misma clave.
+   */
   register(body: BrebKeyRegisterRequest): Observable<ApiEnvelope<BrebKeySelfServiceDto>> {
-    return this.http.post<ApiEnvelope<BrebKeySelfServiceDto>>(this.base, body);
+    return this.http.post<ApiEnvelope<BrebKeySelfServiceDto>>(this.base, body, {
+      headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }),
+    });
   }
 
   remove(brebKeyId: string): Observable<ApiEnvelope<BrebKeyRevokeResponseDto>> {

@@ -76,8 +76,7 @@ describe('Interceptores globales aplican a los servicios B2C nuevos (sin bypass)
       data: {
         wallet_status: 'PROVISIONING',
         friendly_name: 'Billetera Pleniu',
-        virtual_number: null,
-        format_type: null,
+        iban: null,
         country_code: 'CO',
         balance: null,
         breb_alias: null,

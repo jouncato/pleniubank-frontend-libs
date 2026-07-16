@@ -4,8 +4,14 @@
 export const PAYMENT_SCHEME_V1 = ['IBAN'] as const;
 export type PaymentSchemeV1 = (typeof PAYMENT_SCHEME_V1)[number];
 
+/**
+ * `value` es el IBAN completo (sin enmascarar) — mismo principio ya aplicado
+ * en `WalletSummaryDto.iban`: el cliente autenticado viendo su propia cuenta,
+ * el frontend decide cuándo mostrarlo/ocultarlo/copiarlo.
+ */
 export interface PrimaryPaymentIdentifierDto {
   scheme: PaymentSchemeV1;
+  value: string;
   display_value_masked: string;
   country_code: string | null;
 }

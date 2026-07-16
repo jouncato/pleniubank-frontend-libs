@@ -48,9 +48,10 @@ describe('CoreBrebKeysSelfServiceApiService', () => {
           is_active: true,
           verified: true,
           created_at: '2026-07-01T00:00:00Z',
+          account_id: 'acc-1',
         });
         expect(Object.keys(item as object).sort()).toEqual(
-          ['created_at', 'id', 'is_active', 'key_type', 'verified'].sort(),
+          ['account_id', 'created_at', 'id', 'is_active', 'key_type', 'verified'].sort(),
         );
       });
 
@@ -65,6 +66,7 @@ describe('CoreBrebKeysSelfServiceApiService', () => {
               is_active: true,
               verified: true,
               created_at: '2026-07-01T00:00:00Z',
+              account_id: 'acc-1',
             },
           ],
           total: 1,
@@ -85,6 +87,7 @@ describe('CoreBrebKeysSelfServiceApiService', () => {
       const req = httpTesting.expectOne(BASE_URL);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ key_type: 'CELULAR', key_value: '3001234567' });
+      expect(req.request.headers.has('X-Idempotency-Key')).toBe(true);
       req.flush({
         data: {
           id: 'key-2',
@@ -92,8 +95,59 @@ describe('CoreBrebKeysSelfServiceApiService', () => {
           is_active: true,
           verified: false,
           created_at: '2026-07-16T00:00:00Z',
+          account_id: 'acc-1',
         },
         meta: { correlation_id: 'corr-2' },
+        errors: [],
+      });
+    });
+
+    it('genera una X-Idempotency-Key distinta en cada llamada', () => {
+      service.register({ key_type: 'CELULAR', key_value: '3001234567' }).subscribe();
+      service.register({ key_type: 'CELULAR', key_value: '3001234567' }).subscribe();
+
+      const reqs = httpTesting.match(BASE_URL);
+      expect(reqs.length).toBe(2);
+      const keys = reqs.map((r) => r.request.headers.get('X-Idempotency-Key'));
+      expect(keys[0]).toBeTruthy();
+      expect(keys[0]).not.toBe(keys[1]);
+      reqs.forEach((r) =>
+        r.flush({
+          data: {
+            id: 'key-x',
+            key_type: 'CELULAR',
+            is_active: true,
+            verified: false,
+            created_at: '2026-07-16T00:00:00Z',
+            account_id: 'acc-1',
+          },
+          meta: { correlation_id: 'corr-x' },
+          errors: [],
+        }),
+      );
+    });
+
+    it('reenvía account_id en el cuerpo cuando se indica explícitamente', () => {
+      service
+        .register({ key_type: 'CELULAR', key_value: '3001234567', account_id: 'acc-2' })
+        .subscribe();
+
+      const req = httpTesting.expectOne(BASE_URL);
+      expect(req.request.body).toEqual({
+        key_type: 'CELULAR',
+        key_value: '3001234567',
+        account_id: 'acc-2',
+      });
+      req.flush({
+        data: {
+          id: 'key-3',
+          key_type: 'CELULAR',
+          is_active: true,
+          verified: false,
+          created_at: '2026-07-16T00:00:00Z',
+          account_id: 'acc-2',
+        },
+        meta: { correlation_id: 'corr-6' },
         errors: [],
       });
     });

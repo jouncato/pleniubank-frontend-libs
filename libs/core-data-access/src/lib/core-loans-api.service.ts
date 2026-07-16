@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 
 import { corePublicV1Base } from './core-api-base';
@@ -13,6 +13,44 @@ import type {
   SimulateLoanResponse,
   UpdateLoanRequest,
 } from 'core-domain';
+
+type LendingArrangementResponse = Record<string, unknown> & {
+  arrangement_id?: string;
+  id?: string;
+  version?: number;
+  account_id?: string;
+  product_id?: string;
+  contract_version_id?: string | null;
+  customer_id?: string;
+  employer_id?: string;
+  principal_amount?: string;
+  currency?: string;
+  amount?: string;
+  denomination?: string;
+  status?: string;
+  instance_parameters?: Record<string, unknown> | null;
+  extension_data?: Record<string, unknown> | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+function mapToLoanDto(raw: LendingArrangementResponse): LoanDto {
+  return {
+    id: raw.arrangement_id ?? raw.id ?? '',
+    version: raw.version ?? 1,
+    account_id: raw.account_id ?? '',
+    product_id: raw.product_id ?? '',
+    contract_version_id: raw.contract_version_id ?? null,
+    customer_id: raw.customer_id ?? '',
+    employer_id: raw.employer_id ?? '',
+    amount: raw.amount ?? raw.principal_amount ?? '0',
+    denomination: raw.denomination ?? raw.currency ?? 'COP',
+    status: raw.status ?? '',
+    instance_parameters: raw.instance_parameters ?? raw.extension_data ?? null,
+    created_at: raw.created_at ?? null,
+    updated_at: raw.updated_at ?? null,
+  };
+}
 
 export interface ListLoansParams {
   cursor?: string | null;
@@ -56,11 +94,15 @@ export class CoreLoansApiService {
     if (params.search) {
       hp = hp.set('search', params.search);
     }
-    return this.http.get<ApiEnvelope<LoanDto[]>>(this.base, { params: hp });
+    return this.http
+      .get<ApiEnvelope<LendingArrangementResponse[]>>(this.base, { params: hp })
+      .pipe(map((env) => ({ ...env, data: (env.data ?? []).map(mapToLoanDto) })));
   }
 
   getById(loanId: string): Observable<ApiEnvelope<LoanDto>> {
-    return this.http.get<ApiEnvelope<LoanDto>>(`${this.base}/${loanId}`);
+    return this.http
+      .get<ApiEnvelope<LendingArrangementResponse>>(`${this.base}/${loanId}`)
+      .pipe(map((env) => ({ ...env, data: mapToLoanDto(env.data) })));
   }
 
   getPayments(loanId: string): Observable<ApiEnvelope<PaymentLineDto[]>> {
@@ -73,11 +115,15 @@ export class CoreLoansApiService {
   }
 
   create(body: CreateLoanRequest): Observable<ApiEnvelope<LoanDto>> {
-    return this.http.post<ApiEnvelope<LoanDto>>(this.base, body);
+    return this.http
+      .post<ApiEnvelope<LendingArrangementResponse>>(this.base, body)
+      .pipe(map((env) => ({ ...env, data: mapToLoanDto(env.data) })));
   }
 
   update(loanId: string, body: UpdateLoanRequest): Observable<ApiEnvelope<LoanDto>> {
-    return this.http.put<ApiEnvelope<LoanDto>>(`${this.base}/${loanId}`, body);
+    return this.http
+      .put<ApiEnvelope<LendingArrangementResponse>>(`${this.base}/${loanId}`, body)
+      .pipe(map((env) => ({ ...env, data: mapToLoanDto(env.data) })));
   }
 
   simulate(body: SimulateLoanRequest): Observable<ApiEnvelope<SimulateLoanResponse>> {
