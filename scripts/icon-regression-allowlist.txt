@@ -1,0 +1,9 @@
+# Allowlist de scripts/check-icon-regressions.sh
+#
+# Cada línea es una ruta relativa (desde la raíz del repo) a un archivo que
+# puede contener <svg> inline sin que el check falle.
+#
+# [EXCEPCIÓN APROBADA] — es el propio componente renderizador del catálogo de
+# iconos; el único lugar autorizado a construir un <svg> a partir del registro
+# tipado. Ver openspec/changes/unify-financial-svg-iconography.
+libs/ui/src/lib/pb-icon.component.ts

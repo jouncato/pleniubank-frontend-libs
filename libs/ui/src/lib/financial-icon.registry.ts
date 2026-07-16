@@ -85,6 +85,69 @@ export const PB_ICON_REGISTRY = {
   clock: { category: 'interface', nodes: [circle(12, 12, 9), path('M12 7v5l3 2')] },
   undo: { category: 'interface', nodes: [path('M9 7 5 11l4 4'), path('M5 11h8a6 6 0 1 1 0 12')] },
   minus: { category: 'interface', nodes: [path('M6 12h12')] },
+  plus: { category: 'interface', nodes: [path('M12 4v16'), path('M4 12h16')] },
+  settings: {
+    category: 'interface',
+    nodes: [
+      circle(12, 12, 3),
+      path('M12 2v3'),
+      path('M12 19v3'),
+      path('M2 12h3'),
+      path('M19 12h3'),
+      path('m4.2 4.2 2.1 2.1'),
+      path('m17.7 17.7 2.1 2.1'),
+      path('m4.2 19.8 2.1-2.1'),
+      path('m17.7 6.3 2.1-2.1'),
+    ],
+  },
+  users: {
+    category: 'interface',
+    nodes: [circle(8, 8, 3), path('M2 20a6 6 0 0 1 12 0'), circle(17, 9, 2.3), path('M13.5 20a4.5 4.5 0 0 1 8-2.8')],
+  },
+  briefcase: {
+    category: 'interface',
+    nodes: [rect(3, 8, 18, 12, 2), path('M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2'), path('M3 13h18')],
+  },
+  package: {
+    category: 'interface',
+    nodes: [path('M12 3 4 7v10l8 4 8-4V7z'), path('M4 7l8 4 8-4'), path('M12 11v10')],
+  },
+  webhook: { category: 'interface', nodes: [path('M13 10V3L4 14h7v7l9-11h-7z')] },
+  'network-hub': {
+    category: 'interface',
+    nodes: [circle(12, 12, 2), circle(5, 6, 1.5), circle(19, 6, 1.5), circle(5, 18, 1.5), circle(19, 18, 1.5), path('M12 12 5 6M12 12l7-6M12 12 5 18m7-6 7 6')],
+  },
+  map: {
+    category: 'interface',
+    nodes: [
+      path('M9 20 3.55 17.28A1 1 0 0 1 3 16.38V5.62a1 1 0 0 1 1.45-.9L9 7'),
+      path('M9 20l6-3'),
+      path('M9 20V7'),
+      path('m15 17 4.55 2.28A1 1 0 0 0 21 18.38V7.62a1 1 0 0 0-.55-.9L15 4'),
+      path('M15 17V4'),
+      path('M15 4 9 7'),
+    ],
+  },
+  sectors: {
+    category: 'interface',
+    nodes: [rect(4, 4, 16, 13, 1), path('M4 4h16'), path('M7 12l3-3 3 3 4-4'), path('M8 21l4-4 4 4')],
+  },
+  globe: { category: 'interface', nodes: [circle(12, 12, 9), path('M3 12h18'), path('M12 3a13.5 13.5 0 0 1 0 18'), path('M12 3a13.5 13.5 0 0 0 0 18')] },
+  heart: { category: 'interface', nodes: [path('M4.3 6.3a4.5 4.5 0 0 1 6.4 0l1.3 1.3 1.3-1.3a4.5 4.5 0 1 1 6.4 6.4L12 20.4l-7.7-7.7a4.5 4.5 0 0 1 0-6.4Z')] },
+  sparkles: {
+    category: 'interface',
+    nodes: [path('M9.75 17 9 20l-1 1'), path('M9 20h8l-1-1-.75-3'), path('M3 13h18'), path('M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2')],
+  },
+  user: { category: 'interface', nodes: [circle(12, 8, 4), path('M4 20a8 8 0 0 1 16 0')] },
+  mail: { category: 'interface', nodes: [rect(3, 5, 18, 14, 2), path('m3 7 9 6 9-6')] },
+  phone: { category: 'interface', nodes: [path('M6 3h3l1.5 5-2 1.5a11 11 0 0 0 5 5l1.5-2 5 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 7.2 2 2 0 0 1 6 3Z')] },
+  download: { category: 'interface', nodes: [path('M12 3v12'), polyline('8 11 12 15 16 11'), path('M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2')] },
+  upload: { category: 'interface', nodes: [path('M12 21V9'), polyline('8 13 12 9 16 13'), path('M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2')] },
+  book: { category: 'interface', nodes: [path('M4 5a2 2 0 0 1 2-2h6v18H6a2 2 0 0 1-2-2Z'), path('M20 5a2 2 0 0 0-2-2h-6v18h6a2 2 0 0 0 2-2Z')] },
+  edit: { category: 'interface', nodes: [path('M12 20h9'), path('m16.5 3.5 4 4L9 19H5v-4Z')] },
+  inbox: { category: 'interface', nodes: [path('M4 12h4l2 3h4l2-3h4'), path('M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6'), path('M4 12 6 4h12l2 8')] },
+  pin: { category: 'interface', nodes: [path('M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z'), circle(12, 10, 2.3)] },
+  calendar: { category: 'interface', nodes: [rect(3, 5, 18, 16, 2), path('M8 3v4'), path('M16 3v4'), path('M3 11h18')] },
 } as const satisfies Record<string, PbIconDefinition>;
 
 export type PbIconName = keyof typeof PB_ICON_REGISTRY;
