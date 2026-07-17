@@ -8,6 +8,7 @@ import {
 } from './tenant-country.types';
 import { TENANT_INTERCEPTOR_EXCLUDE_URLS } from './tenant-interceptor-exclude-urls.token';
 import { TENANT_HEADER_ENABLED } from './tenant-interceptor.config';
+import { decodeJwtPayload } from './jwt-payload.util';
 
 const TENANT_HEADER = 'X-Tenant-Country';
 
@@ -84,27 +85,4 @@ function extractCountryFromAuthHeader(authHeader: string | null): string | null 
   if (!payload) return null;
   const cc = (payload as { country_code?: unknown }).country_code;
   return typeof cc === 'string' ? cc : null;
-}
-
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length < 2) return null;
-    const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const padded = b64 + '==='.slice((b64.length + 3) % 4);
-    const decoded = atob(padded);
-    const json = decodeURIComponent(
-      decoded
-        .split('')
-        .map((c: string) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
-        .join(''),
-    );
-    const parsed: unknown = JSON.parse(json);
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return parsed as Record<string, unknown>;
-    }
-    return null;
-  } catch {
-    return null;
-  }
 }

@@ -15,3 +15,4 @@ export * from './lib/tenant-context.service';
 export * from './lib/tenant-interceptor-exclude-urls.token';
 export * from './lib/tenant-interceptor.config';
 export * from './lib/tenant-context.interceptor';
+export * from './lib/jwt-payload.util';

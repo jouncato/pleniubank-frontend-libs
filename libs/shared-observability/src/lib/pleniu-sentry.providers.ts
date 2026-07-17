@@ -7,15 +7,14 @@ import {
   Provider,
   runInInjectionContext,
 } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as SentryAngular from '@sentry/angular';
 import * as SentryBrowser from '@sentry/browser';
-import { SessionStore, type SessionClaims } from '@pleniu/shared-auth';
 
-import type { PleniuSentryInitConfig } from './pleniu-sentry.types';
+import type { PleniuSentryInitConfig, PleniuSentryUserContext } from './pleniu-sentry.types';
 import { isPleniuSentryEnabled } from './init-pleniu-sentry';
 
-function applySentryUserFromClaims(c: SessionClaims | null): void {
+function applySentryUserFromClaims(c: PleniuSentryUserContext | null): void {
   if (!SentryBrowser.getClient()) {
     return;
   }
@@ -23,7 +22,6 @@ function applySentryUserFromClaims(c: SessionClaims | null): void {
   if (c?.user_id) {
     SentryBrowser.setUser({
       id: c.user_id,
-      email: c.email,
       username: c.role,
     });
     scope.setTag('enterprise_id', c.enterprise_id ?? '');
@@ -57,11 +55,14 @@ export function pleniuSentryProviders(config: PleniuSentryInitConfig): Provider[
       provide: APP_INITIALIZER,
       multi: true,
       useFactory: () => {
-        const store = inject(SessionStore);
+        const getUserContext = config.getUserContext;
+        if (!getUserContext) {
+          return () => undefined;
+        }
         const env = inject(EnvironmentInjector);
         const destroyRef = inject(DestroyRef);
         runInInjectionContext(env, () => {
-          toObservable(store.claims)
+          getUserContext()
             .pipe(takeUntilDestroyed(destroyRef))
             .subscribe((c) => applySentryUserFromClaims(c));
         });
