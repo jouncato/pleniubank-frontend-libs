@@ -46,7 +46,7 @@
 - Rules Engine: 8010
 - PaymentHub: 8015
 - Scoring: 8020
-- AI Service: 8002
+- AI Service: 8025
 - CMS: 8030
 - PostgreSQL: 5432
 - Redis: 6379

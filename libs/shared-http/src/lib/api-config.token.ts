@@ -27,7 +27,7 @@ export interface ApiConfig {
    */
   rulesEngineBaseUrl?: string;
   /**
-   * pleniubank-ai-service (F5AI), sin barra final. Ej.: `http://localhost:8002`.
+   * pleniubank-ai-service (F5AI), sin barra final. Ej.: `http://localhost:8025`.
    * Si falta, el backoffice no puede invocar re-análisis desde el navegador.
    */
   aiServiceBaseUrl?: string;
