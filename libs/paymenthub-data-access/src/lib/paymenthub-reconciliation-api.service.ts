@@ -1,29 +1,26 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 import { PaymentHubReconciliationReport } from 'paymenthub-domain';
+import { API_CONFIG, ApiConfig } from '@pleniu/shared-http';
 
-import { PaymentHubAuthService } from './paymenthub-auth.service';
-import { PaymentHubContext } from './paymenthub-context.service';
-import { PaymentHubHttpService } from './paymenthub-http.service';
+import { paymenthubV1Base } from './paymenthub-api-base';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentHubReconciliationApiService {
+  private readonly base: string;
+
   constructor(
-    private readonly phHttp: PaymentHubHttpService,
-    private readonly auth: PaymentHubAuthService,
-    private readonly ctx: PaymentHubContext,
-  ) {}
+    private readonly http: HttpClient,
+    @Inject(API_CONFIG) apiConfig: ApiConfig,
+  ) {
+    this.base = paymenthubV1Base(apiConfig);
+  }
 
   /** `date` formato YYYY-MM-DD (OpenAPI `format: date`). */
   getReport(date: string): Observable<PaymentHubReconciliationReport> {
-    return this.auth.ensureAccessToken().pipe(
-      switchMap((token) =>
-        this.phHttp.client.get<PaymentHubReconciliationReport>(
-          `${this.ctx.requireBaseUrl()}/v1/reconciliation/${encodeURIComponent(date)}`,
-          { headers: { Authorization: `Bearer ${token}` } },
-        ),
-      ),
+    return this.http.get<PaymentHubReconciliationReport>(
+      `${this.base}/reconciliation/${encodeURIComponent(date)}`,
     );
   }
 }

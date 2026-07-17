@@ -1,6 +1,3 @@
-export * from './lib/paymenthub-http.service';
-export * from './lib/paymenthub-context.service';
-export * from './lib/paymenthub-auth.service';
 export * from './lib/paymenthub-payments-api.service';
 export * from './lib/paymenthub-rails-api.service';
 export * from './lib/paymenthub-keys-api.service';

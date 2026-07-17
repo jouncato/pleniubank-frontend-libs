@@ -1,41 +1,29 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 import { PaymentHubKey, PaymentHubKeyRequest } from 'paymenthub-domain';
+import { API_CONFIG, ApiConfig } from '@pleniu/shared-http';
 
-import { PaymentHubAuthService } from './paymenthub-auth.service';
-import { PaymentHubContext } from './paymenthub-context.service';
-import { PaymentHubHttpService } from './paymenthub-http.service';
+import { paymenthubV1Base } from './paymenthub-api-base';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentHubKeysApiService {
+  private readonly base: string;
+
   constructor(
-    private readonly phHttp: PaymentHubHttpService,
-    private readonly auth: PaymentHubAuthService,
-    private readonly ctx: PaymentHubContext,
-  ) {}
+    private readonly http: HttpClient,
+    @Inject(API_CONFIG) apiConfig: ApiConfig,
+  ) {
+    this.base = paymenthubV1Base(apiConfig);
+  }
 
   createKey(body: PaymentHubKeyRequest, idempotencyKey: string): Observable<PaymentHubKey> {
-    return this.auth.ensureAccessToken().pipe(
-      switchMap((token) =>
-        this.phHttp.client.post<PaymentHubKey>(`${this.ctx.requireBaseUrl()}/v1/keys`, body, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Idempotency-Key': idempotencyKey,
-          },
-        }),
-      ),
-    );
+    return this.http.post<PaymentHubKey>(`${this.base}/keys`, body, {
+      headers: { 'Idempotency-Key': idempotencyKey },
+    });
   }
 
   getKey(keyId: string): Observable<PaymentHubKey> {
-    return this.auth.ensureAccessToken().pipe(
-      switchMap((token) =>
-        this.phHttp.client.get<PaymentHubKey>(
-          `${this.ctx.requireBaseUrl()}/v1/keys/${encodeURIComponent(keyId)}`,
-          { headers: { Authorization: `Bearer ${token}` } },
-        ),
-      ),
-    );
+    return this.http.get<PaymentHubKey>(`${this.base}/keys/${encodeURIComponent(keyId)}`);
   }
 }

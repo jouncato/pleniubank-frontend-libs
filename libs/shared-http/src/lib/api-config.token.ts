@@ -12,15 +12,15 @@ export interface ApiConfig {
    */
   coreAdminApiPrefix?: string;
   /**
-   * Base URL del PaymentHub (OpenAPI `servers[0]`, p. ej. proxy Core o hub directo).
-   * Sin barra final. Si falta, los servicios `PaymentHub*` no deben usarse.
+   * Base URL del PaymentHub (OpenAPI `servers[0]`).
+   * Sin barra final. Ya NO es usado por los servicios `PaymentHub*` de
+   * `paymenthub-data-access` (migrados al proxy autenticado en Core, bajo
+   * `{coreBaseUrl}/api/v1/paymenthub`) — se conserva el campo porque
+   * `customer-portal`/`backoffice-portal` aún lo asignan en su
+   * `app.config.ts` (fase 3, pendiente en otra sesión); retirarlo aquí
+   * rompería su build antes de esa migración.
    */
   paymentHubBaseUrl?: string;
-  /** OAuth2 client_credentials (mock/sandbox en OpenAPI). */
-  paymentHubClientId?: string;
-  paymentHubClientSecret?: string;
-  /** Scopes separados por espacio, p. ej. `payments:read payments:write`. */
-  paymentHubOAuthScope?: string;
   /**
    * Base URL del motor de reglas (pleniubank-rules-engine), sin barra final.
    * Ej.: `http://localhost:8095`. Rutas bajo `/api/v1` (MR-ST-005).

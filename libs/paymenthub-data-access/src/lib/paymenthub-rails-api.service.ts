@@ -1,38 +1,32 @@
-import { HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 import {
   PaymentHubRail,
   PaymentHubRailSendRequest,
   PaymentHubRailSendResponse,
 } from 'paymenthub-domain';
+import { API_CONFIG, ApiConfig } from '@pleniu/shared-http';
 
-import { PaymentHubAuthService } from './paymenthub-auth.service';
-import { PaymentHubContext } from './paymenthub-context.service';
-import { PaymentHubHttpService } from './paymenthub-http.service';
+import { paymenthubV1Base } from './paymenthub-api-base';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentHubRailsApiService {
+  private readonly base: string;
+
   constructor(
-    private readonly phHttp: PaymentHubHttpService,
-    private readonly auth: PaymentHubAuthService,
-    private readonly ctx: PaymentHubContext,
-  ) {}
+    private readonly http: HttpClient,
+    @Inject(API_CONFIG) apiConfig: ApiConfig,
+  ) {
+    this.base = paymenthubV1Base(apiConfig);
+  }
 
   listRails(currency?: string): Observable<PaymentHubRail[]> {
     let params = new HttpParams();
     if (currency?.trim()) {
       params = params.set('currency', currency.trim());
     }
-    return this.auth.ensureAccessToken().pipe(
-      switchMap((token) =>
-        this.phHttp.client.get<PaymentHubRail[]>(`${this.ctx.requireBaseUrl()}/v1/rails`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params,
-        }),
-      ),
-    );
+    return this.http.get<PaymentHubRail[]>(`${this.base}/rails`, { params });
   }
 
   sendToRail(
@@ -40,19 +34,10 @@ export class PaymentHubRailsApiService {
     body: PaymentHubRailSendRequest,
     idempotencyKey: string,
   ): Observable<PaymentHubRailSendResponse> {
-    return this.auth.ensureAccessToken().pipe(
-      switchMap((token) =>
-        this.phHttp.client.post<PaymentHubRailSendResponse>(
-          `${this.ctx.requireBaseUrl()}/v1/rails/${encodeURIComponent(railId)}/send`,
-          body,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Idempotency-Key': idempotencyKey,
-            },
-          },
-        ),
-      ),
+    return this.http.post<PaymentHubRailSendResponse>(
+      `${this.base}/rails/${encodeURIComponent(railId)}/send`,
+      body,
+      { headers: { 'Idempotency-Key': idempotencyKey } },
     );
   }
 }
