@@ -1,8 +1,6 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
+import { ApiEnvelope } from '@pleniu/shared-http';
 import {
   AcceptInviteEnvelope,
   AcceptInviteRequest,
@@ -11,7 +9,6 @@ import {
   CreateUserEnterpriseEnvelope,
   CreateUserEnterpriseRequest,
   EconomicSectorsListEnvelope,
-  EconomicSectorPublicDto,
   InviteUserEnvelope,
   InviteUserRequest,
   EnterpriseMeSummaryResponse,
@@ -19,209 +16,122 @@ import {
   KybDocumentsRequest,
   RegisterEnterpriseEnvelope,
   RegisterEnterpriseRequest,
-  RegisterEnterpriseResponse,
   ResendEnterpriseEmailOtpEnvelope,
   ResendEnterpriseEmailOtpRequest,
-  ResendEnterpriseEmailOtpResponse,
-  SubEnterpriseDetailDto,
   SubEnterpriseDetailEnvelope,
-  SubEnterpriseSummaryDto,
   SubEnterprisesListEnvelope,
   SubEnterprisesListParams,
   SubEnterpriseUsersListEnvelope,
   UpdateSubEnterpriseRequest,
   VerifyEnterpriseEmailEnvelope,
   VerifyEnterpriseEmailRequest,
-  VerifyEnterpriseEmailResponse,
 } from 'identity-domain';
 
-/** Identity devuelve muchos POST como cuerpo plano; Core usa `{ data, meta }`. Normalizamos aquí. */
-function asApiEnvelope<T>(body: ApiEnvelope<T> | T): ApiEnvelope<T> {
-  if (body !== null && typeof body === 'object' && 'data' in (body as object)) {
-    const env = body as ApiEnvelope<T>;
-    if (env.data !== undefined && env.data !== null) {
-      return env;
-    }
-  }
-  return { data: body as T };
-}
+import { IdentityEnterpriseContextApiService } from './identity-enterprise-context-api.service';
+import { IdentityEnterpriseInvitationApiService } from './identity-enterprise-invitation-api.service';
+import { IdentityEnterpriseOnboardingApiService } from './identity-enterprise-onboarding-api.service';
+import { IdentitySubEnterpriseApiService } from './identity-sub-enterprise-api.service';
 
+/**
+ * Fachada delgada sobre los 4 servicios por subdominio en los que se dividió
+ * la antigua God Class `IdentityEnterpriseApiService` (registro/onboarding,
+ * invitaciones, cambio de contexto y sub-empresas). Se mantiene con el mismo
+ * nombre y el mismo token de DI para que los consumidores existentes en
+ * `pleniubank-customer-portal` y `pleniubank-backoffice-portal` (que inyectan
+ * `IdentityEnterpriseApiService` directamente, incluida su sustitución por
+ * mocks en specs vía `{ provide: IdentityEnterpriseApiService, useValue }`)
+ * no requieran ningún cambio. No añade lógica propia: cada método delega
+ * 1:1 al servicio correspondiente, preservando exactamente las mismas URLs,
+ * verbos HTTP y bodies que antes de la división (ver characterization spec).
+ */
 @Injectable({ providedIn: 'root' })
 export class IdentityEnterpriseApiService {
   constructor(
-    private readonly http: HttpClient,
-    @Inject(API_CONFIG) private readonly apiConfig: ApiConfig,
+    private readonly onboarding: IdentityEnterpriseOnboardingApiService,
+    private readonly invitations: IdentityEnterpriseInvitationApiService,
+    private readonly context: IdentityEnterpriseContextApiService,
+    private readonly subEnterprises: IdentitySubEnterpriseApiService,
   ) {}
 
+  // --- Registro / onboarding empresa ---------------------------------------
+
   registerEnterprise(payload: RegisterEnterpriseRequest): Observable<RegisterEnterpriseEnvelope> {
-    return this.http
-      .post<RegisterEnterpriseEnvelope | RegisterEnterpriseResponse>(
-        `${this.apiConfig.identityBaseUrl}/api/v1/auth/register-enterprise`,
-        payload,
-      )
-      .pipe(map((body) => asApiEnvelope<RegisterEnterpriseResponse>(body)));
+    return this.onboarding.registerEnterprise(payload);
   }
 
-  /** Catálogo público para selector de registro B2B. */
   listPublicEconomicSectors(category?: string | null): Observable<EconomicSectorsListEnvelope> {
-    let params = new HttpParams();
-    if (category) {
-      params = params.set('category', category);
-    }
-    return this.http
-      .get<EconomicSectorsListEnvelope | { data: EconomicSectorPublicDto[] }>(
-        `${this.apiConfig.identityBaseUrl}/api/v1/economic-sectors`,
-        { params },
-      )
-      .pipe(
-        map((raw) =>
-          raw && typeof raw === 'object' && 'data' in raw
-            ? (raw as EconomicSectorsListEnvelope)
-            : { data: [] as EconomicSectorPublicDto[] },
-        ),
-      );
+    return this.onboarding.listPublicEconomicSectors(category);
   }
 
   verifyEnterpriseEmail(payload: VerifyEnterpriseEmailRequest): Observable<VerifyEnterpriseEmailEnvelope> {
-    return this.http
-      .post<VerifyEnterpriseEmailEnvelope | VerifyEnterpriseEmailResponse>(
-        `${this.apiConfig.identityBaseUrl}/api/v1/auth/verify-enterprise-email`,
-        payload,
-      )
-      .pipe(map((body) => asApiEnvelope<VerifyEnterpriseEmailResponse>(body)));
+    return this.onboarding.verifyEnterpriseEmail(payload);
   }
 
   resendEnterpriseEmailOtp(payload: ResendEnterpriseEmailOtpRequest): Observable<ResendEnterpriseEmailOtpEnvelope> {
-    return this.http
-      .post<ResendEnterpriseEmailOtpEnvelope | ResendEnterpriseEmailOtpResponse>(
-        `${this.apiConfig.identityBaseUrl}/api/v1/auth/resend-enterprise-email-otp`,
-        payload,
-      )
-      .pipe(map((body) => asApiEnvelope<ResendEnterpriseEmailOtpResponse>(body)));
+    return this.onboarding.resendEnterpriseEmailOtp(payload);
   }
 
   submitKybDocuments(payload: KybDocumentsRequest): Observable<KybDocumentsEnvelope> {
-    return this.http.post<KybDocumentsEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/kyb/documents`,
-      payload,
-    );
+    return this.onboarding.submitKybDocuments(payload);
   }
 
   getEnterpriseMeSummary(): Observable<EnterpriseMeSummaryResponse> {
-    return this.http.get<EnterpriseMeSummaryResponse>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/me/summary`,
-    );
+    return this.onboarding.getEnterpriseMeSummary();
   }
 
+  // --- Invitaciones de usuario ----------------------------------------------
+
   inviteUser(payload: InviteUserRequest): Observable<InviteUserEnvelope> {
-    return this.http.post<InviteUserEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/invite-user`,
-      payload,
-    );
+    return this.invitations.inviteUser(payload);
   }
 
   acceptInvite(payload: AcceptInviteRequest): Observable<AcceptInviteEnvelope> {
-    return this.http.post<AcceptInviteEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/auth/accept-invite`,
-      payload,
-    );
+    return this.invitations.acceptInvite(payload);
   }
 
-  /**
-   * Reserved for multi-tenant switch; backend returns 501 in MVP. Call only when feature flag is on.
-   */
+  // --- Cambio de contexto ----------------------------------------------------
+
   switchContext(body: Record<string, unknown> = {}): Observable<ApiEnvelope<unknown>> {
-    return this.http.post<ApiEnvelope<unknown>>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/auth/switch-context`,
-      body,
-    );
+    return this.context.switchContext(body);
   }
+
+  // --- Sub-empresas y sus usuarios --------------------------------------------
 
   createEnterpriseUser(enterpriseId: string, payload: CreateUserEnterpriseRequest): Observable<CreateUserEnterpriseEnvelope> {
-    return this.http.post<CreateUserEnterpriseEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/${encodeURIComponent(enterpriseId)}/users`,
-      payload,
-    );
+    return this.subEnterprises.createEnterpriseUser(enterpriseId, payload);
   }
 
   createSubEnterpriseUser(subEnterpriseId: string, payload: CreateUserEnterpriseRequest): Observable<CreateUserEnterpriseEnvelope> {
-    return this.http.post<CreateUserEnterpriseEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}/users`,
-      payload,
-    );
+    return this.subEnterprises.createSubEnterpriseUser(subEnterpriseId, payload);
   }
 
-  /** List active users linked to a sub-enterprise (business unit). */
   listSubEnterpriseUsers(subEnterpriseId: string): Observable<SubEnterpriseUsersListEnvelope> {
-    return this.http.get<SubEnterpriseUsersListEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}/users`,
-    );
+    return this.subEnterprises.listSubEnterpriseUsers(subEnterpriseId);
   }
 
   createSubEnterprise(enterpriseId: string, payload: CreateSubEnterpriseRequest): Observable<CreateSubEnterpriseEnvelope> {
-    return this.http
-      .post<CreateSubEnterpriseEnvelope | CreateSubEnterpriseEnvelope['data']>(
-        `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/${encodeURIComponent(enterpriseId)}/sub-enterprises`,
-        payload,
-      )
-      .pipe(map((body) => asApiEnvelope<CreateSubEnterpriseEnvelope['data']>(body)));
+    return this.subEnterprises.createSubEnterprise(enterpriseId, payload);
   }
 
-  /** List business units (sub-enterprises) under a parent enterprise. */
   listSubEnterprises(
     enterpriseId: string,
     params: SubEnterprisesListParams = {},
   ): Observable<SubEnterprisesListEnvelope> {
-    let httpParams = new HttpParams();
-    if (params.status) {
-      httpParams = httpParams.set('status', params.status);
-    }
-    if (params.search && params.search.trim()) {
-      httpParams = httpParams.set('search', params.search.trim());
-    }
-    if (params.limit && params.limit > 0) {
-      httpParams = httpParams.set('limit', String(params.limit));
-    }
-    return this.http
-      .get<SubEnterprisesListEnvelope | SubEnterpriseSummaryDto[]>(
-        `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/${encodeURIComponent(enterpriseId)}/sub-enterprises`,
-        { params: httpParams },
-      )
-      .pipe(
-        map((body) =>
-          Array.isArray(body)
-            ? ({ data: body } as SubEnterprisesListEnvelope)
-            : asApiEnvelope<SubEnterpriseSummaryDto[]>(body),
-        ),
-      );
+    return this.subEnterprises.listSubEnterprises(enterpriseId, params);
   }
 
-  /** Fetch full detail of a business unit (includes user_count). */
   getSubEnterprise(subEnterpriseId: string): Observable<SubEnterpriseDetailEnvelope> {
-    return this.http
-      .get<SubEnterpriseDetailEnvelope | SubEnterpriseDetailDto>(
-        `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}`,
-      )
-      .pipe(map((body) => asApiEnvelope<SubEnterpriseDetailDto>(body)));
+    return this.subEnterprises.getSubEnterprise(subEnterpriseId);
   }
 
-  /** Partial update (contact data) of a business unit. */
   updateSubEnterprise(
     subEnterpriseId: string,
     payload: UpdateSubEnterpriseRequest,
   ): Observable<SubEnterpriseDetailEnvelope> {
-    return this.http
-      .patch<SubEnterpriseDetailEnvelope | SubEnterpriseDetailDto>(
-        `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}`,
-        payload,
-      )
-      .pipe(map((body) => asApiEnvelope<SubEnterpriseDetailDto>(body)));
+    return this.subEnterprises.updateSubEnterprise(subEnterpriseId, payload);
   }
 
-  /** Soft delete / deactivate a business unit. Backend returns 204 No Content. */
   deactivateSubEnterprise(subEnterpriseId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}`,
-    );
+    return this.subEnterprises.deactivateSubEnterprise(subEnterpriseId);
   }
 }
