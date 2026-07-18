@@ -105,4 +105,65 @@ describe('CorePayrollAdvancesApiService', () => {
     expect(url).toContain('/payroll-advances/adv-1/status');
     expect(body).toEqual({ new_status: 'CANCELLED' });
   });
+
+  // OpenSpec centralize-payroll-advance-policy-co (fase 8, tarea 8.2/8.6).
+  it('getEligibility() GET /payroll-advances/eligibility con customer_id obligatorio', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvancesApiService(http as never, apiConfig);
+
+    service.getEligibility({ customer_id: 'cust-1' }).subscribe();
+
+    expect(http.get).toHaveBeenCalledTimes(1);
+    const [url, options] = http.get.mock.calls[0];
+    expect(url).toContain('/payroll-advances/eligibility');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const params = (options as any).params;
+    expect(params.get('customer_id')).toBe('cust-1');
+    expect(params.get('employer_id')).toBeNull();
+    expect(params.get('requested_amount')).toBeNull();
+  });
+
+  it('getEligibility() envía employer_id y requested_amount cuando se proveen', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvancesApiService(http as never, apiConfig);
+
+    service
+      .getEligibility({ customer_id: 'cust-1', employer_id: 'emp-1', requested_amount: 500000 })
+      .subscribe();
+
+    const [, options] = http.get.mock.calls[0];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const params = (options as any).params;
+    expect(params.get('employer_id')).toBe('emp-1');
+    expect(params.get('requested_amount')).toBe('500000');
+  });
+
+  it('simulate() acepta customer_id/employer_id aditivos sin romper el body previo', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvancesApiService(http as never, apiConfig);
+    const payload = {
+      contract_id: 'contract-1',
+      amount: 500000,
+      customer_id: 'cust-1',
+      employer_id: 'emp-1',
+    };
+
+    service.simulate(payload).subscribe();
+
+    expect(http.post).toHaveBeenCalledTimes(1);
+    const [url, body] = http.post.mock.calls[0];
+    expect(url).toContain('/payroll-advances/simulate');
+    expect(body).toEqual(payload);
+  });
+
+  it('simulate() sigue funcionando sin los campos canónicos aditivos (compatibilidad hacia atrás)', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvancesApiService(http as never, apiConfig);
+    const payload = { contract_id: 'contract-1', amount: 500000 };
+
+    service.simulate(payload).subscribe();
+
+    const [, body] = http.post.mock.calls[0];
+    expect(body).toEqual(payload);
+  });
 });
