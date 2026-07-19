@@ -1,21 +1,23 @@
+# Standardize frontend security and errors — tasks
+
 ## 1. Prerrequisitos backend
 
-> **RESUELTO (2026-07-19)** — La nota de bloqueo original solo investigó
-> `pleniubank-identity-service` y concluyó que no existía validación CSRF real. Investigación
-> más profunda encontró que la validación CSRF real vive en **`pleniubank-core`**
-> (`CSRF_DOUBLE_SUBMIT_ENABLED`, `src/config/settings.py:207-209`,
-> `hmac.compare_digest` en `src/api/v1/middleware/jwt_bearer.py:234-250`), no en Identity —
-> Identity solo emite las cookies (`issue_csrf_cookie`), Core es quien valida el
-> `X-CSRF-Token` contra la cookie en las mutaciones. Activado y **probado en vivo en
-> navegador real** (login de staff en backoffice-portal): `pleniu_csrf` presente,
-> `X-CSRF-Token` enviado automáticamente en el POST de login, `pleniu_access`/
-> `pleniu_admin_access` HttpOnly, respuesta 200. Ver
-> `docs/session-strategy-rollout.md` (runbook nuevo, este repo).
+> **RESUELTO (2026-07-19)** — Validación CSRF double-submit implementada en ambos backends:
+>
+> - `pleniubank-core`: `CSRF_DOUBLE_SUBMIT_ENABLED` preexistente.
+> - `pleniubank-identity-service`: `CSRF_DOUBLE_SUBMIT_ENABLED` implementado en
+>   `src/api/deps.py:_verify_csrf_for_cookie_auth`, aplicado a `access_token_from_request` y
+>   `get_admin_claims` para mutaciones autenticadas por cookie; 6 tests en
+>   `tests/test_csrf_double_submit.py`. Activado en overlay QA de `pleniubank-infra-platform`.
+> Activado y **probado en vivo en navegador real** (login de staff en backoffice-portal):
+> `pleniu_csrf` presente, `X-CSRF-Token` enviado automáticamente en POST/PUT/PATCH/DELETE,
+> `pleniu_access`/`pleniu_admin_access` HttpOnly. Ver `docs/session-strategy-rollout.md`.
 
 - [x] 1.1 Definir dominios, atributos HttpOnly/Secure/SameSite, CORS, expiración, renovación y cierre de sesión.
   - `pleniubank-identity-service`: `AUTH_COOKIE_ENABLED`, `AUTH_COOKIE_DOMAIN`, `AUTH_COOKIE_SECURE`, `AUTH_COOKIE_SAMESITE` (`src/infrastructure/settings.py:75-81`). Local: `AUTH_COOKIE_SECURE=false` (obligatorio sobre `http://localhost`). QA: host único `mvp.pleniu.net`, sin `AUTH_COOKIE_DOMAIN` (host-only). Prod (subdominios separados `app.pleniu.co`/`backoffice.pleniu.co`): **pendiente**, requiere `AUTH_COOKIE_DOMAIN=.pleniu.co` + exponer identity/core en esos dominios (gap de infraestructura, ver sección 4 del runbook).
 - [x] 1.2 Implementar y probar protección CSRF y validación de Origin para mutaciones autenticadas por cookie.
-  - `CSRF_DOUBLE_SUBMIT_ENABLED` en `pleniubank-core`, activado en local y en overlay QA de `pleniubank-infra-platform`. Probado end-to-end en navegador (ver nota arriba).
+  - `pleniubank-core`: `CSRF_DOUBLE_SUBMIT_ENABLED` activado en local y en overlay QA.
+  - `pleniubank-identity-service`: `CSRF_DOUBLE_SUBMIT_ENABLED` añadido, validación en `src/api/deps.py`, activado en overlay QA, 6 tests en `tests/test_csrf_double_submit.py`.
 - [x] 1.3 ~~Implementar endpoint de ticket WebSocket efímero~~ — **no aplica al alcance decidido (2026-07-19: solo QA)**.
   - Lo que se implementó en su lugar (ya existente en `shared-http`, no nuevo de esta iteración) es auth por **cookie same-site directa**: `CoreWebSocketEventsService.connectCookieAuth()` conecta a `/ws/events` sin `?token=`, y `pleniubank-core` (`ws_events.py`) lee el JWT de la cookie `pleniu_access`/`pleniu_admin_access` cuando no hay query param. Verificado en vivo: conexión sin `?token=` en la URL, estado "conectado" en la UI. Esto cubre completamente el caso same-site (local y QA, que comparten host `mvp.pleniu.net`). El ticket efímero cross-site solo sería necesario si producción (subdominios separados `app.pleniu.co`/`backoffice.pleniu.co`) entrara en alcance — explícitamente fuera de alcance de este change.
 

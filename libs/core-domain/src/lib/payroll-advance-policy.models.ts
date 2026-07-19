@@ -64,6 +64,7 @@ export type PayrollAdvancePolicyReasonCode =
   | 'PAYROLL_ADVANCE_DISCOUNT_DATE_INVALID'
   | 'PAYROLL_ADVANCE_RECENT_DEFAULT'
   | 'PAYROLL_ADVANCE_KYC_AML_BLOCKED'
+  | 'PAYROLL_ADVANCE_SCORING_REJECTED'
   | 'PAYROLL_ADVANCE_CONSENT_MISSING'
   | 'PAYROLL_ADVANCE_CURRENCY_OR_JURISDICTION_INVALID'
   // ── Configuración de política (REJECTED / UNAVAILABLE) ─────────────────
@@ -78,7 +79,8 @@ export type PayrollAdvancePolicyReasonCode =
   | 'PAYROLL_ADVANCE_RISK_REVIEW_REQUIRED'
   // ── Indisponibilidad (UNAVAILABLE, fail closed — Decision 13) ──────────
   | 'PAYROLL_ADVANCE_RULES_UNAVAILABLE'
-  | 'PAYROLL_ADVANCE_SCORING_UNAVAILABLE';
+  | 'PAYROLL_ADVANCE_SCORING_UNAVAILABLE'
+  | 'PAYROLL_ADVANCE_ACTIVE_BALANCE_UNAVAILABLE';
 
 /** Todos los códigos de motivo, en el mismo orden que el enum Python. Útil
  * para validar cobertura completa de labels (tarea 8.6). */
@@ -96,6 +98,7 @@ export const PAYROLL_ADVANCE_POLICY_REASON_CODES: readonly PayrollAdvancePolicyR
   'PAYROLL_ADVANCE_DISCOUNT_DATE_INVALID',
   'PAYROLL_ADVANCE_RECENT_DEFAULT',
   'PAYROLL_ADVANCE_KYC_AML_BLOCKED',
+  'PAYROLL_ADVANCE_SCORING_REJECTED',
   'PAYROLL_ADVANCE_CONSENT_MISSING',
   'PAYROLL_ADVANCE_CURRENCY_OR_JURISDICTION_INVALID',
   'PAYROLL_ADVANCE_EMPLOYER_POLICY_TOO_PERMISSIVE',
@@ -108,6 +111,7 @@ export const PAYROLL_ADVANCE_POLICY_REASON_CODES: readonly PayrollAdvancePolicyR
   'PAYROLL_ADVANCE_RISK_REVIEW_REQUIRED',
   'PAYROLL_ADVANCE_RULES_UNAVAILABLE',
   'PAYROLL_ADVANCE_SCORING_UNAVAILABLE',
+  'PAYROLL_ADVANCE_ACTIVE_BALANCE_UNAVAILABLE',
 ];
 
 /** Motivos que solo pueden acompañar MANUAL_REVIEW (nunca anulan reglas duras). */
@@ -121,6 +125,7 @@ export const PAYROLL_ADVANCE_MANUAL_REVIEW_REASON_CODES: readonly PayrollAdvance
 export const PAYROLL_ADVANCE_UNAVAILABLE_REASON_CODES: readonly PayrollAdvancePolicyReasonCode[] = [
   'PAYROLL_ADVANCE_RULES_UNAVAILABLE',
   'PAYROLL_ADVANCE_SCORING_UNAVAILABLE',
+  'PAYROLL_ADVANCE_ACTIVE_BALANCE_UNAVAILABLE',
   'PAYROLL_ADVANCE_POLICY_MISSING',
   'POLICY_CONFIGURATION_CONFLICT',
   'PAYROLL_ADVANCE_EMPLOYER_POLICY_INCOMPLETE',
@@ -132,7 +137,6 @@ export interface PayrollAdvancePolicyValues {
   /** Fracción: 0.30 = 30%. */
   max_salary_percentage: number;
   min_amount: number;
-  max_amount: number;
   min_tenure_months: number;
   max_monthly_frequency: number;
   max_active_count: number;
@@ -147,7 +151,6 @@ export interface EmployerPayrollPolicyOverrides {
   country_code: string | null;
   currency: string | null;
   max_salary_percentage: number | null;
-  max_amount: number | null;
   min_tenure_months: number | null;
   max_monthly_frequency: number | null;
   max_active_count: number | null;
@@ -199,12 +202,16 @@ export interface PayrollAdvancePolicyDecision {
   max_monthly_frequency: number;
   /** `max_monthly_frequency - monthly_disbursed_count`, nunca negativo. */
   remaining_monthly_quota: number | null;
-  /** `true` si el cliente ya tiene un anticipo que reserva el cupo activo. */
+  /** `true` si existe al menos un anticipo activo; se permiten hasta dos. */
   has_active_advance: boolean | null;
   /** Antigüedad observada del perfil laboral verificado, en meses. */
   tenure_months: number | null;
   /** Antigüedad mínima requerida (política efectiva). */
   min_tenure_months: number;
+  /** Preconsulta sin monto: cupo informativo sujeto a Scoring. */
+  provisional: boolean;
+  /** Solo `true` cuando se evaluó un monto real con Scoring obligatorio. */
+  is_final: boolean;
   /**
    * Passthrough auditable del resto de señales no sensibles evaluadas
    * (discount_date_days_from_now, has_recent_default, rules_engine_source,

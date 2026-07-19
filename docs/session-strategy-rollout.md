@@ -11,7 +11,7 @@ implementadas y probadas en 3 repos. Solo estaban apagadas por flags, todos con 
 | Repo | Mecanismo | Flag / config | Código |
 |---|---|---|---|
 | `pleniubank-core` | Validación CSRF double-submit-cookie (`hmac.compare_digest`) | `CSRF_DOUBLE_SUBMIT_ENABLED` | `src/config/settings.py:207-209`, `src/api/v1/middleware/jwt_bearer.py:234-250` |
-| `pleniubank-identity-service` | Emisión de cookies HttpOnly (`pleniu_access`/`pleniu_admin_access`) + cookie CSRF (`pleniu_csrf`) | `AUTH_COOKIE_ENABLED` | `src/infrastructure/settings.py:75-81`, `src/api/auth_cookies.py` |
+| `pleniubank-identity-service` | Emisión de cookies HttpOnly + validación CSRF double-submit-cookie (`pleniu_csrf` vs `X-CSRF-Token`) | `AUTH_COOKIE_ENABLED`, `CSRF_DOUBLE_SUBMIT_ENABLED` | `src/infrastructure/settings.py:75-84`, `src/api/auth_cookies.py`, `src/api/deps.py:_verify_csrf_for_cookie_auth` |
 | `pleniubank-frontend-libs` (`shared-auth`/`shared-http`) | `SessionStore` en modo cookie, bootstrap de CSRF, WS sin `?token=` | `SESSION_STRATEGY` (Angular `InjectionToken`, `environment.sessionStrategy`) | `libs/shared-auth/src/lib/session-store.service.ts:68-104`, `identity-csrf-bootstrap.ts`, `libs/shared-http/.../core-websocket-events.service.ts` |
 
 Este cambio activa esos flags de forma segura en **local y QA**. Producción queda
@@ -41,12 +41,13 @@ deliberadamente fuera de alcance (ver checklist al final) porque:
 | `AUTH_COOKIE_SECURE` (identity-service) | `false` (obligatorio sobre HTTP) | `true` (default, HTTPS real) | `true` (default) |
 | `AUTH_COOKIE_DOMAIN` (identity-service) | vacío (host-only) | vacío (host-only, un solo host `mvp.pleniu.net`) | pendiente: `.pleniu.co` |
 | `CSRF_DOUBLE_SUBMIT_ENABLED` (core) | `true` | `true` | `false` (sin cambios) |
+| `CSRF_DOUBLE_SUBMIT_ENABLED` (identity-service) | `true` | `true` | `false` (sin cambios) |
 | `sessionStrategy` (Angular, ambos portales) | `httpOnlyCookie` (`environment.development.ts`) | `httpOnlyCookie` (`environment.qa.ts`, nuevo) | `sessionStorage` (`environment.ts`, sin cambios) |
 
 ## Cómo probar localmente
 
 1. Arrancar `pleniubank-identity-service` (puerto 8005, con `.env` actualizado:
-   `AUTH_COOKIE_ENABLED=true`, `AUTH_COOKIE_SECURE=false`).
+   `AUTH_COOKIE_ENABLED=true`, `AUTH_COOKIE_SECURE=false`, `CSRF_DOUBLE_SUBMIT_ENABLED=true`).
 2. Arrancar `pleniubank-core` (puerto 8000, con `.env` actualizado:
    `CSRF_DOUBLE_SUBMIT_ENABLED=true`).
 3. Arrancar `pleniubank-customer-portal` (`ng serve`, puerto 4200) o

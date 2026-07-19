@@ -74,7 +74,8 @@ export const PAYROLL_ADVANCE_POLICY_REASON_LABELS: Record<PayrollAdvancePolicyRe
     'La antigüedad laboral verificada no cumple el mínimo requerido por la política vigente.',
   PAYROLL_ADVANCE_MONTHLY_FREQUENCY_EXCEEDED:
     'Ya se alcanzó el máximo de desembolsos permitidos para el mes calendario vigente.',
-  PAYROLL_ADVANCE_ACTIVE_EXISTS: 'Ya tienes un Anticipo de nómina activo. Solo se permite uno a la vez.',
+  PAYROLL_ADVANCE_ACTIVE_EXISTS:
+    'Ya alcanzaste el máximo de dos Anticipos de nómina activos permitidos.',
   PAYROLL_ADVANCE_MANUAL_REVIEW_CASE_OPEN:
     'Ya tienes un caso de revisión manual abierto para Anticipo de nómina. Solo se permite uno a la vez.',
   PAYROLL_ADVANCE_TERMS_NOT_ACTIVE: 'Los términos del producto no están vigentes.',
@@ -85,6 +86,8 @@ export const PAYROLL_ADVANCE_POLICY_REASON_LABELS: Record<PayrollAdvancePolicyRe
     'La fecha de descuento propuesta no es válida o excede el máximo vigente.',
   PAYROLL_ADVANCE_RECENT_DEFAULT: 'El historial crediticio reciente no cumple la política vigente.',
   PAYROLL_ADVANCE_KYC_AML_BLOCKED: 'La verificación de identidad/AML bloqueó la solicitud.',
+  PAYROLL_ADVANCE_SCORING_REJECTED:
+    'La evaluación de riesgo no aprobó la exposición total solicitada.',
   PAYROLL_ADVANCE_CONSENT_MISSING: 'No existe un consentimiento vigente para este cliente.',
   PAYROLL_ADVANCE_CURRENCY_OR_JURISDICTION_INVALID:
     'La moneda o jurisdicción de la solicitud es incompatible con la política vigente.',
@@ -108,6 +111,8 @@ export const PAYROLL_ADVANCE_POLICY_REASON_LABELS: Record<PayrollAdvancePolicyRe
     'El motor de reglas no está disponible en este momento. Reintenta la solicitud.',
   PAYROLL_ADVANCE_SCORING_UNAVAILABLE:
     'El servicio de scoring de riesgo no está disponible en este momento. Reintenta la solicitud.',
+  PAYROLL_ADVANCE_ACTIVE_BALANCE_UNAVAILABLE:
+    'No fue posible determinar el capital pendiente de los anticipos activos. Se requiere conciliación.',
 };
 
 /** Todos los reason_codes conocidos tienen label — usado por el spec de cobertura (tarea 8.6). */

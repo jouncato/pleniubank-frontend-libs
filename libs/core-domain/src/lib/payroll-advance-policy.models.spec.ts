@@ -18,10 +18,10 @@ describe('payroll-advance-policy.models', () => {
     ]);
   });
 
-  it('expone los 25 reason_codes espejo del enum Python PayrollAdvancePolicyReasonCode', () => {
-    expect(PAYROLL_ADVANCE_POLICY_REASON_CODES).toHaveLength(25);
+  it('expone los 27 reason_codes espejo del enum Python PayrollAdvancePolicyReasonCode', () => {
+    expect(PAYROLL_ADVANCE_POLICY_REASON_CODES).toHaveLength(27);
     // Sin duplicados.
-    expect(new Set(PAYROLL_ADVANCE_POLICY_REASON_CODES).size).toBe(25);
+    expect(new Set(PAYROLL_ADVANCE_POLICY_REASON_CODES).size).toBe(27);
   });
 
   it('MANUAL_REVIEW y UNAVAILABLE reason_codes son subconjuntos de la lista completa y no se solapan', () => {
@@ -50,10 +50,9 @@ describe('payroll-advance-policy.models', () => {
       global_values: {
         max_salary_percentage: 0.3,
         min_amount: 50000,
-        max_amount: 2000000,
         min_tenure_months: 6,
         max_monthly_frequency: 2,
-        max_active_count: 1,
+        max_active_count: 2,
         max_discount_days: 45,
         employer_daily_limit_amount: 50000000,
       },
@@ -61,10 +60,9 @@ describe('payroll-advance-policy.models', () => {
       effective_values: {
         max_salary_percentage: 0.3,
         min_amount: 50000,
-        max_amount: 2000000,
         min_tenure_months: 6,
         max_monthly_frequency: 2,
-        max_active_count: 1,
+        max_active_count: 2,
         max_discount_days: 45,
         employer_daily_limit_amount: 50000000,
       },
@@ -85,6 +83,8 @@ describe('payroll-advance-policy.models', () => {
       has_active_advance: false,
       tenure_months: 8,
       min_tenure_months: 6,
+      provisional: false,
+      is_final: true,
       observed: {},
     };
 
