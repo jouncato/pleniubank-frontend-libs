@@ -9,7 +9,7 @@ export const guestGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const router = inject(Router);
   const portal = inject(PORTAL_APP);
 
-  if (!sessionStore.userToken()) {
+  if (!sessionStore.isAuthenticated()) {
     return true;
   }
 

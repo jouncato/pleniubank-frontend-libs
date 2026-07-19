@@ -9,6 +9,7 @@ import { authGuard } from './auth.guard';
 import { AUTH_VALIDATE_HANDLER, AuthValidateHandler } from './auth-validate.token';
 import { PORTAL_APP } from './portal-app.token';
 import { SESSION_CLAIMS_TTL_MS, SessionClaims, SessionStore } from './session-store.service';
+import { SESSION_STRATEGY } from './session-strategy.token';
 
 function runGuard(url: string) {
   const r = TestBed.runInInjectionContext(() =>
@@ -25,7 +26,10 @@ describe('authGuard', () => {
     vi.useRealTimers();
   });
 
-  function setup(validateSource: Observable<any>) {
+  function setup(
+    validateSource: Observable<any>,
+    options: { strategy?: 'sessionStorage' | 'httpOnlyCookie' } = {},
+  ) {
     TestBed.resetTestingModule();
     sessionStorage.clear();
     vi.useFakeTimers();
@@ -41,6 +45,7 @@ describe('authGuard', () => {
         SessionStore,
         { provide: AUTH_VALIDATE_HANDLER, useValue: handler },
         { provide: PORTAL_APP, useValue: 'customer' as const },
+        { provide: SESSION_STRATEGY, useValue: options.strategy ?? 'sessionStorage' },
       ],
     });
     const router = TestBed.inject(Router);
@@ -142,6 +147,34 @@ describe('authGuard', () => {
     const result = await runGuard('/app/x');
     expect(result).toBe(true);
     expect(store.userToken()).not.toBeNull();
+  });
+
+  it('modo httpOnlyCookie sin claims llama validate en vez de redirigir de inmediato', async () => {
+    const callSpy = setup(of({ data: { claims: { role: 'customer' } } }), {
+      strategy: 'httpOnlyCookie',
+    });
+
+    const router = TestBed.inject(Router);
+    // userToken() siempre es null en modo cookie (SessionStore.useCookies); no debe bastar
+    // para redirigir sin antes preguntarle al servidor si la cookie HttpOnly sigue siendo válida.
+    const result = await runGuard('/app/x');
+
+    expect(callSpy).toHaveBeenCalledTimes(1);
+    expect(result).toBe(true);
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('modo httpOnlyCookie sin sesión real redirige a login tras validate fallido', async () => {
+    const authError = new ApiHttpError(401, [{ code: 'UNAUTHORIZED', message: 'No autenticado' }]);
+    setup(throwError(() => authError), { strategy: 'httpOnlyCookie' });
+
+    const router = TestBed.inject(Router);
+
+    const result = await runGuard('/app/secret');
+    expect(result).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/onboarding/party/access/login'], {
+      queryParams: { returnUrl: '/app/secret' },
+    });
   });
 });
 

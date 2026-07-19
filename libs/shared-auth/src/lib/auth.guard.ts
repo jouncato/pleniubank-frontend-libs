@@ -6,6 +6,7 @@ import { ApiHttpError } from '@pleniu/shared-http';
 import { SESSION_CLAIMS_TTL_MS, SessionStore } from './session-store.service';
 import { AUTH_VALIDATE_HANDLER } from './auth-validate.token';
 import { PORTAL_APP } from './portal-app.token';
+import { SESSION_STRATEGY, SessionStrategy } from './session-strategy.token';
 import { signInPathForPortal } from './sign-in-path';
 
 /** Status codes that indicate transient infrastructure failures, not auth rejections. */
@@ -35,8 +36,13 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const validateHandler = inject(AUTH_VALIDATE_HANDLER);
   const loginPath = signInPathForPortal(inject(PORTAL_APP));
+  const sessionStrategy = inject<SessionStrategy>(SESSION_STRATEGY);
 
-  if (!sessionStore.userToken()) {
+  // Bearer sessions (sessionStorage): no token in memory means never authenticated —
+  // skip the network round trip. Cookie sessions never expose a client-readable token
+  // (SessionStore.userToken() is always null by design), so the only way to know
+  // whether the HttpOnly cookie still carries a valid session is to ask the server.
+  if (sessionStrategy !== 'httpOnlyCookie' && !sessionStore.userToken()) {
     void router.navigate([loginPath], {
       queryParams: { returnUrl: state.url },
     });

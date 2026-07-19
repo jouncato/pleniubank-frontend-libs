@@ -2,15 +2,21 @@ import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { PORTAL_APP } from './portal-app.token';
 import { SessionStore } from './session-store.service';
+import { SESSION_STRATEGY, SessionStrategy } from './session-strategy.token';
 import { signInPathForPortal } from './sign-in-path';
 
-/** Rutas de plataforma admin: requiere JWT usuario + `admin_access_token` y rol operativo de plataforma. */
+/** Rutas de plataforma admin: requiere sesión de usuario + scope admin + rol operativo de plataforma. */
 export const adminGuard: CanActivateFn = (route, state) => {
   const store = inject(SessionStore);
   const router = inject(Router);
   const loginPath = signInPathForPortal(inject(PORTAL_APP));
+  const sessionStrategy = inject<SessionStrategy>(SESSION_STRATEGY);
+  const isCookieStrategy = sessionStrategy === 'httpOnlyCookie';
 
-  if (!store.userToken()) {
+  // Cookie sessions never expose userToken()/adminToken() client-side by design (HttpOnly);
+  // authGuard (which always runs before adminGuard on these routes) already confirmed the
+  // session via validate and populated claims — rely on claims() below instead of the tokens.
+  if (!isCookieStrategy && !store.userToken()) {
     void router.navigate([loginPath], { queryParams: { returnUrl: state.url } });
     return false;
   }
@@ -18,7 +24,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
     void router.navigate(['/staff/access/change-password'], { queryParams: { returnUrl: state.url } });
     return false;
   }
-  if (!store.adminToken()) {
+  if (!isCookieStrategy && !store.adminToken()) {
     void router.navigate(['/auth/forbidden']);
     return false;
   }

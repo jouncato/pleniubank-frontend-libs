@@ -30,3 +30,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check for parallel API error mappers outside resolveUserFacingApiError
         run: bash scripts/check-error-mapper-regressions.sh
+
+  session-security-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for token exposure in WS URLs or ungoverned Web Storage writes
+        run: bash scripts/check-no-token-in-prod-build.sh
