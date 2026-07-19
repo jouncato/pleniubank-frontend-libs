@@ -330,7 +330,7 @@ describe('LoginVm', () => {
     expect(service.remainingSeconds).toBe(60);
   });
 
-  it('muestra mensaje del API en 401 cuando errors[0].message esta presente', () => {
+  it('en 401/INVALID_CREDENTIALS ignora el mensaje crudo del backend y usa el override curado del contexto (resolveUserFacingApiError nunca expone texto crudo del API)', () => {
     const { service } = setup({
       loginImpl: () =>
         throwError(
@@ -347,7 +347,7 @@ describe('LoginVm', () => {
     service.login(payload);
 
     expect(service.state()).toBe('error');
-    expect(service.errorMessage()).toBe('Texto devuelto por Identity.');
+    expect(service.errorMessage()).toBe('Correo o contrasena incorrectos.');
   });
 
   it('usa copy por defecto en 401 sin mensaje usable del sobre', () => {

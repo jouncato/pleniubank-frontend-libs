@@ -1,5 +1,11 @@
 import { ApiHttpError } from './api-error';
 
+/**
+ * @deprecated Usa `resolveUserFacingApiError` (`./resolve-user-facing-api-error`) en su
+ * lugar. Este catálogo fue migrado tal cual a `resolveUserFacingApiError`; esta función
+ * no admite overrides de contexto por llamada. Se mantiene por compatibilidad temporal —
+ * no crear nuevos usos.
+ */
 export function mapApiErrorToUserMessage(error: ApiHttpError): string {
   const code = error.errors[0]?.code;
 

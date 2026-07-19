@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { VerifyOtpRequest } from 'identity-domain';
 import { PORTAL_APP, SessionStore, signInPathForPortal } from '@pleniu/shared-auth';
 import { IdentityAuthApiService, unwrapVerificationResponse } from '@pleniu/identity-data-access';
-import { mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
+import { mapHttpError, resolveUserFacingApiError } from '@pleniu/shared-http';
 
 import { createCountdownTimer } from '../countdown-timer';
 
@@ -51,7 +51,13 @@ export class VerifyPhoneVm {
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);
         if (mappedError.status === 429) {
-          this.errorMessage.set(resolveApiErrorMessage(mappedError, 'Debes esperar antes de solicitar otro código.'));
+          const rateLimitFb = 'Debes esperar antes de solicitar otro código.';
+          this.errorMessage.set(
+            resolveUserFacingApiError(mappedError, {
+              fallback: rateLimitFb,
+              overrides: { RATE_LIMIT_EXCEEDED: rateLimitFb },
+            }),
+          );
           this.state.set('rate_limited');
           this.resendTimer.start(RESEND_COOLDOWN_SEC);
           return;
@@ -62,7 +68,13 @@ export class VerifyPhoneVm {
           return;
         }
         if (mappedError.status === 409) {
-          this.errorMessage.set(resolveApiErrorMessage(mappedError, 'Este teléfono ya está verificado. Continúa con el inicio de sesión.'));
+          const conflictFb = 'Este teléfono ya está verificado. Continúa con el inicio de sesión.';
+          this.errorMessage.set(
+            resolveUserFacingApiError(mappedError, {
+              fallback: conflictFb,
+              overrides: { CONFLICT: conflictFb },
+            }),
+          );
           this.state.set('error');
           return;
         }
@@ -70,7 +82,14 @@ export class VerifyPhoneVm {
           mappedError.status === 422
             ? 'No pudimos reenviar el SMS. Revisa que el registro siga activo.'
             : 'No pudimos reenviar el código. Intenta nuevamente.';
-        this.errorMessage.set(resolveApiErrorMessage(mappedError, fallback));
+        this.errorMessage.set(
+          resolveUserFacingApiError(mappedError, {
+            fallback,
+            overrides: {
+              VALIDATION_ERROR: 'No pudimos reenviar el SMS. Revisa que el registro siga activo.',
+            },
+          }),
+        );
         this.state.set('error');
         console.error(VERIFY_PHONE_LOG, 'resend-registration-phone-otp falló', {
           status: mappedError.status,

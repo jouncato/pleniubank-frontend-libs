@@ -6,7 +6,7 @@ import {
   unwrapValidateResponse,
 } from '@pleniu/identity-data-access';
 import { isValidReturnUrl, SessionStore } from '@pleniu/shared-auth';
-import { mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
+import { mapHttpError, resolveUserFacingApiError } from '@pleniu/shared-http';
 import { switchMap, map } from 'rxjs/operators';
 
 import { createCountdownTimer } from '../countdown-timer';
@@ -72,7 +72,9 @@ export class VerifyPhonePostLoginVm {
           return;
         }
         this.state.set('error');
-        this.errorMessage.set(resolveApiErrorMessage(mapped, 'No se pudo enviar el código.'));
+        this.errorMessage.set(
+          resolveUserFacingApiError(mapped, { fallback: 'No se pudo enviar el código.' }),
+        );
       },
     });
   }
@@ -94,7 +96,9 @@ export class VerifyPhonePostLoginVm {
           this.resendTimer.start(60);
           return;
         }
-        this.errorMessage.set(resolveApiErrorMessage(mapped, 'No se pudo reenviar el código.'));
+        this.errorMessage.set(
+          resolveUserFacingApiError(mapped, { fallback: 'No se pudo reenviar el código.' }),
+        );
       },
     });
   }
@@ -138,7 +142,7 @@ export class VerifyPhonePostLoginVm {
           this.errorMessage.set(
             mapped.status === 422 || mapped.status === 404
               ? 'Código incorrecto o expirado.'
-              : resolveApiErrorMessage(mapped, 'No se pudo verificar el código.'),
+              : resolveUserFacingApiError(mapped, { fallback: 'No se pudo verificar el código.' }),
           );
         },
       });

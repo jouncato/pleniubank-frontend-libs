@@ -13,7 +13,7 @@ import {
   SessionStore,
   stashDevPortalTokenHandoff,
 } from '@pleniu/shared-auth';
-import { ApiHttpError, mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
+import { ApiHttpError, mapHttpError, resolveUserFacingApiError } from '@pleniu/shared-http';
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 
@@ -94,7 +94,12 @@ export class LoginVm {
     if (mappedError.status === 423 || code === 'ACCOUNT_LOCKED') {
       this.rateLimit.reset();
       this.state.set('locked');
-      this.errorMessage.set(resolveApiErrorMessage(mappedError, 'Tu cuenta esta bloqueada.'));
+      this.errorMessage.set(
+        resolveUserFacingApiError(mappedError, {
+          fallback: 'Tu cuenta esta bloqueada.',
+          overrides: { ACCOUNT_LOCKED: 'Tu cuenta esta bloqueada.' },
+        }),
+      );
       return;
     }
     if (mappedError.status === 429) {
@@ -109,14 +114,20 @@ export class LoginVm {
     const badCredsFb = 'Correo o contrasena incorrectos.';
     if (mappedError.status === 401) {
       this.errorMessage.set(
-        code === 'USER_INACTIVE'
-          ? resolveApiErrorMessage(mappedError, inactiveFb)
-          : resolveApiErrorMessage(mappedError, badCredsFb),
+        resolveUserFacingApiError(mappedError, {
+          fallback: badCredsFb,
+          overrides: {
+            USER_INACTIVE: inactiveFb,
+            INVALID_CREDENTIALS: badCredsFb,
+          },
+        }),
       );
       return;
     }
     this.errorMessage.set(
-      resolveApiErrorMessage(mappedError, 'No fue posible iniciar sesion. Intenta nuevamente.'),
+      resolveUserFacingApiError(mappedError, {
+        fallback: 'No fue posible iniciar sesion. Intenta nuevamente.',
+      }),
     );
   }
 

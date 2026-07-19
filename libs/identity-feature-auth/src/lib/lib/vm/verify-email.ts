@@ -3,7 +3,7 @@ import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { IdentityAuthApiService, unwrapVerificationResponse } from '@pleniu/identity-data-access';
 import { PORTAL_APP, SessionStore, signInPathForPortal } from '@pleniu/shared-auth';
-import { mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
+import { mapHttpError, resolveUserFacingApiError } from '@pleniu/shared-http';
 
 import { createCountdownTimer } from '../countdown-timer';
 
@@ -69,7 +69,14 @@ export class VerifyEmailVm {
           mappedError.status === 422
             ? 'El código no es válido o expiró. Revisa tu correo o solicita uno nuevo.'
             : 'No pudimos verificar tu correo. Intenta nuevamente.';
-        this.errorMessage.set(resolveApiErrorMessage(mappedError, fallback));
+        this.errorMessage.set(
+          resolveUserFacingApiError(mappedError, {
+            fallback,
+            overrides: {
+              VALIDATION_ERROR: 'El código no es válido o expiró. Revisa tu correo o solicita uno nuevo.',
+            },
+          }),
+        );
         this.state.set('error');
         if (error instanceof HttpErrorResponse) {
           console.error(VERIFY_EMAIL_LOG, 'verify-email falló', {
@@ -109,8 +116,12 @@ export class VerifyEmailVm {
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);
         if (mappedError.status === 429) {
+          const rateLimitFb = 'Debes esperar antes de solicitar otro código.';
           this.errorMessage.set(
-            resolveApiErrorMessage(mappedError, 'Debes esperar antes de solicitar otro código.'),
+            resolveUserFacingApiError(mappedError, {
+              fallback: rateLimitFb,
+              overrides: { RATE_LIMIT_EXCEEDED: rateLimitFb },
+            }),
           );
           this.state.set('rate_limited');
           this.resendTimer.start(RESEND_COOLDOWN_SEC);
@@ -120,7 +131,14 @@ export class VerifyEmailVm {
           mappedError.status === 404
             ? 'No encontramos un registro pendiente con ese identificador.'
             : 'No pudimos reenviar el código. Intenta nuevamente.';
-        this.errorMessage.set(resolveApiErrorMessage(mappedError, fallback));
+        this.errorMessage.set(
+          resolveUserFacingApiError(mappedError, {
+            fallback,
+            overrides: {
+              NOT_FOUND: 'No encontramos un registro pendiente con ese identificador.',
+            },
+          }),
+        );
         this.state.set('error');
         if (error instanceof HttpErrorResponse) {
           console.error(VERIFY_EMAIL_LOG, 'resend-email-otp falló', {

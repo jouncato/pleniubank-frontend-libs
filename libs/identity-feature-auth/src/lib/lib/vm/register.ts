@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { RegisterEnvelope, RegisterRequest, RegisterResponse } from 'identity-domain';
 import { IdentityAuthApiService } from '@pleniu/identity-data-access';
 import { SessionStore } from '@pleniu/shared-auth';
-import { mapHttpError, resolveApiErrorMessage } from '@pleniu/shared-http';
+import { mapHttpError, resolveUserFacingApiError } from '@pleniu/shared-http';
 
 const REGISTER_LOG = '[Pleniu auth/register]';
 
@@ -81,8 +81,12 @@ export class RegisterVm {
 
         const generic = 'No fue posible completar el registro. Intenta nuevamente.';
         if (mappedError.status === 422) {
+          const validationFb = 'Revisa los datos ingresados e intenta nuevamente.';
           this.errorMessage.set(
-            resolveApiErrorMessage(mappedError, 'Revisa los datos ingresados e intenta nuevamente.'),
+            resolveUserFacingApiError(mappedError, {
+              fallback: validationFb,
+              overrides: { VALIDATION_ERROR: validationFb },
+            }),
           );
         } else if (mappedError.status === 409) {
           const raw = (mappedError.errors[0]?.message ?? '').toLowerCase();
@@ -96,7 +100,7 @@ export class RegisterVm {
           }
           this.errorMessage.set(conflictMsg);
         } else {
-          this.errorMessage.set(resolveApiErrorMessage(mappedError, generic));
+          this.errorMessage.set(resolveUserFacingApiError(mappedError, { fallback: generic }));
         }
         this.state.set('error');
       },
