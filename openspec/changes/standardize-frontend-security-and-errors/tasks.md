@@ -58,13 +58,28 @@
 
 ## 4. Rollout y cierre
 
-> **PARCIAL (2026-07-19)** — alcance de este change confirmado como **solo QA**
-> (producción queda fuera, es una decisión/change aparte más adelante). Verificación
-> local completa; falta la validación contra el despliegue real de QA.
+> **BLOQUEADO en 4.1b (2026-07-19)** — alcance confirmado como **solo QA** (producción
+> queda fuera). Verificación local completa. El intento de validar contra QA real reveló
+> un problema de CI/CD ajeno a este change (ver nota de 4.1b) — no bloquea el código ya
+> implementado (secciones 1-3), pero impide cerrar 4.1b/4.2/4.4 hasta que se resuelva.
 
 - [x] 4.1a Validar login, refresh (implícito vía `authGuard`/`validateHandler`), CSRF y WebSocket **localmente** con `identity-service` + `core` + `customer-portal`/`backoffice-portal` corriendo en la máquina de desarrollo.
-- [ ] 4.1b Repetir la validación contra `https://mvp.pleniu.net` después de desplegar la configuración `qa` (pendiente de un despliegue real a QA).
-- [ ] 4.2 Ejecutar pruebas XSS/CSRF, inspección de storage/URLs/logs y regresión en ambos portales, en QA (más allá de la verificación manual local ya hecha).
+- [ ] 4.1b Repetir la validación contra `https://mvp.pleniu.net`.
+  - **Bloqueado por infraestructura, no por este change.** Se pusheó a `master` en
+    `pleniubank-customer-portal` (`9194be9`) y se mergeó `feature/platform-engineering` →
+    `master` en `pleniubank-backoffice-portal` (`e7ecc8e`) para disparar `deploy-qa`. Un
+    redeploy real ocurrió (bundle JS cambió en ambos portales), pero **no fue el mío**:
+    verificado en `pleniubank-infra-platform` que el overlay QA de ambos portales
+    (`apps/pleniubank-{customer,backoffice}-portal/overlays/qa/kustomization.yaml`) quedó
+    en el tag `pa-cap-20260719-1612` (commit `943a13b`, 2026-07-19 11:16:14) — un
+    despliegue manual/no relacionado de otro proceso, no el `qa-<sha>` que produce
+    `reusable-deploy-env.yml` al recibir `image_tag` de mi job `deploy-qa`. **No existe
+    ningún commit `chore(qa): bump ... to qa-<sha>` en el historial** — evidencia de que mi
+    `deploy-qa` nunca llegó a ejecutar ese paso (probablemente el job `unit` u otro paso
+    previo falló y bloqueó el pipeline; no se pudo confirmar la causa exacta sin acceso a
+    los logs de GitHub Actions desde este entorno). El código de las secciones 1-3 está
+    completo y verificado localmente — este bloqueo es puramente de despliegue/CI.
+- [ ] 4.2 Ejecutar pruebas XSS/CSRF, inspección de storage/URLs/logs y regresión en ambos portales, en QA (depende de 4.1b).
 - [x] 4.3 Publicar guía de migración y rollback para consumidores de las librerías.
   - `docs/session-strategy-rollout.md` (este repo): tabla de flags por entorno, pasos de prueba local, y checklist explícito para (más adelante) activar producción.
-- [ ] 4.4 Adjuntar evidencias de QA (login/CSRF/WS reales en `mvp.pleniu.net`) antes de archivar. Sign-off de Producto/Seguridad para producción **no aplica** a este change — queda documentado como trabajo futuro, no como bloqueante de cierre.
+- [ ] 4.4 Adjuntar evidencias de QA (login/CSRF/WS reales en `mvp.pleniu.net`) antes de archivar — depende de 4.1b/4.2. Sign-off de Producto/Seguridad para producción **no aplica** a este change.
