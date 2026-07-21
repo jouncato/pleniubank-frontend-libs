@@ -3,10 +3,12 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 import {
+  AliasProposalsResponseDto,
   BrebKeyRegisterRequest,
   BrebKeyRevokeResponseDto,
   BrebKeySelfServiceDto,
   BrebKeySelfServiceListResponseDto,
+  SetBrebKeyPrimaryResponseDto,
 } from '@pleniu/core-domain';
 
 import { corePublicV1Base } from './core-api-base';
@@ -49,5 +51,26 @@ export class CoreBrebKeysSelfServiceApiService {
 
   remove(brebKeyId: string): Observable<ApiEnvelope<BrebKeyRevokeResponseDto>> {
     return this.http.delete<ApiEnvelope<BrebKeyRevokeResponseDto>>(`${this.base}/${brebKeyId}`);
+  }
+
+  /**
+   * `POST .../proposals` (core): sugerencias pre-pobladas (documento/celular/
+   * correo) con disponibilidad, derivadas del KYC del cliente autenticado.
+   * Nunca incluye CUSTOM (es de ingreso manual) — ver `BrebKeyProposalType`.
+   */
+  getProposals(): Observable<ApiEnvelope<AliasProposalsResponseDto>> {
+    return this.http.post<ApiEnvelope<AliasProposalsResponseDto>>(`${this.base}/proposals`, {});
+  }
+
+  /**
+   * `PUT .../{id}/primary` (core, extend-breb-key-management-co): designa
+   * `brebKeyId` como la llave principal del cliente (exactamente una activa
+   * por cliente). 404 si la llave no existe, no está activa o no es propia.
+   */
+  setPrimary(brebKeyId: string): Observable<ApiEnvelope<SetBrebKeyPrimaryResponseDto>> {
+    return this.http.put<ApiEnvelope<SetBrebKeyPrimaryResponseDto>>(
+      `${this.base}/${brebKeyId}/primary`,
+      {},
+    );
   }
 }

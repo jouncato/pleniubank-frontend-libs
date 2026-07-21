@@ -94,4 +94,14 @@ describe('Interceptores globales aplican a los servicios B2C nuevos (sin bypass)
     expect(req.request.headers.get('X-Correlation-ID')).toBeTruthy();
     req.flush({ data: { items: [], total: 0 } });
   });
+
+  it('CoreBrebKeysSelfServiceApiService.getProposals() (extend-breb-key-management-data-access) tampoco bypasea los interceptores', () => {
+    const service = TestBed.inject(CoreBrebKeysSelfServiceApiService);
+    service.getProposals().subscribe();
+
+    const req = httpTesting.expectOne('http://localhost:8000/api/v1/public/customers/me/breb-keys/proposals');
+    expect(req.request.headers.get('X-Tenant-Country')).toBe('CO');
+    expect(req.request.headers.get('X-Correlation-ID')).toBeTruthy();
+    req.flush({ data: { proposals: [] } });
+  });
 });

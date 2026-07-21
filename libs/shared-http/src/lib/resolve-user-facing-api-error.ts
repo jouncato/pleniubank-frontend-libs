@@ -34,6 +34,8 @@ const KNOWN_ERROR_CODE_MESSAGES: Readonly<Record<string, string>> = {
   NOT_ELIGIBLE: 'No fue posible completar la solicitud con los datos indicados.',
   OTP_LOCKED: 'Superaste los intentos permitidos. Espera unos minutos e inténtalo de nuevo.',
   RATE_LIMIT_EXCEEDED: 'Demasiados intentos. Espera un momento antes de volver a intentarlo.',
+  CUSTOM_KEY_FORMAT_NOT_ALLOWED:
+    'Ese alias no es válido. Usa solo letras y números, sin espacios, y evita palabras reservadas.',
 };
 
 const GENERIC_FALLBACK_MESSAGE = 'Ocurrió un error inesperado.';

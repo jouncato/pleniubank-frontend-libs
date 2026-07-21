@@ -31,6 +31,7 @@ const KNOWN_CODE_CASES: Array<[string, RegExp]> = [
   ['NOT_ELIGIBLE', /no fue posible completar la solicitud/i],
   ['OTP_LOCKED', /intentos permitidos/i],
   ['RATE_LIMIT_EXCEEDED', /demasiados intentos/i],
+  ['CUSTOM_KEY_FORMAT_NOT_ALLOWED', /alias no es válido/i],
 ];
 
 describe('resolveUserFacingApiError — catálogo central', () => {

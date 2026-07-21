@@ -7,7 +7,10 @@
 
 export type WalletStatus = 'ACTIVE' | 'PROVISIONING';
 
-export type BrebKeyType = 'CEDULA' | 'CELULAR' | 'EMAIL';
+export type BrebKeyType = 'CEDULA' | 'CELULAR' | 'EMAIL' | 'CUSTOM';
+
+/** Tipos que el backend puede sugerir como alias pre-poblado (nunca CUSTOM — ese es de ingreso manual). */
+export type BrebKeyProposalType = Exclude<BrebKeyType, 'CUSTOM'>;
 
 export interface WalletBalanceDto {
   amount: string;
@@ -51,6 +54,8 @@ export interface BrebKeySelfServiceDto {
   is_active: boolean;
   /** `true` una vez un operador de plataforma la verifica. */
   verified: boolean;
+  /** Exactamente una llave activa por cliente lleva `true` (extend-breb-key-management-co). */
+  is_primary: boolean;
   created_at: string | null;
   /**
    * Cuenta a la que esta llave resuelve las transferencias entrantes
@@ -76,4 +81,21 @@ export interface BrebKeyRegisterRequest {
 export interface BrebKeyRevokeResponseDto {
   deactivated: boolean;
   breb_key_id: string;
+}
+
+/** `POST /customers/me/breb-keys/proposals` — sugerencias pre-pobladas desde el KYC del cliente. */
+export interface AliasProposalItemDto {
+  key_type: BrebKeyProposalType;
+  /** Enmascarado server-side (`mask_breb_value`); nunca el valor completo. */
+  masked_value: string;
+  availability: 'AVAILABLE' | 'TAKEN' | 'UNKNOWN';
+}
+
+export interface AliasProposalsResponseDto {
+  proposals: AliasProposalItemDto[];
+}
+
+/** `PUT /customers/me/breb-keys/{id}/primary`. */
+export interface SetBrebKeyPrimaryResponseDto {
+  primary_key: BrebKeySelfServiceDto;
 }

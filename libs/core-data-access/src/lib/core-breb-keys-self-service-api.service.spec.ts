@@ -182,6 +182,118 @@ describe('CoreBrebKeysSelfServiceApiService', () => {
         'BREB_KEY_NOT_ELIGIBLE',
       );
     });
+
+    it('registra una llave CUSTOM y refleja is_primary en la respuesta', () => {
+      service.register({ key_type: 'CUSTOM', key_value: 'MiAliasCustom1' }).subscribe((response) => {
+        expect(response.data.key_type).toBe('CUSTOM');
+        expect(response.data.is_primary).toBe(true);
+      });
+
+      const req = httpTesting.expectOne(BASE_URL);
+      expect(req.request.body).toEqual({ key_type: 'CUSTOM', key_value: 'MiAliasCustom1' });
+      req.flush({
+        data: {
+          id: 'key-custom-1',
+          key_type: 'CUSTOM',
+          is_active: true,
+          verified: false,
+          is_primary: true,
+          created_at: '2026-07-20T00:00:00Z',
+          account_id: 'acc-1',
+        },
+        meta: { correlation_id: 'corr-7' },
+        errors: [],
+      });
+    });
+
+    it('422 CUSTOM_KEY_FORMAT_NOT_ALLOWED se propaga sin enriquecer', () => {
+      let errorCode: string | undefined;
+      service.register({ key_type: 'CUSTOM', key_value: 'pleniu-admin' }).subscribe({
+        error: (err) => {
+          errorCode = err.error?.errors?.[0]?.code;
+        },
+      });
+
+      const req = httpTesting.expectOne(BASE_URL);
+      req.flush(
+        {
+          data: null,
+          meta: { correlation_id: 'corr-8' },
+          errors: [{ code: 'CUSTOM_KEY_FORMAT_NOT_ALLOWED', message: 'Palabra reservada.' }],
+        },
+        { status: 422, statusText: 'Unprocessable Entity' },
+      );
+
+      expect(errorCode).toBe('CUSTOM_KEY_FORMAT_NOT_ALLOWED');
+    });
+  });
+
+  describe('getProposals', () => {
+    it('POST .../proposals devuelve sugerencias enmascaradas con disponibilidad', () => {
+      service.getProposals().subscribe((response) => {
+        expect(response.data.proposals).toEqual([
+          { key_type: 'CEDULA', masked_value: '103***5489', availability: 'AVAILABLE' },
+          { key_type: 'CELULAR', masked_value: '300***4567', availability: 'TAKEN' },
+        ]);
+      });
+
+      const req = httpTesting.expectOne(`${BASE_URL}/proposals`);
+      expect(req.request.method).toBe('POST');
+      req.flush({
+        data: {
+          proposals: [
+            { key_type: 'CEDULA', masked_value: '103***5489', availability: 'AVAILABLE' },
+            { key_type: 'CELULAR', masked_value: '300***4567', availability: 'TAKEN' },
+          ],
+        },
+        meta: { correlation_id: 'corr-9' },
+        errors: [],
+      });
+    });
+  });
+
+  describe('setPrimary', () => {
+    it('PUT .../{id}/primary devuelve la llave principal actualizada', () => {
+      service.setPrimary('key-2').subscribe((response) => {
+        expect(response.data.primary_key.id).toBe('key-2');
+        expect(response.data.primary_key.is_primary).toBe(true);
+      });
+
+      const req = httpTesting.expectOne(`${BASE_URL}/key-2/primary`);
+      expect(req.request.method).toBe('PUT');
+      req.flush({
+        data: {
+          primary_key: {
+            id: 'key-2',
+            key_type: 'CELULAR',
+            is_active: true,
+            verified: true,
+            is_primary: true,
+            created_at: '2026-07-01T00:00:00Z',
+            account_id: 'acc-1',
+          },
+        },
+        meta: { correlation_id: 'corr-10' },
+        errors: [],
+      });
+    });
+
+    it('404 BREB_KEY_NOT_FOUND se propaga cuando la llave no es propia o no está activa', () => {
+      let failed = false;
+      service.setPrimary('key-ajena').subscribe({
+        error: () => {
+          failed = true;
+        },
+      });
+
+      const req = httpTesting.expectOne(`${BASE_URL}/key-ajena/primary`);
+      req.flush(
+        { data: null, meta: { correlation_id: 'corr-11' }, errors: [{ code: 'BREB_KEY_NOT_FOUND', message: 'x' }] },
+        { status: 404, statusText: 'Not Found' },
+      );
+
+      expect(failed).toBe(true);
+    });
   });
 
   describe('remove', () => {
