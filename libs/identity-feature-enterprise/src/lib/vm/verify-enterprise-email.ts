@@ -11,9 +11,6 @@ function verifyEnterpriseEmailUserMessage(status: number, raw: string): string {
   if (status === 404) {
     return 'Proceso expirado, reinicia el registro empresa.';
   }
-  if (status === 422) {
-    return 'Datos inválidos. Reinicia el proceso de registro.';
-  }
   const key = raw.trim();
   const known: Record<string, string> = {
     'Invalid verification code': 'Código incorrecto.',
@@ -25,8 +22,14 @@ function verifyEnterpriseEmailUserMessage(status: number, raw: string): string {
       'No hay un código pendiente. Pulsa «Reenviar código» para recibir uno nuevo.',
     'Invalid user for enterprise email verification': 'Este paso no aplica a tu usuario. Reinicia el registro.',
   };
+  // Los códigos 4xx específicos (expirado, incorrecto, bloqueado, etc.) ya tienen
+  // un mensaje accionable en `known`; el fallback genérico de 422 solo debe verse
+  // cuando el backend manda un detalle no contemplado.
   if (known[key]) {
     return known[key];
+  }
+  if (status === 422) {
+    return 'Datos inválidos. Reinicia el proceso de registro.';
   }
   if (key.length > 0) {
     return key;
