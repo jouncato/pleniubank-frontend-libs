@@ -6,7 +6,27 @@ import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 import { SessionStore } from '@pleniu/shared-auth';
 
 import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
-import { VerifyEnterpriseEmailVm } from './verify-enterprise-email';
+import { VerifyEnterpriseEmailVm, verifyEnterpriseEmailUserMessage } from './verify-enterprise-email';
+
+describe('verifyEnterpriseEmailUserMessage', () => {
+  it('(422, "Verification code expired") devuelve el mensaje específico de código expirado', () => {
+    expect(verifyEnterpriseEmailUserMessage(422, 'Verification code expired')).toBe(
+      'El código expiró. Puedes solicitar uno nuevo con «Reenviar código».',
+    );
+  });
+
+  it('(422, "detalle no mapeado") devuelve el mensaje genérico de datos inválidos', () => {
+    expect(verifyEnterpriseEmailUserMessage(422, 'detalle no mapeado')).toBe(
+      'Datos inválidos. Reinicia el proceso de registro.',
+    );
+  });
+
+  it('(404, cualquier detalle) devuelve el mensaje de proceso expirado', () => {
+    expect(verifyEnterpriseEmailUserMessage(404, 'cualquier detalle')).toBe(
+      'Proceso expirado, reinicia el registro empresa.',
+    );
+  });
+});
 
 describe('VerifyEnterpriseEmailVm', () => {
   const createTestBed = (options: {

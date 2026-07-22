@@ -7,7 +7,7 @@ import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
 
 export type EnterpriseEmailRole = 'principal' | 'admin';
 
-function verifyEnterpriseEmailUserMessage(status: number, raw: string): string {
+export function verifyEnterpriseEmailUserMessage(status: number, raw: string): string {
   if (status === 404) {
     return 'Proceso expirado, reinicia el registro empresa.';
   }
