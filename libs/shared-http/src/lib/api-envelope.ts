@@ -16,6 +16,9 @@ export interface ApiErrorItem {
   code: string;
   message: string;
   field?: string;
+  /** Structured detail the backend attaches to some business-rule errors
+   *  (e.g. { reason: "Transition SETTLED -> SETTLED is not permitted" }). */
+  details?: Record<string, unknown>;
 }
 
 export interface ApiEnvelope<T> {
