@@ -70,6 +70,7 @@ export interface CoaListParams {
   search?: string;
   offset?: number;
   limit?: number;
+  include_inactive?: boolean;
 }
 
 export interface CoaCreateDto {
@@ -107,6 +108,15 @@ export interface CoaUpdateDto {
   ifrs_code?: string | null;
 }
 
+export interface CoaDeactivationImpact {
+  can_deactivate: boolean;
+  has_active_children: boolean;
+  active_children_codes: string[];
+  has_historical_postings: boolean;
+  referenced_by_active_templates: boolean;
+  template_codes: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class CoreFinancialAccountingApiService {
   private readonly base: string;
@@ -135,6 +145,7 @@ export class CoreFinancialAccountingApiService {
     if (params.search) hp = hp.set('search', params.search);
     if (params.offset != null) hp = hp.set('offset', String(params.offset));
     if (params.limit != null) hp = hp.set('limit', String(params.limit));
+    if (params.include_inactive) hp = hp.set('include_inactive', 'true');
     return this.http.get<ApiEnvelope<ChartOfAccountDto[]>>(this.base, { params: hp });
   }
 
@@ -182,6 +193,24 @@ export class CoreFinancialAccountingApiService {
   ): Observable<ApiEnvelope<ChartOfAccountDto>> {
     return this.http.delete<ApiEnvelope<ChartOfAccountDto>>(
       `${this.base}/${countryCode}/${accountCode}`
+    );
+  }
+
+  getDeactivationImpact(
+    countryCode: string,
+    accountCode: string
+  ): Observable<ApiEnvelope<CoaDeactivationImpact>> {
+    return this.http.get<ApiEnvelope<CoaDeactivationImpact>>(
+      `${this.base}/${countryCode}/${accountCode}/deactivation-impact`
+    );
+  }
+
+  activate(
+    countryCode: string,
+    accountCode: string
+  ): Observable<ApiEnvelope<ChartOfAccountDto>> {
+    return this.http.post<ApiEnvelope<ChartOfAccountDto>>(
+      `${this.base}/${countryCode}/${accountCode}/activate`, {}
     );
   }
 
