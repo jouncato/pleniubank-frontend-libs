@@ -3,6 +3,13 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 import { coreAdminV1Base } from './core-api-base';
+import { CoreMutationPreflightService } from './core-mutation-preflight';
+import { encodePathSegment } from './core-path.util';
+
+const TREASURY_LIQUIDITY_MUTATION = {
+  operation: 'treasury-liquidity.mutation',
+  requiredFlag: 'treasuryLiquidity' as const,
+};
 
 export type CustodyPurpose = 'DISBURSEMENT' | 'COLLECTION' | 'SETTLEMENT' | 'RESERVE';
 export type PartyBankAccountKind = 'FBO' | 'TRUST' | 'ESCROW';
@@ -292,6 +299,7 @@ export class CoreTreasuryLiquidityApiService {
   constructor(
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
+    private readonly preflight: CoreMutationPreflightService,
   ) {
     this.base = coreAdminV1Base(apiConfig);
   }
@@ -327,24 +335,24 @@ export class CoreTreasuryLiquidityApiService {
   }
 
   createPartyBankAccount(payload: PartyBankAccountCreateRequest): Observable<ApiEnvelope<PartyBankAccountDto>> {
-    return this.http.post<ApiEnvelope<PartyBankAccountDto>>(`${this.base}/party-bank-accounts`, payload);
+    return this.runMutation({ legalEntityId: payload.legal_entity_id }, () => this.http.post<ApiEnvelope<PartyBankAccountDto>>(`${this.base}/party-bank-accounts`, payload));
   }
 
   verifyPartyBankAccount(partyBankAccountId: string): Observable<ApiEnvelope<PartyBankAccountDto>> {
-    return this.http.post<ApiEnvelope<PartyBankAccountDto>>(
-      `${this.base}/party-bank-accounts/${partyBankAccountId}/verify`,
+    return this.runMutation({ partyBankAccountId }, () => this.http.post<ApiEnvelope<PartyBankAccountDto>>(
+      `${this.base}/party-bank-accounts/${encodePathSegment(partyBankAccountId)}/verify`,
       {},
-    );
+    ));
   }
 
   updatePartyBankAccountStatus(
     partyBankAccountId: string,
     payload: PartyBankAccountUpdateStatusRequest,
   ): Observable<ApiEnvelope<PartyBankAccountDto>> {
-    return this.http.patch<ApiEnvelope<PartyBankAccountDto>>(
-      `${this.base}/party-bank-accounts/${partyBankAccountId}`,
+    return this.runMutation({ partyBankAccountId }, () => this.http.patch<ApiEnvelope<PartyBankAccountDto>>(
+      `${this.base}/party-bank-accounts/${encodePathSegment(partyBankAccountId)}`,
       payload,
-    );
+    ));
   }
 
   listMasterCustodyAccounts(params: {
@@ -366,19 +374,21 @@ export class CoreTreasuryLiquidityApiService {
   }
 
   createMasterCustodyAccount(payload: MasterCustodyAccountCreateRequest): Observable<ApiEnvelope<MasterCustodyAccountDto>> {
-    return this.http.post<ApiEnvelope<MasterCustodyAccountDto>>(`${this.base}/master-custody-accounts`, payload);
+    return this.runMutation({ accountId: payload.account_id }, () => this.http.post<ApiEnvelope<MasterCustodyAccountDto>>(`${this.base}/master-custody-accounts`, payload));
   }
 
   updateMasterCustodyAccount(
     custodyId: string,
     payload: MasterCustodyAccountUpdateRequest,
   ): Observable<ApiEnvelope<MasterCustodyAccountDto>> {
-    return this.http.patch<ApiEnvelope<MasterCustodyAccountDto>>(`${this.base}/master-custody-accounts/${custodyId}`, payload);
+    return this.runMutation({ custodyId }, () => this.http.patch<ApiEnvelope<MasterCustodyAccountDto>>(
+      `${this.base}/master-custody-accounts/${encodePathSegment(custodyId)}`, payload,
+    ));
   }
 
   getCustodyPosition(custodyId: string, denomination = 'COP'): Observable<ApiEnvelope<CustodyPositionDto>> {
     const hp = new HttpParams().set('denomination', denomination);
-    return this.http.get<ApiEnvelope<CustodyPositionDto>>(`${this.base}/master-custody-accounts/${custodyId}/positions`, { params: hp });
+    return this.http.get<ApiEnvelope<CustodyPositionDto>>(`${this.base}/master-custody-accounts/${encodePathSegment(custodyId)}/positions`, { params: hp });
   }
 
   listSubLedgers(custodyMasterId: string): Observable<ApiEnvelope<SubLedgerAssignmentListPayload>> {
@@ -387,7 +397,11 @@ export class CoreTreasuryLiquidityApiService {
   }
 
   createSubLedgerAssignment(payload: SubLedgerAssignmentCreateRequest): Observable<ApiEnvelope<SubLedgerAssignmentDto>> {
-    return this.http.post<ApiEnvelope<SubLedgerAssignmentDto>>(`${this.base}/sub-ledgers`, payload);
+    return this.runMutation({
+      accountId: payload.account_id,
+      custodyMasterId: payload.custody_master_id,
+      ledgerKind: payload.ledger_kind,
+    }, () => this.http.post<ApiEnvelope<SubLedgerAssignmentDto>>(`${this.base}/sub-ledgers`, payload));
   }
 
   getSubLedgersBalance(custodyMasterId: string, denomination = 'COP'): Observable<ApiEnvelope<SubLedgerBalanceDto>> {
@@ -398,7 +412,9 @@ export class CoreTreasuryLiquidityApiService {
   }
 
   deactivateSubLedger(assignmentId: string): Observable<ApiEnvelope<SubLedgerAssignmentDto>> {
-    return this.http.delete<ApiEnvelope<SubLedgerAssignmentDto>>(`${this.base}/sub-ledgers/${assignmentId}`);
+    return this.runMutation({ assignmentId }, () => this.http.delete<ApiEnvelope<SubLedgerAssignmentDto>>(
+      `${this.base}/sub-ledgers/${encodePathSegment(assignmentId)}`,
+    ));
   }
 
   // AUDITORÍA Ola 14 — dashboard cruzado caja-vs-GL, vista por cuenta, alertas.
@@ -419,14 +435,14 @@ export class CoreTreasuryLiquidityApiService {
       hp = hp.set('limit', String(params.limit));
     }
     return this.http.get<ApiEnvelope<CustodyAccountDetailDto>>(
-      `${this.base}/master-custody-accounts/${custodyId}/detail`,
+      `${this.base}/master-custody-accounts/${encodePathSegment(custodyId)}/detail`,
       { params: hp },
     );
   }
 
   exportCustodyAccountReportCsv(custodyId: string, denomination = 'COP'): Observable<Blob> {
     const hp = new HttpParams().set('denomination', denomination);
-    return this.http.get(`${this.base}/master-custody-accounts/${custodyId}/detail/export.csv`, {
+    return this.http.get(`${this.base}/master-custody-accounts/${encodePathSegment(custodyId)}/detail/export.csv`, {
       params: hp,
       responseType: 'blob',
     });
@@ -480,6 +496,10 @@ export class CoreTreasuryLiquidityApiService {
   getAccountingPeriods(country = 'CO'): Observable<ApiEnvelope<AccountingPeriodDto[]>> {
     const hp = new HttpParams().set('country', country);
     return this.http.get<ApiEnvelope<AccountingPeriodDto[]>>(`${this.base}/gl-reporting/periods`, { params: hp });
+  }
+
+  private runMutation<T>(context: unknown, requestFactory: () => Observable<T>): Observable<T> {
+    return this.preflight.run(TREASURY_LIQUIDITY_MUTATION, context, requestFactory);
   }
 }
 

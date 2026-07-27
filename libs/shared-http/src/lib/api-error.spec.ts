@@ -67,4 +67,23 @@ describe('mapHttpError', () => {
     const m = mapHttpError(err);
     expect(m.message).not.toMatch(/Http failure response/i);
   });
+
+  it.each([403, 404, 409, 422, 500, 502, 503])('normaliza %s sin depender de detalles crudos', (status) => {
+    const err = new HttpErrorResponse({
+      status,
+      url: '/api/v1/admin/financial-operation',
+      error: {
+        errors: [{ code: `CORE_${status}`, message: 'Mensaje seguro' }],
+        meta: { correlation_id: 'cid-admin-1' },
+      },
+    });
+
+    const mapped = mapHttpError(err);
+
+    expect(mapped).toBeInstanceOf(Error);
+    expect(mapped.status).toBe(status);
+    expect(mapped.errors[0]?.code).toBe(`CORE_${status}`);
+    expect(mapped.correlationId).toBe('cid-admin-1');
+    expect(mapped.message).not.toContain('financial-operation');
+  });
 });

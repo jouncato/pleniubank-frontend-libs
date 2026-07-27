@@ -4,6 +4,12 @@ import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 
 import { coreAdminV1Base } from './core-api-base';
+import { CoreMutationPreflightService } from './core-mutation-preflight';
+
+const TREASURY_RECONCILIATION_MUTATION = {
+  operation: 'treasury-reconciliation.run',
+  requiredFlag: 'treasuryReconciliation' as const,
+};
 
 export interface BrebPositionDto {
   suspense_account_id: string;
@@ -53,6 +59,7 @@ export interface BrebReconciliationExceptionsResponse {
 export class CoreBrebTreasuryApiService {
   private readonly http = inject(HttpClient);
   private readonly apiConfig = inject<ApiConfig>(API_CONFIG);
+  private readonly preflight = inject(CoreMutationPreflightService);
   private readonly base = coreAdminV1Base(this.apiConfig);
 
   getPosition(): Observable<ApiEnvelope<BrebPositionDto>> {
@@ -60,10 +67,11 @@ export class CoreBrebTreasuryApiService {
   }
 
   runReconciliation(country: string, cycleDate: string): Observable<BrebReconciliationRunResponse> {
-    return this.http.post<BrebReconciliationRunResponse>(`${this.base}/paymenthub/rails/breb/reconciliation`, {
+    const request = () => this.http.post<BrebReconciliationRunResponse>(`${this.base}/paymenthub/rails/breb/reconciliation`, {
       country,
       cycle_date: cycleDate,
     });
+    return this.preflight.run(TREASURY_RECONCILIATION_MUTATION, { country, cycleDate }, request);
   }
 
   listReconciliationExceptions(country: string, cycleDate: string): Observable<BrebReconciliationExceptionsResponse> {

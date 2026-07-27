@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pleniubank.internal/contracts/breb-key-validation/v1/contract.schema.json",
+  "title": "Bre-B CUSTOM key validation contract",
+  "description": "Fuente única de verdad para la sintaxis de alias CUSTOM Bre-B, consumida por los paquetes @pleniu/breb-key-validation-contract (TypeScript) y pleniu-breb-key-validation-contract (Python). Ver openspec/changes/centralize-breb-key-validation-contract-co en pleniubank-core (design.md Decision 2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_id", "contract_version", "country_code", "profiles", "rules"],
+  "properties": {
+    "contract_id": {
+      "const": "breb-custom-key-validation"
+    },
+    "contract_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "SemVer. Un cambio que pueda rechazar entradas previamente válidas (rango, patrón, prefijo, blocked_terms policy) incrementa major; uno compatible incrementa minor."
+    },
+    "country_code": {
+      "const": "CO"
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["NATURAL_PERSON", "LEGAL_ENTITY"],
+      "properties": {
+        "NATURAL_PERSON": { "$ref": "#/$defs/profileConfig" },
+        "LEGAL_ENTITY": { "$ref": "#/$defs/profileConfig" }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/rule" }
+    }
+  },
+  "$defs": {
+    "profileConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["custom_rule"],
+      "properties": {
+        "custom_rule": {
+          "type": "string",
+          "description": "Debe existir como clave en `rules`."
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prefix", "body", "blocked_terms", "confusability", "errors"],
+      "properties": {
+        "prefix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "required", "counts_toward_length"],
+          "properties": {
+            "value": { "const": "@" },
+            "required": {
+              "type": "boolean",
+              "description": "Si es true, el prefijo ausente produce errors.missing_prefix."
+            },
+            "counts_toward_length": {
+              "const": false,
+              "description": "El prefijo se excluye siempre de min_length/max_length en v1."
+            }
+          }
+        },
+        "body": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pattern", "regex_flavor", "min_length", "max_length", "length_unit"],
+          "properties": {
+            "pattern": {
+              "const": "^[A-Za-z0-9]+$",
+              "description": "ASCII alfanumérico portable entre Python re.fullmatch y JavaScript/ECMAScript (v1)."
+            },
+            "regex_flavor": { "const": "portable_ascii_ecmascript_python" },
+            "min_length": { "type": "integer", "minimum": 1 },
+            "max_length": { "type": "integer", "minimum": 1 },
+            "length_unit": { "const": "unicode_code_points_after_prefix" }
+          }
+        },
+        "blocked_terms": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["applies_to", "match", "case_sensitive", "unavailable_policy"],
+          "description": "Solo declara la SEMÁNTICA de la política; el listado real de términos NUNCA vive aquí (permanece en configuración segura de Core — design.md Non-Goal).",
+          "properties": {
+            "applies_to": { "const": "body" },
+            "match": { "const": "substring" },
+            "case_sensitive": { "const": false },
+            "unavailable_policy": {
+              "const": "REJECT",
+              "description": "Fail-closed: si la blocklist de Core no puede cargarse, se rechaza el alta CUSTOM."
+            }
+          }
+        },
+        "confusability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["email_like", "digits_only", "colombia_mobile"],
+          "properties": {
+            "email_like": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["pattern", "outcome"],
+              "properties": {
+                "pattern": { "type": "string" },
+                "outcome": { "const": "REJECT" }
+              }
+            },
+            "digits_only": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["outcome"],
+              "properties": {
+                "outcome": { "const": "REJECT" }
+              }
+            },
+            "colombia_mobile": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["pattern", "outcome"],
+              "properties": {
+                "pattern": { "type": "string" },
+                "outcome": { "const": "REJECT" }
+              }
+            }
+          }
+        },
+        "errors": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["missing_prefix", "format"],
+          "properties": {
+            "missing_prefix": { "const": "CUSTOM_KEY_MISSING_AT_PREFIX" },
+            "format": { "const": "CUSTOM_KEY_FORMAT_NOT_ALLOWED" }
+          }
+        }
+      }
+    }
+  }
+}

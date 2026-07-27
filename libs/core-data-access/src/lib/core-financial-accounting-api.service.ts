@@ -3,6 +3,13 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 import { coreAdminV1Base } from './core-api-base';
+import { CoreMutationPreflightService } from './core-mutation-preflight';
+import { encodePathSegment } from './core-path.util';
+
+const FINANCIAL_ACCOUNTING_MUTATION = {
+  operation: 'financial-accounting.mutation',
+  requiredFlag: 'financialAccounting' as const,
+};
 
 export type CoaClass = 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE' | 'CONTINGENT' | 'ORDER';
 export type JournalSide = 'DEBIT' | 'CREDIT';
@@ -124,6 +131,7 @@ export class CoreFinancialAccountingApiService {
   constructor(
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
+    private readonly preflight: CoreMutationPreflightService,
   ) {
     this.base = `${coreAdminV1Base(apiConfig)}/chart-of-accounts`;
   }
@@ -151,19 +159,19 @@ export class CoreFinancialAccountingApiService {
 
   get(countryCode: string, accountCode: string): Observable<ApiEnvelope<ChartOfAccountDto>> {
     return this.http.get<ApiEnvelope<ChartOfAccountDto>>(
-      `${this.base}/${countryCode}/${accountCode}`
+      `${this.base}/${encodePathSegment(countryCode)}/${encodePathSegment(accountCode)}`
     );
   }
 
   getChildren(countryCode: string, accountCode: string): Observable<ApiEnvelope<ChartOfAccountDto[]>> {
     return this.http.get<ApiEnvelope<ChartOfAccountDto[]>>(
-      `${this.base}/${countryCode}/${accountCode}/children`
+      `${this.base}/${encodePathSegment(countryCode)}/${encodePathSegment(accountCode)}/children`
     );
   }
 
   getTrialBalanceStructure(countryCode: string): Observable<ApiEnvelope<TrialBalanceLineDto[]>> {
     return this.http.get<ApiEnvelope<TrialBalanceLineDto[]>>(
-      `${this.base}/${countryCode}/trial-balance`
+      `${this.base}/${encodePathSegment(countryCode)}/trial-balance`
     );
   }
 
@@ -172,9 +180,9 @@ export class CoreFinancialAccountingApiService {
   }
 
   create(countryCode: string, dto: CoaCreateDto): Observable<ApiEnvelope<ChartOfAccountDto>> {
-    return this.http.post<ApiEnvelope<ChartOfAccountDto>>(
-      `${this.base}/${countryCode}`, dto
-    );
+    return this.runMutation({ countryCode, accountCode: dto.account_code }, () => this.http.post<ApiEnvelope<ChartOfAccountDto>>(
+      `${this.base}/${encodePathSegment(countryCode)}`, dto
+    ));
   }
 
   update(
@@ -182,18 +190,18 @@ export class CoreFinancialAccountingApiService {
     accountCode: string,
     dto: CoaUpdateDto
   ): Observable<ApiEnvelope<ChartOfAccountDto>> {
-    return this.http.patch<ApiEnvelope<ChartOfAccountDto>>(
-      `${this.base}/${countryCode}/${accountCode}`, dto
-    );
+    return this.runMutation({ countryCode, accountCode }, () => this.http.patch<ApiEnvelope<ChartOfAccountDto>>(
+      `${this.base}/${encodePathSegment(countryCode)}/${encodePathSegment(accountCode)}`, dto
+    ));
   }
 
   deactivate(
     countryCode: string,
     accountCode: string
   ): Observable<ApiEnvelope<ChartOfAccountDto>> {
-    return this.http.delete<ApiEnvelope<ChartOfAccountDto>>(
-      `${this.base}/${countryCode}/${accountCode}`
-    );
+    return this.runMutation({ countryCode, accountCode }, () => this.http.delete<ApiEnvelope<ChartOfAccountDto>>(
+      `${this.base}/${encodePathSegment(countryCode)}/${encodePathSegment(accountCode)}`
+    ));
   }
 
   getDeactivationImpact(
@@ -201,7 +209,7 @@ export class CoreFinancialAccountingApiService {
     accountCode: string
   ): Observable<ApiEnvelope<CoaDeactivationImpact>> {
     return this.http.get<ApiEnvelope<CoaDeactivationImpact>>(
-      `${this.base}/${countryCode}/${accountCode}/deactivation-impact`
+      `${this.base}/${encodePathSegment(countryCode)}/${encodePathSegment(accountCode)}/deactivation-impact`
     );
   }
 
@@ -209,16 +217,20 @@ export class CoreFinancialAccountingApiService {
     countryCode: string,
     accountCode: string
   ): Observable<ApiEnvelope<ChartOfAccountDto>> {
-    return this.http.post<ApiEnvelope<ChartOfAccountDto>>(
-      `${this.base}/${countryCode}/${accountCode}/activate`, {}
-    );
+    return this.runMutation({ countryCode, accountCode }, () => this.http.post<ApiEnvelope<ChartOfAccountDto>>(
+      `${this.base}/${encodePathSegment(countryCode)}/${encodePathSegment(accountCode)}/activate`, {}
+    ));
   }
 
   activateCountry(
     countryCode: string
   ): Observable<ApiEnvelope<{ country_code: string; accounts_activated: number }>> {
-    return this.http.post<ApiEnvelope<{ country_code: string; accounts_activated: number }>>(
-      `${this.base}/countries/${countryCode}/activate`, {}
-    );
+    return this.runMutation({ countryCode }, () => this.http.post<ApiEnvelope<{ country_code: string; accounts_activated: number }>>(
+      `${this.base}/countries/${encodePathSegment(countryCode)}/activate`, {}
+    ));
+  }
+
+  private runMutation<T>(context: unknown, requestFactory: () => Observable<T>): Observable<T> {
+    return this.preflight.run(FINANCIAL_ACCOUNTING_MUTATION, context, requestFactory);
   }
 }

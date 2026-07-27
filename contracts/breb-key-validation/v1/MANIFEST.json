@@ -1,0 +1,24 @@
+{
+  "contract_id": "breb-custom-key-validation",
+  "contract_version": "1.0.0",
+  "canonical_json_sha256": "233544fd9bcc177a1485eb57f1009bbc46f3d915bcdbc9f5a04d152623f6a1dd",
+  "checksum_algorithm": "sha256",
+  "checksum_input": "json.dumps(contract, ensure_ascii=False, separators=(',',':'), sort_keys=True).encode('utf-8') — misma canonicalización que src/party/application/contracts/breb_key_validation_contract.py::_canonicalize_contract en pleniubank-core; ver contract.json en este mismo directorio para el editable con formato legible.",
+  "status": "DRAFT — NO PUBLICADO. Contenido de negocio ratificado por Producto/Compliance el 2026-07-27 (longitud 6-30, alfabeto ASCII alfanumérico, prefijo '@' opcional). Pendiente: ownership/registry/firma (tarea 1.3, Plataforma/Seguridad) y aplicabilidad NATURAL_PERSON=LEGAL_ENTITY (tarea 1.2, Producto).",
+  "packages": {
+    "npm": {
+      "name": "@pleniu/breb-key-validation-contract",
+      "version": null,
+      "published": false,
+      "note": "Pendiente de tarea 2.1/2.5 (implementación + publicación en registry privado). No editar manualmente: se genera desde contract.json."
+    },
+    "python": {
+      "name": "pleniu-breb-key-validation-contract",
+      "version": null,
+      "published": false,
+      "note": "Pendiente de tarea 2.2/2.5 (implementación + publicación en registry privado). No editar manualmente: se genera desde contract.json."
+    }
+  },
+  "generated_by": "OpenSpec centralize-breb-key-validation-contract-co, tarea 1.7 (pleniubank-core)",
+  "generated_at": "borrador — sin fecha de publicación hasta ratificación de Arquitectura/Seguridad/Compliance (tareas 1.2/1.3)"
+}

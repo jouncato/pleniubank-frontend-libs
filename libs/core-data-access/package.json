@@ -4,6 +4,8 @@
     "peerDependencies":  {
                              "@angular/common":  "^21.2.0",
                              "@angular/core":  "^21.2.0",
+                             "@pleniu/shared-auth":  "0.0.1",
+                             "@pleniu/shared-http":  "0.1.0",
                              "rxjs":  "^7.8.0"
                          },
     "dependencies":  {

@@ -17,6 +17,9 @@ export interface AppFeatureFlags {
   b2cInbox: boolean;
   /** B2C: shell móvil responsive (top-app-bar + bottom-nav). */
   b2cMobileShell: boolean;
+  financialAccounting: boolean;
+  treasuryLiquidity: boolean;
+  treasuryReconciliation: boolean;
 }
 
 export type AppFeatureFlagPatch = Partial<AppFeatureFlags>;
@@ -32,4 +35,7 @@ export const DEFAULT_APP_FEATURE_FLAGS: AppFeatureFlags = {
   b2cProfileEdit: false,
   b2cInbox: false,
   b2cMobileShell: false,
+  financialAccounting: false,
+  treasuryLiquidity: false,
+  treasuryReconciliation: false,
 };

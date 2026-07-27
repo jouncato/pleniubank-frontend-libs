@@ -1,0 +1,36 @@
+{
+  "contract_id": "breb-custom-key-validation",
+  "contract_version": "1.0.0",
+  "country_code": "CO",
+  "profiles": {
+    "NATURAL_PERSON": { "custom_rule": "custom_alias_v1" },
+    "LEGAL_ENTITY": { "custom_rule": "custom_alias_v1" }
+  },
+  "rules": {
+    "custom_alias_v1": {
+      "prefix": { "value": "@", "required": false, "counts_toward_length": false },
+      "body": {
+        "pattern": "^[A-Za-z0-9]+$",
+        "regex_flavor": "portable_ascii_ecmascript_python",
+        "min_length": 6,
+        "max_length": 30,
+        "length_unit": "unicode_code_points_after_prefix"
+      },
+      "blocked_terms": {
+        "applies_to": "body",
+        "match": "substring",
+        "case_sensitive": false,
+        "unavailable_policy": "REJECT"
+      },
+      "confusability": {
+        "email_like": { "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", "outcome": "REJECT" },
+        "digits_only": { "outcome": "REJECT" },
+        "colombia_mobile": { "pattern": "^3[0-9]{9}$", "outcome": "REJECT" }
+      },
+      "errors": {
+        "missing_prefix": "CUSTOM_KEY_MISSING_AT_PREFIX",
+        "format": "CUSTOM_KEY_FORMAT_NOT_ALLOWED"
+      }
+    }
+  }
+}

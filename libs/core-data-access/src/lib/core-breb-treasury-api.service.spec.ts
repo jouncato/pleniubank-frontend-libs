@@ -2,7 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
+import { APP_FEATURE_FLAGS, DEFAULT_APP_FEATURE_FLAGS, FeatureFlagService } from '@pleniu/shared-auth';
 import { API_CONFIG } from '@pleniu/shared-http';
+
+import { CoreMutationPreflightError } from './core-mutation-preflight';
 
 import { CoreBrebTreasuryApiService } from './core-breb-treasury-api.service';
 
@@ -16,6 +19,7 @@ describe('CoreBrebTreasuryApiService', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_CONFIG, useValue: { coreBaseUrl: 'http://localhost:8000', coreAdminApiPrefix: '/api/v1' } },
+        { provide: APP_FEATURE_FLAGS, useValue: { ...DEFAULT_APP_FEATURE_FLAGS, treasuryReconciliation: true } },
       ],
     });
     service = TestBed.inject(CoreBrebTreasuryApiService);
@@ -43,6 +47,17 @@ describe('CoreBrebTreasuryApiService', () => {
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({ country: 'CO', cycle_date: '2026-07-26' });
     request.flush({ country: 'CO', cycleDate: '2026-07-26', results: [] });
+  });
+
+  it('blocks reconciliation before HTTP when the feature flag is disabled', () => {
+    TestBed.inject(FeatureFlagService).setFlags({ treasuryReconciliation: false });
+    let failure: unknown;
+
+    service.runReconciliation('CO', '2026-07-26').subscribe({ error: (error) => (failure = error) });
+
+    expect(failure).toBeInstanceOf(CoreMutationPreflightError);
+    expect((failure as CoreMutationPreflightError).code).toBe('FEATURE_DISABLED');
+    httpTesting.expectNone('http://localhost:8000/api/v1/paymenthub/rails/breb/reconciliation');
   });
 
   it('gets reconciliation exceptions with country and cycle date params', () => {

@@ -1,0 +1,95 @@
+{
+  "contract_id": "breb-custom-key-validation",
+  "contract_version": "1.0.0",
+  "description": "Casos de equivalencia ejecutados por igual contra el adaptador TypeScript (@pleniu/breb-key-validation-contract) y el adaptador Python (pleniu-breb-key-validation-contract) — OpenSpec centralize-breb-key-validation-contract-co, tarea 1.6. NO incluye casos de blocked_terms: la lista real de términos bloqueados es configuración segura de Core y nunca se distribuye en un paquete compartido (design.md Non-Goal); esos casos siguen viviendo solo en las pruebas de Core (tests/unit/party/application/contracts/test_breb_key_validation_contract.py).",
+  "profiles_under_test": ["NATURAL_PERSON", "LEGAL_ENTITY"],
+  "rule_id": "custom_alias_v1",
+  "cases": [
+    {
+      "name": "valid_simple_alias",
+      "value": "Alias123",
+      "valid": true
+    },
+    {
+      "name": "valid_min_length_boundary",
+      "value": "Abcdef",
+      "valid": true,
+      "note": "6 caracteres tras el prefijo == min_length exacto (ratificado por Producto/Compliance, 2026-07-27 — sustituye el valor de borrador 4, que solo copiaba el default legacy de settings.py)."
+    },
+    {
+      "name": "valid_max_length_boundary",
+      "value": "A23456789012345678901234567890",
+      "valid": true,
+      "note": "30 caracteres alfanuméricos (sin prefijo) == max_length exacto."
+    },
+    {
+      "name": "invalid_below_min_length",
+      "value": "abc",
+      "valid": false,
+      "error_code": "CUSTOM_KEY_FORMAT_NOT_ALLOWED",
+      "note": "3 caracteres < min_length=6."
+    },
+    {
+      "name": "invalid_five_chars_now_below_ratified_min_length",
+      "value": "Abcde",
+      "valid": false,
+      "error_code": "CUSTOM_KEY_FORMAT_NOT_ALLOWED",
+      "note": "5 caracteres — habría sido VÁLIDO bajo el borrador inicial (min_length=4, copiado de settings.py legacy), pero Producto/Compliance ratificó min_length=6 el 2026-07-27. Caso explícito para no perder este cambio de comportamiento en una futura revisión del contrato."
+    },
+    {
+      "name": "invalid_above_max_length",
+      "value": "a123456789012345678901234567890",
+      "valid": false,
+      "error_code": "CUSTOM_KEY_FORMAT_NOT_ALLOWED",
+      "note": "31 caracteres > max_length=30."
+    },
+    {
+      "name": "valid_with_optional_at_prefix",
+      "value": "@Alias123",
+      "valid": true,
+      "note": "prefix.required=false en v1: el prefijo es opcional: si está presente se descuenta del cuerpo antes de aplicar el patrón/rango."
+    },
+    {
+      "name": "invalid_space_in_body",
+      "value": "Ali as123",
+      "valid": false,
+      "error_code": "CUSTOM_KEY_FORMAT_NOT_ALLOWED",
+      "note": "El patrón ^[A-Za-z0-9]+$ no permite espacios."
+    },
+    {
+      "name": "invalid_symbol_in_body",
+      "value": "Alias-123",
+      "valid": false,
+      "error_code": "CUSTOM_KEY_FORMAT_NOT_ALLOWED",
+      "note": "El patrón no permite símbolos distintos del prefijo '@'."
+    },
+    {
+      "name": "invalid_unicode_body",
+      "value": "álias123",
+      "valid": false,
+      "error_code": "CUSTOM_KEY_FORMAT_NOT_ALLOWED",
+      "note": "v1 fija ASCII portable (regex_flavor=portable_ascii_ecmascript_python); caracteres no-ASCII se rechazan aunque length_unit cuente puntos de código Unicode."
+    },
+    {
+      "name": "invalid_email_like",
+      "value": "user@example.com",
+      "valid": false,
+      "error_code": "CUSTOM_KEY_FORMAT_NOT_ALLOWED",
+      "note": "confusability.email_like — evita registrar un identificador con forma de correo como alias CUSTOM."
+    },
+    {
+      "name": "invalid_colombia_mobile_number",
+      "value": "3001234567",
+      "valid": false,
+      "error_code": "CUSTOM_KEY_FORMAT_NOT_ALLOWED",
+      "note": "confusability.colombia_mobile — 10 dígitos empezando en 3."
+    },
+    {
+      "name": "invalid_digits_only",
+      "value": "1234567",
+      "valid": false,
+      "error_code": "CUSTOM_KEY_FORMAT_NOT_ALLOWED",
+      "note": "confusability.digits_only — cualquier alias compuesto solo de dígitos se rechaza, no solo el patrón de celular."
+    }
+  ]
+}

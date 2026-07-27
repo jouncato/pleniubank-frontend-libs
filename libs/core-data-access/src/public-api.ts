@@ -1,4 +1,6 @@
 export * from './lib/core-types';
+export * from './lib/core-mutation-preflight';
+export * from './lib/core-path.util';
 export * from './lib/core-loans-api.service';
 export * from './lib/core-customers-api.service';
 export * from './lib/core-accounts-api.service';
