@@ -243,6 +243,33 @@ export interface GlAccountLedgerPageDto {
   lines: GlLedgerLineDto[];
 }
 
+export interface GlTrialBalanceLineDto {
+  account_code: string;
+  account_class: string;
+  total_debit: string;
+  total_credit: string;
+  closing_balance: string;
+}
+
+export interface GlTrialBalanceDto {
+  period: string;
+  country_code: string;
+  total_debit: string;
+  total_credit: string;
+  is_balanced: boolean;
+  accounts: GlTrialBalanceLineDto[];
+}
+
+export interface AccountingPeriodDto {
+  period: string;
+  status: 'OPEN' | 'CLOSED';
+  total_debit: string;
+  total_credit: string;
+  entry_count: number;
+  is_balanced: boolean;
+  closed_at: string | null;
+}
+
 export interface TriggeredAlertDto {
   id: string;
   rule_id: string;
@@ -443,6 +470,16 @@ export class CoreTreasuryLiquidityApiService {
       hp = hp.set('limit', String(params.limit));
     }
     return this.http.get<ApiEnvelope<TriggeredAlertDto[]>>(`${this.base}/treasury-alerts`, { params: hp });
+  }
+
+  getGlTrialBalance(period: string, country = 'CO'): Observable<ApiEnvelope<GlTrialBalanceDto>> {
+    const hp = new HttpParams().set('period', period).set('country', country);
+    return this.http.get<ApiEnvelope<GlTrialBalanceDto>>(`${this.base}/gl-reporting/trial-balance`, { params: hp });
+  }
+
+  getAccountingPeriods(country = 'CO'): Observable<ApiEnvelope<AccountingPeriodDto[]>> {
+    const hp = new HttpParams().set('country', country);
+    return this.http.get<ApiEnvelope<AccountingPeriodDto[]>>(`${this.base}/gl-reporting/periods`, { params: hp });
   }
 }
 

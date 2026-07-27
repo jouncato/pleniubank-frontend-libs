@@ -81,6 +81,8 @@ export class CoreTransactionHubApiService {
 
   /** Detalle de una transacción por su ID canónico. */
   detail(transactionId: string): Observable<ApiEnvelope<TransactionDetailResponse>> {
-    return this.http.get<ApiEnvelope<TransactionDetailResponse>>(`${this.base}/${transactionId}`);
+    return this.http.get<ApiEnvelope<TransactionDetailResponse>>(
+      `${this.base}/${encodeURIComponent(transactionId)}`,
+    );
   }
 }

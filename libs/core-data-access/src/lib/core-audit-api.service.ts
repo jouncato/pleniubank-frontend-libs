@@ -13,6 +13,8 @@ export interface ListAuditLogsParams {
   entity_type?: string | null;
   action?: string | null;
   created_by?: string | null;
+  from_date?: string | null;
+  to_date?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -42,6 +44,12 @@ export class CoreAuditApiService {
     }
     if (params.created_by?.trim()) {
       hp = hp.set('created_by', params.created_by.trim());
+    }
+    if (params.from_date?.trim()) {
+      hp = hp.set('from_date', params.from_date.trim());
+    }
+    if (params.to_date?.trim()) {
+      hp = hp.set('to_date', params.to_date.trim());
     }
     return this.http.get<ApiEnvelope<AuditLogDto[]>>(this.base, { params: hp });
   }

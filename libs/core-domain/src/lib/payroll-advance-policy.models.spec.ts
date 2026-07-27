@@ -18,10 +18,12 @@ describe('payroll-advance-policy.models', () => {
     ]);
   });
 
-  it('expone los 27 reason_codes espejo del enum Python PayrollAdvancePolicyReasonCode', () => {
-    expect(PAYROLL_ADVANCE_POLICY_REASON_CODES).toHaveLength(27);
+  it('expone los 28 reason_codes espejo del enum Python PayrollAdvancePolicyReasonCode', () => {
+    // OpenSpec reconcile-risk-engines-aggregator-co: +1
+    // (PAYROLL_ADVANCE_RISK_ENGINE_DISAGREEMENT) sobre los 27 anteriores.
+    expect(PAYROLL_ADVANCE_POLICY_REASON_CODES).toHaveLength(28);
     // Sin duplicados.
-    expect(new Set(PAYROLL_ADVANCE_POLICY_REASON_CODES).size).toBe(27);
+    expect(new Set(PAYROLL_ADVANCE_POLICY_REASON_CODES).size).toBe(28);
   });
 
   it('MANUAL_REVIEW y UNAVAILABLE reason_codes son subconjuntos de la lista completa y no se solapan', () => {

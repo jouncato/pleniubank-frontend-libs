@@ -111,8 +111,8 @@ describe('CoreTransactionHubApiService', () => {
   });
 
   describe('detail', () => {
-    it('should call GET /hub/transactions/{id}', () => {
-      const txId = '550e8400-e29b-41d4-a716-446655440001';
+    it('should call GET /hub/transactions/{id} with an encoded segment', () => {
+      const txId = 'transaction/with space';
 
       service.detail(txId).subscribe((response) => {
         expect(response.data.transaction_id).toBe(txId);
@@ -120,7 +120,7 @@ describe('CoreTransactionHubApiService', () => {
       });
 
       const req = httpTesting.expectOne(
-        `http://localhost:8000/api/v1/hub/transactions/${txId}`,
+        'http://localhost:8000/api/v1/hub/transactions/transaction%2Fwith%20space',
       );
       expect(req.request.method).toBe('GET');
       req.flush({

@@ -5,7 +5,7 @@ import { API_CONFIG, ApiConfig } from '@pleniu/shared-http';
 import { corePublicV1Base } from './core-api-base';
 
 export interface CreditApprovalEvaluateRequest {
-  application_id: string;
+  application_id?: string | null;
   product_type: string;
   requested_amount: number;
   requested_payment?: number | null;

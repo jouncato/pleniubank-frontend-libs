@@ -106,6 +106,8 @@ export const PAYROLL_ADVANCE_POLICY_REASON_LABELS: Record<PayrollAdvancePolicyRe
   PAYROLL_ADVANCE_EMPLOYMENT_DATA_DISCREPANCY:
     'Se detectó una discrepancia entre fuentes de información laboral y requiere revisión manual.',
   PAYROLL_ADVANCE_RISK_REVIEW_REQUIRED: 'El motor de riesgo marcó la solicitud para revisión manual.',
+  PAYROLL_ADVANCE_RISK_ENGINE_DISAGREEMENT:
+    'Los motores de riesgo entregaron veredictos distintos para esta solicitud y requiere revisión manual.',
   // ── Indisponibilidad (UNAVAILABLE, fail-closed — reintentable) ─────────
   PAYROLL_ADVANCE_RULES_UNAVAILABLE:
     'El motor de reglas no está disponible en este momento. Reintenta la solicitud.',

@@ -77,6 +77,9 @@ export type PayrollAdvancePolicyReasonCode =
   | 'PAYROLL_ADVANCE_EMPLOYER_DAILY_LIMIT_REVIEW'
   | 'PAYROLL_ADVANCE_EMPLOYMENT_DATA_DISCREPANCY'
   | 'PAYROLL_ADVANCE_RISK_REVIEW_REQUIRED'
+  // OpenSpec reconcile-risk-engines-aggregator-co: Scoring rechazó pero Rules
+  // Engine aprobó — nunca REJECTED por sí solo, solo acompaña MANUAL_REVIEW.
+  | 'PAYROLL_ADVANCE_RISK_ENGINE_DISAGREEMENT'
   // ── Indisponibilidad (UNAVAILABLE, fail closed — Decision 13) ──────────
   | 'PAYROLL_ADVANCE_RULES_UNAVAILABLE'
   | 'PAYROLL_ADVANCE_SCORING_UNAVAILABLE'
@@ -109,6 +112,7 @@ export const PAYROLL_ADVANCE_POLICY_REASON_CODES: readonly PayrollAdvancePolicyR
   'PAYROLL_ADVANCE_EMPLOYER_DAILY_LIMIT_REVIEW',
   'PAYROLL_ADVANCE_EMPLOYMENT_DATA_DISCREPANCY',
   'PAYROLL_ADVANCE_RISK_REVIEW_REQUIRED',
+  'PAYROLL_ADVANCE_RISK_ENGINE_DISAGREEMENT',
   'PAYROLL_ADVANCE_RULES_UNAVAILABLE',
   'PAYROLL_ADVANCE_SCORING_UNAVAILABLE',
   'PAYROLL_ADVANCE_ACTIVE_BALANCE_UNAVAILABLE',
@@ -119,6 +123,7 @@ export const PAYROLL_ADVANCE_MANUAL_REVIEW_REASON_CODES: readonly PayrollAdvance
   'PAYROLL_ADVANCE_EMPLOYER_DAILY_LIMIT_REVIEW',
   'PAYROLL_ADVANCE_EMPLOYMENT_DATA_DISCREPANCY',
   'PAYROLL_ADVANCE_RISK_REVIEW_REQUIRED',
+  'PAYROLL_ADVANCE_RISK_ENGINE_DISAGREEMENT',
 ];
 
 /** Motivos de indisponibilidad técnica/configuración (fail closed). */
@@ -247,4 +252,25 @@ export interface PayrollAdvanceManualReviewAcceptedResponse {
   reason_codes: string[];
   message: string;
   case_id: string | null;
+}
+
+/**
+ * OpenSpec reconcile-risk-engines-aggregator-co (fase 6, tarea 6.1): espejo
+ * de `observed.risk_verdicts` dentro de `decision_snapshot` — veredicto crudo
+ * de cada motor cuando `RISK_ENGINE_RECONCILIATION_ENFORCED=true` reconcilió
+ * la decisión. Ausente cuando el flag estaba desactivado o no había un
+ * veredicto de scoring que reconciliar (ver `reconcile_verdicts` en Core).
+ */
+export interface PayrollAdvanceRiskVerdicts {
+  rules_engine: {
+    verdict: 'APPROVED' | 'MANUAL_REVIEW' | 'REJECTED';
+    raw_decision: string;
+    evaluation_id: string | null;
+    failed_rules: string[];
+  };
+  scoring: {
+    verdict: 'APPROVED' | 'MANUAL_REVIEW' | 'REJECTED';
+    risk_tier: string | null;
+    max_total_exposure_amount: string | null;
+  };
 }
