@@ -204,6 +204,8 @@ export interface PayrollAdvancePolicyDecision {
   correlation_id: string | null;
   /** Monto máximo efectivo (design.md Decision 2/§3.5). */
   effective_max_amount: number | null;
+  /** Monto mínimo efectivo = salario_verificado * min_salary_percentage (fix-payroll-advance-min-amount-salary-percentage). Nunca un COP fijo. */
+  effective_min_amount: number | null;
   /** Primeros desembolsos ya contabilizados este mes calendario CO. */
   monthly_disbursed_count: number | null;
   /** Máximo de desembolsos por mes calendario (política efectiva). */

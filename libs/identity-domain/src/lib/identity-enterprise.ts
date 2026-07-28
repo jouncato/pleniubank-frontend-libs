@@ -99,6 +99,11 @@ export interface EnterpriseMeSummaryResponse {
   principal_user_id?: string | null;
   principal_full_name?: string | null;
   principal_email?: string | null;
+  /** Datos legales de contacto de la empresa matriz; inmutables en el wizard de contratos. */
+  document_type?: string | null;
+  document_number?: string | null;
+  email?: string | null;
+  phone?: string | null;
 }
 
 export interface InviteUserRequest {

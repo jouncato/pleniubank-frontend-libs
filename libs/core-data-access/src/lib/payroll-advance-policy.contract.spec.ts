@@ -92,6 +92,7 @@ describe('payroll-advance-policy contract (fixtures espejo de Core)', () => {
       evaluated_at: '2026-07-18T15:04:00+00:00',
       correlation_id: '33333333-3333-3333-3333-333333333333',
       effective_max_amount: 375000,
+      effective_min_amount: 25000,
       monthly_disbursed_count: 1,
       max_monthly_frequency: 2,
       remaining_monthly_quota: 1,
@@ -102,6 +103,7 @@ describe('payroll-advance-policy contract (fixtures espejo de Core)', () => {
       is_final: true,
       observed: {
         effective_max_amount: '375000',
+        effective_min_amount: '25000',
         monthly_disbursed_count: 1,
         has_active_advance: false,
         tenure_months: 9,

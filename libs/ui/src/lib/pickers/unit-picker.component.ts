@@ -109,8 +109,11 @@ export class UnitPickerComponent implements OnChanges {
   readonly query = signal('');
   /** Controla si el listbox está abierto (focus o tipeo). */
   private readonly listOpen = signal(false);
+  /** Versión de options para invalidar computed cuando @Input options cambia. */
+  private readonly optionsVersion = signal(0);
 
   readonly filtered = computed<PickerOption[]>(() => {
+    this.optionsVersion();
     const q = this.query().trim().toLowerCase();
     if (!q) {
       return this.options;
@@ -122,6 +125,7 @@ export class UnitPickerComponent implements OnChanges {
 
   /** Texto mostrado en el input: label de la opción seleccionada o el query del usuario. */
   readonly display = computed<string>(() => {
+    this.optionsVersion();
     if (this.value) {
       const selected = this.options.find((opt) => opt.id === this.value);
       if (selected) {
@@ -134,6 +138,9 @@ export class UnitPickerComponent implements OnChanges {
   readonly showList = computed<boolean>(() => this.listOpen() && !this.value);
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['options']) {
+      this.optionsVersion.update((v) => v + 1);
+    }
     // Auto-select cuando se entrega exactamente una opción y no hay valor seleccionado.
     if (
       this.autoSelectSingle &&

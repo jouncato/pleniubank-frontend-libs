@@ -112,6 +112,7 @@ export interface SimulatePayrollAdvanceResponse {
   decision?: string | null;
   reason_codes?: string[];
   effective_max_amount?: number | null;
+  effective_min_amount?: number | null;
   monthly_disbursed_count?: number | null;
   max_monthly_frequency?: number | null;
   remaining_monthly_quota?: number | null;

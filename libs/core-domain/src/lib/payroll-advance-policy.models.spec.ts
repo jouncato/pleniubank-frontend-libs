@@ -79,6 +79,7 @@ describe('payroll-advance-policy.models', () => {
       evaluated_at: '2026-07-18T10:00:00Z',
       correlation_id: null,
       effective_max_amount: 600000,
+      effective_min_amount: 40000,
       monthly_disbursed_count: 0,
       max_monthly_frequency: 2,
       remaining_monthly_quota: 2,
