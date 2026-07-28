@@ -41,7 +41,7 @@ describe('payroll-advance-policy contract (fixtures espejo de Core)', () => {
       effective_to: null,
       global_values: {
         max_salary_percentage: 0.3,
-        min_amount: 50000,
+        min_salary_percentage: 0.05,
         min_tenure_months: 6,
         max_monthly_frequency: 2,
         max_active_count: 2,
@@ -54,6 +54,7 @@ describe('payroll-advance-policy contract (fixtures espejo de Core)', () => {
         country_code: 'CO',
         currency: 'COP',
         max_salary_percentage: 0.25,
+        min_salary_percentage: null,
         min_tenure_months: null,
         max_monthly_frequency: null,
         max_active_count: 2,
@@ -65,7 +66,7 @@ describe('payroll-advance-policy contract (fixtures espejo de Core)', () => {
       },
       effective_values: {
         max_salary_percentage: 0.25,
-        min_amount: 50000,
+        min_salary_percentage: 0.05,
         min_tenure_months: 6,
         max_monthly_frequency: 2,
         max_active_count: 2,
@@ -74,7 +75,7 @@ describe('payroll-advance-policy contract (fixtures espejo de Core)', () => {
       },
       sources: {
         max_salary_percentage: 'EMPLOYER',
-        min_amount: 'GLOBAL',
+        min_salary_percentage: 'GLOBAL',
         min_tenure_months: 'GLOBAL',
         max_monthly_frequency: 'GLOBAL',
         max_active_count: 'GLOBAL',

@@ -139,9 +139,11 @@ export const PAYROLL_ADVANCE_UNAVAILABLE_REASON_CODES: readonly PayrollAdvancePo
 
 /** Espejo de `PayrollAdvancePolicyValuesSchema` (global o efectivo). */
 export interface PayrollAdvancePolicyValues {
-  /** Fracción: 0.30 = 30%. */
+  /** Fracción: 0.40 = 40%. */
   max_salary_percentage: number;
-  min_amount: number;
+  /** Fracción: 0.05 = 5%. Reemplaza al antiguo `min_amount` (COP fijo) —
+   * fix-payroll-advance-min-amount-salary-percentage (2026-07-28). */
+  min_salary_percentage: number;
   min_tenure_months: number;
   max_monthly_frequency: number;
   max_active_count: number;
@@ -156,6 +158,7 @@ export interface EmployerPayrollPolicyOverrides {
   country_code: string | null;
   currency: string | null;
   max_salary_percentage: number | null;
+  min_salary_percentage: number | null;
   min_tenure_months: number | null;
   max_monthly_frequency: number | null;
   max_active_count: number | null;

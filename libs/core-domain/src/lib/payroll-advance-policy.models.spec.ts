@@ -51,7 +51,7 @@ describe('payroll-advance-policy.models', () => {
       effective_to: null,
       global_values: {
         max_salary_percentage: 0.3,
-        min_amount: 50000,
+        min_salary_percentage: 0.05,
         min_tenure_months: 6,
         max_monthly_frequency: 2,
         max_active_count: 2,
@@ -61,7 +61,7 @@ describe('payroll-advance-policy.models', () => {
       employer_overrides: null,
       effective_values: {
         max_salary_percentage: 0.3,
-        min_amount: 50000,
+        min_salary_percentage: 0.05,
         min_tenure_months: 6,
         max_monthly_frequency: 2,
         max_active_count: 2,

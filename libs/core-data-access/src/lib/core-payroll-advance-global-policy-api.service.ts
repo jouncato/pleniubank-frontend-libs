@@ -31,7 +31,7 @@ export const PAYROLL_ADVANCE_GLOBAL_POLICY_RISK_ONLY_ROLE = 'risk_officer' as co
 
 export interface PayrollAdvanceGlobalPolicyFieldValues {
   max_salary_percentage: string | null;
-  min_amount: string | null;
+  min_salary_percentage: string | null;
   min_tenure_months: number | null;
   max_monthly_frequency: number | null;
   max_active_count: number | null;
@@ -64,7 +64,7 @@ export interface ProposeGlobalPolicyChangeRequestBody {
   effective_from: string;
   reason: string;
   max_salary_percentage?: number;
-  min_amount?: number;
+  min_salary_percentage?: number;
   min_tenure_months?: number;
   max_monthly_frequency?: number;
   max_active_count?: number;
