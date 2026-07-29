@@ -9,6 +9,7 @@ import {
   EmploymentProfileListParams,
   PatchEmploymentProfileRequest,
   TerminateEmploymentProfileRequest,
+  VerifyEmploymentProfileRequest,
 } from '@pleniu/core-domain';
 import { coreAdminV1Base, corePublicV1Base } from './core-api-base';
 
@@ -65,10 +66,19 @@ export class CoreEmploymentProfilesApiService {
     return this.http.patch<ApiEnvelope<CustomerEmploymentProfile>>(url, payload);
   }
 
-  /** Admin/Enterprise: verify salary. */
-  verifyProfile(profileId: string): Observable<ApiEnvelope<CustomerEmploymentProfile>> {
+  /**
+   * Admin/Enterprise: verify salary.
+   *
+   * Bug found via live audit: this used to PATCH an empty body, but Core's
+   * `CustomerEmploymentProfileVerifyRequest` requires a non-empty
+   * `certification_reference` (min_length=1) -- every call would 422.
+   */
+  verifyProfile(
+    profileId: string,
+    payload: VerifyEmploymentProfileRequest,
+  ): Observable<ApiEnvelope<CustomerEmploymentProfile>> {
     const url = `${coreAdminV1Base(this.config)}/employment-profiles/${profileId}/verify`;
-    return this.http.patch<ApiEnvelope<CustomerEmploymentProfile>>(url, {});
+    return this.http.patch<ApiEnvelope<CustomerEmploymentProfile>>(url, payload);
   }
 
   /** Admin/Enterprise: terminate profile. */

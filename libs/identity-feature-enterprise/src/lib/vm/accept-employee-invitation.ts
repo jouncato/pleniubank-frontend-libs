@@ -24,9 +24,9 @@ export class AcceptEmployeeInvitationVm {
     this.errorMessage.set(null);
 
     this.api.validateEmployeeInvitation(token).subscribe({
-      next: (envelope) => {
-        this.validation.set(envelope.data ?? null);
-        if (!envelope.data?.is_valid || envelope.data.status !== 'pending') {
+      next: (response) => {
+        this.validation.set(response ?? null);
+        if (!response?.is_valid || response.status !== 'pending') {
           this.state.set('error');
           this.errorMessage.set('Esta invitación ya fue usada, expiró o no es válida.');
           return;
@@ -56,8 +56,7 @@ export class AcceptEmployeeInvitationVm {
     };
 
     this.api.acceptEmployeeInvitation(token, payload).subscribe({
-      next: (envelope) => {
-        const data = envelope.data;
+      next: (data) => {
         if (!data) {
           this.state.set('error');
           this.errorMessage.set('Respuesta inesperada del servidor.');
@@ -74,7 +73,12 @@ export class AcceptEmployeeInvitationVm {
         };
 
         if (data.next_step === 'register') {
-          void this.router.navigate(['/auth/register'], { queryParams });
+          // Navigate directly to the person registration form (not the generic
+          // `/auth/register` -> party-type-selector alias): the selector's
+          // "Soy una persona" link is a static routerLink with no query params,
+          // so routing through it would silently drop invite_token/email and
+          // defeat the pre-filled + locked email field in AuthRegisterForm.
+          void this.router.navigate(['/customer/party/customer/register'], { queryParams });
         } else {
           void this.router.navigate(['/auth/login'], { queryParams });
         }

@@ -252,8 +252,13 @@ export type ResendEnterpriseEmailOtpEnvelope = ApiEnvelope<ResendEnterpriseEmail
 export type KybDocumentsEnvelope = ApiEnvelope<KybDocumentsResponse>;
 export type InviteUserEnvelope = ApiEnvelope<InviteUserResponse>;
 export type InviteEmployeeEnvelope = ApiEnvelope<InviteEmployeeResponse>;
-export type ValidateEmployeeInvitationEnvelope = ApiEnvelope<ValidateEmployeeInvitationResponse>;
-export type AcceptEmployeeInvitationEnvelope = ApiEnvelope<AcceptEmployeeInvitationResponse>;
+/**
+ * `GET/POST .../employee-invitations/{token}/validate|accept` return the response
+ * model directly (no `ApiEnvelope` wrapper) — unlike most Core/backoffice endpoints.
+ * Naming kept as `*Envelope` only for call-site continuity; do NOT read `.data` off these.
+ */
+export type ValidateEmployeeInvitationEnvelope = ValidateEmployeeInvitationResponse;
+export type AcceptEmployeeInvitationEnvelope = AcceptEmployeeInvitationResponse;
 export type AcceptInviteEnvelope = ApiEnvelope<AcceptInviteResponse>;
 export type CreateUserEnterpriseEnvelope = ApiEnvelope<CreateUserEnterpriseResponse>;
 export type CreateSubEnterpriseEnvelope = ApiEnvelope<CreateSubEnterpriseResponse>;

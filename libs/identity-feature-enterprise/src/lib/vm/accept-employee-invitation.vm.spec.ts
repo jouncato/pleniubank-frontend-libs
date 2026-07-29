@@ -27,8 +27,8 @@ describe('AcceptEmployeeInvitationVm', () => {
         {
           provide: IdentityEnterpriseApiService,
           useValue: {
-            validateEmployeeInvitation: () => of({ data: validValidation }),
-            acceptEmployeeInvitation: () => of({ data: { next_step: 'register', email: 'emp@acme.test', sub_enterprise_id: 'sub-1', enterprise_id: 'ent-1', token: 'tok-1' } }),
+            validateEmployeeInvitation: () => of(validValidation),
+            acceptEmployeeInvitation: () => of({ next_step: 'register', email: 'emp@acme.test', sub_enterprise_id: 'sub-1', enterprise_id: 'ent-1', token: 'tok-1' }),
           },
         },
       ],
@@ -37,6 +37,32 @@ describe('AcceptEmployeeInvitationVm', () => {
     vm.load('tok-1');
     expect(vm.validation()).toEqual(validValidation);
     expect(vm.state()).toBe('idle');
+  });
+
+  it('regression: identity-service returns the raw validation object (no ApiEnvelope data wrapper) — a genuinely valid, pending invitation must not be treated as invalid', () => {
+    // Bug found via live Chrome DevTools audit: the real
+    // GET /employee-invitations/{token}/validate response body is the plain
+    // ValidateEmployeeInvitationResponse object, never wrapped in `{ data: ... }`.
+    // The VM used to read `envelope.data`, which was always undefined here,
+    // so every real (valid) invitation was misreported as "used/expired/invalid".
+    TestBed.configureTestingModule({
+      providers: [
+        AcceptEmployeeInvitationVm,
+        { provide: Router, useValue: makeRouter() },
+        {
+          provide: IdentityEnterpriseApiService,
+          useValue: {
+            validateEmployeeInvitation: () => of(validValidation),
+            acceptEmployeeInvitation: () => of({}),
+          },
+        },
+      ],
+    });
+    const vm = TestBed.inject(AcceptEmployeeInvitationVm);
+    vm.load('tok-1');
+    expect(vm.state()).toBe('idle');
+    expect(vm.errorMessage()).toBeNull();
+    expect(vm.validation()).toEqual(validValidation);
   });
 
   it('shows error for invalid invitation', () => {
@@ -48,8 +74,8 @@ describe('AcceptEmployeeInvitationVm', () => {
           provide: IdentityEnterpriseApiService,
           useValue: {
             validateEmployeeInvitation: () =>
-              of({ data: { ...validValidation, status: 'accepted', is_valid: false } }),
-            acceptEmployeeInvitation: () => of({ data: { next_step: 'register', email: 'emp@acme.test', sub_enterprise_id: 'sub-1', enterprise_id: 'ent-1', token: 'tok-1' } }),
+              of({ ...validValidation, status: 'accepted', is_valid: false }),
+            acceptEmployeeInvitation: () => of({ next_step: 'register', email: 'emp@acme.test', sub_enterprise_id: 'sub-1', enterprise_id: 'ent-1', token: 'tok-1' }),
           },
         },
       ],
@@ -69,16 +95,14 @@ describe('AcceptEmployeeInvitationVm', () => {
         {
           provide: IdentityEnterpriseApiService,
           useValue: {
-            validateEmployeeInvitation: () => of({ data: validValidation }),
+            validateEmployeeInvitation: () => of(validValidation),
             acceptEmployeeInvitation: () =>
               of({
-                data: {
-                  next_step: 'register' as const,
-                  email: 'emp@acme.test',
-                  sub_enterprise_id: 'sub-1',
-                  enterprise_id: 'ent-1',
-                  token: 'tok-1',
-                },
+                next_step: 'register' as const,
+                email: 'emp@acme.test',
+                sub_enterprise_id: 'sub-1',
+                enterprise_id: 'ent-1',
+                token: 'tok-1',
               }),
           },
         },
@@ -88,7 +112,11 @@ describe('AcceptEmployeeInvitationVm', () => {
     vm.load('tok-1');
     vm.accept('tok-1');
     expect(vm.state()).toBe('success');
-    expect(router.navigate).toHaveBeenCalledWith(['/auth/register'], {
+    // Regression: must navigate directly to the person registration form, NOT
+    // through '/auth/register' -> party-type-selector, whose "Soy una persona"
+    // link is a static routerLink with no query params (would silently drop
+    // invite_token/email and defeat the pre-filled + locked email field).
+    expect(router.navigate).toHaveBeenCalledWith(['/customer/party/customer/register'], {
       queryParams: {
         invite_token: 'tok-1',
         email: 'emp@acme.test',
@@ -106,7 +134,7 @@ describe('AcceptEmployeeInvitationVm', () => {
         {
           provide: IdentityEnterpriseApiService,
           useValue: {
-            validateEmployeeInvitation: () => of({ data: validValidation }),
+            validateEmployeeInvitation: () => of(validValidation),
             acceptEmployeeInvitation: () =>
               throwError(() => ({
                 status: 409,

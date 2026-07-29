@@ -1,12 +1,21 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { SessionStore } from './session-store.service';
+import { isEnterpriseManagementRole } from './enterprise-tenant-role';
 
+/**
+ * Guards the enterprise console (accounts, loans, contracts, customers/"Beneficiarios",
+ * business-structure, approvals, etc.). Requires both an enterprise tenant AND an
+ * enterprise management role -- `enterprise_id`/`sub_enterprise_id` claims alone are
+ * not sufficient, since plain `customer` employees linked via employee-invitation for
+ * self-service payroll-advance also carry those claims and must not reach this console.
+ */
 export const enterpriseScopeGuard: CanActivateFn = () => {
   const sessionStore = inject(SessionStore);
   const router = inject(Router);
+  const claims = sessionStore.claims();
 
-  if (sessionStore.claims()?.enterprise_id) {
+  if (claims?.enterprise_id && isEnterpriseManagementRole(claims?.role)) {
     return true;
   }
 

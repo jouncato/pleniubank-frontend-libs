@@ -60,6 +60,10 @@ export interface TerminateEmploymentProfileRequest {
   end_date?: string | null;
 }
 
+export interface VerifyEmploymentProfileRequest {
+  certification_reference: string;
+}
+
 export interface EmploymentProfileListParams {
   sub_enterprise_id: string;
   employment_status?: EmploymentStatus | string;
