@@ -9,6 +9,7 @@ export interface RegisterRequest {
   document_type: RegisterDocumentType;
   document_number: string;
   consent: boolean;
+  employee_invitation_token?: string | null;
 }
 
 export type RegisterDocumentType = 'CC' | 'CE' | 'NIT' | 'PP' | 'TI';

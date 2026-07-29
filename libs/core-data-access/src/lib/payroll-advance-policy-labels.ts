@@ -75,7 +75,7 @@ export const PAYROLL_ADVANCE_POLICY_REASON_LABELS: Record<PayrollAdvancePolicyRe
   PAYROLL_ADVANCE_MONTHLY_FREQUENCY_EXCEEDED:
     'Ya se alcanzó el máximo de desembolsos permitidos para el mes calendario vigente.',
   PAYROLL_ADVANCE_ACTIVE_EXISTS:
-    'Ya alcanzaste el máximo de dos Anticipos de nómina activos permitidos.',
+    'Ya alcanzaste el máximo de cinco Anticipos de nómina activos permitidos.',
   PAYROLL_ADVANCE_MANUAL_REVIEW_CASE_OPEN:
     'Ya tienes un caso de revisión manual abierto para Anticipo de nómina. Solo se permite uno a la vez.',
   PAYROLL_ADVANCE_TERMS_NOT_ACTIVE: 'Los términos del producto no están vigentes.',

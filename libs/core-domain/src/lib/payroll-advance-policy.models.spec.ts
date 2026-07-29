@@ -50,21 +50,21 @@ describe('payroll-advance-policy.models', () => {
       effective_from: '2026-07-17T00:00:00Z',
       effective_to: null,
       global_values: {
-        max_salary_percentage: 0.3,
+        max_salary_percentage: 0.4,
         min_salary_percentage: 0.05,
-        min_tenure_months: 6,
-        max_monthly_frequency: 2,
-        max_active_count: 2,
+        min_tenure_months: 3,
+        max_monthly_frequency: 5,
+        max_active_count: 5,
         max_discount_days: 45,
         employer_daily_limit_amount: 50000000,
       },
       employer_overrides: null,
       effective_values: {
-        max_salary_percentage: 0.3,
+        max_salary_percentage: 0.4,
         min_salary_percentage: 0.05,
-        min_tenure_months: 6,
-        max_monthly_frequency: 2,
-        max_active_count: 2,
+        min_tenure_months: 3,
+        max_monthly_frequency: 5,
+        max_active_count: 5,
         max_discount_days: 45,
         employer_daily_limit_amount: 50000000,
       },
@@ -81,11 +81,11 @@ describe('payroll-advance-policy.models', () => {
       effective_max_amount: 600000,
       effective_min_amount: 40000,
       monthly_disbursed_count: 0,
-      max_monthly_frequency: 2,
-      remaining_monthly_quota: 2,
+      max_monthly_frequency: 5,
+      remaining_monthly_quota: 5,
       has_active_advance: false,
       tenure_months: 8,
-      min_tenure_months: 6,
+      min_tenure_months: 3,
       provisional: false,
       is_final: true,
       observed: {},
@@ -99,6 +99,6 @@ describe('payroll-advance-policy.models', () => {
     };
 
     expect(eligibility.decision?.decision).toBe('APPROVED');
-    expect(eligibility.decision?.policy.effective_values.max_salary_percentage).toBe(0.3);
+    expect(eligibility.decision?.policy.effective_values.max_salary_percentage).toBe(0.4);
   });
 });

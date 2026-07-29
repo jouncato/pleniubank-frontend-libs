@@ -51,6 +51,19 @@ describe('RegisterVm', () => {
     expect(vm.state()).toBe('success');
   });
 
+  it('forwards employee_invitation_token from query params in register payload', () => {
+    api.register.mockReturnValue(of({ data: { registration_id: 'r3' } }));
+    const vm = TestBed.inject(RegisterVm);
+    vm.loadQueryParams({ invite_token: 'inv-token-123', email: 'invited@example.com' });
+
+    vm.submit(registerPayload);
+
+    expect(api.register).toHaveBeenCalledWith({
+      ...registerPayload,
+      employee_invitation_token: 'inv-token-123',
+    });
+  });
+
   it('stores registration id when Identity returns flat RegisterResponse (no data wrapper)', () => {
     api.register.mockReturnValue(of({ registration_id: 'r2' }));
     const vm = TestBed.inject(RegisterVm);

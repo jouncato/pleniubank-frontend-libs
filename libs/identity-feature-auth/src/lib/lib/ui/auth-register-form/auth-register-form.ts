@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RegisterDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
 import { RegisterVm } from '../../vm/register';
 
@@ -14,8 +14,9 @@ const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
   templateUrl: './auth-register-form.html',
   styleUrl: './auth-register-form.scss',
 })
-export class AuthRegisterForm {
+export class AuthRegisterForm implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
   readonly legalModalOpen = signal(false);
 
   readonly documentTypeOptions: ReadonlyArray<{ value: RegisterDocumentType; label: string }> = [
@@ -84,6 +85,16 @@ export class AuthRegisterForm {
       const nextErrors = { ...(confirmControl.errors ?? {}) };
       delete nextErrors['mismatch'];
       confirmControl.setErrors(Object.keys(nextErrors).length > 0 ? nextErrors : null);
+    }
+  }
+
+  ngOnInit(): void {
+    const params = this.route.snapshot.queryParams as Record<string, string | undefined>;
+    this.vm.loadQueryParams(params);
+    const inviteEmail = this.vm.inviteEmail();
+    if (inviteEmail) {
+      this.form.patchValue({ email: inviteEmail });
+      this.form.controls.email.disable();
     }
   }
 

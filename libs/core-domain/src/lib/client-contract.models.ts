@@ -25,6 +25,14 @@ export interface ClientContractDto {
   created_at: string;
 }
 
+/** Body `POST /api/v1/client-contracts/from-proposal`. */
+export interface ClientContractFromProposalRequest {
+  sub_enterprise_id: string;
+  accepted_at?: string | null;
+  ip_address?: string | null;
+  user_agent?: string | null;
+}
+
 /** Alineado con Core `CompanyCodeOptionResponse` (sub-empresas permitidas). */
 export interface CompanyCodeOptionDto {
   company_code: string;

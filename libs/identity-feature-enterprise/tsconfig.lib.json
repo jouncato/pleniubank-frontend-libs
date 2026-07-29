@@ -17,7 +17,11 @@
       "shared-http": ["../../dist/shared-http"],
       "@pleniu/shared-http": ["../../dist/shared-http"],
       "ui": ["../../dist/ui"],
-      "@pleniu/ui": ["../../dist/ui"]
+      "@pleniu/ui": ["../../dist/ui"],
+      "core-domain": ["../../dist/core-domain"],
+      "@pleniu/core-domain": ["../../dist/core-domain"],
+      "core-data-access": ["../../dist/core-data-access"],
+      "@pleniu/core-data-access": ["../../dist/core-data-access"]
     }
   },
   "include": [

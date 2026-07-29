@@ -117,6 +117,44 @@ export interface InviteUserResponse {
   debug_invite_token?: string | null;
 }
 
+export interface InviteEmployeeRequest {
+  email: string;
+  sub_enterprise_id: string;
+}
+
+export interface InviteEmployeeResponse {
+  invite_id: string;
+  sub_enterprise_id: string;
+  email: string;
+  expires_at: string;
+  status: string;
+  debug_invite_token?: string | null;
+}
+
+export interface ValidateEmployeeInvitationResponse {
+  enterprise_id: string;
+  sub_enterprise_id: string;
+  business_name: string | null;
+  sub_enterprise_name: string | null;
+  email: string;
+  status: string;
+  expires_at: string;
+  is_valid: boolean;
+}
+
+export interface AcceptEmployeeInvitationRequest {
+  token: string;
+  email: string;
+}
+
+export interface AcceptEmployeeInvitationResponse {
+  next_step: 'login' | 'register';
+  email: string;
+  sub_enterprise_id: string;
+  enterprise_id: string;
+  token: string;
+}
+
 export interface AcceptInviteRequest {
   token: string;
   password: string;
@@ -213,6 +251,9 @@ export type VerifyEnterpriseEmailEnvelope = ApiEnvelope<VerifyEnterpriseEmailRes
 export type ResendEnterpriseEmailOtpEnvelope = ApiEnvelope<ResendEnterpriseEmailOtpResponse>;
 export type KybDocumentsEnvelope = ApiEnvelope<KybDocumentsResponse>;
 export type InviteUserEnvelope = ApiEnvelope<InviteUserResponse>;
+export type InviteEmployeeEnvelope = ApiEnvelope<InviteEmployeeResponse>;
+export type ValidateEmployeeInvitationEnvelope = ApiEnvelope<ValidateEmployeeInvitationResponse>;
+export type AcceptEmployeeInvitationEnvelope = ApiEnvelope<AcceptEmployeeInvitationResponse>;
 export type AcceptInviteEnvelope = ApiEnvelope<AcceptInviteResponse>;
 export type CreateUserEnterpriseEnvelope = ApiEnvelope<CreateUserEnterpriseResponse>;
 export type CreateSubEnterpriseEnvelope = ApiEnvelope<CreateSubEnterpriseResponse>;

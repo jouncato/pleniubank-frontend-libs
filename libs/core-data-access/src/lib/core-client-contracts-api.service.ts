@@ -8,11 +8,10 @@ import { corePublicV1Base } from './core-api-base';
 import type {
   ClientContractCreateRequest,
   ClientContractDto,
-  ClientContractPatchRequest,
-  CompanyCodeOptionDto,
-  EligibilitySummaryDto,
-} from './core-types';
-import type { ContractTemplateDto } from 'core-domain';
+  ClientContractFromProposalRequest,
+  ContractTemplateDto,
+} from '@pleniu/core-domain';
+import type { ClientContractPatchRequest, CompanyCodeOptionDto, EligibilitySummaryDto } from './core-types';
 
 export interface BulkAssignContractRequest {
   sub_enterprise_id: string;
@@ -102,6 +101,10 @@ export class CoreClientContractsApiService {
 
   create(body: ClientContractCreateRequest): Observable<ApiEnvelope<ClientContractDto>> {
     return this.http.post<ApiEnvelope<ClientContractDto>>(this.base, body);
+  }
+
+  createFromProposal(body: ClientContractFromProposalRequest): Observable<ApiEnvelope<ClientContractDto>> {
+    return this.http.post<ApiEnvelope<ClientContractDto>>(`${this.base}/from-proposal`, body);
   }
 
   /**

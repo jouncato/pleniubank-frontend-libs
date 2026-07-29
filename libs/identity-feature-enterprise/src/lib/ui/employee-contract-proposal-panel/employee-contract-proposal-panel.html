@@ -1,0 +1,96 @@
+<div class="proposal-panel">
+  <h1>Propuesta de contrato de anticipo de nómina</h1>
+
+  @switch (vm.state()) {
+    @case ('loading') {
+      <p>Cargando propuesta…</p>
+    }
+    @case ('error') {
+      <div class="error-box" role="alert">
+        <p>{{ vm.errorMessage() ?? 'No se pudo cargar la propuesta.' }}</p>
+      </div>
+    }
+    @case ('accepting') {
+      <p>Procesando aceptación…</p>
+    }
+    @case ('success') {
+      <div class="success-box">
+        <p>¡Contrato aceptado exitosamente!</p>
+        <button type="button" (click)="goToPayrollAdvance()">Solicitar anticipo de nómina</button>
+      </div>
+    }
+    @default {
+      @if (vm.assignment(); as assignment) {
+        <section class="proposal-summary">
+          <h2>{{ proposalTitle() }}</h2>
+          @if (proposalDescription(); as description) {
+            <p>{{ description }}</p>
+          }
+          <dl>
+            <dt>Unidad de negocio</dt>
+            <dd>{{ assignment.company_code }}</dd>
+            <dt>Producto</dt>
+            <dd>{{ assignment.product_type }}</dd>
+            <dt>Vigente desde</dt>
+            <dd>{{ assignment.effective_from | date: 'mediumDate' }}</dd>
+          </dl>
+        </section>
+
+        @if (vm.profile(); as profile) {
+          <section class="profile-summary">
+            <h3>Perfil laboral vinculado</h3>
+            <dl>
+              <dt>Cargo</dt>
+              <dd>{{ profile.job_title }}</dd>
+              <dt>Fecha de vinculación</dt>
+              <dd>{{ profile.employment_start_date | date: 'mediumDate' }}</dd>
+              <dt>Estado</dt>
+              <dd>{{ profile.verification_status }}</dd>
+            </dl>
+          </section>
+        } @else {
+          <p class="warning">No se encontró un perfil laboral activo. Aceptar la propuesta puede fallar.</p>
+        }
+
+        @if (termConditions().length > 0 || termFees()) {
+          <section class="terms-detail">
+            <h3>Términos y condiciones</h3>
+            @if (termConditions().length > 0) {
+              <ul>
+                @for (item of termConditions(); track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            }
+            @if (termFees(); as fees) {
+              <p><strong>Costos:</strong> {{ fees }}</p>
+            }
+          </section>
+        }
+
+        <div class="acceptance">
+          <label>
+            <input
+              type="checkbox"
+              [ngModel]="vm.termsAccepted()"
+              (ngModelChange)="vm.toggleTermsAccepted($event)"
+            />
+            Acepto los términos y condiciones del contrato de anticipo de nómina.
+          </label>
+        </div>
+
+        <div class="actions">
+          <button
+            type="button"
+            (click)="accept()"
+            [disabled]="!vm.termsAccepted() || vm.state() === 'accepting'"
+          >
+            Aceptar propuesta y crear contrato
+          </button>
+        </div>
+      } @else {
+        <p>No hay una propuesta disponible.</p>
+      }
+    }
+  }
+</div>

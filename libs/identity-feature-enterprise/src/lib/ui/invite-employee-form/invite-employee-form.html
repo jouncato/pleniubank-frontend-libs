@@ -1,0 +1,35 @@
+<h2>Invitar empleado</h2>
+
+<p class="hint" *ngIf="showAdminHierarchyHint()">
+  Como administrador de empresa puedes invitar empleados a unirse a una unidad de negocio y acceder al anticipo de nómina.
+</p>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label for="emp-sub">Unidad de negocio</label>
+  <select
+    id="emp-sub"
+    [value]="vm.selectedSubEnterprise()?.sub_enterprise_id ?? ''"
+    (change)="selectSubEnterprise($any($event.target).value)"
+    [disabled]="vm.state() === 'loading' || vm.subEnterprises().length === 0"
+  >
+    <option value="" disabled selected>
+      {{ vm.state() === 'loading' ? 'Cargando…' : 'Selecciona una unidad' }}
+    </option>
+    <option *ngFor="let sub of vm.subEnterprises()" [value]="sub.sub_enterprise_id">
+      {{ sub.business_name }} ({{ sub.company_code }})
+    </option>
+  </select>
+
+  <label for="emp-em">Correo del empleado</label>
+  <input id="emp-em" type="email" formControlName="email" autocomplete="email" />
+
+  <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
+  <p class="ok" *ngIf="vm.successMessage()" aria-live="polite">{{ vm.successMessage() }}</p>
+
+  <button
+    type="submit"
+    [disabled]="form.invalid || vm.state() === 'submitting' || vm.state() === 'loading' || cooldownActive()"
+  >
+    {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar invitación' }}
+  </button>
+</form>

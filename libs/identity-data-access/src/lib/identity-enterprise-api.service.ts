@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiEnvelope } from '@pleniu/shared-http';
 import {
+  AcceptEmployeeInvitationEnvelope,
+  AcceptEmployeeInvitationRequest,
   AcceptInviteEnvelope,
   AcceptInviteRequest,
   CreateSubEnterpriseEnvelope,
@@ -9,6 +11,8 @@ import {
   CreateUserEnterpriseEnvelope,
   CreateUserEnterpriseRequest,
   EconomicSectorsListEnvelope,
+  InviteEmployeeEnvelope,
+  InviteEmployeeRequest,
   InviteUserEnvelope,
   InviteUserRequest,
   EnterpriseMeSummaryResponse,
@@ -23,6 +27,7 @@ import {
   SubEnterprisesListParams,
   SubEnterpriseUsersListEnvelope,
   UpdateSubEnterpriseRequest,
+  ValidateEmployeeInvitationEnvelope,
   VerifyEnterpriseEmailEnvelope,
   VerifyEnterpriseEmailRequest,
 } from 'identity-domain';
@@ -83,6 +88,21 @@ export class IdentityEnterpriseApiService {
 
   inviteUser(payload: InviteUserRequest): Observable<InviteUserEnvelope> {
     return this.invitations.inviteUser(payload);
+  }
+
+  inviteEmployee(payload: InviteEmployeeRequest): Observable<InviteEmployeeEnvelope> {
+    return this.invitations.inviteEmployee(payload);
+  }
+
+  validateEmployeeInvitation(token: string): Observable<ValidateEmployeeInvitationEnvelope> {
+    return this.invitations.validateEmployeeInvitation(token);
+  }
+
+  acceptEmployeeInvitation(
+    token: string,
+    payload: AcceptEmployeeInvitationRequest,
+  ): Observable<AcceptEmployeeInvitationEnvelope> {
+    return this.invitations.acceptEmployeeInvitation(token, payload);
   }
 
   acceptInvite(payload: AcceptInviteRequest): Observable<AcceptInviteEnvelope> {

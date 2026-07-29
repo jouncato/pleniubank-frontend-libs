@@ -183,6 +183,9 @@ export interface CustomerCreditHistoryDto {
 export interface CompanyCodeOptionDto {
   company_code: string;
   business_name: string;
+  /** Empresa principal a la que pertenece esta sub-empresa. Puede venir ausente en backends que aún no la exponen. */
+  enterprise_id?: string | null;
+  enterprise_name?: string | null;
 }
 
 /** Distribución de clientes por categoría de riesgo crediticio. */

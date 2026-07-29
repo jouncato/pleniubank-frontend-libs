@@ -21,10 +21,21 @@ function unwrapRegisterPayload(body: RegisterEnvelope | RegisterResponse): Regis
 export class RegisterVm {
   readonly state = signal<'idle' | 'submitting' | 'success' | 'error' | 'rate_limited'>('idle');
   readonly errorMessage = signal<string | null>(null);
+  readonly inviteToken = signal<string | null>(null);
+  readonly inviteEmail = signal<string | null>(null);
+  readonly inviteSubEnterpriseId = signal<string | null>(null);
+  readonly inviteEnterpriseId = signal<string | null>(null);
 
   private readonly identityApi = inject(IdentityAuthApiService);
   private readonly sessionStore = inject(SessionStore);
   private readonly router = inject(Router);
+
+  loadQueryParams(params: Record<string, string | undefined>): void {
+    this.inviteToken.set(params['invite_token'] ?? null);
+    this.inviteEmail.set(params['email'] ?? null);
+    this.inviteSubEnterpriseId.set(params['sub_enterprise_id'] ?? null);
+    this.inviteEnterpriseId.set(params['enterprise_id'] ?? null);
+  }
 
   submit(payload: RegisterRequest): void {
     if (this.state() === 'submitting') {
@@ -38,7 +49,12 @@ export class RegisterVm {
       console.debug(REGISTER_LOG, 'POST /api/v1/auth/register (sin contraseña en logs)');
     }
 
-    this.identityApi.register(payload).subscribe({
+    const request: RegisterRequest = {
+      ...payload,
+      employee_invitation_token: this.inviteToken(),
+    };
+
+    this.identityApi.register(request).subscribe({
       next: (response) => {
         const data = unwrapRegisterPayload(response);
         const registrationId = data.registration_id;

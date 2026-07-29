@@ -15,6 +15,11 @@ describe('AuthRegisterForm', () => {
   const vm = {
     state: signal<'idle' | 'submitting' | 'success' | 'error' | 'rate_limited'>('idle'),
     errorMessage: signal<string | null>(null),
+    inviteToken: signal<string | null>(null),
+    inviteEmail: signal<string | null>(null),
+    inviteSubEnterpriseId: signal<string | null>(null),
+    inviteEnterpriseId: signal<string | null>(null),
+    loadQueryParams: vi.fn(),
     submit: vi.fn(),
   };
 

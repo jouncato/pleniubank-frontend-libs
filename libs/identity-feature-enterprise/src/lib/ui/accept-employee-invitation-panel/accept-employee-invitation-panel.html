@@ -1,0 +1,30 @@
+<div class="panel">
+  @switch (vm.state()) {
+    @case ('loading') {
+      <p>Cargando invitación…</p>
+    }
+    @case ('error') {
+      <h2>Invitación no disponible</h2>
+      <p class="error" aria-live="polite">{{ vm.errorMessage() }}</p>
+      <p>Solicita una nueva invitación a tu empresa.</p>
+    }
+    @case ('accepting') {
+      <p>Procesando invitación…</p>
+    }
+    @case ('success') {
+      <h2>Invitación aceptada</h2>
+      <p>Redirigiendo para {{ vm.nextStep() === 'register' ? 'crear tu cuenta' : 'iniciar sesión' }}.</p>
+    }
+    @default {
+      @if (vm.validation(); as v) {
+        <h2>Te invitaron a unirte a {{ v.business_name ?? 'tu empresa' }}</h2>
+        <p>Unidad: <strong>{{ v.sub_enterprise_name ?? 'Unidad de negocio' }}</strong></p>
+        <p>Correo: <strong>{{ v.email }}</strong></p>
+        <p>Al aceptar, vincularemos tu cuenta al anticipo de nómina de esta unidad.</p>
+        <button type="button" (click)="accept()" [disabled]="vm.state() === 'accepting'">Aceptar invitación</button>
+      } @else {
+        <p class="error" aria-live="polite">{{ vm.errorMessage() ?? 'No se pudo cargar la invitación.' }}</p>
+      }
+    }
+  }
+</div>
