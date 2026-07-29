@@ -7,6 +7,7 @@ import { corePublicV1Base } from './core-api-base';
 
 import type {
   CreateLoanRequest,
+  LendingArrangementPartyRoleDto,
   LoanDto,
   PaymentLineDto,
   SimulateLoanRequest,
@@ -23,6 +24,7 @@ type LendingArrangementResponse = Record<string, unknown> & {
   contract_version_id?: string | null;
   customer_id?: string;
   employer_id?: string;
+  party_roles?: LendingArrangementPartyRoleDto[];
   principal_amount?: string;
   currency?: string;
   amount?: string;
@@ -35,6 +37,12 @@ type LendingArrangementResponse = Record<string, unknown> & {
 };
 
 function mapToLoanDto(raw: LendingArrangementResponse): LoanDto {
+  const partyRoles = raw.party_roles ?? [];
+  // Bug found via live audit: Core's LendingArrangementResponse never had a flat
+  // `employer_id` field -- the employer travels in `party_roles` (role=EMPLOYER).
+  // `raw.employer_id` was always undefined, so "Empresa empleadora" rendered
+  // blank for every lending arrangement, not just payroll-advance ones.
+  const employerPartyId = partyRoles.find((role) => role.role === 'EMPLOYER')?.party_id;
   return {
     id: raw.arrangement_id ?? raw.id ?? '',
     version: raw.version ?? 1,
@@ -42,7 +50,8 @@ function mapToLoanDto(raw: LendingArrangementResponse): LoanDto {
     product_id: raw.product_id ?? '',
     contract_version_id: raw.contract_version_id ?? null,
     customer_id: raw.customer_id ?? '',
-    employer_id: raw.employer_id ?? '',
+    employer_id: raw.employer_id ?? employerPartyId ?? '',
+    party_roles: partyRoles,
     amount: raw.amount ?? raw.principal_amount ?? '0',
     denomination: raw.denomination ?? raw.currency ?? 'COP',
     status: raw.status ?? '',

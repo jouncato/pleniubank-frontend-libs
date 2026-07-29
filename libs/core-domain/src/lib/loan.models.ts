@@ -1,5 +1,20 @@
 /** Tipos alineados con Core `LoanResponse` / préstamos (PayrollAdvance). */
 
+/**
+ * Refleja `PartyRoleDTO` en Core (`lending_arrangement_schemas.PartyRoleDTO`).
+ * Core nunca expone `employer_id` como campo plano en la respuesta de
+ * `LendingArrangement` -- el empleador (y cualquier otro participante) viaja
+ * en `party_roles`, identificado por `role`.
+ */
+export interface LendingArrangementPartyRoleDto {
+  party_id: string;
+  party_type: 'NATURAL_PERSON' | 'LEGAL_ENTITY';
+  role: 'BORROWER' | 'COBORROWER' | 'GUARANTOR' | 'EMPLOYER' | 'PAYER';
+  role_percentage: string | null;
+  role_started_at: string;
+  role_ended_at: string | null;
+}
+
 export interface LoanDto {
   id: string;
   version: number;
@@ -8,6 +23,7 @@ export interface LoanDto {
   contract_version_id: string | null;
   customer_id: string;
   employer_id: string;
+  party_roles: LendingArrangementPartyRoleDto[];
   amount: string;
   denomination: string;
   status: string;

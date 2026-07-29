@@ -43,6 +43,63 @@ describe('CoreLoansApiService', () => {
     expect(http.post).toHaveBeenCalledWith('http://localhost:8000/api/v1/lending-arrangements/simulate', payload);
   });
 
+  it('getById deriva employer_id de party_roles (role=EMPLOYER)', () => {
+    // Bug found via live audit: Core's LendingArrangementResponse nunca tuvo un
+    // campo plano `employer_id` -- el empleador viaja en `party_roles`. Antes
+    // del fix, `raw.employer_id` siempre era undefined y "Empresa empleadora"
+    // se veía vacío para cualquier préstamo, no solo los de anticipo de nómina.
+    const http = {
+      get: vi.fn().mockReturnValue(
+        of({
+          data: {
+            arrangement_id: 'loan-1',
+            customer_id: 'cust-1',
+            principal_amount: '500000',
+            party_roles: [
+              { party_id: 'cust-1', party_type: 'NATURAL_PERSON', role: 'BORROWER' },
+              { party_id: 'sub-ent-1', party_type: 'LEGAL_ENTITY', role: 'EMPLOYER' },
+            ],
+          },
+        }),
+      ),
+      post: vi.fn(),
+      put: vi.fn(),
+    };
+    const service = new CoreLoansApiService(http as never, apiConfig);
+
+    let result: { employer_id: string } | undefined;
+    service.getById('loan-1').subscribe((env) => {
+      result = env.data;
+    });
+
+    expect(result?.employer_id).toBe('sub-ent-1');
+  });
+
+  it('getById deja employer_id vacio cuando no hay rol EMPLOYER en party_roles', () => {
+    const http = {
+      get: vi.fn().mockReturnValue(
+        of({
+          data: {
+            arrangement_id: 'loan-1',
+            customer_id: 'cust-1',
+            principal_amount: '500000',
+            party_roles: [{ party_id: 'cust-1', party_type: 'NATURAL_PERSON', role: 'BORROWER' }],
+          },
+        }),
+      ),
+      post: vi.fn(),
+      put: vi.fn(),
+    };
+    const service = new CoreLoansApiService(http as never, apiConfig);
+
+    let result: { employer_id: string } | undefined;
+    service.getById('loan-1').subscribe((env) => {
+      result = env.data;
+    });
+
+    expect(result?.employer_id).toBe('');
+  });
+
   it('update envia status y parametros a /loans/:id', () => {
     const http = {
       get: vi.fn(),
