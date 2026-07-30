@@ -17,3 +17,4 @@ export * from './lib/enums/fee-type';
 export * from './lib/enums/fee-calculation-basis';
 export * from './lib/value-objects/jurisdiction';
 export * from './lib/value-objects/money';
+export * from './lib/value-objects/percentage';
