@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import type { LendingArrangement } from '@pleniu/loan-domain';
+import { formatRateAsPercentage } from '@pleniu/loan-domain';
 import { LendingStatusBadgeComponent } from '../lending-status-badge/lending-status-badge.component';
 import { MoneyDisplayComponent } from '../money-display/money-display.component';
 
@@ -29,7 +30,7 @@ import { MoneyDisplayComponent } from '../money-display/money-display.component'
         @if (arrangement().nominalRate != null) {
           <div class="kpi">
             <dt>Tasa nominal</dt>
-            <dd>{{ (arrangement().nominalRate! * 100).toFixed(2) }}%</dd>
+            <dd>{{ formatRateAsPercentage(arrangement().nominalRate) }}</dd>
           </div>
         }
         @if (arrangement().termMonths != null) {
@@ -98,4 +99,6 @@ import { MoneyDisplayComponent } from '../money-display/money-display.component'
 export class ArrangementSummaryCardComponent {
   readonly arrangement = input.required<LendingArrangement>();
   readonly locale = input<string>('es-CO');
+
+  protected readonly formatRateAsPercentage = formatRateAsPercentage;
 }

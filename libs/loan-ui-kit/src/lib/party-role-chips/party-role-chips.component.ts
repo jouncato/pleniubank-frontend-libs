@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import type { PartyRole } from '@pleniu/loan-domain';
-import { PartyRoleType } from '@pleniu/loan-domain';
+import { formatPercentagePoints, PartyRoleType } from '@pleniu/loan-domain';
 
 const ROLE_LABELS: Record<PartyRoleType, string> = {
   [PartyRoleType.Borrower]: 'Deudor',
@@ -32,7 +32,7 @@ const ROLE_VARIANT: Record<PartyRoleType, string> = {
         >
           {{ roleLabel(role.role) }}
           @if (role.rolePercentage != null) {
-            <span class="chip__pct">({{ role.rolePercentage }}%)</span>
+            <span class="chip__pct">({{ formatPercentagePoints(role.rolePercentage) }})</span>
           }
         </li>
       }
@@ -71,4 +71,6 @@ export class PartyRoleChipsComponent {
   roleVariant(role: string): string {
     return ROLE_VARIANT[role as PartyRoleType] ?? 'neutral';
   }
+
+  protected readonly formatPercentagePoints = formatPercentagePoints;
 }
