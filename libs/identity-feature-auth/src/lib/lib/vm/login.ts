@@ -157,6 +157,7 @@ export class LoginVm {
         if (
           this.portal === 'customer' &&
           !claims.enterprise_id &&
+          role === 'customer' &&
           claims.phone_verified !== true
         ) {
           const safeReturn = isValidReturnUrl(returnUrl) ? returnUrl : undefined;

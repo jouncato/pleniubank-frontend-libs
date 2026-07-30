@@ -172,6 +172,27 @@ describe('LoginVm', () => {
     expect(navigateByUrl).not.toHaveBeenCalled();
   });
 
+  it('enterprise_operator sin enterprise_id y sin telefono verificado NO va a verify-phone (backend rechaza phone-challenge para roles no customer)', () => {
+    const { service, navigate, navigateByUrl } = setup({
+      validateImpl: () =>
+        of({
+          data: {
+            claims: {
+              role: 'enterprise_operator',
+              email: 'operator@example.com',
+              enterprise_id: undefined,
+              phone_verified: false,
+            },
+          },
+        }),
+    });
+
+    service.login(payload, '/app/personal/loans/list');
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(navigateByUrl).toHaveBeenCalledWith('/app/personal/loans/list');
+  });
+
   it('hace fallback a /app/dashboard para usuarios enterprise si returnUrl es invalida', () => {
     const { service, navigateByUrl } = setup({ enterpriseId: 'ent-123' });
 

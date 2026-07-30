@@ -42,8 +42,17 @@ describe('phoneVerifiedGuard', () => {
     expect(result).toBe(true);
   });
 
+  it('permite enterprise_operator sin enterprise_id en el claim (bug: backend rechaza phone-challenge para roles no customer)', () => {
+    const router = configure('customer', { role: 'enterprise_operator', phone_verified: false });
+    const result = TestBed.runInInjectionContext(() =>
+      phoneVerifiedGuard({} as never, { url: '/app/dashboard' } as never),
+    );
+    expect(result).toBe(true);
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
   it('permite customer con telefono verificado', () => {
-    configure('customer', { phone_verified: true });
+    configure('customer', { role: 'customer', phone_verified: true });
     const result = TestBed.runInInjectionContext(() =>
       phoneVerifiedGuard({} as never, { url: '/x' } as never),
     );
@@ -51,7 +60,7 @@ describe('phoneVerifiedGuard', () => {
   });
 
   it('redirige a verify-phone en customer B2C sin telefono', () => {
-    const router = configure('customer', { phone_verified: false });
+    const router = configure('customer', { role: 'customer', phone_verified: false });
     const result = TestBed.runInInjectionContext(() =>
       phoneVerifiedGuard({} as never, { url: '/app/personal/loans/list' } as never),
     );
@@ -62,7 +71,7 @@ describe('phoneVerifiedGuard', () => {
   });
 
   it('redirige desde dashboard si B2C sin telefono', () => {
-    const router = configure('customer', { phone_verified: false });
+    const router = configure('customer', { role: 'customer', phone_verified: false });
     const result = TestBed.runInInjectionContext(() =>
       phoneVerifiedGuard({} as never, { url: '/app/dashboard' } as never),
     );
@@ -73,7 +82,7 @@ describe('phoneVerifiedGuard', () => {
   });
 
   it('permite /app/personal/profile en B2C sin telefono (perfil y CTA verificacion)', () => {
-    const router = configure('customer', { phone_verified: false });
+    const router = configure('customer', { role: 'customer', phone_verified: false });
     const result = TestBed.runInInjectionContext(() =>
       phoneVerifiedGuard({} as never, { url: '/app/personal/profile' } as never),
     );
@@ -82,7 +91,7 @@ describe('phoneVerifiedGuard', () => {
   });
 
   it('permite /app/personal/profile con query string sin telefono', () => {
-    configure('customer', { phone_verified: false });
+    configure('customer', { role: 'customer', phone_verified: false });
     const result = TestBed.runInInjectionContext(() =>
       phoneVerifiedGuard({} as never, { url: '/app/personal/profile?tab=seguridad' } as never),
     );

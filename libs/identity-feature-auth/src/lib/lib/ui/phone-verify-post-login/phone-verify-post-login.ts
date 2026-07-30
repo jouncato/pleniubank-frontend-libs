@@ -11,6 +11,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { SessionStore } from '@pleniu/shared-auth';
 import { VerifyPhonePostLoginVm } from '../../vm/verify-phone-post-login';
 import { SessionVm } from '../../vm/session';
 
@@ -25,6 +27,8 @@ export class PhoneVerifyPostLogin implements OnInit, AfterViewInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(VerifyPhonePostLoginVm);
   private readonly session = inject(SessionVm);
+  private readonly sessionStore = inject(SessionStore);
+  private readonly router = inject(Router);
 
   private readonly codeField = viewChild<ElementRef<HTMLInputElement>>('codeField');
 
@@ -44,6 +48,16 @@ export class PhoneVerifyPostLogin implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Defensa en profundidad: el backend (`POST /auth/phone-challenge`) rechaza
+    // con 403 cualquier rol distinto de `customer` ("Only customer accounts can
+    // start phone verification"). El guard de ruta y el CTA del nav ya evitan
+    // llegar aquí con otro rol, pero si de todos modos se navega directo
+    // (bookmark, back/forward, link viejo) no debe disparar la llamada
+    // condenada a fallar en loop — se redirige al dashboard sin error visible.
+    if (this.sessionStore.claims()?.role !== 'customer') {
+      void this.router.navigateByUrl('/app/dashboard');
+      return;
+    }
     this.vm.startChallenge();
   }
 

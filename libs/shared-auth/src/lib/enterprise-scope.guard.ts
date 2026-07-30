@@ -14,8 +14,9 @@ export const enterpriseScopeGuard: CanActivateFn = () => {
   const sessionStore = inject(SessionStore);
   const router = inject(Router);
   const claims = sessionStore.claims();
+  const hasTenantScope = Boolean(claims?.enterprise_id || claims?.sub_enterprise_id);
 
-  if (claims?.enterprise_id && isEnterpriseManagementRole(claims?.role)) {
+  if (hasTenantScope && isEnterpriseManagementRole(claims?.role)) {
     return true;
   }
 
@@ -29,7 +30,8 @@ export const enterprisePrincipalScopeGuard: CanActivateFn = () => {
   const router = inject(Router);
   const claims = sessionStore.claims();
   const managementRoles = ['enterprise_principal', 'enterprise_admin'];
-  if (claims?.enterprise_id && managementRoles.includes(claims?.role ?? '')) {
+  const hasTenantScope = Boolean(claims?.enterprise_id || claims?.sub_enterprise_id);
+  if (hasTenantScope && managementRoles.includes(claims?.role ?? '')) {
     return true;
   }
   void router.navigate(['/auth/forbidden']);
