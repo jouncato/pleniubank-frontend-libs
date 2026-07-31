@@ -131,6 +131,21 @@ export interface InviteEmployeeResponse {
   debug_invite_token?: string | null;
 }
 
+/** GET /api/v1/enterprise/employee-invitations item. */
+export interface EmployeeInvitationItem {
+  invite_id: string;
+  sub_enterprise_id: string;
+  email: string;
+  status: string;
+  expires_at: string;
+  consumed_at?: string | null;
+  created_at: string;
+}
+
+export interface ListEmployeeInvitationsParams {
+  status?: 'pending' | 'accepted' | 'revoked' | 'expired';
+}
+
 export interface ValidateEmployeeInvitationResponse {
   enterprise_id: string;
   sub_enterprise_id: string;
@@ -252,6 +267,7 @@ export type ResendEnterpriseEmailOtpEnvelope = ApiEnvelope<ResendEnterpriseEmail
 export type KybDocumentsEnvelope = ApiEnvelope<KybDocumentsResponse>;
 export type InviteUserEnvelope = ApiEnvelope<InviteUserResponse>;
 export type InviteEmployeeEnvelope = ApiEnvelope<InviteEmployeeResponse>;
+export type EmployeeInvitationsListEnvelope = ApiEnvelope<EmployeeInvitationItem[]>;
 /**
  * `GET/POST .../employee-invitations/{token}/validate|accept` return the response
  * model directly (no `ApiEnvelope` wrapper) — unlike most Core/backoffice endpoints.

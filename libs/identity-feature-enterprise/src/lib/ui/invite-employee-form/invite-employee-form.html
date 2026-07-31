@@ -5,20 +5,28 @@
 </p>
 
 <form [formGroup]="form" (ngSubmit)="submit()">
-  <label for="emp-sub">Unidad de negocio</label>
-  <select
-    id="emp-sub"
-    [value]="vm.selectedSubEnterprise()?.sub_enterprise_id ?? ''"
-    (change)="selectSubEnterprise($any($event.target).value)"
-    [disabled]="vm.state() === 'loading' || vm.subEnterprises().length === 0"
-  >
-    <option value="" disabled selected>
-      {{ vm.state() === 'loading' ? 'Cargando…' : 'Selecciona una unidad' }}
-    </option>
-    <option *ngFor="let sub of vm.subEnterprises()" [value]="sub.sub_enterprise_id">
-      {{ sub.business_name }} ({{ sub.company_code }})
-    </option>
-  </select>
+  <ng-container *ngIf="!preselectedSubEnterpriseId; else fixedUnit">
+    <label for="emp-sub">Unidad de negocio</label>
+    <select
+      id="emp-sub"
+      [value]="vm.selectedSubEnterprise()?.sub_enterprise_id ?? ''"
+      (change)="selectSubEnterprise($any($event.target).value)"
+      [disabled]="vm.state() === 'loading' || vm.subEnterprises().length === 0"
+    >
+      <option value="" disabled selected>
+        {{ vm.state() === 'loading' ? 'Cargando…' : 'Selecciona una unidad' }}
+      </option>
+      <option *ngFor="let sub of vm.subEnterprises()" [value]="sub.sub_enterprise_id">
+        {{ sub.business_name }} ({{ sub.company_code }})
+      </option>
+    </select>
+  </ng-container>
+  <ng-template #fixedUnit>
+    <label>Unidad de negocio</label>
+    <p class="hint">
+      {{ vm.selectedSubEnterprise()?.business_name ?? 'Cargando unidad…' }}
+    </p>
+  </ng-template>
 
   <label for="emp-em">Correo del empleado</label>
   <input id="emp-em" type="email" formControlName="email" autocomplete="email" />

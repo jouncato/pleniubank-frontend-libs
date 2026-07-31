@@ -11,6 +11,7 @@ import {
   CreateUserEnterpriseEnvelope,
   CreateUserEnterpriseRequest,
   EconomicSectorsListEnvelope,
+  EmployeeInvitationsListEnvelope,
   InviteEmployeeEnvelope,
   InviteEmployeeRequest,
   InviteUserEnvelope,
@@ -18,6 +19,7 @@ import {
   EnterpriseMeSummaryResponse,
   KybDocumentsEnvelope,
   KybDocumentsRequest,
+  ListEmployeeInvitationsParams,
   RegisterEnterpriseEnvelope,
   RegisterEnterpriseRequest,
   ResendEnterpriseEmailOtpEnvelope,
@@ -107,6 +109,14 @@ export class IdentityEnterpriseApiService {
 
   acceptInvite(payload: AcceptInviteRequest): Observable<AcceptInviteEnvelope> {
     return this.invitations.acceptInvite(payload);
+  }
+
+  listEmployeeInvitations(params: ListEmployeeInvitationsParams = {}): Observable<EmployeeInvitationsListEnvelope> {
+    return this.invitations.listEmployeeInvitations(params);
+  }
+
+  revokeEmployeeInvitation(inviteId: string): Observable<void> {
+    return this.invitations.revokeEmployeeInvitation(inviteId);
   }
 
   // --- Cambio de contexto ----------------------------------------------------

@@ -72,29 +72,27 @@ describe('IdentityEnterpriseInvitationApiService', () => {
 
   it('validateEmployeeInvitation() llama GET /employee-invitations/{token}/validate', () => {
     service.validateEmployeeInvitation('tok-abc').subscribe((res) => {
-      expect(res.data.is_valid).toBe(true);
+      expect(res.is_valid).toBe(true);
     });
     const req = httpTesting.expectOne(
       'http://localhost:8010/api/v1/employee-invitations/tok-abc/validate',
     );
     expect(req.request.method).toBe('GET');
     req.flush({
-      data: {
-        enterprise_id: 'ent-1',
-        sub_enterprise_id: 'sub-1',
-        business_name: 'Empresa SAS',
-        sub_enterprise_name: 'Unidad Norte',
-        email: 'emp@acme.test',
-        status: 'pending',
-        expires_at: '2026-08-01T00:00:00Z',
-        is_valid: true,
-      },
+      enterprise_id: 'ent-1',
+      sub_enterprise_id: 'sub-1',
+      business_name: 'Empresa SAS',
+      sub_enterprise_name: 'Unidad Norte',
+      email: 'emp@acme.test',
+      status: 'pending',
+      expires_at: '2026-08-01T00:00:00Z',
+      is_valid: true,
     });
   });
 
   it('acceptEmployeeInvitation() llama POST /employee-invitations/{token}/accept con token y email', () => {
     service.acceptEmployeeInvitation('tok-abc', { token: 'tok-abc', email: 'emp@acme.test' }).subscribe((res) => {
-      expect(res.data.next_step).toBe('register');
+      expect(res.next_step).toBe('register');
     });
     const req = httpTesting.expectOne(
       'http://localhost:8010/api/v1/employee-invitations/tok-abc/accept',
@@ -102,13 +100,53 @@ describe('IdentityEnterpriseInvitationApiService', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ token: 'tok-abc', email: 'emp@acme.test' });
     req.flush({
-      data: {
-        next_step: 'register',
-        email: 'emp@acme.test',
-        sub_enterprise_id: 'sub-1',
-        enterprise_id: 'ent-1',
-        token: 'tok-abc',
-      },
+      next_step: 'register',
+      email: 'emp@acme.test',
+      sub_enterprise_id: 'sub-1',
+      enterprise_id: 'ent-1',
+      token: 'tok-abc',
     });
+  });
+
+  it('listEmployeeInvitations() llama GET /enterprise/employee-invitations sin filtro por defecto', () => {
+    service.listEmployeeInvitations().subscribe((res) => {
+      expect(res.data.length).toBe(1);
+      expect(res.data[0].invite_id).toBe('inv-3');
+    });
+    const req = httpTesting.expectOne(
+      'http://localhost:8010/api/v1/enterprise/employee-invitations',
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      data: [
+        {
+          invite_id: 'inv-3',
+          sub_enterprise_id: 'sub-1',
+          email: 'pendiente@acme.test',
+          status: 'pending',
+          expires_at: '2026-08-01T00:00:00Z',
+          consumed_at: null,
+          created_at: '2026-07-25T00:00:00Z',
+        },
+      ],
+    });
+  });
+
+  it('listEmployeeInvitations({status}) agrega el query param status', () => {
+    service.listEmployeeInvitations({ status: 'pending' }).subscribe();
+    const req = httpTesting.expectOne(
+      'http://localhost:8010/api/v1/enterprise/employee-invitations?status=pending',
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush({ data: [] });
+  });
+
+  it('revokeEmployeeInvitation() llama POST /enterprise/employee-invitations/{id}/revoke', () => {
+    service.revokeEmployeeInvitation('inv-3').subscribe();
+    const req = httpTesting.expectOne(
+      'http://localhost:8010/api/v1/enterprise/employee-invitations/inv-3/revoke',
+    );
+    expect(req.request.method).toBe('POST');
+    req.flush(null);
   });
 });

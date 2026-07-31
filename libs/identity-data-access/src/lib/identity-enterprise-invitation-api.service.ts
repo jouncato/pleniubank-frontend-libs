@@ -7,10 +7,12 @@ import {
   AcceptEmployeeInvitationRequest,
   AcceptInviteEnvelope,
   AcceptInviteRequest,
+  EmployeeInvitationsListEnvelope,
   InviteEmployeeEnvelope,
   InviteEmployeeRequest,
   InviteUserEnvelope,
   InviteUserRequest,
+  ListEmployeeInvitationsParams,
   ValidateEmployeeInvitationEnvelope,
 } from 'identity-domain';
 
@@ -60,6 +62,20 @@ export class IdentityEnterpriseInvitationApiService {
     return this.http.post<AcceptInviteEnvelope>(
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/accept-invite`,
       payload,
+    );
+  }
+
+  listEmployeeInvitations(params: ListEmployeeInvitationsParams = {}): Observable<EmployeeInvitationsListEnvelope> {
+    return this.http.get<EmployeeInvitationsListEnvelope>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/employee-invitations`,
+      { params: params.status ? { status: params.status } : {} },
+    );
+  }
+
+  revokeEmployeeInvitation(inviteId: string): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/employee-invitations/${encodeURIComponent(inviteId)}/revoke`,
+      {},
     );
   }
 }
