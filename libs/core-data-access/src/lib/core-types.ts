@@ -123,8 +123,11 @@ export interface UpdateCustomerRequest {
  */
 export interface ClientContractDto {
   id: string;
-  customer_id: string;
-  company_code: string;
+  customer_id?: string | null;
+  company_code?: string | null;
+  /** Ancla alternativa a nivel Empresa Principal (ADR-008, Opción B). */
+  enterprise_id?: string | null;
+  business_unit_assignment_id?: string | null;
   template_contract_id: string;
   terms: Record<string, unknown>;
   status: string;
@@ -152,12 +155,14 @@ export interface ClientContractPatchRequest {
  * Sunset: 2027-03-01. Body `POST /api/v1/client-contracts` — Core `ClientContractCreateRequest`.
  */
 export interface ClientContractCreateRequest {
-  customer_id: string;
-  company_code: string;
+  customer_id?: string | null;
+  company_code?: string | null;
+  /** Ancla alternativa a nivel Empresa Principal (ADR-008, Opción B). */
+  enterprise_id?: string | null;
   template_contract_id: string;
   terms: Record<string, unknown>;
-  /** FK a BusinessUnitProductAssignment. Obligatorio (ADR-012). */
-  business_unit_assignment_id: string;
+  /** FK a BusinessUnitProductAssignment. Obligatorio junto a company_code (ADR-012); no aplica con enterprise_id. */
+  business_unit_assignment_id?: string | null;
 }
 
 /** Historial crediticio del cliente (GET /customers/{id}/credit-history). */

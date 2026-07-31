@@ -22,7 +22,13 @@ export class CoreContractTemplatesApiService {
   }
 
   list(params: ListContractTemplatesParams): Observable<ApiEnvelope<ContractTemplateDto[]>> {
-    let hp = new HttpParams().set('company_code', params.company_code);
+    // ADR-008 (Opción B): exactamente uno de company_code/enterprise_id.
+    let hp = new HttpParams();
+    if (params.enterprise_id) {
+      hp = hp.set('enterprise_id', params.enterprise_id);
+    } else if (params.company_code) {
+      hp = hp.set('company_code', params.company_code);
+    }
     if (params.cursor) {
       hp = hp.set('cursor', params.cursor);
     }

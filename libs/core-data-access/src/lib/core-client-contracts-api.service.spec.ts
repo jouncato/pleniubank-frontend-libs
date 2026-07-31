@@ -27,6 +27,18 @@ describe('CoreClientContractsApiService', () => {
     expect(options.params.get('company_code')).toBe('ACME_01');
   });
 
+  it('list() GET al endpoint /client-contracts con enterprise_id (ADR-008, sin company_code)', () => {
+    const http = mockHttp();
+    const service = new CoreClientContractsApiService(http as never, apiConfig);
+
+    service.list({ enterprise_id: 'ent-1' }).subscribe();
+
+    expect(http.get).toHaveBeenCalledTimes(1);
+    const [, options] = http.get.mock.calls[0];
+    expect(options.params.get('enterprise_id')).toBe('ent-1');
+    expect(options.params.has('company_code')).toBe(false);
+  });
+
   it('listAllowedCompanyCodes() GET al endpoint /company-codes', () => {
     const http = mockHttp();
     const service = new CoreClientContractsApiService(http as never, apiConfig);

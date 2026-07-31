@@ -1,21 +1,30 @@
 /** Tipos alineados con Core `ClientContractResponse` (contratos cliente / payroller). */
 
-/** Body `POST /api/v1/client-contracts`. */
+/**
+ * Body `POST /api/v1/client-contracts`.
+ * ADR-008 (Opción B): exactamente uno de `company_code` (+ `business_unit_assignment_id`
+ * obligatorio, camino sub-empresa/ADR-012) o `enterprise_id` (camino Empresa Principal,
+ * sin BU assignment ni `customer_id` obligatorios).
+ */
 export interface ClientContractCreateRequest {
-  customer_id: string;
-  company_code: string;
+  customer_id?: string | null;
+  company_code?: string | null;
+  /** Ancla alternativa a nivel Empresa Principal (ADR-008, Opción B). */
+  enterprise_id?: string | null;
   template_contract_id: string;
   terms: Record<string, unknown>;
-  /** FK a BusinessUnitProductAssignment. Obligatorio (ADR-012). */
-  business_unit_assignment_id: string;
+  /** FK a BusinessUnitProductAssignment. Obligatorio junto a company_code (ADR-012); no aplica con enterprise_id. */
+  business_unit_assignment_id?: string | null;
 }
 
 export interface ClientContractDto {
   id: string;
   /** FK a BusinessUnitProductAssignment (Nivel 2 jerarquía ADR-012). */
   business_unit_assignment_id?: string | null;
-  customer_id: string;
-  company_code: string;
+  /** Ancla alternativa a nivel Empresa Principal (ADR-008, Opción B). */
+  enterprise_id?: string | null;
+  customer_id?: string | null;
+  company_code?: string | null;
   template_contract_id: string;
   /** product_type of the linked contract_template; enriched server-side. */
   product_type?: string | null;
@@ -37,4 +46,7 @@ export interface ClientContractFromProposalRequest {
 export interface CompanyCodeOptionDto {
   company_code: string;
   business_name: string;
+  /** Empresa Principal dueña de esta sub-empresa; ya la envía el backend. */
+  enterprise_id?: string | null;
+  enterprise_name?: string | null;
 }

@@ -48,7 +48,9 @@ export interface ListClientContractAuditParams {
 }
 
 export interface ListClientContractsParams {
-  company_code: string;
+  company_code?: string | null;
+  /** Ancla alternativa a nivel Empresa Principal (ADR-008, Opción B); mutuamente excluyente con company_code. */
+  enterprise_id?: string | null;
   customer_id?: string | null;
   cursor?: string | null;
   limit?: number;
@@ -68,7 +70,12 @@ export class CoreClientContractsApiService {
   }
 
   list(params: ListClientContractsParams): Observable<ApiEnvelope<ClientContractDto[]>> {
-    let hp = new HttpParams().set('company_code', params.company_code);
+    let hp = new HttpParams();
+    if (params.enterprise_id) {
+      hp = hp.set('enterprise_id', params.enterprise_id);
+    } else if (params.company_code) {
+      hp = hp.set('company_code', params.company_code);
+    }
     if (params.customer_id) {
       hp = hp.set('customer_id', params.customer_id);
     }

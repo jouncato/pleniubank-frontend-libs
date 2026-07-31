@@ -40,6 +40,20 @@ describe('CoreContractTemplatesApiService', () => {
     expect(options.params.get('limit')).toBeNull();
   });
 
+  it('arma query params de list con enterprise_id (ADR-008, Opción B) en vez de company_code', () => {
+    const http = {
+      get: vi.fn().mockReturnValue(of({ data: [] })),
+      post: vi.fn(),
+    };
+    const service = new CoreContractTemplatesApiService(http as never, apiConfig);
+
+    service.list({ enterprise_id: 'ent-1', cursor: 'cursor_1', limit: 25 }).subscribe();
+
+    const [, options] = http.get.mock.calls[0];
+    expect(options.params.get('enterprise_id')).toBe('ent-1');
+    expect(options.params.get('company_code')).toBeNull();
+  });
+
   it('create envia payload al endpoint base', () => {
     const http = {
       get: vi.fn(),
