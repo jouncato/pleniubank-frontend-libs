@@ -1,43 +1,94 @@
-<h2>Invitar empleado</h2>
+<section class="ief-card">
+  <header class="ief-header">
+    <span class="ief-header__icon" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M19 8v6M22 11h-6" />
+      </svg>
+    </span>
+    <div>
+      <h2 class="ief-header__title">Invitar empleado</h2>
+      <p class="ief-header__subtitle">
+        Le enviaremos un correo con un enlace para que se una a tu unidad de negocio y quede
+        habilitado para anticipo de nómina.
+      </p>
+    </div>
+  </header>
 
-<p class="hint" *ngIf="showAdminHierarchyHint()">
-  Como administrador de empresa puedes invitar empleados a unirse a una unidad de negocio y acceder al anticipo de nómina.
-</p>
+  <p class="ief-callout" *ngIf="showAdminHierarchyHint()">
+    Como administrador de empresa puedes invitar empleados a unirse a una unidad de negocio y
+    acceder al anticipo de nómina.
+  </p>
 
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <ng-container *ngIf="!preselectedSubEnterpriseId; else fixedUnit">
-    <label for="emp-sub">Unidad de negocio</label>
-    <select
-      id="emp-sub"
-      [value]="vm.selectedSubEnterprise()?.sub_enterprise_id ?? ''"
-      (change)="selectSubEnterprise($any($event.target).value)"
-      [disabled]="vm.state() === 'loading' || vm.subEnterprises().length === 0"
+  <form class="ief-form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="ief-field">
+      <label class="ief-label">Unidad de negocio</label>
+
+      <p class="ief-field-hint" *ngIf="vm.state() === 'loading'">Cargando unidades…</p>
+      <p class="ief-field-hint" *ngIf="vm.state() !== 'loading' && visibleUnits().length === 0">
+        Tu empresa aún no tiene unidades de negocio creadas.
+      </p>
+
+      <div
+        class="ief-unit-grid"
+        role="radiogroup"
+        aria-label="Selecciona la unidad de negocio"
+        *ngIf="visibleUnits().length > 0"
+      >
+        <button
+          *ngFor="let sub of visibleUnits()"
+          type="button"
+          class="ief-unit-card"
+          [class.ief-unit-card--selected]="isSelectedUnit(sub.sub_enterprise_id)"
+          [class.ief-unit-card--readonly]="!!preselectedSubEnterpriseId"
+          role="radio"
+          [attr.aria-checked]="isSelectedUnit(sub.sub_enterprise_id)"
+          [attr.tabindex]="preselectedSubEnterpriseId ? -1 : 0"
+          (click)="selectSubEnterprise(sub.sub_enterprise_id)"
+        >
+          <span class="ief-unit-card__head">
+            <span class="ief-unit-card__name">{{ sub.business_name }}</span>
+            <span
+              class="ief-unit-card__status"
+              [class.ief-unit-card__status--active]="sub.status === 'active'"
+            >
+              {{ sub.status === 'active' ? 'Activa' : 'Inactiva' }}
+            </span>
+          </span>
+          <code class="ief-unit-card__code">{{ sub.company_code }}</code>
+        </button>
+      </div>
+    </div>
+
+    <div class="ief-field">
+      <label class="ief-label" for="emp-em">Correo del empleado</label>
+      <input
+        id="emp-em"
+        class="ief-input"
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        placeholder="nombre@empresa.com"
+      />
+      <p class="ief-field-hint ief-field-hint--error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
+        Ingresa un correo electrónico válido.
+      </p>
+    </div>
+
+    <div class="ief-alert ief-alert--error" role="alert" *ngIf="vm.errorMessage()">
+      {{ vm.errorMessage() }}
+    </div>
+    <div class="ief-alert ief-alert--success" role="status" *ngIf="vm.successMessage()">
+      {{ vm.successMessage() }}
+    </div>
+
+    <button
+      type="submit"
+      class="ief-btn ief-btn--primary"
+      [disabled]="form.invalid || vm.state() === 'submitting' || vm.state() === 'loading' || cooldownActive()"
     >
-      <option value="" disabled selected>
-        {{ vm.state() === 'loading' ? 'Cargando…' : 'Selecciona una unidad' }}
-      </option>
-      <option *ngFor="let sub of vm.subEnterprises()" [value]="sub.sub_enterprise_id">
-        {{ sub.business_name }} ({{ sub.company_code }})
-      </option>
-    </select>
-  </ng-container>
-  <ng-template #fixedUnit>
-    <label>Unidad de negocio</label>
-    <p class="hint">
-      {{ vm.selectedSubEnterprise()?.business_name ?? 'Cargando unidad…' }}
-    </p>
-  </ng-template>
-
-  <label for="emp-em">Correo del empleado</label>
-  <input id="emp-em" type="email" formControlName="email" autocomplete="email" />
-
-  <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
-  <p class="ok" *ngIf="vm.successMessage()" aria-live="polite">{{ vm.successMessage() }}</p>
-
-  <button
-    type="submit"
-    [disabled]="form.invalid || vm.state() === 'submitting' || vm.state() === 'loading' || cooldownActive()"
-  >
-    {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar invitación' }}
-  </button>
-</form>
+      {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar invitación' }}
+    </button>
+  </form>
+</section>

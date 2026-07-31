@@ -31,6 +31,19 @@ export class InviteEmployeeForm implements OnInit {
     isEnterpriseAdministratorRole(this.session.claims()?.role),
   );
 
+  /**
+   * Unidades a mostrar como tarjetas seleccionables (mismo lenguaje visual
+   * que el listado de unidades de `business-structure`). Con unidad
+   * preseleccionada por ruta, se muestra únicamente esa tarjeta, ya
+   * marcada como seleccionada y sin interacción de clic.
+   */
+  protected readonly visibleUnits = computed(() => {
+    const all = this.vm.subEnterprises();
+    return this.preselectedSubEnterpriseId
+      ? all.filter((s) => s.sub_enterprise_id === this.preselectedSubEnterpriseId)
+      : all;
+  });
+
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
   });
@@ -54,8 +67,15 @@ export class InviteEmployeeForm implements OnInit {
   }
 
   selectSubEnterprise(subEnterpriseId: string): void {
+    if (this.preselectedSubEnterpriseId) {
+      return;
+    }
     const selected = this.vm.subEnterprises().find((s) => s.sub_enterprise_id === subEnterpriseId) ?? null;
     this.vm.selectSubEnterprise(selected);
+  }
+
+  isSelectedUnit(subEnterpriseId: string): boolean {
+    return this.vm.selectedSubEnterprise()?.sub_enterprise_id === subEnterpriseId;
   }
 
   submit(): void {
