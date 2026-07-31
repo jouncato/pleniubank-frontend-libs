@@ -76,3 +76,33 @@ Actualizar este archivo cuando cambien `README.md`, `package.json`, `angular.jso
 > - ADRs y documentación de producto de este repo.
 >
 > Si no está verificado, pedir aclaración. No propagar suposiciones a otros repos.
+
+## Jerarquía de negocio — regla invariante (ADR-016)
+
+> **Fuente canónica**: `pleniubank-core/docs/adr/ADR-016-hierarchical-model-account-autonomy-vs-payroll-advance-restriction.md`
+
+### Modelo jerárquico
+
+```
+Plataforma PleniuBank
+  └── Empresa (registrada, con cuenta)
+       └── Subempresa / Unidad de Negocio (opcional para cuenta, obligatoria para avance de nómina)
+            └── Cliente Persona (empleado)
+                 └── Avance de Nómina ✅ (solo si la cadena completa existe)
+```
+
+### Reglas invariantes
+
+1. **Autonomía de cuenta**: Un cliente persona puede abrir una cuenta de manera independiente, sin estar vinculado a una estructura corporativa. Una empresa puede registrarse y crear su cuenta sin configurar subempresas ni unidades de negocio adicionales.
+
+2. **Restricción de avance de nómina**: Un cliente persona **NUNCA** puede acceder a un avance de nómina si:
+   - No pertenece a una **Unidad de Negocio** activa dentro de una empresa registrada en PleniuBank.
+   - Ninguna **empresa registrada en la plataforma PleniuBank** le administra, controla o gestiona su nómina.
+
+3. **Validación obligatoria**: Todo código nuevo o modificado que involucre avance de nómina debe verificar la cadena jerárquica completa: Empresa → Unidad de Negocio → Cliente Persona. Sin esta cadena, el acceso al producto está prohibido.
+
+4. **Separación de conceptos**: Apertura de cuenta ≠ acceso a productos de crédito. La cuenta es un derecho autónomo; el avance de nómina requiere relación empleador-empleado verificable.
+
+5. **No-conflicto con la flexibilidad jerárquica**: La restricción de avance de nómina no entra en conflicto con la flexibilidad del orden jerárquico. La jerarquía es **opcional para onboarding** y **obligatoria solo para crédito de nómina**. El sistema debe permitir:
+   - **Onboarding individual**: Una persona solicita una cuenta sin depender de una estructura empresarial.
+   - **Onboarding corporativo simplificado**: Una empresa se registra como cliente (o subempresa) sin requerir creación previa de subempresas o unidades de negocio.
