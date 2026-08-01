@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { isEnterpriseAdministratorRole, SessionStore } from '@pleniu/shared-auth';
 import { InviteUserVm } from '../../vm/invite-user';
@@ -24,6 +25,18 @@ export class InviteUserForm {
     email: ['', [Validators.required, Validators.email]],
     role_hint: this.fb.nonNullable.control<'admin' | 'operator' | 'viewer'>('operator', Validators.required),
   });
+
+  private static readonly ROLE_HINTS: Record<'admin' | 'operator' | 'viewer', string> = {
+    admin: 'Acceso administrativo completo: puede invitar usuarios y gestionar la empresa.',
+    operator: 'Acceso operativo del día a día (contratos, préstamos, cuentas).',
+    viewer: 'Acceso de solo consulta, sin permisos para crear o modificar.',
+  };
+
+  private readonly roleHintValue = toSignal(this.form.controls.role_hint.valueChanges, {
+    initialValue: this.form.controls.role_hint.value,
+  });
+
+  protected readonly roleHint = computed(() => InviteUserForm.ROLE_HINTS[this.roleHintValue()]);
 
   submit(): void {
     if (this.form.invalid) {

@@ -1,6 +1,7 @@
-.error {
-  color: #b00020;
-}
-.ok {
-  color: #0d6e0d;
+@use '../invite-form-shell.scss';
+
+:host {
+  display: flex;
+  justify-content: center;
+  color-scheme: only light;
 }

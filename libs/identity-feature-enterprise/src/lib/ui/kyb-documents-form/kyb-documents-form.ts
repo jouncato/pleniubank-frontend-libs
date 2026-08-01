@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SessionStore } from '@pleniu/shared-auth';
@@ -33,6 +33,7 @@ export class KybDocumentsForm implements OnInit {
   });
 
   ngOnInit(): void {
+    this.vm.loadStatus();
     void this.refreshLocalDocs();
   }
 
@@ -59,6 +60,18 @@ export class KybDocumentsForm implements OnInit {
     }
     await this.refreshLocalDocs();
   }
+
+  /** Copy honesto según el estado real de la empresa en Identity. */
+  readonly readOnlyMessage = computed(() => {
+    const status = this.vm.enterpriseStatus();
+    if (status === 'active') {
+      return 'Tu empresa ya completó la verificación KYB. Si necesitas actualizar algún documento, contacta a soporte de Pleniu.';
+    }
+    if (status === 'rejected') {
+      return 'La verificación KYB de tu empresa quedó rechazada. Contacta a soporte de Pleniu para conocer los siguientes pasos.';
+    }
+    return 'Tu empresa no tiene la verificación KYB pendiente en este momento. Contacta a soporte de Pleniu si crees que esto es un error.';
+  });
 
   async removeLocalDoc(id: string): Promise<void> {
     const eid = this.session.claims()?.enterprise_id?.trim();
