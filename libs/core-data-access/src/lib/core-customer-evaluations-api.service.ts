@@ -4,8 +4,21 @@ import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig } from '@pleniu/shared-http';
 import { corePublicV1Base } from './core-api-base';
 
+export interface RuleExplanationDto {
+  rule_code: string;
+  title: string;
+  description: string;
+  action_hint?: string | null;
+}
+
+export interface EvaluationExplanationDto {
+  evaluation_id: string;
+  decision: string;
+  explanations: RuleExplanationDto[];
+}
+
 export interface EvaluationExplanationEnvelope {
-  data: Record<string, unknown>;
+  data: EvaluationExplanationDto;
   meta: Record<string, unknown>;
   errors: unknown[];
 }

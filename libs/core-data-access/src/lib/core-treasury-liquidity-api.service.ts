@@ -143,6 +143,11 @@ export interface TreasuryMovementResponseDto {
   status: 'PENDING_APPROVAL' | 'APPROVED' | 'POSTED' | 'REJECTED';
   journal_entry_id: string | null;
   bank_statement_line_id: string | null;
+  created_at: string | null;
+}
+
+export interface CashMovementListPayload {
+  items: TreasuryMovementResponseDto[];
 }
 
 export interface SubLedgerAssignmentDto {
@@ -555,6 +560,14 @@ export class CoreTreasuryLiquidityApiService {
       `${this.base}/gl-reporting/treasury/local-sweep`,
       payload,
     );
+  }
+
+  listCashMovements(params: { countryCode?: string; limit?: number } = {}): Observable<ApiEnvelope<CashMovementListPayload>> {
+    let hp = new HttpParams().set('country', params.countryCode ?? 'CO');
+    if (params.limit != null) {
+      hp = hp.set('limit', String(params.limit));
+    }
+    return this.http.get<ApiEnvelope<CashMovementListPayload>>(`${this.base}/gl-reporting/treasury/cash-movements`, { params: hp });
   }
 
   private runMutation<T>(context: unknown, requestFactory: () => Observable<T>): Observable<T> {
