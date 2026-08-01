@@ -11,7 +11,8 @@ const TREASURY_LIQUIDITY_MUTATION = {
   requiredFlag: 'treasuryLiquidity' as const,
 };
 
-export type CustodyPurpose = 'DISBURSEMENT' | 'COLLECTION' | 'SETTLEMENT' | 'RESERVE';
+export type CustodyPurpose = 'DISBURSEMENT' | 'COLLECTION' | 'SETTLEMENT' | 'RESERVE' | 'TREASURY_EXTERNAL' | 'PAYROLL_ADVANCE_DISBURSEMENT';
+export type FundingMode = 'AUTOMATIC' | 'MANUAL';
 export type PartyBankAccountKind = 'FBO' | 'TRUST' | 'ESCROW';
 export type SubLedgerKind = 'USER_WALLET' | 'SERVICE_POOL';
 
@@ -85,6 +86,7 @@ export interface MasterCustodyAccountDto {
   country_code: string | null;
   legal_entity_id: string | null;
   party_bank_account_id: string | null;
+  funding_mode: FundingMode;
   created_at: string | null;
   created_by: string | null;
   updated_at: string | null;
@@ -104,6 +106,7 @@ export interface MasterCustodyAccountCreateRequest {
   party_bank_account_id: string;
   denomination: string;
   extra_metadata?: Record<string, unknown>;
+  funding_mode?: FundingMode;
 }
 
 export interface MasterCustodyAccountUpdateRequest {
@@ -112,6 +115,7 @@ export interface MasterCustodyAccountUpdateRequest {
   denomination?: string;
   extra_metadata?: Record<string, unknown> | null;
   is_active?: boolean;
+  funding_mode?: FundingMode;
 }
 
 export interface CustodyPositionDto {
@@ -121,6 +125,24 @@ export interface CustodyPositionDto {
   disponible: string;
   conciliado: string | null;
   as_of: string;
+}
+
+export interface TreasuryMovementRequestDto {
+  amount: string;
+  reference: string;
+  country_code?: string;
+}
+
+export interface TreasuryMovementResponseDto {
+  id: string;
+  movement_type: 'FUNDING' | 'SWEEP';
+  amount: string;
+  reference: string;
+  country_code: string;
+  origin: 'MANUAL' | 'WEBHOOK';
+  status: 'PENDING_APPROVAL' | 'APPROVED' | 'POSTED' | 'REJECTED';
+  journal_entry_id: string | null;
+  bank_statement_line_id: string | null;
 }
 
 export interface SubLedgerAssignmentDto {
@@ -496,6 +518,43 @@ export class CoreTreasuryLiquidityApiService {
   getAccountingPeriods(country = 'CO'): Observable<ApiEnvelope<AccountingPeriodDto[]>> {
     const hp = new HttpParams().set('country', country);
     return this.http.get<ApiEnvelope<AccountingPeriodDto[]>>(`${this.base}/gl-reporting/periods`, { params: hp });
+  }
+
+  // -- Treasury funding / sweep (operativo) --
+
+  requestTreasuryFunding(payload: TreasuryMovementRequestDto): Observable<ApiEnvelope<TreasuryMovementResponseDto>> {
+    return this.http.post<ApiEnvelope<TreasuryMovementResponseDto>>(
+      `${this.base}/gl-reporting/treasury/funding`,
+      payload,
+    );
+  }
+
+  requestTreasurySweep(payload: TreasuryMovementRequestDto): Observable<ApiEnvelope<TreasuryMovementResponseDto>> {
+    return this.http.post<ApiEnvelope<TreasuryMovementResponseDto>>(
+      `${this.base}/gl-reporting/treasury/sweep`,
+      payload,
+    );
+  }
+
+  approveTreasuryMovement(movementId: string): Observable<ApiEnvelope<TreasuryMovementResponseDto>> {
+    return this.http.post<ApiEnvelope<TreasuryMovementResponseDto>>(
+      `${this.base}/gl-reporting/treasury/${encodePathSegment(movementId)}/approve`,
+      {},
+    );
+  }
+
+  requestLocalFunding(payload: TreasuryMovementRequestDto): Observable<ApiEnvelope<TreasuryMovementResponseDto>> {
+    return this.http.post<ApiEnvelope<TreasuryMovementResponseDto>>(
+      `${this.base}/gl-reporting/treasury/local-funding`,
+      payload,
+    );
+  }
+
+  requestLocalSweep(payload: TreasuryMovementRequestDto): Observable<ApiEnvelope<TreasuryMovementResponseDto>> {
+    return this.http.post<ApiEnvelope<TreasuryMovementResponseDto>>(
+      `${this.base}/gl-reporting/treasury/local-sweep`,
+      payload,
+    );
   }
 
   private runMutation<T>(context: unknown, requestFactory: () => Observable<T>): Observable<T> {
