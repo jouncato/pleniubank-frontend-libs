@@ -15,10 +15,16 @@ export interface ClientContractCreateRequest {
   terms: Record<string, unknown>;
   /** FK a BusinessUnitProductAssignment. Obligatorio junto a company_code (ADR-012); no aplica con enterprise_id. */
   business_unit_assignment_id?: string | null;
+  /** Approved ADR-008 master contract lineage. */
+  master_contract_id?: string | null;
+  master_assignment_id?: string | null;
 }
 
 export interface ClientContractDto {
   id: string;
+  /** Approved ADR-008 master contract assigned to the employee enrollment. */
+  master_contract_id?: string | null;
+  master_assignment_id?: string | null;
   /** FK a BusinessUnitProductAssignment (Nivel 2 jerarquía ADR-012). */
   business_unit_assignment_id?: string | null;
   /** Ancla alternativa a nivel Empresa Principal (ADR-008, Opción B). */

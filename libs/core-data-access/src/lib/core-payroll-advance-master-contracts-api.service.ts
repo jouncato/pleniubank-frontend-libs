@@ -1,0 +1,182 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
+
+import { coreAdminV1Base } from './core-api-base';
+
+export interface PayrollAdvanceMasterModelListParams {
+  product_type?: string;
+  country_code?: string;
+  status?: string;
+}
+
+export interface PayrollAdvanceMasterModelCreateRequest {
+  product_type?: string;
+  country_code: string;
+  model_version: string;
+  policy_version: string;
+  base_terms?: Record<string, unknown>;
+}
+
+export interface PayrollAdvanceMasterModelDto {
+  id: string;
+  product_type: string;
+  country_code: string;
+  model_version: string;
+  policy_version: string;
+  status: string;
+}
+
+export interface PayrollAdvanceMasterContractCreateRequest {
+  global_model_id: string;
+  enterprise_id: string;
+  approved_total_limit: number;
+  safety_buffer_amount?: number;
+  policy_version: string;
+  effective_from?: string | null;
+  effective_to?: string | null;
+}
+
+export interface PayrollAdvanceMasterContractDto {
+  id: string;
+  global_model_id: string;
+  enterprise_id: string;
+  approved_total_limit: number;
+  reserved_principal: number;
+  consumed_principal: number;
+  safety_buffer_amount: number;
+  available_headroom: number;
+  policy_version: string;
+  status: string;
+  effective_from: string;
+  effective_to: string | null;
+}
+
+export interface PayrollAdvanceMasterAssignmentCreateRequest {
+  master_contract_id: string;
+  enterprise_id: string;
+  sub_enterprise_id: string;
+  company_code: string;
+  approved_sub_limit?: number | null;
+  terms_override?: Record<string, unknown>;
+  effective_from?: string | null;
+  effective_to?: string | null;
+}
+
+export interface PayrollAdvanceMasterAssignmentDto {
+  id: string;
+  master_contract_id: string;
+  enterprise_id: string;
+  sub_enterprise_id: string;
+  company_code: string;
+  approved_sub_limit: number | null;
+  status: string;
+  effective_from: string;
+  effective_to: string | null;
+}
+
+export interface PayrollAdvanceMasterDocumentVersionDto {
+  id: string;
+  version_number: number;
+  supersedes_version_id: string | null;
+  terms_snapshot: Record<string, unknown>;
+  effective_from: string;
+  effective_to: string | null;
+  change_reason: string;
+  created_at: string;
+  created_by: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class CorePayrollAdvanceMasterContractsApiService {
+  private readonly base: string;
+
+  constructor(
+    private readonly http: HttpClient,
+    @Inject(API_CONFIG) apiConfig: ApiConfig,
+  ) {
+    this.base = `${coreAdminV1Base(apiConfig)}/payroll-advance-master-contracts`;
+  }
+
+  createModel(
+    body: PayrollAdvanceMasterModelCreateRequest,
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterModelDto>> {
+    return this.http.post<ApiEnvelope<PayrollAdvanceMasterModelDto>>(`${this.base}/models`, body);
+  }
+
+  listModels(
+    params: PayrollAdvanceMasterModelListParams = {},
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterModelDto[]>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceMasterModelDto[]>>(`${this.base}/models`, {
+      params: this.toHttpParams({
+        product_type: params.product_type,
+        country_code: params.country_code,
+        status: params.status,
+      }),
+    });
+  }
+
+  createContract(
+    body: PayrollAdvanceMasterContractCreateRequest,
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterContractDto>> {
+    return this.http.post<ApiEnvelope<PayrollAdvanceMasterContractDto>>(this.base, body);
+  }
+
+  updateStatus(
+    contractId: string,
+    status: 'ACTIVE' | 'SUSPENDED' | 'TERMINATED' | 'EXPIRED',
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterContractDto>> {
+    return this.http.patch<ApiEnvelope<PayrollAdvanceMasterContractDto>>(
+      `${this.base}/${contractId}/status`,
+      { status },
+    );
+  }
+
+  assign(
+    contractId: string,
+    body: PayrollAdvanceMasterAssignmentCreateRequest,
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>> {
+    return this.http.post<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>>(
+      `${this.base}/${contractId}/assignments`,
+      body,
+    );
+  }
+
+  get(contractId: string): Observable<ApiEnvelope<PayrollAdvanceMasterContractDto>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceMasterContractDto>>(`${this.base}/${contractId}`);
+  }
+
+  listAssignments(contractId: string): Observable<ApiEnvelope<PayrollAdvanceMasterAssignmentDto[]>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceMasterAssignmentDto[]>>(
+      `${this.base}/${contractId}/assignments`,
+    );
+  }
+
+  listVersions(contractId: string): Observable<ApiEnvelope<PayrollAdvanceMasterDocumentVersionDto[]>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceMasterDocumentVersionDto[]>>(
+      `${this.base}/${contractId}/versions`,
+    );
+  }
+
+  revokeAssignment(
+    contractId: string,
+    assignmentId: string,
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>> {
+    return this.http.patch<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>>(
+      `${this.base}/${contractId}/assignments/${assignmentId}/revoke`,
+      {},
+    );
+  }
+
+  private toHttpParams(record: Record<string, string | number | boolean | undefined | null>): HttpParams {
+    let hp = new HttpParams();
+    for (const [key, value] of Object.entries(record)) {
+      if (value === undefined || value === null || value === '') {
+        continue;
+      }
+      hp = hp.set(key, String(value));
+    }
+    return hp;
+  }
+}

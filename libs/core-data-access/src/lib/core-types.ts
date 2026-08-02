@@ -127,6 +127,9 @@ export interface ClientContractDto {
   company_code?: string | null;
   /** Ancla alternativa a nivel Empresa Principal (ADR-008, Opción B). */
   enterprise_id?: string | null;
+  /** Approved ADR-008 master contract lineage. */
+  master_contract_id?: string | null;
+  master_assignment_id?: string | null;
   business_unit_assignment_id?: string | null;
   template_contract_id: string;
   terms: Record<string, unknown>;

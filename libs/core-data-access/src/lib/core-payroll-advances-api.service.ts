@@ -18,6 +18,9 @@ export interface RegisterPayrollAdvanceRequest {
   denomination?: string;
   correlation_id?: string | null;
   contract_version_id?: string | null;
+  /** Approved ADR-008 lineage; omitted for legacy contracts during migration. */
+  master_contract_id?: string | null;
+  master_assignment_id?: string | null;
 }
 
 export interface RegisterPayrollAdvanceResponse {
@@ -91,6 +94,8 @@ export interface SimulatePayrollAdvanceRequest {
    */
   customer_id?: string | null;
   employer_id?: string | null;
+  master_contract_id?: string | null;
+  master_assignment_id?: string | null;
 }
 
 export interface SimulatePayrollAdvanceResponse {
@@ -123,6 +128,8 @@ export interface PayrollAdvanceEligibilityParams {
   customer_id: string;
   /** Si se omite, Core lo resuelve del perfil laboral verificado del cliente. */
   employer_id?: string | null;
+  master_contract_id?: string | null;
+  master_assignment_id?: string | null;
   /** Monto hipotético a evaluar. Si se omite, se evalúa contra el propio techo efectivo. */
   requested_amount?: number | null;
 }
@@ -138,6 +145,9 @@ export interface PayrollAdvanceDto {
   status: string;
   correlation_id: string | null;
   contract_version_id: string | null;
+  master_contract_id?: string | null;
+  master_assignment_id?: string | null;
+  enterprise_id?: string | null;
   created_at: string;
   updated_at: string | null;
   employer_name?: string | null;
@@ -192,6 +202,8 @@ export class CorePayrollAdvancesApiService {
   ): Observable<ApiEnvelope<PayrollAdvanceEligibilityResponse>> {
     let hp = new HttpParams().set('customer_id', params.customer_id);
     if (params.employer_id) hp = hp.set('employer_id', params.employer_id);
+    if (params.master_contract_id) hp = hp.set('master_contract_id', params.master_contract_id);
+    if (params.master_assignment_id) hp = hp.set('master_assignment_id', params.master_assignment_id);
     if (params.requested_amount !== undefined && params.requested_amount !== null) {
       hp = hp.set('requested_amount', String(params.requested_amount));
     }

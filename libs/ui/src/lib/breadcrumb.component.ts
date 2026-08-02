@@ -111,7 +111,7 @@ export function truncateBreadcrumbValue(value: string, maxLength = 6): string {
             </li>
           }
 
-          @for (item of visibleItems(); track item.url + item.label) {
+          @for (item of visibleItems(); track $index) {
             <li class="pb-breadcrumbs__item">
               @if (item.isCurrent) {
                 <span class="pb-breadcrumbs__current" aria-current="page">{{ item.label }}</span>

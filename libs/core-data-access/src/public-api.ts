@@ -19,6 +19,7 @@ export * from './lib/core-help-tooltips-api.service';
 export * from './lib/core-help-tooltips-public-api.service';
 export * from './lib/core-help-tooltips-admin-api.service';
 export * from './lib/core-payroll-advances-api.service';
+export * from './lib/core-payroll-advance-master-contracts-api.service';
 export * from './lib/core-scoring-api.service';
 export * from './lib/core-scoring-outbox-api.service';
 export * from './lib/core-system-api.service';
