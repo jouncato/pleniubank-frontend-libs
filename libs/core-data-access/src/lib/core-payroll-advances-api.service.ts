@@ -8,6 +8,7 @@ import { corePublicV1Base } from './core-api-base';
 
 export interface RegisterPayrollAdvanceRequest {
   contract_id: string;
+  client_contract_id?: string | null;
   account_id: string;
   product_id: string;
   customer_id: string;
