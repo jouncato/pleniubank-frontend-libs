@@ -76,6 +76,23 @@ export interface PayrollAdvanceMasterAssignmentDto {
   effective_to: string | null;
 }
 
+export interface PayrollAdvanceMasterReconciliationDiscrepancyDto {
+  category: string;
+  core_reference: string;
+  enterprise_id: string | null;
+  sub_enterprise_id: string | null;
+  correlation_id: string | null;
+  details: Record<string, unknown>;
+}
+
+export interface PayrollAdvanceMasterReconciliationParams {
+  category?: string;
+  enterprise_id?: string;
+  sub_enterprise_id?: string;
+  limit?: number;
+  offset?: number;
+}
+
 export interface PayrollAdvanceMasterDocumentVersionDto {
   id: string;
   version_number: number;
@@ -150,6 +167,23 @@ export class CorePayrollAdvanceMasterContractsApiService {
   listAssignments(contractId: string): Observable<ApiEnvelope<PayrollAdvanceMasterAssignmentDto[]>> {
     return this.http.get<ApiEnvelope<PayrollAdvanceMasterAssignmentDto[]>>(
       `${this.base}/${contractId}/assignments`,
+    );
+  }
+
+  listReconciliation(
+    params: PayrollAdvanceMasterReconciliationParams = {},
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterReconciliationDiscrepancyDto[]>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceMasterReconciliationDiscrepancyDto[]>>(
+      `${this.base}/reconciliation/report`,
+      {
+        params: this.toHttpParams({
+          category: params.category,
+          enterprise_id: params.enterprise_id,
+          sub_enterprise_id: params.sub_enterprise_id,
+          limit: params.limit,
+          offset: params.offset,
+        }),
+      },
     );
   }
 

@@ -104,6 +104,29 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
     );
   });
 
+  it('lists master reconciliation with filters and pagination', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+
+    service
+      .listReconciliation({
+        category: 'SYNC_FAILED',
+        enterprise_id: 'enterprise-1',
+        sub_enterprise_id: 'sub-1',
+        limit: 50,
+        offset: 100,
+      })
+      .subscribe();
+
+    const [url, options] = http.get.mock.calls[0];
+    expect(url).toBe(
+      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/reconciliation/report',
+    );
+    expect((options.params as HttpParams).toString()).toBe(
+      'category=SYNC_FAILED&enterprise_id=enterprise-1&sub_enterprise_id=sub-1&limit=50&offset=100',
+    );
+  });
+
   it('lists the version history of a master contract', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
