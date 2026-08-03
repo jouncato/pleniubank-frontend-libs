@@ -6,7 +6,7 @@
 
 ## 2. Portales
 
-- [x] 2.1 Retirar el techo fijo y limitar 5%-30%/1-2 en Backoffice.
+- [x] 2.1 Retirar el techo fijo y limitar 5%-40%/1-2 en Backoffice; los overrides empresariales pueden ser inferiores a 40%.
 - [x] 2.2 Permitir un segundo anticipo y etiquetar cupo provisional en Customer Portal.
 - [x] 2.3 Compilar frontend-libs, Backoffice y Customer Portal.
 

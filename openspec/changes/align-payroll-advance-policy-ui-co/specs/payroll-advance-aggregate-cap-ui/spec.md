@@ -12,8 +12,8 @@ Las aplicaciones MUST mostrar `effective_max_amount` como valor calculado y MUST
 - **THEN** la UI bloquea el tercero con un mensaje de máximo dos activos
 
 ### Requirement: Backoffice respeta límites duros
-Backoffice MUST limitar porcentajes empresariales al intervalo 5%-30% y activos al intervalo 1-2.
+Backoffice MUST limitar porcentajes empresariales al intervalo 5%-40% y activos al intervalo 1-2; 40% es el default global y un override puede ser inferior.
 
-#### Scenario: Intento superior al 30%
-- **WHEN** Staff intenta proponer un porcentaje superior a 30%
+#### Scenario: Intento superior al 40%
+- **WHEN** Staff intenta proponer un porcentaje superior a 40%
 - **THEN** el formulario impide la propuesta y no ofrece flujo de excepción

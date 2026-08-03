@@ -14,7 +14,7 @@ import { corePublicV1Base } from './core-api-base';
  * reducida ya consumida"). Internamente el endpoint ahora usa el mismo
  * `PayrollAdvancePolicyEvaluator` canónico cuando hay perfil laboral
  * verificado (fase 3, tarea 3.4), así que `is_eligible`/`max_advance_amount`
- * ya reflejan la política única (30%/6 meses/etc.) sin que este DTO
+ * ya reflejan el default global de la política (40%; otros límites se resuelven por política) sin que este DTO
  * necesite cambios.
  *
  * Para la respuesta canónica COMPLETA (política efectiva, motivos, cupos

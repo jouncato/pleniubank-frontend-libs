@@ -18,8 +18,8 @@ describe('EmployeeContractProposalVm', () => {
     status: 'ACTIVE',
     terms: {
       title: 'Anticipo de nómina ACME',
-      description: 'Adelanta hasta 30% de tu salario',
-      conditions: ['Máximo 30% del salario', 'Sin reporte en centrales por defecto'],
+      description: 'Adelanta hasta 40% de tu salario',
+      conditions: ['Máximo 40% del salario por defecto', 'Sin reporte en centrales por defecto'],
     },
     effective_from: '2026-01-01T00:00:00Z',
     effective_to: null,

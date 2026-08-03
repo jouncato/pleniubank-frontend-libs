@@ -7,7 +7,7 @@ Los contratos compartidos y las pantallas aún podían comunicar un techo fijo d
 - Retirar `max_amount` de los tipos y formularios específicos de `PAYROLL_ADVANCE`.
 - Representar hasta dos anticipos activos y mostrar el cupo restante agregado.
 - Incorporar `provisional` e `is_final` y los motivos de Scoring/saldo no disponible.
-- Limitar Backoffice a porcentajes entre 5% y 30%, sin excepción superior.
+- Limitar Backoffice a porcentajes entre 5% y 40%, sin excepción superior; permitir overrides empresariales inferiores.
 - Alinear Customer Portal y Backoffice consumidores mediante las librerías compartidas.
 
 ## Capabilities

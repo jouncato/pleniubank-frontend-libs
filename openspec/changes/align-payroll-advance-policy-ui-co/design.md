@@ -12,7 +12,7 @@ Core es la única autoridad de política. Las librerías compartidas tipan su re
 
 - `effective_max_amount` es salida calculada; nunca configuración.
 - `provisional=true/is_final=false` identifica consultas sin monto.
-- Los formularios empresariales aceptan 5%-30% y 1-2 activos; nunca excepciones sobre 30%.
+- Los formularios empresariales aceptan 5%-40% y 1-2 activos; 40% es el default global y nunca se permiten excepciones por encima de 40%.
 - Los portales bloquean según la decisión/motivos de Core, no por conteos locales aislados.
 
 ## Risks / Trade-offs
