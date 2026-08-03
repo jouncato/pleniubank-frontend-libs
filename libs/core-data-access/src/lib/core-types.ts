@@ -141,6 +141,11 @@ export interface ClientContractDto {
   deactivated_at?: string | null;
   deactivated_by?: string | null;
   deactivation_reason?: string | null;
+  sync_status?: 'SYNC_PENDING' | 'SYNC_SUCCEEDED' | 'SYNC_FAILED' | 'LEGACY_UNKNOWN' | string | null;
+  sync_attempt_count?: number;
+  sync_last_error?: string | null;
+  sync_next_retry_at?: string | null;
+  synced_arrangement_id?: string | null;
 }
 
 /**

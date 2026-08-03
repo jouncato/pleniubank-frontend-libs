@@ -34,6 +34,12 @@ export interface ClientContractDto {
   template_contract_id: string;
   /** product_type of the linked contract_template; enriched server-side. */
   product_type?: string | null;
+  /** Append-only enrolment-to-arrangement synchronization state. */
+  sync_status?: 'SYNC_PENDING' | 'SYNC_SUCCEEDED' | 'SYNC_FAILED' | 'LEGACY_UNKNOWN' | string | null;
+  sync_attempt_count?: number;
+  sync_last_error?: string | null;
+  sync_next_retry_at?: string | null;
+  synced_arrangement_id?: string | null;
   terms: Record<string, unknown>;
   status: string;
   correlation_id: string | null;
