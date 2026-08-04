@@ -19,6 +19,14 @@ export interface PayrollAdvanceMasterModelCreateRequest {
   base_terms?: Record<string, unknown>;
 }
 
+export interface PayrollAdvanceMasterModelUpdateRequest {
+  /** Todos opcionales: solo se mutan los que se envían. */
+  model_version?: string;
+  policy_version?: string;
+  base_terms?: Record<string, unknown>;
+  status?: 'DRAFT' | 'ACTIVE' | 'RETIRED';
+}
+
 export interface PayrollAdvanceMasterModelDto {
   id: string;
   product_type: string;
@@ -135,6 +143,16 @@ export class CorePayrollAdvanceMasterContractsApiService {
     body: PayrollAdvanceMasterModelCreateRequest,
   ): Observable<ApiEnvelope<PayrollAdvanceMasterModelDto>> {
     return this.http.post<ApiEnvelope<PayrollAdvanceMasterModelDto>>(`${this.base}/models`, body);
+  }
+
+  updateModel(
+    modelId: string,
+    body: PayrollAdvanceMasterModelUpdateRequest,
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterModelDto>> {
+    return this.http.patch<ApiEnvelope<PayrollAdvanceMasterModelDto>>(
+      `${this.base}/models/${modelId}`,
+      body,
+    );
   }
 
   listModels(
