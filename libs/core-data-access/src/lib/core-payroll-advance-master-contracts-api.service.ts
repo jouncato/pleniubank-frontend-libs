@@ -33,7 +33,13 @@ export interface PayrollAdvanceMasterContractCreateRequest {
   enterprise_id: string;
   approved_total_limit: number;
   safety_buffer_amount?: number;
-  policy_version: string;
+  /**
+   * Opcional -- si se omite, Core lo resuelve y congela contra la política
+   * de financiación vigente (`PayrollAdvancePolicyResolver`) en vez de
+   * aceptar un texto libre sin relación con la política real. Si se envía,
+   * debe coincidir exactamente con el hash vigente o Core lo rechaza.
+   */
+  policy_version?: string;
   effective_from?: string | null;
   effective_to?: string | null;
 }
