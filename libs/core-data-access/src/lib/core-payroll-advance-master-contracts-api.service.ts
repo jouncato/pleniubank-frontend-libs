@@ -93,6 +93,15 @@ export interface PayrollAdvanceMasterReconciliationParams {
   offset?: number;
 }
 
+export interface MasterContractSyncErrorDto {
+  client_contract_id: string;
+  customer_id: string | null;
+  sync_status: string;
+  sync_attempt_count: number;
+  sync_last_error: string | null;
+  sync_next_retry_at: string | null;
+}
+
 export interface PayrollAdvanceMasterDocumentVersionDto {
   id: string;
   version_number: number;
@@ -190,6 +199,12 @@ export class CorePayrollAdvanceMasterContractsApiService {
   listVersions(contractId: string): Observable<ApiEnvelope<PayrollAdvanceMasterDocumentVersionDto[]>> {
     return this.http.get<ApiEnvelope<PayrollAdvanceMasterDocumentVersionDto[]>>(
       `${this.base}/${contractId}/versions`,
+    );
+  }
+
+  listSyncErrors(contractId: string): Observable<ApiEnvelope<MasterContractSyncErrorDto[]>> {
+    return this.http.get<ApiEnvelope<MasterContractSyncErrorDto[]>>(
+      `${this.base}/${contractId}/sync-errors`,
     );
   }
 

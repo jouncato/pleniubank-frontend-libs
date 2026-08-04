@@ -138,6 +138,17 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
     );
   });
 
+  it('lists sync errors for a master contract', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+
+    service.listSyncErrors('master-1').subscribe();
+
+    expect(http.get).toHaveBeenCalledWith(
+      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/master-1/sync-errors',
+    );
+  });
+
   it('revokes an assignment through the admin route', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
