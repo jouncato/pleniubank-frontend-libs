@@ -12,6 +12,8 @@ export interface ContractTemplateDto {
   product_type: string;
   template_name: string;
   config: Record<string, unknown>;
+  /** Gap 1 (20260804_1000): hash de la política vigente (pa-policy-*). */
+  policy_version?: string | null;
   is_active: boolean;
   created_at: string;
 }
@@ -24,6 +26,8 @@ export interface CreateContractTemplateRequest {
   product_type: string;
   template_name: string;
   config?: Record<string, unknown>;
+  /** Opcional -- si se omite, Core lo resuelve desde la política vigente. */
+  policy_version?: string | null;
 }
 
 /** Query `GET /api/v1/contract-templates` (cursor-based). */

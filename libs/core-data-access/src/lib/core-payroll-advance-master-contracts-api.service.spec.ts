@@ -93,6 +93,30 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
     expect((options.params as HttpParams).toString()).toBe('');
   });
 
+  it('lists active contracts for an enterprise', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+
+    service.listActiveContracts('enterprise-1').subscribe();
+
+    const [url, options] = http.get.mock.calls[0];
+    expect(url).toBe('http://localhost:8000/api/v1/admin/payroll-advance-master-contracts');
+    expect((options.params as HttpParams).toString()).toBe('enterprise_id=enterprise-1');
+  });
+
+  it('checks the active assignment for a business unit', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+
+    service.getActiveAssignmentForUnit('sub-1').subscribe();
+
+    const [url, options] = http.get.mock.calls[0];
+    expect(url).toBe(
+      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/assignments/active',
+    );
+    expect((options.params as HttpParams).toString()).toBe('sub_enterprise_id=sub-1');
+  });
+
   it('lists assignments for a master contract', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);

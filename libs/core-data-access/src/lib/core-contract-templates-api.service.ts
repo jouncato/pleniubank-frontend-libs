@@ -38,6 +38,28 @@ export class CoreContractTemplatesApiService {
     return this.http.get<ApiEnvelope<ContractTemplateDto[]>>(this.base, { params: hp });
   }
 
+  /**
+   * Lista TODAS las plantillas (sin filtro de empresa) — solo roles de
+   * plataforma (Backoffice). Opcionalmente incluye inactivas.
+   */
+  listAll(params: {
+    cursor?: string;
+    limit?: number;
+    include_inactive?: boolean;
+  }): Observable<ApiEnvelope<ContractTemplateDto[]>> {
+    let hp = new HttpParams();
+    if (params.cursor) {
+      hp = hp.set('cursor', params.cursor);
+    }
+    if (params.limit != null) {
+      hp = hp.set('limit', String(params.limit));
+    }
+    if (params.include_inactive) {
+      hp = hp.set('include_inactive', 'true');
+    }
+    return this.http.get<ApiEnvelope<ContractTemplateDto[]>>(`${this.base}/all`, { params: hp });
+  }
+
   create(body: CreateContractTemplateRequest): Observable<ApiEnvelope<ContractTemplateDto>> {
     return this.http.post<ApiEnvelope<ContractTemplateDto>>(this.base, body);
   }

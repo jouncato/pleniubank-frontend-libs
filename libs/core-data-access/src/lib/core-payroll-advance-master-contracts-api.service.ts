@@ -17,6 +17,8 @@ export interface PayrollAdvanceMasterModelCreateRequest {
   model_version: string;
   policy_version: string;
   base_terms?: Record<string, unknown>;
+  /** Gap 2 (20260804_1000): plantilla contractual que rige el modelo. */
+  contract_template_id?: string | null;
 }
 
 export interface PayrollAdvanceMasterModelUpdateRequest {
@@ -25,6 +27,8 @@ export interface PayrollAdvanceMasterModelUpdateRequest {
   policy_version?: string;
   base_terms?: Record<string, unknown>;
   status?: 'DRAFT' | 'ACTIVE' | 'RETIRED';
+  /** Gap 2 (20260804_1000): vincular o cambiar la plantilla contractual. */
+  contract_template_id?: string | null;
 }
 
 export interface PayrollAdvanceMasterModelDto {
@@ -34,6 +38,7 @@ export interface PayrollAdvanceMasterModelDto {
   model_version: string;
   policy_version: string;
   status: string;
+  contract_template_id?: string | null;
 }
 
 export interface PayrollAdvanceMasterContractCreateRequest {
@@ -65,6 +70,7 @@ export interface PayrollAdvanceMasterContractDto {
   status: string;
   effective_from: string;
   effective_to: string | null;
+  contract_template_id?: string | null;
 }
 
 export interface PayrollAdvanceMasterAssignmentCreateRequest {
@@ -165,6 +171,23 @@ export class CorePayrollAdvanceMasterContractsApiService {
         status: params.status,
       }),
     });
+  }
+
+  /** Read-only list of active Backoffice-approved payroll master contracts. */
+  listActiveContracts(enterpriseId?: string): Observable<ApiEnvelope<PayrollAdvanceMasterContractDto[]>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceMasterContractDto[]>>(this.base, {
+      params: this.toHttpParams({ enterprise_id: enterpriseId }),
+    });
+  }
+
+  /** Read-only preflight for the single active payroll assignment of a BU. */
+  getActiveAssignmentForUnit(
+    subEnterpriseId: string,
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>>(
+      `${this.base}/assignments/active`,
+      { params: this.toHttpParams({ sub_enterprise_id: subEnterpriseId }) },
+    );
   }
 
   createContract(

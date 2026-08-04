@@ -132,6 +132,8 @@ export interface ClientContractDto {
   master_assignment_id?: string | null;
   business_unit_assignment_id?: string | null;
   template_contract_id: string;
+  /** product_type of the linked contract_template; enriched server-side. */
+  product_type?: string | null;
   terms: Record<string, unknown>;
   status: string;
   correlation_id: string | null;
