@@ -21,7 +21,8 @@ describe('InviteEmployeeVm', () => {
     },
   ];
 
-  it('loads sub-enterprises on init', () => {
+  it('resolves the preselected sub-enterprise by id, without loading the full list', () => {
+    const getSubEnterprise = vi.fn(() => of({ data: subEnterprises[0] }));
     TestBed.configureTestingModule({
       providers: [
         InviteEmployeeVm,
@@ -31,17 +32,67 @@ describe('InviteEmployeeVm', () => {
         },
         {
           provide: IdentityEnterpriseApiService,
-          useValue: {
-            listSubEnterprises: () => of({ data: subEnterprises }),
-            inviteEmployee: () => of({ data: { invite_id: 'inv-1' } }),
-          },
+          useValue: { getSubEnterprise },
         },
       ],
     });
     const vm = TestBed.inject(InviteEmployeeVm);
-    vm.loadSubEnterprises();
-    expect(vm.subEnterprises()).toEqual(subEnterprises);
+    vm.resolvePreselected('sub-1');
+    expect(getSubEnterprise).toHaveBeenCalledWith('sub-1');
+    expect(vm.selectedSubEnterprise()).toEqual(subEnterprises[0]);
     expect(vm.state()).toBe('idle');
+  });
+
+  it('searches sub-enterprises with debounce, minimum length and a bounded limit', () => {
+    vi.useFakeTimers();
+    try {
+      const listSubEnterprises = vi.fn(() => of({ data: subEnterprises }));
+      TestBed.configureTestingModule({
+        providers: [
+          InviteEmployeeVm,
+          {
+            provide: SessionStore,
+            useValue: { claims: () => ({ enterprise_id: 'ent-1' }) },
+          },
+          {
+            provide: IdentityEnterpriseApiService,
+            useValue: { listSubEnterprises },
+          },
+        ],
+      });
+      const vm = TestBed.inject(InviteEmployeeVm);
+
+      vm.onQueryChange('n');
+      vi.advanceTimersByTime(300);
+      expect(listSubEnterprises).not.toHaveBeenCalled();
+      expect(vm.searchResults()).toEqual([]);
+
+      vm.onQueryChange('norte');
+      vi.advanceTimersByTime(300);
+      expect(listSubEnterprises).toHaveBeenCalledWith('ent-1', { search: 'norte', limit: 20 });
+      expect(vm.searchResults()).toEqual(subEnterprises);
+      expect(vm.searchState()).toBe('idle');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('selecting a search result clears the query and results', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        InviteEmployeeVm,
+        {
+          provide: SessionStore,
+          useValue: { claims: () => ({ enterprise_id: 'ent-1' }) },
+        },
+        { provide: IdentityEnterpriseApiService, useValue: {} },
+      ],
+    });
+    const vm = TestBed.inject(InviteEmployeeVm);
+    vm.selectSubEnterprise(subEnterprises[0]);
+    expect(vm.selectedSubEnterprise()).toEqual(subEnterprises[0]);
+    expect(vm.searchQuery()).toBe('');
+    expect(vm.searchResults()).toEqual([]);
   });
 
   it('submits invitation with selected sub-enterprise', () => {
@@ -56,7 +107,6 @@ describe('InviteEmployeeVm', () => {
         {
           provide: IdentityEnterpriseApiService,
           useValue: {
-            listSubEnterprises: () => of({ data: subEnterprises }),
             inviteEmployee: (payload: { email: string; sub_enterprise_id: string }) => {
               sentPayload = payload;
               return of({
@@ -80,24 +130,21 @@ describe('InviteEmployeeVm', () => {
     expect(vm.state()).toBe('success');
   });
 
-  it('shows error when no enterprise_id in claims', () => {
+  it('shows error when submitting without a selected unit', () => {
     TestBed.configureTestingModule({
       providers: [
         InviteEmployeeVm,
         {
           provide: SessionStore,
-          useValue: { claims: () => ({}) },
+          useValue: { claims: () => ({ enterprise_id: 'ent-1' }) },
         },
-        {
-          provide: IdentityEnterpriseApiService,
-          useValue: {},
-        },
+        { provide: IdentityEnterpriseApiService, useValue: {} },
       ],
     });
     const vm = TestBed.inject(InviteEmployeeVm);
-    vm.loadSubEnterprises();
+    vm.submit({ email: 'emp@empresa.com', sub_enterprise_id: '' });
     expect(vm.state()).toBe('error');
-    expect(vm.errorMessage()).toContain('empresa');
+    expect(vm.errorMessage()).toContain('Selecciona una unidad');
   });
 
   it('maps 409 to pending invitation message', () => {
@@ -111,7 +158,6 @@ describe('InviteEmployeeVm', () => {
         {
           provide: IdentityEnterpriseApiService,
           useValue: {
-            listSubEnterprises: () => of({ data: subEnterprises }),
             inviteEmployee: () =>
               throwError(() => ({
                 status: 409,

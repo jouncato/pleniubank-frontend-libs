@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, OnInit, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { isEnterpriseAdministratorRole, SessionStore } from '@pleniu/shared-auth';
+import { SubEnterpriseSummaryDto } from 'identity-domain';
 import { InviteEmployeeVm } from '../../vm/invite-employee';
 
 @Component({
@@ -21,8 +22,8 @@ export class InviteEmployeeForm implements OnInit {
   /**
    * Cuando se invita desde el detalle de una unidad (customer-portal,
    * `business-structure/units/:unitId/employees/invite`), la unidad ya se
-   * conoce por la ruta — se oculta el selector y se preselecciona apenas
-   * carga la lista de unidades de la empresa. Se puede pasar explícitamente
+   * conoce por la ruta — se oculta el buscador y se resuelve directamente
+   * por id (sin cargar el listado de unidades). Se puede pasar explícitamente
    * como `@Input`, o se toma del parámetro de ruta `unitId` si no se pasó.
    */
   @Input() preselectedSubEnterpriseId?: string;
@@ -31,51 +32,31 @@ export class InviteEmployeeForm implements OnInit {
     isEnterpriseAdministratorRole(this.session.claims()?.role),
   );
 
-  /**
-   * Unidades a mostrar como tarjetas seleccionables (mismo lenguaje visual
-   * que el listado de unidades de `business-structure`). Con unidad
-   * preseleccionada por ruta, se muestra únicamente esa tarjeta, ya
-   * marcada como seleccionada y sin interacción de clic.
-   */
-  protected readonly visibleUnits = computed(() => {
-    const all = this.vm.subEnterprises();
-    return this.preselectedSubEnterpriseId
-      ? all.filter((s) => s.sub_enterprise_id === this.preselectedSubEnterpriseId)
-      : all;
-  });
-
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-  });
-
-  private readonly applyPreselection = effect(() => {
-    if (!this.preselectedSubEnterpriseId || this.vm.selectedSubEnterprise()) {
-      return;
-    }
-    const match = this.vm
-      .subEnterprises()
-      .find((s) => s.sub_enterprise_id === this.preselectedSubEnterpriseId);
-    if (match) {
-      this.vm.selectSubEnterprise(match);
-    }
   });
 
   ngOnInit(): void {
     this.preselectedSubEnterpriseId ??=
       this.route?.snapshot.paramMap.get('unitId') ?? undefined;
-    this.vm.loadSubEnterprises();
+    if (this.preselectedSubEnterpriseId) {
+      this.vm.resolvePreselected(this.preselectedSubEnterpriseId);
+    }
   }
 
-  selectSubEnterprise(subEnterpriseId: string): void {
+  onSearchInput(query: string): void {
+    this.vm.onQueryChange(query);
+  }
+
+  selectSubEnterprise(sub: SubEnterpriseSummaryDto): void {
+    this.vm.selectSubEnterprise(sub);
+  }
+
+  changeSelection(): void {
     if (this.preselectedSubEnterpriseId) {
       return;
     }
-    const selected = this.vm.subEnterprises().find((s) => s.sub_enterprise_id === subEnterpriseId) ?? null;
-    this.vm.selectSubEnterprise(selected);
-  }
-
-  isSelectedUnit(subEnterpriseId: string): boolean {
-    return this.vm.selectedSubEnterprise()?.sub_enterprise_id === subEnterpriseId;
+    this.vm.clearSelection();
   }
 
   submit(): void {

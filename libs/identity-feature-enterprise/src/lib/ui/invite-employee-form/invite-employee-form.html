@@ -8,7 +8,7 @@
       </svg>
     </span>
     <div>
-      <h2 class="ief-header__title">Invitar empleado</h2>
+      <h2 class="ief-header__title">Invitar colaborador a nómina</h2>
       <p class="ief-header__subtitle">
         Le enviaremos un correo con un enlace para que se una a tu unidad de negocio y quede
         habilitado para anticipo de nómina.
@@ -17,35 +17,19 @@
   </header>
 
   <p class="ief-callout" *ngIf="showAdminHierarchyHint()">
-    Como administrador de empresa puedes invitar empleados a unirse a una unidad de negocio y
+    Como administrador de empresa puedes invitar colaboradores a unirse a una unidad de negocio y
     acceder al anticipo de nómina.
   </p>
 
   <form class="ief-form" [formGroup]="form" (ngSubmit)="submit()">
     <div class="ief-field">
-      <label class="ief-label">Unidad de negocio</label>
+      <label class="ief-label" id="ief-unit-label">Unidad de negocio</label>
 
-      <p class="ief-field-hint" *ngIf="vm.state() === 'loading'">Cargando unidades…</p>
-      <p class="ief-field-hint" *ngIf="vm.state() !== 'loading' && visibleUnits().length === 0">
-        Tu empresa aún no tiene unidades de negocio creadas.
-      </p>
-
-      <div
-        class="ief-unit-grid"
-        role="radiogroup"
-        aria-label="Selecciona la unidad de negocio"
-        *ngIf="visibleUnits().length > 0"
-      >
-        <button
-          *ngFor="let sub of visibleUnits()"
-          type="button"
-          class="ief-unit-card"
-          [class.ief-unit-card--selected]="isSelectedUnit(sub.sub_enterprise_id)"
+      <!-- Unidad ya elegida (preseleccionada por ruta, o elegida por el usuario en el buscador) -->
+      <ng-container *ngIf="vm.selectedSubEnterprise() as sub; else pickerBlock">
+        <div
+          class="ief-unit-card ief-unit-card--selected"
           [class.ief-unit-card--readonly]="!!preselectedSubEnterpriseId"
-          role="radio"
-          [attr.aria-checked]="isSelectedUnit(sub.sub_enterprise_id)"
-          [attr.tabindex]="preselectedSubEnterpriseId ? -1 : 0"
-          (click)="selectSubEnterprise(sub.sub_enterprise_id)"
         >
           <span class="ief-unit-card__head">
             <span class="ief-unit-card__name">{{ sub.business_name }}</span>
@@ -57,12 +41,79 @@
             </span>
           </span>
           <code class="ief-unit-card__code">{{ sub.company_code }}</code>
+        </div>
+        <button
+          *ngIf="!preselectedSubEnterpriseId"
+          type="button"
+          class="ief-link-btn"
+          (click)="changeSelection()"
+        >
+          Cambiar unidad
         </button>
-      </div>
+      </ng-container>
+
+      <!-- Buscador: nunca se carga el listado completo de unidades (una empresa puede tener miles). -->
+      <ng-template #pickerBlock>
+        <p class="ief-field-hint" *ngIf="vm.state() === 'loading'">Cargando unidad…</p>
+
+        <div class="ief-combobox" *ngIf="vm.state() !== 'loading'">
+          <input
+            id="ief-unit-search"
+            type="text"
+            class="ief-input"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-controls="ief-unit-listbox"
+            aria-labelledby="ief-unit-label"
+            [attr.aria-expanded]="vm.searchQuery().length > 0"
+            placeholder="Busca por nombre o código de la unidad…"
+            autocomplete="off"
+            [value]="vm.searchQuery()"
+            (input)="onSearchInput($any($event.target).value)"
+          />
+
+          <div class="ief-combobox__panel" id="ief-unit-listbox" role="listbox" *ngIf="vm.searchQuery().length > 0">
+            <p class="ief-combobox__hint" *ngIf="vm.searchQuery().trim().length < 2">
+              Escribe al menos 2 caracteres para buscar.
+            </p>
+            <p class="ief-combobox__hint" *ngIf="vm.searchQuery().trim().length >= 2 && vm.searchState() === 'searching'">
+              Buscando unidades…
+            </p>
+            <p class="ief-combobox__hint ief-combobox__hint--error" *ngIf="vm.searchState() === 'error'">
+              No se pudo completar la búsqueda. Intenta de nuevo.
+            </p>
+            <p
+              class="ief-combobox__hint"
+              *ngIf="vm.searchQuery().trim().length >= 2 && vm.searchState() === 'idle' && vm.searchResults().length === 0"
+            >
+              No se encontraron unidades con ese nombre o código.
+            </p>
+
+            <button
+              *ngFor="let sub of vm.searchResults()"
+              type="button"
+              class="ief-combobox__option"
+              role="option"
+              (click)="selectSubEnterprise(sub)"
+            >
+              <span class="ief-unit-card__head">
+                <span class="ief-unit-card__name">{{ sub.business_name }}</span>
+                <span
+                  class="ief-unit-card__status"
+                  [class.ief-unit-card__status--active]="sub.status === 'active'"
+                >
+                  {{ sub.status === 'active' ? 'Activa' : 'Inactiva' }}
+                </span>
+              </span>
+              <code class="ief-unit-card__code">{{ sub.company_code }}</code>
+            </button>
+          </div>
+        </div>
+      </ng-template>
     </div>
 
     <div class="ief-field">
-      <label class="ief-label" for="emp-em">Correo del empleado</label>
+      <label class="ief-label" for="emp-em">Correo del colaborador</label>
       <input
         id="emp-em"
         class="ief-input"
@@ -86,7 +137,7 @@
     <button
       type="submit"
       class="ief-btn ief-btn--primary"
-      [disabled]="form.invalid || vm.state() === 'submitting' || vm.state() === 'loading' || cooldownActive()"
+      [disabled]="form.invalid || !vm.selectedSubEnterprise() || vm.state() === 'submitting' || cooldownActive()"
     >
       {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar invitación' }}
     </button>

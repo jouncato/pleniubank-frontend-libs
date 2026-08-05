@@ -53,6 +53,9 @@ export class LendingArrangementService {
     if (params.customerId) p = p.set('customer_id', params.customerId);
     if (params.status) p = p.set('status', params.status);
     if (params.productType) p = p.set('product_type', params.productType);
+    // `companyCode` solo aplica a llamadas de Backoffice/plataforma con scope
+    // explícito; para tokens enterprise, Core siempre deriva el aislamiento por
+    // empresa del JWT (nunca de este parámetro) -- ver ADR de cierre 2026-08-05.
     if (params.companyCode) p = p.set('company_code', params.companyCode);
     if (params.page != null) p = p.set('page', String(params.page));
     if (params.pageSize != null) p = p.set('page_size', String(params.pageSize));

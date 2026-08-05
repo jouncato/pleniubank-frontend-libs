@@ -265,6 +265,17 @@ export class CorePayrollAdvanceMasterContractsApiService {
     );
   }
 
+  /** Revierte una asignación REVOKED a ACTIVE ("des-revocar"). */
+  reactivateAssignment(
+    contractId: string,
+    assignmentId: string,
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>> {
+    return this.http.patch<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>>(
+      `${this.base}/${contractId}/assignments/${assignmentId}/reactivate`,
+      {},
+    );
+  }
+
   private toHttpParams(record: Record<string, string | number | boolean | undefined | null>): HttpParams {
     let hp = new HttpParams();
     for (const [key, value] of Object.entries(record)) {
