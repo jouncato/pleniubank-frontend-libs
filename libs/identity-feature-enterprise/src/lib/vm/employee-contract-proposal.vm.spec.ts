@@ -53,11 +53,11 @@ describe('EmployeeContractProposalVm', () => {
   };
 
   const makeApis = (overrides: {
-    list?: () => unknown;
+    listAvailableProducts?: () => unknown;
     getMyProfile?: () => unknown;
     createFromProposal?: () => unknown;
   } = {}) => ({
-    list: overrides.list ?? (() => of({ data: [assignment] })),
+    listAvailableProducts: overrides.listAvailableProducts ?? (() => of({ data: [assignment] })),
     getMyProfile: overrides.getMyProfile ?? (() => of({ data: profile })),
     createFromProposal: overrides.createFromProposal ?? (() => of({ data: { id: 'contract-1' } })),
   });
@@ -67,7 +67,7 @@ describe('EmployeeContractProposalVm', () => {
     TestBed.configureTestingModule({
       providers: [
         EmployeeContractProposalVm,
-        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { list: apis.list } },
+        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
       ],
@@ -81,12 +81,42 @@ describe('EmployeeContractProposalVm', () => {
     expect(vm.profile()).toEqual(profile);
   });
 
-  it('shows error when no active assignment exists', () => {
-    const apis = makeApis({ list: () => of({ data: [] }) });
+  it('loads a master-only assignment (no legacy template) synthesized by available-products', () => {
+    // Encontrado por verificación en vivo (2026-08-05): una unidad asignada
+    // solo vía PayrollAdvanceMasterAssignment (sin fila legacy) no tiene
+    // `template_contract_id`; `available-products` la sintetiza igual con
+    // `master_contract_id`/`master_assignment_id`.
+    const masterOnlyAssignment = {
+      ...assignment,
+      id: 'master-assign-1',
+      template_contract_id: null,
+      master_contract_id: 'master-contract-1',
+      master_assignment_id: 'master-assign-1',
+      terms: {},
+    };
+    const apis = makeApis({ listAvailableProducts: () => of({ data: [masterOnlyAssignment] }) });
     TestBed.configureTestingModule({
       providers: [
         EmployeeContractProposalVm,
-        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { list: apis.list } },
+        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
+        { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
+        { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+      ],
+    });
+
+    const vm = TestBed.inject(EmployeeContractProposalVm);
+    vm.load('sub-1');
+
+    expect(vm.state()).toBe('idle');
+    expect(vm.assignment()).toEqual(masterOnlyAssignment);
+  });
+
+  it('shows error when no active assignment exists', () => {
+    const apis = makeApis({ listAvailableProducts: () => of({ data: [] }) });
+    TestBed.configureTestingModule({
+      providers: [
+        EmployeeContractProposalVm,
+        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
       ],
@@ -105,7 +135,7 @@ describe('EmployeeContractProposalVm', () => {
     TestBed.configureTestingModule({
       providers: [
         EmployeeContractProposalVm,
-        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { list: apis.list } },
+        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
       ],
@@ -131,7 +161,7 @@ describe('EmployeeContractProposalVm', () => {
     TestBed.configureTestingModule({
       providers: [
         EmployeeContractProposalVm,
-        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { list: apis.list } },
+        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
       ],
@@ -157,7 +187,7 @@ describe('EmployeeContractProposalVm', () => {
     TestBed.configureTestingModule({
       providers: [
         EmployeeContractProposalVm,
-        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { list: apis.list } },
+        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
       ],

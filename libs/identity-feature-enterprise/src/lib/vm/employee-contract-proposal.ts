@@ -37,11 +37,12 @@ export class EmployeeContractProposalVm {
     this.errorMessage.set(null);
 
     this.assignmentsApi
-      .list({ sub_enterprise_id: subEnterpriseId, product_type: 'PAYROLL_ADVANCE', status: 'ACTIVE', limit: 1 })
+      .listAvailableProducts(subEnterpriseId)
       .subscribe({
         next: (envelope) => {
           const items = envelope.data ?? [];
-          const active = items.find((a) => a.status === 'ACTIVE') ?? items[0] ?? null;
+          const active =
+            items.find((a) => a.product_type === 'PAYROLL_ADVANCE' && a.status === 'ACTIVE') ?? null;
           if (!active) {
             this.state.set('error');
             this.errorMessage.set('No hay una propuesta de contrato activa para esta unidad.');
