@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
@@ -168,8 +168,20 @@ export class CorePayrollAdvancesApiService {
     this.base = `${corePublicV1Base(apiConfig)}/payroll-advances`;
   }
 
+  /**
+   * Bug de auditoría en vivo (2026-08-05): el registro nunca enviaba
+   * `X-Idempotency-Key`. Core la exige (422 `IDEMPOTENCY_KEY_REQUIRED`) para
+   * todo anticipo con linaje maestro (`master_contract_id`/`master_assignment_id`),
+   * lo que bloqueaba el desembolso a cualquier empleado vinculado por
+   * jerarquía maestra. Se genera una fresca por llamada, sin exponerla al
+   * caller, igual que `CoreBrebKeysSelfServiceApiService.register()`: cada
+   * invocación es una acción explícita distinta del cliente, no un reintento
+   * de red que deba reutilizar la misma clave.
+   */
   register(body: RegisterPayrollAdvanceRequest): Observable<ApiEnvelope<RegisterPayrollAdvanceResponse>> {
-    return this.http.post<ApiEnvelope<RegisterPayrollAdvanceResponse>>(this.base, body);
+    return this.http.post<ApiEnvelope<RegisterPayrollAdvanceResponse>>(this.base, body, {
+      headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }),
+    });
   }
 
   getById(advanceId: string): Observable<ApiEnvelope<PayrollAdvanceDto>> {

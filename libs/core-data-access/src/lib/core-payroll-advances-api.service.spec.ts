@@ -36,6 +36,30 @@ describe('CorePayrollAdvancesApiService', () => {
     expect(body).toEqual(payload);
   });
 
+  it('register() envía X-Idempotency-Key, distinta en cada llamada (Core la exige para linaje maestro)', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvancesApiService(http as never, apiConfig);
+    const payload = {
+      contract_id: 'contract-1',
+      account_id: 'acc-1',
+      product_id: 'prod-1',
+      customer_id: 'cust-1',
+      employer_id: 'emp-1',
+      amount: 500000,
+      customer_account_id: 'cust-acc-1',
+      disbursement_source_account_id: 'src-acc-1',
+    };
+
+    service.register(payload).subscribe();
+    service.register(payload).subscribe();
+
+    expect(http.post).toHaveBeenCalledTimes(2);
+    const key1 = http.post.mock.calls[0][2]?.headers?.get('X-Idempotency-Key');
+    const key2 = http.post.mock.calls[1][2]?.headers?.get('X-Idempotency-Key');
+    expect(key1).toBeTruthy();
+    expect(key1).not.toBe(key2);
+  });
+
   it('getById() GET /payroll-advances/:id', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvancesApiService(http as never, apiConfig);
