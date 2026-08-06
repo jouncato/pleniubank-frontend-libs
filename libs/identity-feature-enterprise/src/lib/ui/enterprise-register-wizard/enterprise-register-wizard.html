@@ -147,7 +147,16 @@
                 <input id="pn" type="text" formControlName="full_name" autocomplete="name" />
 
                 <label for="pp">Contraseña (mín. 12 caracteres)</label>
-                <input id="pp" type="password" formControlName="password" autocomplete="new-password" />
+                <div style="position: relative;">
+                  <input
+                    id="pp"
+                    [type]="showPrincipalPassword() ? 'text' : 'password'"
+                    formControlName="password"
+                    autocomplete="new-password"
+                    style="padding-right: 40px;"
+                  />
+                  <pb-password-visibility-toggle [(visible)]="showPrincipalPassword" />
+                </div>
                 <ul class="password-hints" aria-live="polite">
                   <li [class.valid]="principalHasMinLengthPassword">Mínimo 12 caracteres</li>
                   <li [class.valid]="principalHasUpperPassword">Al menos una letra mayúscula</li>
@@ -182,7 +191,16 @@
                 <input id="an" type="text" formControlName="full_name" autocomplete="name" />
 
                 <label for="ap">Contraseña (mín. 12 caracteres)</label>
-                <input id="ap" type="password" formControlName="password" autocomplete="new-password" />
+                <div style="position: relative;">
+                  <input
+                    id="ap"
+                    [type]="showAdminPassword() ? 'text' : 'password'"
+                    formControlName="password"
+                    autocomplete="new-password"
+                    style="padding-right: 40px;"
+                  />
+                  <pb-password-visibility-toggle [(visible)]="showAdminPassword" />
+                </div>
                 <ul class="password-hints" aria-live="polite">
                   <li [class.valid]="adminHasMinLengthPassword">Mínimo 12 caracteres</li>
                   <li [class.valid]="adminHasUpperPassword">Al menos una letra mayúscula</li>

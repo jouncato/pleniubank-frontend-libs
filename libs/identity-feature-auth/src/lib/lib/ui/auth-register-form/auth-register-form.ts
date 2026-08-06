@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RegisterDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
+import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import { RegisterVm } from '../../vm/register';
 
 const PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
@@ -10,7 +11,7 @@ const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
 @Component({
   selector: 'lib-auth-register-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, PbPasswordVisibilityToggleComponent],
   templateUrl: './auth-register-form.html',
   styleUrl: './auth-register-form.scss',
 })
@@ -18,6 +19,8 @@ export class AuthRegisterForm implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   readonly legalModalOpen = signal(false);
+  readonly showPassword = signal(false);
+  readonly showConfirmPassword = signal(false);
 
   readonly documentTypeOptions: ReadonlyArray<{ value: RegisterDocumentType; label: string }> = [
     { value: 'CC', label: 'Cedula de ciudadania (CC)' },

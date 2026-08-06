@@ -9,6 +9,7 @@ export * from './lib/brand-assets';
 export * from './lib/logo.component';
 export * from './lib/financial-icon.registry';
 export * from './lib/pb-icon.component';
+export * from './lib/pb-password-visibility-toggle.component';
 export * from './lib/breadcrumb.component';
 export * from './lib/skeleton-loader.component';
 export * from './lib/empty-state.component';

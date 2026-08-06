@@ -148,6 +148,16 @@ export const PB_ICON_REGISTRY = {
   inbox: { category: 'interface', nodes: [path('M4 12h4l2 3h4l2-3h4'), path('M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6'), path('M4 12 6 4h12l2 8')] },
   pin: { category: 'interface', nodes: [path('M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z'), circle(12, 10, 2.3)] },
   calendar: { category: 'interface', nodes: [rect(3, 5, 18, 16, 2), path('M8 3v4'), path('M16 3v4'), path('M3 11h18')] },
+  eye: { category: 'interface', nodes: [path('M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z'), circle(12, 12, 3)] },
+  'eye-off': {
+    category: 'interface',
+    nodes: [
+      path('M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94'),
+      path('M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19'),
+      path('M14.12 14.12a3 3 0 1 1-4.24-4.24'),
+      line(1, 1, 23, 23),
+    ],
+  },
 } as const satisfies Record<string, PbIconDefinition>;
 
 export type PbIconName = keyof typeof PB_ICON_REGISTRY;

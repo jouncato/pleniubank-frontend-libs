@@ -122,6 +122,40 @@ export interface MasterContractSyncErrorDto {
   sync_next_retry_at: string | null;
 }
 
+export interface PayrollAdvanceEffectivePolicyValuesDto {
+  max_salary_percentage: string;
+  min_salary_percentage: string;
+  min_tenure_months: number;
+  max_monthly_frequency: number;
+  max_active_count: number;
+  max_discount_days: number;
+  employer_daily_limit_amount: string;
+}
+
+/**
+ * Snapshot de solo lectura de `GET /policy-preview`: la política efectiva
+ * para una Empresa Principal (`employer_id`), resuelta con el mismo
+ * `PayrollAdvancePolicyResolver` que `resolve_master_contract_terms` congela
+ * al crear el contrato maestro -- a diferencia de la política global (sin
+ * `employer_id`), esta sí refleja overrides de
+ * `loan.employer_payroll_products`.
+ */
+export interface PayrollAdvanceEffectivePolicyPreviewDto {
+  policy_version: string;
+  country_code: string;
+  product_type: string;
+  currency: string;
+  employer_id: string | null;
+  evaluated_at: string;
+  effective_from: string;
+  effective_to: string | null;
+  global_values: PayrollAdvanceEffectivePolicyValuesDto;
+  employer_overrides: Record<string, unknown> | null;
+  effective_values: PayrollAdvanceEffectivePolicyValuesDto;
+  sources: Record<string, 'GLOBAL' | 'EMPLOYER'>;
+  source_value_ids: string[];
+}
+
 export interface PayrollAdvanceMasterDocumentVersionDto {
   id: string;
   version_number: number;
@@ -194,6 +228,24 @@ export class CorePayrollAdvanceMasterContractsApiService {
     body: PayrollAdvanceMasterContractCreateRequest,
   ): Observable<ApiEnvelope<PayrollAdvanceMasterContractDto>> {
     return this.http.post<ApiEnvelope<PayrollAdvanceMasterContractDto>>(this.base, body);
+  }
+
+  /** Vista previa de solo lectura de la política efectiva para una Empresa Principal. */
+  previewPolicy(params: {
+    enterprise_id: string;
+    country_code?: string;
+    product_type?: string;
+  }): Observable<ApiEnvelope<PayrollAdvanceEffectivePolicyPreviewDto>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceEffectivePolicyPreviewDto>>(
+      `${this.base}/policy-preview`,
+      {
+        params: this.toHttpParams({
+          enterprise_id: params.enterprise_id,
+          country_code: params.country_code,
+          product_type: params.product_type,
+        }),
+      },
+    );
   }
 
   updateStatus(

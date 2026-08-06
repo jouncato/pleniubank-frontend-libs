@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import { AcceptInviteVm } from '../../vm/accept-invite';
 
 @Component({
   selector: 'lib-accept-invite-panel',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PbPasswordVisibilityToggleComponent],
   templateUrl: './accept-invite-panel.html',
   styleUrl: './accept-invite-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,6 +16,7 @@ export class AcceptInvitePanel implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   protected readonly vm = inject(AcceptInviteVm);
+  readonly showPassword = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     token: ['', [Validators.required, Validators.minLength(20)]],

@@ -52,14 +52,18 @@
 
       <div class="reg-form__field">
         <label for="password">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          autocomplete="new-password"
-          formControlName="password"
-          placeholder="Crea una contraseña segura"
-          (input)="onPasswordInput()"
-        />
+        <div style="position: relative;">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="new-password"
+            formControlName="password"
+            placeholder="Crea una contraseña segura"
+            (input)="onPasswordInput()"
+            style="padding-right: 40px;"
+          />
+          <pb-password-visibility-toggle [(visible)]="showPassword" />
+        </div>
         <ul class="password-hints" aria-live="polite">
           <li [class.valid]="hasMinLengthPassword">Mínimo 12 caracteres</li>
           <li [class.valid]="hasUpperPassword">Al menos una letra mayúscula</li>
@@ -71,14 +75,18 @@
 
       <div class="reg-form__field">
         <label for="confirmPassword">Confirmar contraseña</label>
-        <input
-          id="confirmPassword"
-          type="password"
-          autocomplete="new-password"
-          formControlName="confirmPassword"
-          placeholder="Repite tu contraseña"
-          (input)="onPasswordInput()"
-        />
+        <div style="position: relative;">
+          <input
+            id="confirmPassword"
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            autocomplete="new-password"
+            formControlName="confirmPassword"
+            placeholder="Repite tu contraseña"
+            (input)="onPasswordInput()"
+            style="padding-right: 40px;"
+          />
+          <pb-password-visibility-toggle [(visible)]="showConfirmPassword" />
+        </div>
         @if (form.controls.confirmPassword.hasError('mismatch')) {
           <p class="field-error">Las contraseñas no coinciden.</p>
         }

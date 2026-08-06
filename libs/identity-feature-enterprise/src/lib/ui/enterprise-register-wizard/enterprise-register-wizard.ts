@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { EconomicSectorPublicDto, EnterpriseDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 import { CUSTOMER_PORTAL_SIGN_IN_URL, EMBEDDED_PORTAL_IDENTITY_CHROME } from '@pleniu/shared-auth';
-import { PbLogoComponent } from '@pleniu/ui';
+import { PbLogoComponent, PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import { EnterpriseOnboardingStore } from '../../enterprise-onboarding.store';
 import { RegisterEnterpriseVm, type RegisterEnterpriseStep } from '../../vm/register-enterprise';
 
@@ -13,7 +13,7 @@ const ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(
 
 @Component({
   selector: 'lib-enterprise-register-wizard',
-  imports: [ReactiveFormsModule, RouterLink, PbLogoComponent],
+  imports: [ReactiveFormsModule, RouterLink, PbLogoComponent, PbPasswordVisibilityToggleComponent],
   templateUrl: './enterprise-register-wizard.html',
   styleUrl: './enterprise-register-wizard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,6 +21,8 @@ const ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(
 export class EnterpriseRegisterWizard implements OnInit {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(RegisterEnterpriseVm);
+  readonly showPrincipalPassword = signal(false);
+  readonly showAdminPassword = signal(false);
   readonly customerSignInUrl = inject(CUSTOMER_PORTAL_SIGN_IN_URL);
   readonly embeddedHostShell = inject(EMBEDDED_PORTAL_IDENTITY_CHROME, { optional: true }) === true;
   protected readonly onboarding = inject(EnterpriseOnboardingStore);

@@ -29,7 +29,16 @@
           <input id="email" type="email" autocomplete="email" formControlName="email" />
 
           <label for="password" i18n="@@auth.login.passwordLabel">Contraseña</label>
-          <input id="password" type="password" autocomplete="current-password" formControlName="password" />
+          <div style="position: relative;">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              autocomplete="current-password"
+              formControlName="password"
+              style="padding-right: 40px;"
+            />
+            <pb-password-visibility-toggle [(visible)]="showPassword" />
+          </div>
 
           <p class="error" *ngIf="vm.rateLimitMessage as message" role="status" aria-live="polite">{{ message }}</p>
           <p class="error" *ngIf="vm.errorMessage() as error" role="alert" aria-live="polite">{{ error }}</p>

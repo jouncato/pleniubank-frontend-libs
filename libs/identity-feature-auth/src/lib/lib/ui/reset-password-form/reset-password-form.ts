@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 
 import { APP_PASSWORD_COMPLEXITY_PATTERN, APP_PASSWORD_MIN_LENGTH } from '../../password-policy';
 import { ResetPasswordVm } from '../../vm/reset-password';
@@ -9,13 +10,15 @@ import { ResetPasswordVm } from '../../vm/reset-password';
 @Component({
   selector: 'lib-reset-password-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PbPasswordVisibilityToggleComponent],
   templateUrl: './reset-password-form.html',
   styleUrl: './reset-password-form.scss',
 })
 export class ResetPasswordForm {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  readonly showNewPassword = signal(false);
+  readonly showConfirmPassword = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],

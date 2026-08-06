@@ -65,6 +65,18 @@ export interface RepayPayrollAdvanceResponse {
   posting_directives_count: number;
 }
 
+export interface PayrollAdvanceRepaymentBreakdownDto {
+  advance_id: string;
+  status: string;
+  denomination: string;
+  capital_owed: string;
+  commission_owed: string;
+  interest_owed: string;
+  late_fee_owed: string;
+  total_owed: string;
+  due_date: string | null;
+}
+
 export interface UpdatePayrollAdvanceStatusRequest {
   new_status: string;
 }
@@ -188,6 +200,14 @@ export class CorePayrollAdvancesApiService {
     return this.http.get<ApiEnvelope<PayrollAdvanceDto>>(`${this.base}/${advanceId}`);
   }
 
+  getRepaymentBreakdown(
+    advanceId: string,
+  ): Observable<ApiEnvelope<PayrollAdvanceRepaymentBreakdownDto>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceRepaymentBreakdownDto>>(
+      `${this.base}/${advanceId}/breakdown`,
+    );
+  }
+
   list(params: PayrollAdvanceListParams = {}): Observable<ApiEnvelope<PayrollAdvanceListDto>> {
     let hp = new HttpParams();
     if (params.status) hp = hp.set('status', params.status);
@@ -242,6 +262,7 @@ export class CorePayrollAdvancesApiService {
     return this.http.post<ApiEnvelope<RepayPayrollAdvanceResponse>>(
       `${this.base}/${advanceId}/repay`,
       body,
+      { headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }) },
     );
   }
 

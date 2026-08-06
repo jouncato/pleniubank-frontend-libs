@@ -15,13 +15,17 @@
     <p class="sec-hint">Indica tu contraseña actual y elige activar o desactivar 2FA.</p>
     <form [formGroup]="mfaForm" (ngSubmit)="$event.preventDefault()">
       <label for="mfa-current">Contraseña actual</label>
-      <input
-        id="mfa-current"
-        type="password"
-        formControlName="currentPassword"
-        autocomplete="current-password"
-        class="sec-input"
-      />
+      <div style="position: relative;">
+        <input
+          id="mfa-current"
+          [type]="showMfaPassword() ? 'text' : 'password'"
+          formControlName="currentPassword"
+          autocomplete="current-password"
+          class="sec-input"
+          style="padding-right: 40px;"
+        />
+        <pb-password-visibility-toggle [(visible)]="showMfaPassword" />
+      </div>
       @if (mfaForm.controls.currentPassword.touched && mfaForm.controls.currentPassword.invalid) {
         <small class="error">Requerida (mínimo 8 caracteres).</small>
       }

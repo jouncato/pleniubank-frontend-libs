@@ -8,7 +8,16 @@
   <input type="hidden" formControlName="token" />
 
   <label for="pw">Nueva contraseña (mín. 12)</label>
-  <input id="pw" type="password" formControlName="password" autocomplete="new-password" />
+  <div style="position: relative;">
+    <input
+      id="pw"
+      [type]="showPassword() ? 'text' : 'password'"
+      formControlName="password"
+      autocomplete="new-password"
+      style="padding-right: 40px;"
+    />
+    <pb-password-visibility-toggle [(visible)]="showPassword" />
+  </div>
 
   <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
 

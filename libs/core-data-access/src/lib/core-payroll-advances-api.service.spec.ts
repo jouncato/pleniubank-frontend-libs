@@ -71,6 +71,16 @@ describe('CorePayrollAdvancesApiService', () => {
     expect(url).toContain('/payroll-advances/advance-uuid-1');
   });
 
+  it('getRepaymentBreakdown() GET /payroll-advances/:id/breakdown', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvancesApiService(http as never, apiConfig);
+
+    service.getRepaymentBreakdown('advance-uuid-1').subscribe();
+
+    const [url] = http.get.mock.calls[0];
+    expect(url).toContain('/payroll-advances/advance-uuid-1/breakdown');
+  });
+
   it('list() GET /payroll-advances con HttpParams', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvancesApiService(http as never, apiConfig);
@@ -116,6 +126,26 @@ describe('CorePayrollAdvancesApiService', () => {
     const [url, sentBody] = http.post.mock.calls[0];
     expect(url).toContain('/payroll-advances/adv-1/repay');
     expect(sentBody).toEqual(body);
+  });
+
+  it('repay() envía X-Idempotency-Key distinta por llamada', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvancesApiService(http as never, apiConfig);
+    const body = {
+      account_id: 'acc-1',
+      payment_source_account_id: 'src-acc-1',
+      repayment_amount: 500000,
+      repayment_is_full: true,
+      denomination: 'COP',
+    };
+
+    service.repay('adv-1', body).subscribe();
+    service.repay('adv-1', body).subscribe();
+
+    const key1 = http.post.mock.calls[0][2]?.headers?.get('X-Idempotency-Key');
+    const key2 = http.post.mock.calls[1][2]?.headers?.get('X-Idempotency-Key');
+    expect(key1).toBeTruthy();
+    expect(key1).not.toBe(key2);
   });
 
   it('updateStatus() PATCH /payroll-advances/:id/status', () => {

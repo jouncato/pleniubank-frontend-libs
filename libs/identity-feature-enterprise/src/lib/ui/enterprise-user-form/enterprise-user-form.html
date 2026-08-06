@@ -13,7 +13,16 @@
   <input id="n" type="text" formControlName="full_name" autocomplete="name" />
 
   <label for="p">Contraseña (mín. 12)</label>
-  <input id="p" type="password" formControlName="password" autocomplete="new-password" />
+  <div style="position: relative;">
+    <input
+      id="p"
+      [type]="showPassword() ? 'text' : 'password'"
+      formControlName="password"
+      autocomplete="new-password"
+      style="padding-right: 40px;"
+    />
+    <pb-password-visibility-toggle [(visible)]="showPassword" />
+  </div>
 
   <label for="r">Rol en empresa</label>
   <select id="r" formControlName="role_in_enterprise">

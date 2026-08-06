@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { isEnterpriseAdministratorRole, SessionStore } from '@pleniu/shared-auth';
+import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import { EnterpriseUserCreateVm } from '../../vm/enterprise-user-create';
 
 @Component({
   selector: 'lib-enterprise-user-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PbPasswordVisibilityToggleComponent],
   providers: [EnterpriseUserCreateVm],
   templateUrl: './enterprise-user-form.html',
   styleUrl: './enterprise-user-form.scss',
@@ -16,6 +17,7 @@ export class EnterpriseUserForm {
   private readonly fb = inject(FormBuilder);
   protected readonly vm = inject(EnterpriseUserCreateVm);
   private readonly session = inject(SessionStore);
+  readonly showPassword = signal(false);
 
   /** Jerarquía B2B: administradores no deben poder mutar la cuenta del Principal (refuerzo en UI). */
   protected readonly showAdminHierarchyHint = computed(() =>

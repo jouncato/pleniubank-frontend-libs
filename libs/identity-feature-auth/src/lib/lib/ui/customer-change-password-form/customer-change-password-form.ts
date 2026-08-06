@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import {
   APP_PASSWORD_COMPLEXITY_PATTERN,
   APP_PASSWORD_MIN_LENGTH,
@@ -10,12 +11,15 @@ import { CustomerChangePasswordVm } from '../../vm/customer-change-password';
 @Component({
   selector: 'lib-customer-change-password-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PbPasswordVisibilityToggleComponent],
   templateUrl: './customer-change-password-form.html',
   styleUrl: './customer-change-password-form.scss',
 })
 export class CustomerChangePasswordForm {
   private readonly fb = inject(FormBuilder);
+  readonly showCurrentPassword = signal(false);
+  readonly showNewPassword = signal(false);
+  readonly showConfirmPassword = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     currentPassword: ['', [Validators.required, Validators.minLength(8)]],
