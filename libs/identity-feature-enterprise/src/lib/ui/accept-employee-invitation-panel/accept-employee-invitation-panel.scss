@@ -1,10 +1,183 @@
-.panel {
-  max-width: 28rem;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
+/* Este panel vive DENTRO del glass card azul de AuthShell (.auth-card), no en
+   una página full-bleed -- por eso NO lleva fondo propio ni sombra: un
+   segundo recuadro blanco flotando sobre el degradé azul es exactamente el
+   look "caja que no encaja" que se quería corregir. El contenido se apoya
+   directamente sobre el glass card, usando las variables que el shell ya
+   expone (--pb-onboarding-*) para texto legible en blanco. */
+:host {
+  display: block;
 }
-.error {
-  color: #b00020;
+
+.invite__eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.85));
+  margin-bottom: 0.5rem;
+}
+
+.invite__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--pb-onboarding-heading, #ffffff);
+}
+
+.invite__lead {
+  margin: 0 0 1.4rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.88));
+}
+
+.invite__muted {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.75));
+}
+
+.invite__facts {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0 0 1.6rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.invite__fact {
+  display: grid;
+  gap: 0.2rem;
+
+  dt {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--pb-onboarding-muted, rgba(255, 255, 255, 0.75));
+
+    svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+  }
+
+  dd {
+    margin: 0 0 0 1.35rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--pb-onboarding-fg, #ffffff);
+    word-break: break-word;
+  }
+}
+
+.invite__submit {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--pb-color-primary-dark, #0056b3);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+/* ── Estados (loading / error / accepting / success) ───────────────────── */
+.invite__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+
+  h2 {
+    margin: 0.35rem 0 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--pb-onboarding-heading, #ffffff);
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.invite__spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.28);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: invite-spin 0.75s linear infinite;
+  margin-bottom: 0.35rem;
+}
+
+@keyframes invite-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invite__spinner { animation-duration: 1.6s; }
+}
+
+.invite__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  margin-bottom: 0.25rem;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &--error {
+    color: #fecaca;
+  }
+
+  &--success {
+    color: #bbf7d0;
+  }
+}
+
+@media (max-width: 480px) {
+  .invite__title { font-size: 1.25rem; }
+  .invite__facts { padding: 0.9rem 1rem; }
 }

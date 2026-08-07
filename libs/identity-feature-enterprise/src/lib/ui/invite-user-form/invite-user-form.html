@@ -1,67 +1,193 @@
-<section class="ief-card">
-  <header class="ief-header">
-    <span class="ief-header__icon" aria-hidden="true">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-      </svg>
-    </span>
-    <div>
-      <h2 class="ief-header__title">Invitar usuario</h2>
-      <p class="ief-header__subtitle">
-        Le daremos acceso a la plataforma con el rol que elijas. Es distinto de invitar a un
-        empleado: aquí estás dando acceso al portal, no vinculando a alguien para anticipo de
-        nómina.
+<section class="iu">
+  <!-- ── Hero ──────────────────────────────────────────────────────────── -->
+  <header class="iu__hero">
+    <div class="iu__hero-copy">
+      <p class="iu__eyebrow">
+        <pb-icon name="users" size="sm" aria-hidden="true" />
+        Administración de acceso
+      </p>
+      <h1 class="iu__title">Invitar usuario al portal</h1>
+      <p class="iu__lead">
+        Le darás acceso a la plataforma con el rol que elijas. Es distinto de invitar a un
+        colaborador a nómina: aquí concedes acceso al portal de la empresa, sin crear
+        vínculo laboral ni elegibilidad de anticipos.
       </p>
     </div>
+    <aside class="iu__hero-side" aria-label="Cómo funciona la invitación">
+      <span class="iu__hero-side-label">Cómo funciona</span>
+      <ol class="iu__lifecycle">
+        <li><b>01</b> La persona recibe un correo con enlace seguro</li>
+        <li><b>02</b> Define su contraseña y activa su cuenta</li>
+        <li><b>03</b> Entra al portal con el rol asignado</li>
+      </ol>
+    </aside>
   </header>
 
-  <p class="ief-callout" *ngIf="showAdminHierarchyHint()">
-    Como administrador de empresa puedes enviar invitaciones. No puedes modificar la cuenta del
-    usuario Principal; solo el Principal puede hacerlo.
-  </p>
+  <div class="iu__grid">
+    <!-- ── Panel principal: el formulario ──────────────────────────────── -->
+    <section class="iu-panel" aria-labelledby="iu-form-title">
+      <header class="iu-panel__head">
+        <p class="iu-panel__kicker"><pb-icon name="key" size="xs" aria-hidden="true" /> Nueva credencial</p>
+        <h2 id="iu-form-title" class="iu-panel__title">Datos de la invitación</h2>
+        <p class="iu-panel__lead">
+          La invitación llega por correo y expira por seguridad. El rol define exactamente
+          qué puede hacer la persona una vez dentro.
+        </p>
+      </header>
 
-  <form class="ief-form" [formGroup]="form" (ngSubmit)="submit()">
-    <div class="ief-field">
-      <label class="ief-label" for="inv-em">Correo del invitado</label>
-      <input
-        id="inv-em"
-        class="ief-input"
-        type="email"
-        formControlName="email"
-        autocomplete="email"
-        placeholder="nombre@empresa.com"
-      />
-      <p class="ief-field-hint ief-field-hint--error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
-        Ingresa un correo electrónico válido.
-      </p>
-    </div>
+      @if (showAdminHierarchyHint()) {
+        <div class="iu-callout" role="note">
+          <pb-icon name="info" size="sm" aria-hidden="true" />
+          <p>
+            Como administrador de empresa puedes enviar invitaciones. No puedes modificar la
+            cuenta del usuario Principal; solo el Principal puede hacerlo.
+          </p>
+        </div>
+      }
 
-    <div class="ief-field">
-      <label class="ief-label" for="inv-role">Rol en la plataforma</label>
-      <select id="inv-role" class="ief-select" formControlName="role_hint">
-        <option value="admin">Administrador</option>
-        <option value="operator">Operador</option>
-        <option value="viewer">Solo lectura</option>
-      </select>
-      <p class="ief-field-hint">
-        {{ roleHint() }}
-      </p>
-    </div>
+      @if (vm.state() === 'success' && vm.lastInvite(); as sent) {
+        <!-- Confirmación elevada: evidencia de lo enviado -->
+        <div class="iu-success" role="status">
+          <span class="iu-success__icon" aria-hidden="true">
+            <pb-icon name="check" size="lg" aria-hidden="true" />
+          </span>
+          <div class="iu-success__copy">
+            <strong>Invitación enviada a {{ sent.email }}</strong>
+            <small>
+              Rol: {{ roleName(sent.role_hint) }} · Enlace válido hasta
+              {{ formatDate(sent.expires_at) }}
+            </small>
+            <code class="iu-success__id" [attr.title]="'ID de invitación: ' + sent.invite_id">
+              Ref. {{ sent.invite_id.slice(0, 8) }}…
+            </code>
+          </div>
+        </div>
+        <div class="iu-success__actions">
+          <button type="button" class="iu-btn iu-btn--primary" (click)="sendAnother()">
+            Invitar a otra persona
+          </button>
+        </div>
+      } @else {
+        <form class="iu-form" [formGroup]="form" (ngSubmit)="submit()">
+          <div class="iu-field">
+            <label class="iu-label" for="inv-em">Correo del invitado</label>
+            <div class="iu-input-wrap">
+              <pb-icon name="premium-profile" size="sm" aria-hidden="true" />
+              <input
+                id="inv-em"
+                class="iu-input"
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="nombre@empresa.com"
+              />
+            </div>
+            <p class="iu-field-hint iu-field-hint--error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
+              Ingresa un correo electrónico válido.
+            </p>
+          </div>
 
-    <div class="ief-alert ief-alert--error" role="alert" *ngIf="vm.errorMessage()">
-      {{ vm.errorMessage() }}
-    </div>
-    <div class="ief-alert ief-alert--success" role="status" *ngIf="vm.state() === 'success'">
-      Invitación enviada.
-    </div>
+          <fieldset class="iu-field iu-field--roles">
+            <legend class="iu-label">Rol en la plataforma</legend>
+            <div class="iu-roles" role="radiogroup" aria-label="Rol en la plataforma">
+              @for (role of roleCards; track role.value) {
+                <button
+                  type="button"
+                  class="iu-role"
+                  [class.iu-role--selected]="selectedRole() === role.value"
+                  role="radio"
+                  [attr.aria-checked]="selectedRole() === role.value"
+                  (click)="selectRole(role.value)"
+                >
+                  <span class="iu-role__icon" aria-hidden="true">
+                    <pb-icon [name]="role.icon" size="md" aria-hidden="true" />
+                  </span>
+                  <span class="iu-role__copy">
+                    <span class="iu-role__name">
+                      {{ role.name }}
+                      @if (selectedRole() === role.value) {
+                        <pb-icon name="check" size="sm" aria-hidden="true" />
+                      }
+                    </span>
+                    <small class="iu-role__scope">{{ role.scope }}</small>
+                    <ul class="iu-role__caps">
+                      @for (cap of role.capabilities; track cap) {
+                        <li>{{ cap }}</li>
+                      }
+                    </ul>
+                  </span>
+                </button>
+              }
+            </div>
+          </fieldset>
 
-    <button
-      type="submit"
-      class="ief-btn ief-btn--primary"
-      [disabled]="form.invalid || vm.state() === 'submitting' || cooldownActive()"
-    >
-      {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar invitación' }}
-    </button>
-  </form>
+          <div class="iu-alert iu-alert--error" role="alert" *ngIf="vm.errorMessage()">
+            <pb-icon name="warning" size="sm" aria-hidden="true" />
+            <p>{{ vm.errorMessage() }}</p>
+          </div>
+
+          <div class="iu-form__footer">
+            <button
+              type="submit"
+              class="iu-btn iu-btn--primary"
+              [disabled]="form.invalid || vm.state() === 'submitting' || cooldownActive()"
+            >
+              {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar invitación' }}
+            </button>
+            <small class="iu-form__footnote">
+              Sin efecto sobre nómina ni anticipos — solo acceso al portal.
+            </small>
+          </div>
+        </form>
+      }
+    </section>
+
+    <!-- ── Riel lateral: evidencia de la sesión ────────────────────────── -->
+    <aside class="iu-rail" aria-labelledby="iu-rail-title">
+      <section class="iu-panel iu-panel--rail">
+        <header class="iu-panel__head">
+          <p class="iu-panel__kicker"><pb-icon name="audit" size="xs" aria-hidden="true" /> Evidencia</p>
+          <h2 id="iu-rail-title" class="iu-panel__title">Enviadas en esta sesión</h2>
+          <p class="iu-panel__lead">
+            Registro de las invitaciones emitidas desde tu sesión, con su referencia y
+            vencimiento. El historial completo queda en el registro de auditoría.
+          </p>
+        </header>
+
+        @if (vm.sentLog().length === 0) {
+          <div class="iu-note" role="note">
+            <pb-icon name="audit" size="sm" aria-hidden="true" />
+            <p>Todavía no envías invitaciones en esta sesión. Aparecerán aquí al emitirlas.</p>
+          </div>
+        } @else {
+          <ol class="iu-log" role="list">
+            @for (record of vm.sentLog(); track trackByInviteId($index, record)) {
+              <li class="iu-log__item">
+                <span class="iu-log__icon" aria-hidden="true">
+                  <pb-icon name="premium-profile" size="sm" aria-hidden="true" />
+                </span>
+                <div class="iu-log__copy">
+                  <span class="iu-log__email">{{ record.email }}</span>
+                  <span class="iu-log__meta">
+                    {{ roleName(record.role_hint) }} · enviada {{ formatDate(record.sent_at) }} ·
+                    vence {{ formatDate(record.expires_at) }}
+                  </span>
+                </div>
+                <code class="iu-log__ref" [attr.title]="'ID de invitación: ' + record.invite_id">
+                  {{ record.invite_id.slice(0, 8) }}…
+                </code>
+              </li>
+            }
+          </ol>
+        }
+
+        <footer class="iu-rail__footer">
+          <a routerLink="/app/audit/logs" class="iu-link-more">
+            Registro de auditoría completo
+            <pb-icon name="chevron-right" size="sm" aria-hidden="true" />
+          </a>
+        </footer>
+      </section>
+    </aside>
+  </div>
 </section>
