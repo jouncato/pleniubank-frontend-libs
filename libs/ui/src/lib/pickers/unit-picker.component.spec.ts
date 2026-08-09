@@ -56,7 +56,7 @@ describe('UnitPickerComponent', () => {
 
   it('clears the selected value and reopens the list', () => {
     const valueSpy = vi.fn();
-    component.value = 'CO-001';
+    fixture.componentRef.setInput('value', 'CO-001');
     component.valueChange.subscribe(valueSpy);
 
     component.clear();
@@ -67,7 +67,7 @@ describe('UnitPickerComponent', () => {
 
   it('auto-selects when exactly one option is provided', () => {
     const valueSpy = vi.fn();
-    component.value = null;
+    fixture.componentRef.setInput('value', null);
     component.valueChange.subscribe(valueSpy);
 
     component.options = [OPTIONS[0]];
@@ -78,9 +78,16 @@ describe('UnitPickerComponent', () => {
     expect(valueSpy).toHaveBeenCalledWith('CO-001');
   });
 
+  it('shows the selected label once `value` is set after selection (regression: display() must track `value` as a reactive dependency)', () => {
+    component.select(OPTIONS[1]);
+    fixture.componentRef.setInput('value', 'CO-002');
+
+    expect(component.display()).toBe('Plenia Empresas');
+  });
+
   it('does not auto-select when autoSelectSingle is false', () => {
     const valueSpy = vi.fn();
-    component.value = null;
+    fixture.componentRef.setInput('value', null);
     component.autoSelectSingle = false;
     component.valueChange.subscribe(valueSpy);
 
@@ -94,7 +101,7 @@ describe('UnitPickerComponent', () => {
 
   it('does not auto-select when more than one option is provided', () => {
     const valueSpy = vi.fn();
-    component.value = null;
+    fixture.componentRef.setInput('value', null);
     component.valueChange.subscribe(valueSpy);
 
     component.options = OPTIONS;
@@ -107,7 +114,7 @@ describe('UnitPickerComponent', () => {
 
   it('clears selection when user edits the input text after selecting', () => {
     const valueSpy = vi.fn();
-    component.value = 'CO-001';
+    fixture.componentRef.setInput('value', 'CO-001');
     component.valueChange.subscribe(valueSpy);
 
     component.onQueryChange('Plenia');

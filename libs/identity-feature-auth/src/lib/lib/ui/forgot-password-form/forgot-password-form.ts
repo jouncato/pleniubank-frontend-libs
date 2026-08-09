@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { PbLogoComponent } from '@pleniu/ui';
 import { authRoutesForPortal, PORTAL_APP, type PortalAppKind } from '@pleniu/shared-auth';
 
 import { ForgotPasswordVm } from '../../vm/forgot-password';
@@ -9,7 +10,7 @@ import { ForgotPasswordVm } from '../../vm/forgot-password';
 @Component({
   selector: 'lib-forgot-password-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PbLogoComponent],
   templateUrl: './forgot-password-form.html',
   styleUrl: './forgot-password-form.scss',
 })

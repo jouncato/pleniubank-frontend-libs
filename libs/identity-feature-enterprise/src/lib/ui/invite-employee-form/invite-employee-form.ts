@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { isEnterpriseAdministratorRole, SessionStore } from '@pleniu/shared-auth';
-import { SubEnterpriseSummaryDto } from 'identity-domain';
-import { InviteEmployeeVm } from '../../vm/invite-employee';
+import { EmployeeInvitationItem, SubEnterpriseSummaryDto } from 'identity-domain';
+import { PbIconComponent } from '@pleniu/ui';
+import { InviteEmployeeVm, type SentEmployeeInviteRecord } from '../../vm/invite-employee';
 
 @Component({
   selector: 'lib-invite-employee-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PbIconComponent],
   templateUrl: './invite-employee-form.html',
   styleUrl: './invite-employee-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +33,8 @@ export class InviteEmployeeForm implements OnInit {
     isEnterpriseAdministratorRole(this.session.claims()?.role),
   );
 
+  protected readonly pendingRevokeId = signal<string | null>(null);
+
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
   });
@@ -42,6 +45,7 @@ export class InviteEmployeeForm implements OnInit {
     if (this.preselectedSubEnterpriseId) {
       this.vm.resolvePreselected(this.preselectedSubEnterpriseId);
     }
+    this.vm.loadPendingInvitations();
   }
 
   onSearchInput(query: string): void {
@@ -66,6 +70,34 @@ export class InviteEmployeeForm implements OnInit {
     }
     const v = this.form.getRawValue();
     this.vm.submit({ email: v.email, sub_enterprise_id: '' });
+  }
+
+  /** "Invitar a otro": conserva la unidad seleccionada (altas seguidas). */
+  sendAnother(): void {
+    this.vm.resetKeepUnit();
+    this.form.controls.email.reset('');
+  }
+
+  askRevokeInvite(inviteId: string): void {
+    this.pendingRevokeId.set(inviteId);
+  }
+
+  confirmRevokeInvite(): void {
+    const id = this.pendingRevokeId();
+    this.pendingRevokeId.set(null);
+    if (id) {
+      this.vm.revokePendingInvitation(id);
+    }
+  }
+
+  protected trackByInviteId(_index: number, item: EmployeeInvitationItem | SentEmployeeInviteRecord): string {
+    return item.invite_id;
+  }
+
+  protected formatDate(iso: string): string {
+    return new Intl.DateTimeFormat('es-CO', {
+      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+    }).format(new Date(iso));
   }
 
   cooldownActive(): boolean {

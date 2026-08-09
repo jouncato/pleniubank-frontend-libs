@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { PORTAL_APP, type PortalAppKind } from '@pleniu/shared-auth';
+import { PORTAL_APP, SessionStore, type PortalAppKind } from '@pleniu/shared-auth';
 import { PbLogoComponent, PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import { LoginVm } from '../../vm/login';
 
@@ -16,6 +16,7 @@ import { LoginVm } from '../../vm/login';
 export class AuthLoginForm {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  private readonly sessionStore = inject(SessionStore);
   protected readonly portal = inject<PortalAppKind>(PORTAL_APP);
 
   readonly showPassword = signal(false);
@@ -26,6 +27,12 @@ export class AuthLoginForm {
   });
 
   constructor(protected readonly vm: LoginVm) {}
+
+  protected readonly sessionTermination = this.sessionStore.terminationReason;
+
+  dismissSessionTermination(): void {
+    this.sessionStore.clearTerminationReason();
+  }
 
   submit(): void {
     if (this.form.invalid) {

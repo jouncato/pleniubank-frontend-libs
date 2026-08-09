@@ -1,145 +1,295 @@
-<section class="ief-card">
-  <header class="ief-header">
-    <span class="ief-header__icon" aria-hidden="true">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M19 8v6M22 11h-6" />
-      </svg>
-    </span>
-    <div>
-      <h2 class="ief-header__title">Invitar colaborador a nómina</h2>
-      <p class="ief-header__subtitle">
-        Le enviaremos un correo con un enlace para que se una a tu unidad de negocio y quede
-        habilitado para anticipo de nómina.
+<section class="ie">
+  <!-- ── Hero ──────────────────────────────────────────────────────────── -->
+  <header class="ie__hero">
+    <div class="ie__hero-copy">
+      <p class="ie__eyebrow">
+        <pb-icon name="payroll" size="sm" aria-hidden="true" />
+        Nómina y colaboradores
+      </p>
+      <h1 class="ie__title">Invitar colaborador a nómina</h1>
+      <p class="ie__lead">
+        Le enviaremos un correo con un enlace seguro para que se una a tu unidad de negocio
+        y quede habilitado para el anticipo de nómina. Es un vínculo laboral y de producto —
+        distinto de dar acceso al portal a un usuario administrativo.
       </p>
     </div>
+    <aside class="ie__hero-side" aria-label="Qué habilita esta invitación">
+      <span class="ie__hero-side-label">Qué habilita</span>
+      <ol class="ie__lifecycle">
+        <li><b>01</b> Vínculo del colaborador con la unidad elegida</li>
+        <li><b>02</b> Su cuenta con documento y datos validados</li>
+        <li><b>03</b> Elegibilidad de anticipo según la política vigente</li>
+      </ol>
+    </aside>
   </header>
 
-  <p class="ief-callout" *ngIf="showAdminHierarchyHint()">
-    Como administrador de empresa puedes invitar colaboradores a unirse a una unidad de negocio y
-    acceder al anticipo de nómina.
-  </p>
+  <div class="ie__grid">
+    <!-- ── Panel principal: el formulario ──────────────────────────────── -->
+    <section class="ie-panel" aria-labelledby="ie-form-title">
+      <header class="ie-panel__head">
+        <p class="ie-panel__kicker"><pb-icon name="beneficiary" size="xs" aria-hidden="true" /> Nueva incorporación</p>
+        <h2 id="ie-form-title" class="ie-panel__title">Datos de la invitación</h2>
+        <p class="ie-panel__lead">
+          Elige la unidad que administra su nómina y el correo donde recibirá el enlace.
+          La invitación expira por seguridad.
+        </p>
+      </header>
 
-  <form class="ief-form" [formGroup]="form" (ngSubmit)="submit()">
-    <div class="ief-field">
-      <label class="ief-label" id="ief-unit-label">Unidad de negocio</label>
-
-      <!-- Unidad ya elegida (preseleccionada por ruta, o elegida por el usuario en el buscador) -->
-      <ng-container *ngIf="vm.selectedSubEnterprise() as sub; else pickerBlock">
-        <div
-          class="ief-unit-card ief-unit-card--selected"
-          [class.ief-unit-card--readonly]="!!preselectedSubEnterpriseId"
-        >
-          <span class="ief-unit-card__head">
-            <span class="ief-unit-card__name">{{ sub.business_name }}</span>
-            <span
-              class="ief-unit-card__status"
-              [class.ief-unit-card__status--active]="sub.status === 'active'"
-            >
-              {{ sub.status === 'active' ? 'Activa' : 'Inactiva' }}
-            </span>
-          </span>
-          <code class="ief-unit-card__code">{{ sub.company_code }}</code>
+      @if (showAdminHierarchyHint()) {
+        <div class="ie-callout" role="note">
+          <pb-icon name="info" size="sm" aria-hidden="true" />
+          <p>
+            Como administrador de empresa puedes invitar colaboradores a unirse a una unidad
+            de negocio y acceder al anticipo de nómina.
+          </p>
         </div>
-        <button
-          *ngIf="!preselectedSubEnterpriseId"
-          type="button"
-          class="ief-link-btn"
-          (click)="changeSelection()"
-        >
-          Cambiar unidad
-        </button>
-      </ng-container>
+      }
 
-      <!-- Buscador: nunca se carga el listado completo de unidades (una empresa puede tener miles). -->
-      <ng-template #pickerBlock>
-        <p class="ief-field-hint" *ngIf="vm.state() === 'loading'">Cargando unidad…</p>
-
-        <div class="ief-combobox" *ngIf="vm.state() !== 'loading'">
-          <input
-            id="ief-unit-search"
-            type="text"
-            class="ief-input"
-            role="combobox"
-            aria-autocomplete="list"
-            aria-controls="ief-unit-listbox"
-            aria-labelledby="ief-unit-label"
-            [attr.aria-expanded]="vm.searchQuery().length > 0"
-            placeholder="Busca por nombre o código de la unidad…"
-            autocomplete="off"
-            [value]="vm.searchQuery()"
-            (input)="onSearchInput($any($event.target).value)"
-          />
-
-          <div class="ief-combobox__panel" id="ief-unit-listbox" role="listbox" *ngIf="vm.searchQuery().length > 0">
-            <p class="ief-combobox__hint" *ngIf="vm.searchQuery().trim().length < 2">
-              Escribe al menos 2 caracteres para buscar.
-            </p>
-            <p class="ief-combobox__hint" *ngIf="vm.searchQuery().trim().length >= 2 && vm.searchState() === 'searching'">
-              Buscando unidades…
-            </p>
-            <p class="ief-combobox__hint ief-combobox__hint--error" *ngIf="vm.searchState() === 'error'">
-              No se pudo completar la búsqueda. Intenta de nuevo.
-            </p>
-            <p
-              class="ief-combobox__hint"
-              *ngIf="vm.searchQuery().trim().length >= 2 && vm.searchState() === 'idle' && vm.searchResults().length === 0"
-            >
-              No se encontraron unidades con ese nombre o código.
-            </p>
-
-            <button
-              *ngFor="let sub of vm.searchResults()"
-              type="button"
-              class="ief-combobox__option"
-              role="option"
-              (click)="selectSubEnterprise(sub)"
-            >
-              <span class="ief-unit-card__head">
-                <span class="ief-unit-card__name">{{ sub.business_name }}</span>
-                <span
-                  class="ief-unit-card__status"
-                  [class.ief-unit-card__status--active]="sub.status === 'active'"
-                >
-                  {{ sub.status === 'active' ? 'Activa' : 'Inactiva' }}
-                </span>
-              </span>
-              <code class="ief-unit-card__code">{{ sub.company_code }}</code>
-            </button>
+      @if (vm.state() === 'success' && vm.lastInvite(); as sent) {
+        <!-- Confirmación elevada: evidencia de lo enviado -->
+        <div class="ie-success" role="status">
+          <span class="ie-success__icon" aria-hidden="true">
+            <pb-icon name="check" size="lg" aria-hidden="true" />
+          </span>
+          <div class="ie-success__copy">
+            <strong>Invitación enviada a {{ sent.email }}</strong>
+            <small>
+              Unidad: {{ sent.unit_name }} ({{ sent.unit_code }}) · Enlace válido hasta
+              {{ formatDate(sent.expires_at) }}
+            </small>
+            <code class="ie-success__id" [attr.title]="'ID de invitación: ' + sent.invite_id">
+              Ref. {{ sent.invite_id.slice(0, 8) }}…
+            </code>
           </div>
         </div>
-      </ng-template>
-    </div>
+        <div class="ie-success__actions">
+          <button type="button" class="ie-btn ie-btn--primary" (click)="sendAnother()">
+            Invitar a otro colaborador de esta unidad
+          </button>
+        </div>
+      } @else {
+        <form class="ie-form" [formGroup]="form" (ngSubmit)="submit()">
+          <!-- Unidad de negocio -->
+          <div class="ie-field">
+            <span class="ie-label" id="ie-unit-label">Unidad de negocio</span>
 
-    <div class="ief-field">
-      <label class="ief-label" for="emp-em">Correo del colaborador</label>
-      <input
-        id="emp-em"
-        class="ief-input"
-        type="email"
-        formControlName="email"
-        autocomplete="email"
-        placeholder="nombre@empresa.com"
-      />
-      <p class="ief-field-hint ief-field-hint--error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
-        Ingresa un correo electrónico válido.
-      </p>
-    </div>
+            @if (vm.selectedSubEnterprise(); as sub) {
+              <div class="ie-unit" [class.ie-unit--readonly]="!!preselectedSubEnterpriseId">
+                <span class="ie-unit__icon" aria-hidden="true">
+                  <pb-icon name="sectors" size="md" aria-hidden="true" />
+                </span>
+                <div class="ie-unit__copy">
+                  <span class="ie-unit__name">
+                    {{ sub.business_name }}
+                    <span
+                      class="ie-unit__status"
+                      [class.ie-unit__status--active]="sub.status === 'active'"
+                    >
+                      {{ sub.status === 'active' ? 'Activa' : 'Inactiva' }}
+                    </span>
+                  </span>
+                  <code class="ie-unit__code">{{ sub.company_code }}</code>
+                </div>
+                @if (!preselectedSubEnterpriseId) {
+                  <button type="button" class="ie-link" (click)="changeSelection()">
+                    Cambiar unidad
+                  </button>
+                }
+              </div>
+            } @else {
+              <!-- Buscador: nunca se carga el listado completo de unidades (una
+                   empresa puede tener miles). -->
+              @if (vm.state() === 'loading') {
+                <p class="ie-field-hint">Cargando unidad…</p>
+              } @else {
+                <div class="ie-combobox">
+                  <div class="ie-input-wrap">
+                    <pb-icon name="search" size="sm" aria-hidden="true" />
+                    <input
+                      id="ie-unit-search"
+                      type="text"
+                      class="ie-input"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-controls="ie-unit-listbox"
+                      aria-labelledby="ie-unit-label"
+                      [attr.aria-expanded]="vm.searchQuery().length > 0"
+                      placeholder="Busca por nombre o código de la unidad…"
+                      autocomplete="off"
+                      [value]="vm.searchQuery()"
+                      (input)="onSearchInput($any($event.target).value)"
+                    />
+                  </div>
 
-    <div class="ief-alert ief-alert--error" role="alert" *ngIf="vm.errorMessage()">
-      {{ vm.errorMessage() }}
-    </div>
-    <div class="ief-alert ief-alert--success" role="status" *ngIf="vm.successMessage()">
-      {{ vm.successMessage() }}
-    </div>
+                  @if (vm.searchQuery().length > 0) {
+                    <div class="ie-combobox__panel" id="ie-unit-listbox" role="listbox">
+                      @if (vm.searchQuery().trim().length < 2) {
+                        <p class="ie-combobox__hint">Escribe al menos 2 caracteres para buscar.</p>
+                      }
+                      @if (vm.searchQuery().trim().length >= 2 && vm.searchState() === 'searching') {
+                        <p class="ie-combobox__hint">Buscando unidades…</p>
+                      }
+                      @if (vm.searchState() === 'error') {
+                        <p class="ie-combobox__hint ie-combobox__hint--error">
+                          No se pudo completar la búsqueda. Intenta de nuevo.
+                        </p>
+                      }
+                      @if (vm.searchQuery().trim().length >= 2 && vm.searchState() === 'idle' && vm.searchResults().length === 0) {
+                        <p class="ie-combobox__hint">No se encontraron unidades con ese nombre o código.</p>
+                      }
 
-    <button
-      type="submit"
-      class="ief-btn ief-btn--primary"
-      [disabled]="form.invalid || !vm.selectedSubEnterprise() || vm.state() === 'submitting' || cooldownActive()"
-    >
-      {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar invitación' }}
-    </button>
-  </form>
+                      @for (sub of vm.searchResults(); track sub.sub_enterprise_id) {
+                        <button
+                          type="button"
+                          class="ie-combobox__option"
+                          role="option"
+                          (click)="selectSubEnterprise(sub)"
+                        >
+                          <span class="ie-combobox__option-name">{{ sub.business_name }}</span>
+                          <span
+                            class="ie-unit__status"
+                            [class.ie-unit__status--active]="sub.status === 'active'"
+                          >
+                            {{ sub.status === 'active' ? 'Activa' : 'Inactiva' }}
+                          </span>
+                          <code class="ie-unit__code">{{ sub.company_code }}</code>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </div>
+
+          <!-- Correo -->
+          <div class="ie-field">
+            <label class="ie-label" for="emp-em">Correo del colaborador</label>
+            <div class="ie-input-wrap">
+              <pb-icon name="beneficiary" size="sm" aria-hidden="true" />
+              <input
+                id="emp-em"
+                class="ie-input"
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="nombre@empresa.com"
+              />
+            </div>
+            <p class="ie-field-hint ie-field-hint--error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
+              Ingresa un correo electrónico válido.
+            </p>
+          </div>
+
+          <div class="ie-alert ie-alert--error" role="alert" *ngIf="vm.errorMessage()">
+            <pb-icon name="warning" size="sm" aria-hidden="true" />
+            <p>{{ vm.errorMessage() }}</p>
+          </div>
+
+          <div class="ie-form__footer">
+            <button
+              type="submit"
+              class="ie-btn ie-btn--primary"
+              [disabled]="form.invalid || !vm.selectedSubEnterprise() || vm.state() === 'submitting' || cooldownActive()"
+            >
+              {{ vm.state() === 'submitting' ? 'Enviando…' : 'Enviar invitación' }}
+            </button>
+            <small class="ie-form__footnote">
+              Crea vínculo de nómina con la unidad — no concede acceso administrativo al portal.
+            </small>
+          </div>
+        </form>
+      }
+    </section>
+
+    <!-- ── Riel lateral: evidencia ─────────────────────────────────────── -->
+    <aside class="ie-rail" aria-label="Evidencia de invitaciones">
+      <section class="ie-panel ie-panel--rail">
+        <header class="ie-panel__head">
+          <p class="ie-panel__kicker"><pb-icon name="clock" size="xs" aria-hidden="true" /> En curso</p>
+          <h2 class="ie-panel__title">Invitaciones pendientes</h2>
+          <p class="ie-panel__lead">
+            Enviadas y aún no aceptadas por el colaborador. Puedes revocar una invitación
+            emitida por error — el enlace deja de funcionar al instante.
+          </p>
+        </header>
+
+        @if (vm.pendingState() === 'loading') {
+          <p class="ie-note" role="note"><pb-icon name="clock" size="sm" aria-hidden="true" /> <span>Cargando pendientes…</span></p>
+        } @else if (vm.pendingState() === 'error') {
+          <p class="ie-note ie-note--error" role="alert"><pb-icon name="warning" size="sm" aria-hidden="true" /> <span>No se pudieron cargar las pendientes.</span> <button type="button" class="ie-link" (click)="vm.loadPendingInvitations()">Reintentar</button></p>
+        } @else if (vm.pendingInvitations().length === 0) {
+          <p class="ie-note" role="note"><pb-icon name="check" size="sm" aria-hidden="true" /> <span>Nada pendiente: todas las invitaciones emitidas fueron aceptadas o revocadas.</span></p>
+        } @else {
+          <ol class="ie-log" role="list">
+            @for (inv of vm.pendingInvitations(); track trackByInviteId($index, inv)) {
+              <li class="ie-log__item">
+                <span class="ie-log__icon ie-log__icon--pending" aria-hidden="true">
+                  <pb-icon name="clock" size="sm" aria-hidden="true" />
+                </span>
+                <div class="ie-log__copy">
+                  <span class="ie-log__email">{{ inv.email }}</span>
+                  <span class="ie-log__meta">
+                    enviada {{ formatDate(inv.created_at) }} · vence {{ formatDate(inv.expires_at) }}
+                  </span>
+                </div>
+                @if (pendingRevokeId() === inv.invite_id) {
+                  <span class="ie-log__confirm" role="group" aria-label="Confirmar revocación">
+                    <span class="ie-log__confirm-text">¿Revocar?</span>
+                    <button
+                      type="button"
+                      class="ie-link ie-link--danger"
+                      (click)="confirmRevokeInvite()"
+                    >
+                      Sí, revocar
+                    </button>
+                    <button type="button" class="ie-link" (click)="pendingRevokeId.set(null)">
+                      No
+                    </button>
+                  </span>
+                } @else {
+                  <button
+                    type="button"
+                    class="ie-link ie-link--danger"
+                    [disabled]="vm.revokingInviteId() === inv.invite_id"
+                    (click)="askRevokeInvite(inv.invite_id)"
+                  >
+                    {{ vm.revokingInviteId() === inv.invite_id ? 'Revocando…' : 'Revocar' }}
+                  </button>
+                }
+              </li>
+            }
+          </ol>
+        }
+      </section>
+
+      @if (vm.sentLog().length > 0) {
+        <section class="ie-panel ie-panel--rail">
+          <header class="ie-panel__head">
+            <p class="ie-panel__kicker"><pb-icon name="audit" size="xs" aria-hidden="true" /> Evidencia</p>
+            <h2 class="ie-panel__title">Emitidas en esta sesión</h2>
+          </header>
+          <ol class="ie-log" role="list">
+            @for (record of vm.sentLog(); track trackByInviteId($index, record)) {
+              <li class="ie-log__item">
+                <span class="ie-log__icon" aria-hidden="true">
+                  <pb-icon name="check" size="sm" aria-hidden="true" />
+                </span>
+                <div class="ie-log__copy">
+                  <span class="ie-log__email">{{ record.email }}</span>
+                  <span class="ie-log__meta">
+                    {{ record.unit_name }} · emitida {{ formatDate(record.sent_at) }}
+                  </span>
+                </div>
+                <code class="ie-log__ref" [attr.title]="'ID de invitación: ' + record.invite_id">
+                  {{ record.invite_id.slice(0, 8) }}…
+                </code>
+              </li>
+            }
+          </ol>
+        </section>
+      }
+    </aside>
+  </div>
+
 </section>

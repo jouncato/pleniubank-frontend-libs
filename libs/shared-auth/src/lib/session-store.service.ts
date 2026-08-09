@@ -6,6 +6,9 @@ const USER_TOKEN_KEY = 'pleniu_user_token';
 const ADMIN_TOKEN_KEY = 'pleniu_admin_token';
 const REFRESH_TOKEN_KEY = 'pleniu_refresh_token';
 const REGISTRATION_ID_KEY = 'pleniu_registration_id';
+const SESSION_TERMINATION_KEY = 'pleniu_session_termination';
+
+export type SessionTerminationReason = 'SESSION_REPLACED' | 'SESSION_REVOKED' | 'SESSION_REQUIRED';
 
 /** TTL recomendado para claims tras validate (I-07): evita POST /validate en cada navegación. */
 export const SESSION_CLAIMS_TTL_MS = 5 * 60 * 1000;
@@ -56,6 +59,9 @@ export class SessionStore {
   private readonly _claims = signal<SessionClaims | null>(null);
   private readonly _claimsValidatedAt = signal<number | null>(null);
   private readonly _isRefreshing = signal(false);
+  private readonly _terminationReason = signal<SessionTerminationReason | null>(
+    this.readTerminationReason(),
+  );
 
   readonly userToken: ReturnType<typeof computed<string | null>>;
   readonly adminToken: ReturnType<typeof computed<string | null>>;
@@ -64,6 +70,7 @@ export class SessionStore {
   readonly claimsValidatedAt: ReturnType<typeof computed<number | null>>;
   readonly isRefreshing: ReturnType<typeof computed<boolean>>;
   readonly isAuthenticated: ReturnType<typeof computed<boolean>>;
+  readonly terminationReason: ReturnType<typeof computed<SessionTerminationReason | null>>;
 
   constructor(@Inject(SESSION_STRATEGY) strategy: SessionStrategy) {
     this.strategy = strategy;
@@ -77,6 +84,7 @@ export class SessionStore {
     this.claims = computed(() => this._claims());
     this.claimsValidatedAt = computed(() => this._claimsValidatedAt());
     this.isRefreshing = computed(() => this._isRefreshing());
+    this.terminationReason = computed(() => this._terminationReason());
     this.isAuthenticated = computed(() =>
       this.useCookies ? Boolean(this._claims()) : Boolean(this._userToken()),
     );
@@ -130,6 +138,16 @@ export class SessionStore {
     this._isRefreshing.set(value);
   }
 
+  setTerminationReason(reason: SessionTerminationReason): void {
+    this._terminationReason.set(reason);
+    sessionStorage.setItem(SESSION_TERMINATION_KEY, reason);
+  }
+
+  clearTerminationReason(): void {
+    this._terminationReason.set(null);
+    sessionStorage.removeItem(SESSION_TERMINATION_KEY);
+  }
+
   hasRole(role: UserRole): boolean {
     return this._claims()?.role === role;
   }
@@ -146,6 +164,13 @@ export class SessionStore {
     sessionStorage.removeItem(ADMIN_TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_TOKEN_KEY);
     sessionStorage.removeItem(REGISTRATION_ID_KEY);
+  }
+
+  private readTerminationReason(): SessionTerminationReason | null {
+    const value = sessionStorage.getItem(SESSION_TERMINATION_KEY);
+    return value === 'SESSION_REPLACED' || value === 'SESSION_REVOKED' || value === 'SESSION_REQUIRED'
+      ? value
+      : null;
   }
 
   private persist(key: string, value: string | null): void {

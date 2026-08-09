@@ -64,6 +64,7 @@ describe('LoginVm', () => {
       setUserToken: vi.fn(),
       setRefreshToken: vi.fn(),
       setAdminToken: vi.fn(),
+      clearTerminationReason: vi.fn(),
       setClaims: vi.fn(),
       clear: vi.fn(),
       userToken: vi.fn(() => 'access-token'),

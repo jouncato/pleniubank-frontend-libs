@@ -65,7 +65,8 @@ export interface VerifyEmploymentProfileRequest {
 }
 
 export interface EmploymentProfileListParams {
-  sub_enterprise_id: string;
+  /** Uno o varios ids -- Core acepta múltiples `sub_enterprise_id` en la misma query. */
+  sub_enterprise_id: string | string[];
   employment_status?: EmploymentStatus | string;
   verification_status?: VerificationStatus | string;
   limit?: number;

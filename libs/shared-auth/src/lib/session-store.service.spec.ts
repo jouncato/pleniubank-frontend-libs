@@ -27,4 +27,20 @@ describe('SessionStore', () => {
     expect(sessionStorage.getItem('pleniu_admin_token')).toBeNull();
     expect(sessionStorage.getItem('pleniu_refresh_token')).toBeNull();
   });
+
+  it('persiste la razón de terminación sin conservar credenciales', () => {
+    TestBed.configureTestingModule({ providers: [SessionStore] });
+    const store = TestBed.inject(SessionStore);
+    store.setUserToken('u');
+    store.setTerminationReason('SESSION_REPLACED');
+    store.clear();
+
+    expect(store.userToken()).toBeNull();
+    expect(store.terminationReason()).toBe('SESSION_REPLACED');
+    expect(sessionStorage.getItem('pleniu_session_termination')).toBe('SESSION_REPLACED');
+
+    store.clearTerminationReason();
+    expect(store.terminationReason()).toBeNull();
+    expect(sessionStorage.getItem('pleniu_session_termination')).toBeNull();
+  });
 });

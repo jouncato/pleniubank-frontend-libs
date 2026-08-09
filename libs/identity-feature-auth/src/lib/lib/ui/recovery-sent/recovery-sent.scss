@@ -28,8 +28,16 @@
   border-radius: 999px;
   background: rgba(2, 114, 222, 0.1);
   color: #0272de;
-  font-size: 1.5rem;
-  font-weight: 800;
+
+  svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
 }
 
 .recovery-card__eyebrow {

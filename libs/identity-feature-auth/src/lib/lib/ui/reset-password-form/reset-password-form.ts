@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
+import { PbLogoComponent, PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 
 import { APP_PASSWORD_COMPLEXITY_PATTERN, APP_PASSWORD_MIN_LENGTH } from '../../password-policy';
 import { ResetPasswordVm } from '../../vm/reset-password';
@@ -10,7 +10,7 @@ import { ResetPasswordVm } from '../../vm/reset-password';
 @Component({
   selector: 'lib-reset-password-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, PbPasswordVisibilityToggleComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PbPasswordVisibilityToggleComponent, PbLogoComponent],
   templateUrl: './reset-password-form.html',
   styleUrl: './reset-password-form.scss',
 })

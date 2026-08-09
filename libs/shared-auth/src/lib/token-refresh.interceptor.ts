@@ -9,6 +9,11 @@ import { SESSION_STRATEGY } from './session-strategy.token';
 import { SessionStore } from './session-store.service';
 import { signInPathForPortal } from './sign-in-path';
 import { isCoreApiRoute, isIdentityAdminApiRoute } from './interceptor-utils';
+import {
+  isSessionTerminationCode,
+  sessionTerminationCode,
+  SessionTerminationService,
+} from './session-termination.service';
 import { TokenRefreshCoordinator } from './token-refresh-coordinator.service';
 
 function shouldRefresh(
@@ -56,6 +61,7 @@ function logoutAndRedirect(
 
 export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
   const sessionStore = inject(SessionStore);
+  const sessionTermination = inject(SessionTerminationService);
   const refreshHandler = inject(AUTH_REFRESH_HANDLER, { optional: true });
   const router = inject(Router);
   const strategy = inject(SESSION_STRATEGY);
@@ -74,6 +80,13 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: unknown) => {
+      if (error instanceof HttpErrorResponse && isSessionTerminationCode(error)) {
+        const code = sessionTerminationCode(error);
+        if (code) {
+          sessionTermination.terminate(code, router.url);
+        }
+        return throwError(() => mapHttpError(error));
+      }
       if (!(error instanceof HttpErrorResponse) || !shouldRefresh(error, req, apiConfig)) {
         return throwError(() => mapHttpError(error));
       }

@@ -13,6 +13,22 @@ import {
 } from '@pleniu/core-domain';
 import { coreAdminV1Base, corePublicV1Base } from './core-api-base';
 
+export interface EmploymentProfileAuditEntryDto {
+  id: string;
+  action: string;
+  payload: {
+    request?: Record<string, unknown>;
+    response?: Record<string, unknown>;
+  } | null;
+  performed_by: string;
+  performed_at: string;
+}
+
+export interface ListEmploymentProfileAuditParams {
+  cursor?: string | null;
+  limit?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CoreEmploymentProfilesApiService {
   constructor(
@@ -39,7 +55,13 @@ export class CoreEmploymentProfilesApiService {
     params: EmploymentProfileListParams,
   ): Observable<ApiEnvelope<CustomerEmploymentProfileListResponse>> {
     const url = `${coreAdminV1Base(this.config)}/employment-profiles`;
-    let httpParams = new HttpParams().set('sub_enterprise_id', params.sub_enterprise_id);
+    const ids = Array.isArray(params.sub_enterprise_id)
+      ? params.sub_enterprise_id
+      : [params.sub_enterprise_id];
+    let httpParams = ids.reduce(
+      (acc, id) => acc.append('sub_enterprise_id', id),
+      new HttpParams(),
+    );
     if (params.employment_status) {
       httpParams = httpParams.set('employment_status', params.employment_status);
     }
@@ -88,6 +110,22 @@ export class CoreEmploymentProfilesApiService {
   ): Observable<ApiEnvelope<CustomerEmploymentProfile>> {
     const url = `${coreAdminV1Base(this.config)}/employment-profiles/${profileId}/terminate`;
     return this.http.patch<ApiEnvelope<CustomerEmploymentProfile>>(url, payload);
+  }
+
+  /** Admin/Enterprise: bitácora de negocio (auditoría) de un perfil laboral. */
+  getProfileAudit(
+    profileId: string,
+    params: ListEmploymentProfileAuditParams = {},
+  ): Observable<ApiEnvelope<EmploymentProfileAuditEntryDto[]>> {
+    const url = `${coreAdminV1Base(this.config)}/employment-profiles/${profileId}/audit`;
+    let httpParams = new HttpParams();
+    if (params.cursor) {
+      httpParams = httpParams.set('cursor', params.cursor);
+    }
+    if (params.limit != null) {
+      httpParams = httpParams.set('limit', String(params.limit));
+    }
+    return this.http.get<ApiEnvelope<EmploymentProfileAuditEntryDto[]>>(url, { params: httpParams });
   }
 
   /** Admin: get full employment history for a customer. */

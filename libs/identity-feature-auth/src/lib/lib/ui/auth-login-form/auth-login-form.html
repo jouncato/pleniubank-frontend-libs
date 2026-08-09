@@ -1,4 +1,19 @@
 <div class="pl-root">
+  @if (sessionTermination(); as termination) {
+    <section class="session-termination" role="alertdialog" aria-modal="true" aria-labelledby="session-termination-title">
+      <div class="session-termination__panel">
+        <p class="session-termination__eyebrow">Seguridad de la cuenta</p>
+        <h2 id="session-termination-title">Tu sesión se cerró por seguridad</h2>
+        @if (termination === 'SESSION_REPLACED') {
+          <p>Por seguridad, tu sesión se ha cerrado porque se ha iniciado sesión en otro dispositivo o navegador. Si no fuiste tú, por favor cambia tu contraseña inmediatamente.</p>
+        } @else {
+          <p>Tu sesión ya no está activa. Inicia sesión nuevamente para continuar.</p>
+        }
+        <button type="button" class="session-termination__button" (click)="dismissSessionTermination()">Entendido</button>
+      </div>
+    </section>
+  }
+
   <section class="pl-hero pl-hero--compact" aria-labelledby="login-hero-title">
     <div class="pl-container">
       <div class="pl-hero__content">

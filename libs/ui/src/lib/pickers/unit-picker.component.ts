@@ -7,6 +7,7 @@ import {
   Output,
   SimpleChanges,
   computed,
+  input,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -42,7 +43,7 @@ import type { PickerOption } from './picker-option';
         type="text"
         role="combobox"
         aria-autocomplete="list"
-        [attr.aria-expanded]="filtered().length > 0 && !value"
+        [attr.aria-expanded]="filtered().length > 0 && !value()"
         [attr.aria-controls]="listId"
         [placeholder]="placeholder"
         [disabled]="disabled"
@@ -66,7 +67,7 @@ import type { PickerOption } from './picker-option';
                 type="button"
                 role="option"
                 class="pb-picker__option"
-                [attr.aria-selected]="option.id === value"
+                [attr.aria-selected]="option.id === value()"
                 (click)="select(option)"
               >
                 <span>{{ option.label }}</span>
@@ -81,7 +82,7 @@ import type { PickerOption } from './picker-option';
         <p class="pb-picker__hint" role="status">Sin coincidencias para "{{ query() }}".</p>
       }
 
-      @if (value) {
+      @if (value()) {
         <button type="button" class="pb-picker__clear" (click)="clear()">Limpiar selección</button>
       }
     </div>
@@ -94,7 +95,14 @@ export class UnitPickerComponent implements OnChanges {
   @Input() label = 'Unidad de negocio';
   @Input() placeholder = 'Buscar unidad por nombre o código';
   @Input() options: PickerOption[] = [];
-  @Input() value: string | null = null;
+  /**
+   * Señal (no `@Input()` clásico) a propósito: `display`/`showList` son `computed()` que
+   * necesitan rastrear sus lecturas como dependencia reactiva. Con un `@Input()` de campo
+   * plano, cambiar `value` (p. ej. al autoseleccionar la única opción, o tras `select()`)
+   * no invalida el `computed()` memorizado — el input queda mostrando texto vacío para
+   * siempre aunque `value` sí tenga la opción seleccionada (bug detectado en vivo 2026-08-09).
+   */
+  readonly value = input<string | null>(null);
   @Input() loading = false;
   @Input() error: string | null = null;
   @Input() disabled = false;
@@ -126,8 +134,9 @@ export class UnitPickerComponent implements OnChanges {
   /** Texto mostrado en el input: label de la opción seleccionada o el query del usuario. */
   readonly display = computed<string>(() => {
     this.optionsVersion();
-    if (this.value) {
-      const selected = this.options.find((opt) => opt.id === this.value);
+    const value = this.value();
+    if (value) {
+      const selected = this.options.find((opt) => opt.id === value);
       if (selected) {
         return selected.label;
       }
@@ -135,7 +144,7 @@ export class UnitPickerComponent implements OnChanges {
     return this.query();
   });
 
-  readonly showList = computed<boolean>(() => this.listOpen() && !this.value);
+  readonly showList = computed<boolean>(() => this.listOpen() && !this.value());
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['options']) {
@@ -146,7 +155,7 @@ export class UnitPickerComponent implements OnChanges {
       this.autoSelectSingle &&
       changes['options'] &&
       this.options.length === 1 &&
-      !this.value
+      !this.value()
     ) {
       const only = this.options[0];
       this.valueChange.emit(only.id);
@@ -157,13 +166,13 @@ export class UnitPickerComponent implements OnChanges {
     this.query.set(value);
     this.listOpen.set(true);
     // Si el usuario edita el texto teniendo un valor seleccionado, limpiar la selección.
-    if (this.value) {
+    if (this.value()) {
       this.valueChange.emit(null);
     }
   }
 
   onFocus(): void {
-    if (!this.value) {
+    if (!this.value()) {
       this.listOpen.set(true);
     }
   }

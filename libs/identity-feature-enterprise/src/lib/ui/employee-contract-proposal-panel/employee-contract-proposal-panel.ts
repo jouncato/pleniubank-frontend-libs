@@ -2,7 +2,14 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SessionStore } from '@pleniu/shared-auth';
 import { EmployeeContractProposalVm } from '../../vm/employee-contract-proposal';
+
+const VERIFICATION_STATUS_LABELS: Record<string, string> = {
+  VERIFIED: 'Verificado por tu empleador',
+  PENDING: 'Pendiente de verificación',
+  REJECTED: 'Rechazado — contacta a tu empleador',
+};
 
 @Component({
   selector: 'lib-employee-contract-proposal-panel',
@@ -15,9 +22,15 @@ import { EmployeeContractProposalVm } from '../../vm/employee-contract-proposal'
 export class EmployeeContractProposalPanel implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly session = inject(SessionStore);
   protected readonly vm = inject(EmployeeContractProposalVm);
 
   readonly subEnterpriseId = this.route.snapshot.paramMap.get('subEnterpriseId') ?? '';
+
+  /** `BusinessUnitAssignmentDto.company_code` es un código interno (p. ej.
+   * "UNT-MSFABSHI-IDZW1LR"), no un nombre para mostrar -- se usa el nombre
+   * real de la unidad que ya viaja en el claim de sesión. */
+  readonly subEnterpriseName = computed(() => this.session.claims()?.sub_enterprise_name ?? null);
 
   constructor() {
     effect(() => {
@@ -46,6 +59,17 @@ export class EmployeeContractProposalPanel implements OnInit {
     const terms = this.vm.assignment()?.terms;
     return typeof terms?.['fees'] === 'string' ? terms['fees'] : null;
   });
+
+  verificationStatusLabel(status: string | null | undefined): string {
+    if (!status) return 'Sin verificar';
+    return VERIFICATION_STATUS_LABELS[status] ?? status;
+  }
+
+  verificationStatusTone(status: string | null | undefined): 'ok' | 'warn' | 'danger' {
+    if (status === 'VERIFIED') return 'ok';
+    if (status === 'REJECTED') return 'danger';
+    return 'warn';
+  }
 
   ngOnInit(): void {
     if (!this.subEnterpriseId) {

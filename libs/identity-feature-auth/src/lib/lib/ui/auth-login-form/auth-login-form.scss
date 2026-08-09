@@ -4,6 +4,56 @@
   display: block;
 }
 
+.session-termination {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 21, 40, 0.72);
+}
+
+.session-termination__panel {
+  width: min(100%, 32rem);
+  border: 1px solid rgba(2, 114, 222, 0.2);
+  border-radius: 18px;
+  padding: 1.6rem;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(0, 21, 40, 0.28);
+}
+
+.session-termination__eyebrow {
+  margin: 0 0 0.4rem;
+  color: #0272de;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.session-termination__panel h2 {
+  margin: 0;
+  color: #001528;
+  font-size: 1.25rem;
+}
+
+.session-termination__panel p:not(.session-termination__eyebrow) {
+  margin: 0.8rem 0 1.25rem;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.session-termination__button {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.7rem 1.1rem;
+  color: #fff;
+  background: #0272de;
+  cursor: pointer;
+  font-weight: 700;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

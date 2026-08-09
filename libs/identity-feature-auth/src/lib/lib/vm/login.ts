@@ -74,6 +74,7 @@ export class LoginVm {
       next: (response) => {
         this.rateLimit.reset();
         const data = unwrapLoginPayload(response as LoginEnvelope | LoginResponse);
+        this.sessionStore.clearTerminationReason();
         if (this.sessionStrategy === 'httpOnlyCookie') {
           this.sessionStore.setUserToken(null);
           this.sessionStore.setRefreshToken(null);

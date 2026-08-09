@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { provideRouter } from '@angular/router';
 
-import { PORTAL_APP } from '@pleniu/shared-auth';
+import { PORTAL_APP, SessionStore } from '@pleniu/shared-auth';
 import { LoginVm } from '../../vm/login';
 import { AuthLoginForm } from './auth-login-form';
 
@@ -39,6 +39,7 @@ describe('AuthLoginForm', () => {
         { provide: LoginVm, useValue: vm },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => null } } } },
         { provide: PORTAL_APP, useValue: 'customer' },
+        SessionStore,
       ],
     }).compileComponents();
 
@@ -60,7 +61,7 @@ describe('AuthLoginForm', () => {
     fixture.detectChanges();
 
     const host = fixture.nativeElement as HTMLElement;
-    const button = host.querySelector('button');
+    const button = host.querySelector<HTMLButtonElement>('.login-form__submit');
     expect(host.textContent).toContain('Demasiados intentos. Espera 60 segundos.');
     expect(button?.disabled).toBe(true);
   });
@@ -101,6 +102,7 @@ describe('AuthLoginForm portal public', () => {
         { provide: LoginVm, useValue: vm },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => null } } } },
         { provide: PORTAL_APP, useValue: 'public' },
+        SessionStore,
       ],
     }).compileComponents();
 

@@ -8,6 +8,7 @@ import { AUTH_VALIDATE_HANDLER } from './auth-validate.token';
 import { PORTAL_APP } from './portal-app.token';
 import { SESSION_STRATEGY, SessionStrategy } from './session-strategy.token';
 import { signInPathForPortal } from './sign-in-path';
+import { sessionTerminationCode, SessionTerminationService } from './session-termination.service';
 
 /** Status codes that indicate transient infrastructure failures, not auth rejections. */
 const TRANSIENT_STATUSES = new Set([0, 502, 503, 504]);
@@ -33,6 +34,7 @@ function claimsAreFresh(store: SessionStore): boolean {
 
 export const authGuard: CanActivateFn = (route, state) => {
   const sessionStore = inject(SessionStore);
+  const sessionTermination = inject(SessionTerminationService);
   const router = inject(Router);
   const validateHandler = inject(AUTH_VALIDATE_HANDLER);
   const loginPath = signInPathForPortal(inject(PORTAL_APP));
@@ -59,6 +61,11 @@ export const authGuard: CanActivateFn = (route, state) => {
       return true;
     }),
     catchError((err) => {
+      const termination = sessionTerminationCode(err);
+      if (termination) {
+        sessionTermination.terminate(termination, state.url);
+        return of(false);
+      }
       if (isTransientError(err)) {
         // Transient network error (status 0, 50x): extend TTL on existing claims
         // so subsequent navigations don't loop back into validate immediately.

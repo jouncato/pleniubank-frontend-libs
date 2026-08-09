@@ -1,96 +1,135 @@
-<div class="proposal-panel">
-  <h1>Propuesta de contrato de anticipo de nómina</h1>
+<section class="ecp">
+  <header class="ecp__hero">
+    <p class="ecp__eyebrow">Anticipo de nómina</p>
+    <h1>Confirma tu propuesta de contrato</h1>
+    <p class="ecp__hero-sub">
+      Revisa las condiciones que tu empresa te ofrece y acéptalas para activar tu beneficio.
+    </p>
+  </header>
 
   @switch (vm.state()) {
     @case ('loading') {
-      <p>Cargando propuesta…</p>
+      <div class="ecp__state" aria-busy="true">
+        <span class="ecp__spinner" aria-hidden="true"></span>
+        <p>Cargando tu propuesta…</p>
+      </div>
     }
     @case ('error') {
-      <div class="error-box" role="alert">
+      <div class="ecp__state ecp__state--error" role="alert">
+        <svg aria-hidden="true" class="ecp__state-icon" viewBox="0 0 24 24"><path d="M12 8v5m0 3.5h.01M10.29 3.86 1.82 18a1.5 1.5 0 0 0 1.28 2.25h17.8A1.5 1.5 0 0 0 22.18 18L13.71 3.86a1.5 1.5 0 0 0-2.62 0Z"/></svg>
         <p>{{ vm.errorMessage() ?? 'No se pudo cargar la propuesta.' }}</p>
       </div>
     }
     @case ('accepting') {
-      <p>Procesando aceptación…</p>
+      <div class="ecp__state" aria-busy="true">
+        <span class="ecp__spinner" aria-hidden="true"></span>
+        <p>Procesando tu aceptación…</p>
+      </div>
     }
     @case ('success') {
-      <div class="success-box">
-        <p>¡Contrato aceptado exitosamente!</p>
-        <button type="button" (click)="goToPayrollAdvance()">Solicitar anticipo de nómina</button>
+      <div class="ecp__state ecp__state--success">
+        <svg aria-hidden="true" class="ecp__state-icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+        <p>Contrato creado. Te llevamos a solicitar tu anticipo…</p>
       </div>
     }
     @default {
       @if (vm.assignment(); as assignment) {
-        <section class="proposal-summary">
-          <h2>{{ proposalTitle() }}</h2>
+        <section class="ecp-card">
+          <div class="ecp-card__head">
+            <p class="ecp-card__eyebrow">{{ subEnterpriseName() ?? 'Tu unidad de negocio' }}</p>
+            <h2>{{ proposalTitle() }}</h2>
+          </div>
           @if (proposalDescription(); as description) {
-            <p>{{ description }}</p>
+            <p class="ecp-card__desc">{{ description }}</p>
           }
-          <dl>
-            <dt>Unidad de negocio</dt>
-            <dd>{{ assignment.company_code }}</dd>
-            <dt>Producto</dt>
-            <dd>{{ assignment.product_type }}</dd>
-            <dt>Vigente desde</dt>
-            <dd>{{ assignment.effective_from | date: 'mediumDate' }}</dd>
+          <dl class="ecp-facts">
+            <div class="ecp-fact">
+              <dt>Vigente desde</dt>
+              <dd>{{ assignment.effective_from | date: 'longDate' }}</dd>
+            </div>
+            <div class="ecp-fact">
+              <dt>Costo de vinculación</dt>
+              <dd>Sin costo</dd>
+            </div>
           </dl>
         </section>
 
         @if (vm.profile(); as profile) {
-          <section class="profile-summary">
-            <h3>Perfil laboral vinculado</h3>
-            <dl>
-              <dt>Cargo</dt>
-              <dd>{{ profile.job_title }}</dd>
-              <dt>Fecha de vinculación</dt>
-              <dd>{{ profile.employment_start_date | date: 'mediumDate' }}</dd>
-              <dt>Estado</dt>
-              <dd>{{ profile.verification_status }}</dd>
+          <section class="ecp-card">
+            <h3 class="ecp-card__title">Tu perfil laboral</h3>
+            <dl class="ecp-facts ecp-facts--tight">
+              <div class="ecp-fact">
+                <dt>Cargo</dt>
+                <dd>{{ profile.job_title }}</dd>
+              </div>
+              <div class="ecp-fact">
+                <dt>Vinculado desde</dt>
+                <dd>{{ profile.employment_start_date | date: 'mediumDate' }}</dd>
+              </div>
+              <div class="ecp-fact">
+                <dt>Estado</dt>
+                <dd>
+                  <span class="ecp-chip" [attr.data-tone]="verificationStatusTone(profile.verification_status)">
+                    {{ verificationStatusLabel(profile.verification_status) }}
+                  </span>
+                </dd>
+              </div>
             </dl>
           </section>
         } @else {
-          <p class="warning">No se encontró un perfil laboral activo. Aceptar la propuesta puede fallar.</p>
+          <div class="ecp-callout ecp-callout--warn">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 8v4m0 4h.01M10.29 3.86 1.82 18a1.5 1.5 0 0 0 1.28 2.25h17.8A1.5 1.5 0 0 0 22.18 18L13.71 3.86a1.5 1.5 0 0 0-2.62 0Z"/></svg>
+            <p>No se encontró un perfil laboral activo. Aceptar la propuesta puede fallar hasta que tu empleador lo registre.</p>
+          </div>
         }
 
         @if (termConditions().length > 0 || termFees()) {
-          <section class="terms-detail">
-            <h3>Términos y condiciones</h3>
+          <section class="ecp-card">
+            <h3 class="ecp-card__title">Términos y condiciones</h3>
             @if (termConditions().length > 0) {
-              <ul>
+              <ul class="ecp-terms">
                 @for (item of termConditions(); track item) {
                   <li>{{ item }}</li>
                 }
               </ul>
             }
             @if (termFees(); as fees) {
-              <p><strong>Costos:</strong> {{ fees }}</p>
+              <p class="ecp-fees"><strong>Costos:</strong> {{ fees }}</p>
             }
           </section>
         }
 
-        <div class="acceptance">
-          <label>
+        @if (vm.errorMessage()) {
+          <div class="ecp-callout ecp-callout--danger" role="alert">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 8v5m0 3.5h.01M10.29 3.86 1.82 18a1.5 1.5 0 0 0 1.28 2.25h17.8A1.5 1.5 0 0 0 22.18 18L13.71 3.86a1.5 1.5 0 0 0-2.62 0Z"/></svg>
+            <p>{{ vm.errorMessage() }}</p>
+          </div>
+        }
+
+        <section class="ecp-consent">
+          <label class="ecp-consent__label">
             <input
               type="checkbox"
               [ngModel]="vm.termsAccepted()"
               (ngModelChange)="vm.toggleTermsAccepted($event)"
             />
-            Acepto los términos y condiciones del contrato de anticipo de nómina.
+            <span>Acepto los términos y condiciones del contrato de anticipo de nómina.</span>
           </label>
-        </div>
 
-        <div class="actions">
           <button
             type="button"
+            class="ecp-submit"
             (click)="accept()"
             [disabled]="!vm.termsAccepted() || vm.state() === 'accepting'"
           >
             Aceptar propuesta y crear contrato
           </button>
-        </div>
+        </section>
       } @else {
-        <p>No hay una propuesta disponible.</p>
+        <div class="ecp__state">
+          <p>No hay una propuesta disponible.</p>
+        </div>
       }
     }
   }
-</div>
+</section>

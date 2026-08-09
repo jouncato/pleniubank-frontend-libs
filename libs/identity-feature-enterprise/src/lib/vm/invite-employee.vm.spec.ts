@@ -119,6 +119,8 @@ describe('InviteEmployeeVm', () => {
                 },
               });
             },
+            // Rediseño 2026-08-07: el éxito refresca las pendientes.
+            listEmployeeInvitations: () => of({ data: [] }),
           },
         },
       ],
@@ -173,5 +175,110 @@ describe('InviteEmployeeVm', () => {
     vm.submit({ email: 'dup@empresa.com', sub_enterprise_id: '' });
     expect(vm.state()).toBe('error');
     expect(vm.errorMessage()).toContain('invitación activa');
+  });
+
+  // ── Rediseño 2026-08-07: evidencia de invitaciones ──────────────────────
+
+  it('éxito: registra la invitación con unidad, referencia y vencimiento, y refresca pendientes', () => {
+    const listEmployeeInvitations = vi.fn(() =>
+      of({
+        data: [
+          {
+            invite_id: 'inv-1',
+            sub_enterprise_id: 'sub-1',
+            email: 'emp@empresa.com',
+            status: 'pending',
+            expires_at: '2026-08-01T00:00:00Z',
+            created_at: '2026-07-31T00:00:00Z',
+          },
+        ],
+      }),
+    );
+    TestBed.configureTestingModule({
+      providers: [
+        InviteEmployeeVm,
+        { provide: SessionStore, useValue: { claims: () => ({ enterprise_id: 'ent-1' }) } },
+        {
+          provide: IdentityEnterpriseApiService,
+          useValue: {
+            inviteEmployee: () =>
+              of({
+                data: {
+                  invite_id: 'inv-1',
+                  sub_enterprise_id: 'sub-1',
+                  email: 'emp@empresa.com',
+                  expires_at: '2026-08-01T00:00:00Z',
+                  status: 'pending',
+                },
+              }),
+            listEmployeeInvitations,
+          },
+        },
+      ],
+    });
+    const vm = TestBed.inject(InviteEmployeeVm);
+    vm.selectSubEnterprise(subEnterprises[0]);
+    vm.submit({ email: 'emp@empresa.com', sub_enterprise_id: '' });
+
+    const last = vm.lastInvite();
+    expect(last?.invite_id).toBe('inv-1');
+    expect(last?.unit_name).toBe('Unidad Norte');
+    expect(last?.unit_code).toBe('UNT-N');
+    expect(vm.sentLog().map((r) => r.invite_id)).toEqual(['inv-1']);
+    expect(listEmployeeInvitations).toHaveBeenCalledWith({ status: 'pending' });
+    expect(vm.pendingInvitations()).toHaveLength(1);
+    expect(vm.pendingState()).toBe('loaded');
+  });
+
+  it('revoca una invitación pendiente y la retira de la lista', () => {
+    const revokeEmployeeInvitation = vi.fn(() => of(void 0));
+    TestBed.configureTestingModule({
+      providers: [
+        InviteEmployeeVm,
+        { provide: SessionStore, useValue: { claims: () => ({ enterprise_id: 'ent-1' }) } },
+        {
+          provide: IdentityEnterpriseApiService,
+          useValue: {
+            listEmployeeInvitations: () =>
+              of({
+                data: [
+                  {
+                    invite_id: 'inv-9',
+                    sub_enterprise_id: 'sub-1',
+                    email: 'pend@empresa.com',
+                    status: 'pending',
+                    expires_at: '2026-08-01T00:00:00Z',
+                    created_at: '2026-07-31T00:00:00Z',
+                  },
+                ],
+              }),
+            revokeEmployeeInvitation,
+          },
+        },
+      ],
+    });
+    const vm = TestBed.inject(InviteEmployeeVm);
+    vm.loadPendingInvitations();
+    expect(vm.pendingInvitations()).toHaveLength(1);
+
+    vm.revokePendingInvitation('inv-9');
+    expect(revokeEmployeeInvitation).toHaveBeenCalledWith('inv-9');
+    expect(vm.pendingInvitations()).toHaveLength(0);
+  });
+
+  it('resetKeepUnit() limpia el estado pero conserva la unidad seleccionada', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        InviteEmployeeVm,
+        { provide: SessionStore, useValue: { claims: () => ({ enterprise_id: 'ent-1' }) } },
+        { provide: IdentityEnterpriseApiService, useValue: {} },
+      ],
+    });
+    const vm = TestBed.inject(InviteEmployeeVm);
+    vm.selectSubEnterprise(subEnterprises[0]);
+    vm.resetKeepUnit();
+
+    expect(vm.state()).toBe('idle');
+    expect(vm.selectedSubEnterprise()).toEqual(subEnterprises[0]);
   });
 });
