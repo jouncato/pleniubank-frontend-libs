@@ -15,7 +15,7 @@ export interface PayrollAdvanceMasterModelCreateRequest {
   product_type?: string;
   country_code: string;
   model_version: string;
-  policy_version: string;
+  policy_version?: string;
   base_terms?: Record<string, unknown>;
   /** Gap 2 (20260804_1000): plantilla contractual que rige el modelo. */
   contract_template_id?: string | null;

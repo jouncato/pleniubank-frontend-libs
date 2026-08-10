@@ -32,6 +32,7 @@ export * from './lib/core-employment-profiles-api.service';
 export * from './lib/mue-api.service';
 export * from './lib/core-external-accounts-api.service';
 export * from './lib/core-enterprise-notifications-api.service';
+export * from './lib/core-platform-staff-notifications-api.service';
 export * from './lib/core-credit-approval-api.service';
 export * from './lib/core-customer-evaluations-api.service';
 export * from './lib/core-financial-accounting-api.service';
