@@ -15,6 +15,8 @@ import {
   StaffChangePasswordRequest,
   StaffPatchProfileRequest,
   StaffSelfProfileResponse,
+  AdminStaffEmailChangeConfirmRequest,
+  ContactChangeResponse,
   RegisterEnvelope,
   RegisterRequest,
   ResetPasswordEnvelope,
@@ -94,6 +96,9 @@ function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
   if (typeof raw['phone'] === 'string' && raw['phone'].trim()) {
     out.phone = raw['phone'].trim();
   }
+  if (typeof raw['pending_email'] === 'string' && raw['pending_email'].trim()) {
+    out.pending_email = raw['pending_email'].trim();
+  }
   if (typeof raw['two_factor_enabled'] === 'boolean') {
     out.two_factor_enabled = raw['two_factor_enabled'];
   }
@@ -129,6 +134,12 @@ function claimsFromRecord(raw: Record<string, unknown>): SessionClaims {
   }
   if (typeof raw['country_code'] === 'string' && raw['country_code'].trim()) {
     out.country_code = raw['country_code'].trim();
+  }
+  if (typeof raw['iat'] === 'number') {
+    out.iat = raw['iat'];
+  }
+  if (typeof raw['exp'] === 'number') {
+    out.exp = raw['exp'];
   }
   return out;
 }
@@ -280,6 +291,15 @@ export class IdentityAuthApiService {
   staffPatchProfile(payload: StaffPatchProfileRequest): Observable<StaffSelfProfileResponse> {
     return this.http.patch<StaffSelfProfileResponse>(
       `${this.apiConfig.identityBaseUrl}/api/v1/auth/staff/me`,
+      payload,
+    );
+  }
+
+  confirmStaffEmailChange(
+    payload: AdminStaffEmailChangeConfirmRequest,
+  ): Observable<ContactChangeResponse> {
+    return this.http.post<ContactChangeResponse>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/staff/email-change/confirm`,
       payload,
     );
   }

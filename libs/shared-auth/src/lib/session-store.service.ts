@@ -32,6 +32,7 @@ export interface SessionClaims {
   full_name?: string;
   /** Teléfono desde Identity validate (staff/B2C). */
   phone?: string;
+  pending_email?: string;
   identity_verified?: boolean;
   email_verified?: boolean;
   phone_verified?: boolean;
@@ -45,6 +46,10 @@ export interface SessionClaims {
   salary_amount?: number;
   /** País/tenant emitido por Identity (ADR-016, LB-ST-210). Ausente en JWTs actuales (claim aún no emitida). */
   country_code?: string;
+  /** Claim JWT `iat` (unix seconds) — momento de emisión de la sesión actual. */
+  iat?: number;
+  /** Claim JWT `exp` (unix seconds) — expiración de la sesión actual. */
+  exp?: number;
 }
 
 @Injectable()

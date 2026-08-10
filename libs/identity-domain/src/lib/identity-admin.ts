@@ -27,10 +27,15 @@ export interface AdminUserDto {
   user_id: string;
   email: string;
   full_name: string;
+  phone?: string | null;
   role: string;
   status: 'active' | 'inactive';
   created_at: string;
   enterprise_id?: string | null;
+  password_must_change?: boolean;
+  email_verified?: boolean;
+  phone_verified?: boolean;
+  pending_email?: string | null;
 }
 
 export interface AdminUserActivityItem {
@@ -46,12 +51,17 @@ export interface AdminUserDetailDto {
   user_id: string;
   email: string;
   full_name: string;
+  phone?: string | null;
   role: string;
   status: 'active' | 'inactive';
   enterprise_id?: string | null;
   customer_id?: string | null;
   two_factor_enabled: boolean;
   identity_verified: boolean;
+  email_verified?: boolean;
+  phone_verified?: boolean;
+  password_must_change?: boolean;
+  pending_email?: string | null;
   created_at: string;
   recent_activity: AdminUserActivityItem[];
 }
@@ -59,6 +69,33 @@ export interface AdminUserDetailDto {
 export interface AdminPatchUserRequest {
   status?: 'active' | 'inactive';
   role?: string;
+}
+
+export interface AdminPatchStaffProfileRequest {
+  full_name?: string;
+  phone?: string | null;
+}
+
+export interface AdminPasswordResetResponse {
+  status: string;
+  user_id: string;
+  password_must_change: boolean;
+}
+
+export interface AdminStaffEmailChangeRequest {
+  new_email: string;
+}
+
+export interface AdminStaffEmailChangeResponse {
+  status: string;
+  user_id: string;
+  expires_in_seconds: number;
+  debug_code?: string | null;
+}
+
+export interface AdminStaffEmailChangeConfirmRequest {
+  staff_id: string;
+  code: string;
 }
 
 export interface AdminUsersListParams {

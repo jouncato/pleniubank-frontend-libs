@@ -16,6 +16,10 @@ import {
   AdminEnterprisesListParams,
   AdminPatchEconomicSectorRequest,
   AdminPatchEnterpriseKybRequest,
+  AdminPatchStaffProfileRequest,
+  AdminPasswordResetResponse,
+  AdminStaffEmailChangeRequest,
+  AdminStaffEmailChangeResponse,
   AdminCreateUserEnvelope,
   AdminCreateUserResponse,
   AdminCreateUserRequest,
@@ -77,6 +81,35 @@ export class IdentityAdminApiService {
         payload,
       )
       .pipe(map((raw) => this.asEnvelope(raw)));
+  }
+
+  patchStaffProfile(
+    userId: string,
+    payload: AdminPatchStaffProfileRequest,
+  ): Observable<AdminUserDetailEnvelope> {
+    return this.http
+      .patch<AdminUserDetailEnvelope | AdminUserDetailDto>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/admin/platform-staff/${encodeURIComponent(userId)}/profile`,
+        payload,
+      )
+      .pipe(map((raw) => this.asEnvelope(raw)));
+  }
+
+  resetStaffPassword(userId: string): Observable<AdminPasswordResetResponse> {
+    return this.http.post<AdminPasswordResetResponse>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/admin/platform-staff/${encodeURIComponent(userId)}/password-reset`,
+      {},
+    );
+  }
+
+  requestStaffEmailChange(
+    userId: string,
+    payload: AdminStaffEmailChangeRequest,
+  ): Observable<AdminStaffEmailChangeResponse> {
+    return this.http.post<AdminStaffEmailChangeResponse>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/admin/platform-staff/${encodeURIComponent(userId)}/email-change`,
+      payload,
+    );
   }
 
   listEnterprises(params: AdminEnterprisesListParams = {}): Observable<AdminEnterprisesListEnvelope> {
