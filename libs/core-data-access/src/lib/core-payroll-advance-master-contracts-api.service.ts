@@ -79,6 +79,13 @@ export interface PayrollAdvanceMasterAssignmentCreateRequest {
   sub_enterprise_id: string;
   company_code: string;
   approved_sub_limit?: number | null;
+  /**
+   * Monto individual ofrecido a cada empleado de la unidad al aceptar la
+   * propuesta -- distinto de `approved_sub_limit` (techo agregado de toda
+   * la unidad). Sin este valor, Core rechaza la activación del anticipo de
+   * cualquier empleado bajo esta unidad (auditoría 2026-08-11).
+   */
+  default_employee_amount?: number | null;
   terms_override?: Record<string, unknown>;
   effective_from?: string | null;
   effective_to?: string | null;
@@ -91,9 +98,17 @@ export interface PayrollAdvanceMasterAssignmentDto {
   sub_enterprise_id: string;
   company_code: string;
   approved_sub_limit: number | null;
+  default_employee_amount: number | null;
   status: string;
   effective_from: string;
   effective_to: string | null;
+}
+
+/** Edita el cupo agregado y/o el monto por empleado de una asignación ACTIVE ya existente. */
+export interface PayrollAdvanceMasterAssignmentTermsUpdateRequest {
+  approved_sub_limit?: number | null;
+  default_employee_amount?: number | null;
+  terms_override?: Record<string, unknown> | null;
 }
 
 export interface PayrollAdvanceMasterReconciliationDiscrepancyDto {
@@ -325,6 +340,24 @@ export class CorePayrollAdvanceMasterContractsApiService {
     return this.http.patch<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>>(
       `${this.base}/${contractId}/assignments/${assignmentId}/reactivate`,
       {},
+    );
+  }
+
+  /**
+   * Edita el cupo agregado y/o el monto por empleado de una asignación ACTIVE
+   * ya existente, sin pasar por revoke/reactivate (auditoría 2026-08-11 --
+   * antes no había ninguna forma de fijar `default_employee_amount` en
+   * unidades ya asignadas, bloqueando la activación del anticipo de todos
+   * sus empleados).
+   */
+  updateAssignmentTerms(
+    contractId: string,
+    assignmentId: string,
+    body: PayrollAdvanceMasterAssignmentTermsUpdateRequest,
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>> {
+    return this.http.patch<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>>(
+      `${this.base}/${contractId}/assignments/${assignmentId}`,
+      body,
     );
   }
 

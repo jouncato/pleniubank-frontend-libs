@@ -184,4 +184,18 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
       {},
     );
   });
+
+  it('updateAssignmentTerms() hace PATCH a /assignments/{id} con el body dado (auditoría 2026-08-11)', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+    const payload = { approved_sub_limit: 2000000, default_employee_amount: 500000 };
+
+    service.updateAssignmentTerms('master-1', 'assignment-1', payload).subscribe();
+
+    expect(http.patch).toHaveBeenCalledTimes(1);
+    const [url, body] = http.patch.mock.calls[0];
+    expect(url).toContain('/master-1/assignments/assignment-1');
+    expect(url).not.toContain('/revoke');
+    expect(body).toEqual(payload);
+  });
 });
