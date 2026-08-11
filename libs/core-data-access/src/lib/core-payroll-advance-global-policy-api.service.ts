@@ -37,6 +37,10 @@ export interface PayrollAdvanceGlobalPolicyFieldValues {
   max_active_count: number | null;
   max_discount_days: number | null;
   employer_daily_limit_amount: string | null;
+  /** Comisión flat del anticipo, como fracción (0.05 = 5%). Categoría
+   * "pricing" -- 8vo campo canónico, agregado 2026-08-11 (auditoría sobre
+   * la comisión del anticipo de nómina). */
+  fee_rate: string | null;
 }
 
 export interface PayrollAdvanceGlobalPolicyChangeRequestDto {
@@ -70,6 +74,7 @@ export interface ProposeGlobalPolicyChangeRequestBody {
   max_active_count?: number;
   max_discount_days?: number;
   employer_daily_limit_amount?: number;
+  fee_rate?: number;
 }
 
 export interface DecideGlobalPolicyChangeRequestBody {

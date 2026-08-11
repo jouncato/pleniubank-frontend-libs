@@ -1,7 +1,7 @@
 <section class="ecp">
   <header class="ecp__hero">
     <p class="ecp__eyebrow">Anticipo de nómina</p>
-    <h1>Confirma tu propuesta de contrato</h1>
+    <h1>Confirma tu propuesta de anticipo</h1>
     <p class="ecp__hero-sub">
       Revisa las condiciones que tu empresa te ofrece y acéptalas para activar tu beneficio.
     </p>
@@ -29,7 +29,7 @@
     @case ('success') {
       <div class="ecp__state ecp__state--success">
         <svg aria-hidden="true" class="ecp__state-icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-        <p>Contrato creado. Te llevamos a solicitar tu anticipo…</p>
+        <p>¡Listo! Te llevamos a solicitar tu anticipo…</p>
       </div>
     }
     @default {
@@ -46,10 +46,6 @@
             <div class="ecp-fact">
               <dt>Vigente desde</dt>
               <dd>{{ assignment.effective_from | date: 'longDate' }}</dd>
-            </div>
-            <div class="ecp-fact">
-              <dt>Costo de vinculación</dt>
-              <dd>Sin costo</dd>
             </div>
           </dl>
         </section>
@@ -83,9 +79,23 @@
           </div>
         }
 
+        @if (policyRows().length > 0) {
+          <section class="ecp-card" aria-labelledby="ecp-policy-title">
+            <h3 id="ecp-policy-title" class="ecp-card__title">Condiciones del anticipo</h3>
+            <dl class="ecp-facts ecp-facts--tight">
+              @for (row of policyRows(); track row.label) {
+                <div class="ecp-fact">
+                  <dt>{{ row.label }}</dt>
+                  <dd>{{ row.value }}</dd>
+                </div>
+              }
+            </dl>
+          </section>
+        }
+
         @if (termConditions().length > 0 || termFees()) {
           <section class="ecp-card">
-            <h3 class="ecp-card__title">Términos y condiciones</h3>
+            <h3 class="ecp-card__title">Condiciones adicionales de tu empresa</h3>
             @if (termConditions().length > 0) {
               <ul class="ecp-terms">
                 @for (item of termConditions(); track item) {
@@ -113,7 +123,7 @@
               [ngModel]="vm.termsAccepted()"
               (ngModelChange)="vm.toggleTermsAccepted($event)"
             />
-            <span>Acepto los términos y condiciones del contrato de anticipo de nómina.</span>
+            <span>Acepto los términos y condiciones del anticipo de nómina.</span>
           </label>
 
           <button
@@ -122,7 +132,7 @@
             (click)="accept()"
             [disabled]="!vm.termsAccepted() || vm.state() === 'accepting'"
           >
-            Aceptar propuesta y crear contrato
+            Aceptar propuesta y activar anticipo
           </button>
         </section>
       } @else {

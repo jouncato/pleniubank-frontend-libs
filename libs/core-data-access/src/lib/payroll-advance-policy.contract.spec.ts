@@ -117,6 +117,7 @@ describe('payroll-advance-policy contract (fixtures espejo de Core)', () => {
         employer_id: '11111111-1111-1111-1111-111111111111',
         decision,
         unavailable_reason: null,
+        fee_rate: 0.05,
       },
     };
 
@@ -145,6 +146,7 @@ describe('payroll-advance-policy contract (fixtures espejo de Core)', () => {
         employer_id: null,
         decision: null,
         unavailable_reason: 'PAYROLL_ADVANCE_EMPLOYMENT_PROFILE_NOT_VERIFIED',
+        fee_rate: null,
       },
     };
 

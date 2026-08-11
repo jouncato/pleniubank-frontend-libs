@@ -4,9 +4,14 @@ import {
   CoreBusinessUnitAssignmentsApiService,
   CoreClientContractsApiService,
   CoreEmploymentProfilesApiService,
+  CorePayrollAdvancesApiService,
 } from '@pleniu/core-data-access';
+import { SessionStore } from '@pleniu/shared-auth';
 
 import { EmployeeContractProposalVm } from './employee-contract-proposal';
+
+const ELIGIBILITY_STUB = { provide: CorePayrollAdvancesApiService, useValue: { getEligibility: () => of({ data: { decision: null, fee_rate: 0.05 } }) } };
+const SESSION_STORE_STUB = { provide: SessionStore, useValue: { claims: () => ({}) } };
 
 describe('EmployeeContractProposalVm', () => {
   const assignment = {
@@ -70,6 +75,8 @@ describe('EmployeeContractProposalVm', () => {
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        ELIGIBILITY_STUB,
+        SESSION_STORE_STUB,
       ],
     });
 
@@ -79,6 +86,27 @@ describe('EmployeeContractProposalVm', () => {
     expect(vm.state()).toBe('idle');
     expect(vm.assignment()).toEqual(assignment);
     expect(vm.profile()).toEqual(profile);
+  });
+
+  it('loads feeRate from the eligibility response when customer_id is available (auditoría 2026-08-11)', () => {
+    const apis = makeApis();
+    const getEligibility = vi.fn(() => of({ data: { decision: null, fee_rate: 0.05 } }));
+    TestBed.configureTestingModule({
+      providers: [
+        EmployeeContractProposalVm,
+        { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
+        { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
+        { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        { provide: CorePayrollAdvancesApiService, useValue: { getEligibility } },
+        { provide: SessionStore, useValue: { claims: () => ({ customer_id: 'cust-1' }) } },
+      ],
+    });
+
+    const vm = TestBed.inject(EmployeeContractProposalVm);
+    vm.load('sub-1');
+
+    expect(getEligibility).toHaveBeenCalledWith({ customer_id: 'cust-1' });
+    expect(vm.feeRate()).toBe(0.05);
   });
 
   it('loads a master-only assignment (no legacy template) synthesized by available-products', () => {
@@ -101,6 +129,8 @@ describe('EmployeeContractProposalVm', () => {
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        ELIGIBILITY_STUB,
+        SESSION_STORE_STUB,
       ],
     });
 
@@ -119,6 +149,8 @@ describe('EmployeeContractProposalVm', () => {
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        ELIGIBILITY_STUB,
+        SESSION_STORE_STUB,
       ],
     });
 
@@ -138,6 +170,8 @@ describe('EmployeeContractProposalVm', () => {
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        ELIGIBILITY_STUB,
+        SESSION_STORE_STUB,
       ],
     });
 
@@ -164,6 +198,8 @@ describe('EmployeeContractProposalVm', () => {
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        ELIGIBILITY_STUB,
+        SESSION_STORE_STUB,
       ],
     });
 
@@ -190,6 +226,8 @@ describe('EmployeeContractProposalVm', () => {
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
         { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        ELIGIBILITY_STUB,
+        SESSION_STORE_STUB,
       ],
     });
 
@@ -199,6 +237,6 @@ describe('EmployeeContractProposalVm', () => {
     vm.accept('sub-1');
 
     expect(vm.state()).toBe('error');
-    expect(vm.errorMessage()).toContain('Ya tienes un contrato activo');
+    expect(vm.errorMessage()).toContain('Ya tienes un anticipo de nómina activo');
   });
 });

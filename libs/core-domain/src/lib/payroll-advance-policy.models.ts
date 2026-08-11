@@ -242,6 +242,10 @@ export interface PayrollAdvanceEligibilityResponse {
   employer_id: string | null;
   decision: PayrollAdvancePolicyDecision | null;
   unavailable_reason: string | null;
+  /** Comisión flat vigente del anticipo, como fracción (0.05 = 5%). Vive
+   * fuera de `decision.policy` (categoría "pricing", no elegibilidad) --
+   * agregado 2026-08-11 para mostrarla al customer antes de aceptar. */
+  fee_rate: number | null;
 }
 
 /**

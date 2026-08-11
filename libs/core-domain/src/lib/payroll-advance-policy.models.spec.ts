@@ -96,6 +96,7 @@ describe('payroll-advance-policy.models', () => {
       employer_id: 'employer-1',
       decision,
       unavailable_reason: null,
+      fee_rate: 0.05,
     };
 
     expect(eligibility.decision?.decision).toBe('APPROVED');

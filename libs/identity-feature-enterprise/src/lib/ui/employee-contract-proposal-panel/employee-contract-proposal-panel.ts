@@ -60,6 +60,39 @@ export class EmployeeContractProposalPanel implements OnInit {
     return typeof terms?.['fees'] === 'string' ? terms['fees'] : null;
   });
 
+  /** Filas de la política efectiva, siempre disponibles (ver comentario en el VM). */
+  readonly policyRows = computed(() => {
+    const decision = this.vm.eligibility();
+    const values = decision?.policy.effective_values;
+    if (!values) return [];
+    const rows = [
+      { label: 'Porcentaje máximo del salario', value: this.formatPercent(values.max_salary_percentage) },
+      { label: 'Porcentaje mínimo del salario', value: this.formatPercent(values.min_salary_percentage) },
+      { label: 'Antigüedad mínima requerida', value: `${values.min_tenure_months} mes(es)` },
+      { label: 'Anticipos permitidos por mes', value: `${values.max_monthly_frequency}` },
+      { label: 'Días máximos de descuento', value: `${values.max_discount_days} día(s)` },
+    ];
+    if (decision.effective_max_amount != null) {
+      rows.splice(1, 0, { label: 'Monto máximo estimado', value: this.formatAmount(decision.effective_max_amount) });
+    }
+    if (decision.effective_min_amount != null) {
+      rows.splice(2, 0, { label: 'Monto mínimo estimado', value: this.formatAmount(decision.effective_min_amount) });
+    }
+    const feeRate = this.vm.feeRate();
+    if (feeRate != null) {
+      rows.push({ label: 'Comisión del anticipo', value: this.formatPercent(feeRate) });
+    }
+    return rows;
+  });
+
+  private formatPercent(value: string | number): string {
+    return `${(Number(value) * 100).toFixed(0)}%`;
+  }
+
+  private formatAmount(value: number): string {
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(value);
+  }
+
   verificationStatusLabel(status: string | null | undefined): string {
     if (!status) return 'Sin verificar';
     return VERIFICATION_STATUS_LABELS[status] ?? status;
