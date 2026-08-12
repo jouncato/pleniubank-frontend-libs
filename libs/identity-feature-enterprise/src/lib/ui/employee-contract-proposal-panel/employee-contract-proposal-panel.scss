@@ -12,8 +12,8 @@
   padding: clamp(1.5rem, 3vw, 2.25rem);
   color: #ffffff;
   background:
-    radial-gradient(circle at top right, rgba(45, 212, 191, 0.36), transparent 34%),
-    linear-gradient(135deg, #0f172a 0%, #164e63 52%, #0f766e 100%);
+    radial-gradient(circle at top right, rgba(3, 211, 255, 0.3), transparent 34%),
+    linear-gradient(135deg, var(--pb-color-primary-dark, #0056b3) 0%, var(--pb-color-primary, #0272de) 62%, var(--pb-color-blue-600, #0b63b6) 100%);
 
   h1 {
     margin: 0;
@@ -66,7 +66,7 @@
     background: color-mix(in srgb, var(--pb-status-ok, #02d17b) 6%, #fff);
     border-color: color-mix(in srgb, var(--pb-status-ok, #02d17b) 30%, #fff);
     border-style: solid;
-    color: #0f766e;
+    color: #087a4c;
   }
 }
 
@@ -178,7 +178,7 @@
   font-weight: 700;
 
   &[data-tone='ok'] {
-    color: #0f766e;
+    color: #087a4c;
     background: color-mix(in srgb, var(--pb-status-ok, #02d17b) 14%, #fff);
   }
 

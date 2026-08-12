@@ -21,6 +21,8 @@ describe('EmployeeContractProposalVm', () => {
     template_contract_id: 'tpl-1',
     product_type: 'PAYROLL_ADVANCE',
     status: 'ACTIVE',
+    master_contract_id: 'master-contract-1',
+    master_assignment_id: 'assign-1',
     terms: {
       title: 'Anticipo de nómina ACME',
       description: 'Adelanta hasta 40% de tu salario',
@@ -61,10 +63,15 @@ describe('EmployeeContractProposalVm', () => {
     listAvailableProducts?: () => unknown;
     getMyProfile?: () => unknown;
     createFromProposal?: () => unknown;
+    listMyAssignedContracts?: () => unknown;
   } = {}) => ({
     listAvailableProducts: overrides.listAvailableProducts ?? (() => of({ data: [assignment] })),
     getMyProfile: overrides.getMyProfile ?? (() => of({ data: profile })),
     createFromProposal: overrides.createFromProposal ?? (() => of({ data: { id: 'contract-1' } })),
+    // Auditoría 2026-08-11: por defecto, "sin contrato previo" -- así los
+    // tests existentes (que no le conciernen a este chequeo) siguen el
+    // camino normal sin cambios.
+    listMyAssignedContracts: overrides.listMyAssignedContracts ?? (() => of({ data: [] })),
   });
 
   it('loads assignment and profile', () => {
@@ -74,7 +81,13 @@ describe('EmployeeContractProposalVm', () => {
         EmployeeContractProposalVm,
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
-        { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        {
+          provide: CoreClientContractsApiService,
+          useValue: {
+            createFromProposal: apis.createFromProposal,
+            listMyAssignedContracts: apis.listMyAssignedContracts,
+          },
+        },
         ELIGIBILITY_STUB,
         SESSION_STORE_STUB,
       ],
@@ -96,7 +109,13 @@ describe('EmployeeContractProposalVm', () => {
         EmployeeContractProposalVm,
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
-        { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        {
+          provide: CoreClientContractsApiService,
+          useValue: {
+            createFromProposal: apis.createFromProposal,
+            listMyAssignedContracts: apis.listMyAssignedContracts,
+          },
+        },
         { provide: CorePayrollAdvancesApiService, useValue: { getEligibility } },
         { provide: SessionStore, useValue: { claims: () => ({ customer_id: 'cust-1' }) } },
       ],
@@ -128,7 +147,13 @@ describe('EmployeeContractProposalVm', () => {
         EmployeeContractProposalVm,
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
-        { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        {
+          provide: CoreClientContractsApiService,
+          useValue: {
+            createFromProposal: apis.createFromProposal,
+            listMyAssignedContracts: apis.listMyAssignedContracts,
+          },
+        },
         ELIGIBILITY_STUB,
         SESSION_STORE_STUB,
       ],
@@ -148,7 +173,13 @@ describe('EmployeeContractProposalVm', () => {
         EmployeeContractProposalVm,
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
-        { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        {
+          provide: CoreClientContractsApiService,
+          useValue: {
+            createFromProposal: apis.createFromProposal,
+            listMyAssignedContracts: apis.listMyAssignedContracts,
+          },
+        },
         ELIGIBILITY_STUB,
         SESSION_STORE_STUB,
       ],
@@ -169,7 +200,13 @@ describe('EmployeeContractProposalVm', () => {
         EmployeeContractProposalVm,
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
-        { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        {
+          provide: CoreClientContractsApiService,
+          useValue: {
+            createFromProposal: apis.createFromProposal,
+            listMyAssignedContracts: apis.listMyAssignedContracts,
+          },
+        },
         ELIGIBILITY_STUB,
         SESSION_STORE_STUB,
       ],
@@ -197,7 +234,13 @@ describe('EmployeeContractProposalVm', () => {
         EmployeeContractProposalVm,
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
-        { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        {
+          provide: CoreClientContractsApiService,
+          useValue: {
+            createFromProposal: apis.createFromProposal,
+            listMyAssignedContracts: apis.listMyAssignedContracts,
+          },
+        },
         ELIGIBILITY_STUB,
         SESSION_STORE_STUB,
       ],
@@ -225,7 +268,13 @@ describe('EmployeeContractProposalVm', () => {
         EmployeeContractProposalVm,
         { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
         { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
-        { provide: CoreClientContractsApiService, useValue: { createFromProposal: apis.createFromProposal } },
+        {
+          provide: CoreClientContractsApiService,
+          useValue: {
+            createFromProposal: apis.createFromProposal,
+            listMyAssignedContracts: apis.listMyAssignedContracts,
+          },
+        },
         ELIGIBILITY_STUB,
         SESSION_STORE_STUB,
       ],
@@ -238,5 +287,118 @@ describe('EmployeeContractProposalVm', () => {
 
     expect(vm.state()).toBe('error');
     expect(vm.errorMessage()).toContain('Ya tienes un anticipo de nómina activo');
+  });
+
+  // Auditoría 2026-08-11: confirmado en vivo (Carlos, Sub Empresa Demo
+  // Example SAS) -- esta pantalla nunca comprobaba si el empleado ya había
+  // aceptado la propuesta, así que un segundo ingreso mostraba el mismo
+  // formulario de aceptación de siempre; al hacer clic, Core lo rechazaba
+  // con 409 (DUPLICATE_ENTITY) y el empleado veía un error confuso en vez
+  // de ser llevado a solicitar su anticipo, que es lo que ya podía hacer.
+  describe('propuesta ya aceptada previamente (auditoría 2026-08-11)', () => {
+    it('salta directo a success (redirección) si ya existe un contrato ACTIVE para esta asignación', () => {
+      const existingContract = {
+        id: 'contract-existing-1',
+        master_assignment_id: 'assign-1',
+        status: 'ACTIVE',
+        terms: { amount: '300000' },
+        template_contract_id: 'tpl-1',
+        correlation_id: null,
+        created_at: '2026-08-11T23:49:46Z',
+      };
+      const apis = makeApis({
+        listMyAssignedContracts: () => of({ data: [existingContract] }),
+      });
+      const getEligibility = vi.fn(() => of({ data: { decision: null, fee_rate: 0.05 } }));
+      TestBed.configureTestingModule({
+        providers: [
+          EmployeeContractProposalVm,
+          { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
+          { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
+          {
+            provide: CoreClientContractsApiService,
+            useValue: {
+              createFromProposal: apis.createFromProposal,
+              listMyAssignedContracts: apis.listMyAssignedContracts,
+            },
+          },
+          { provide: CorePayrollAdvancesApiService, useValue: { getEligibility } },
+          SESSION_STORE_STUB,
+        ],
+      });
+
+      const vm = TestBed.inject(EmployeeContractProposalVm);
+      vm.load('sub-1');
+
+      expect(vm.state()).toBe('success');
+      expect(vm.contract()).toEqual(existingContract);
+      // No debe seguir cargando elegibilidad/perfil -- ya se redirige.
+      expect(getEligibility).not.toHaveBeenCalled();
+    });
+
+    it('sigue el camino normal si el contrato existente es de OTRA asignación', () => {
+      const otherAssignmentContract = {
+        id: 'contract-other-1',
+        master_assignment_id: 'assign-2-otra',
+        status: 'ACTIVE',
+        terms: {},
+        template_contract_id: 'tpl-2',
+        correlation_id: null,
+        created_at: '2026-08-11T23:49:46Z',
+      };
+      const apis = makeApis({
+        listMyAssignedContracts: () => of({ data: [otherAssignmentContract] }),
+      });
+      TestBed.configureTestingModule({
+        providers: [
+          EmployeeContractProposalVm,
+          { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
+          { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
+          {
+            provide: CoreClientContractsApiService,
+            useValue: {
+              createFromProposal: apis.createFromProposal,
+              listMyAssignedContracts: apis.listMyAssignedContracts,
+            },
+          },
+          ELIGIBILITY_STUB,
+          SESSION_STORE_STUB,
+        ],
+      });
+
+      const vm = TestBed.inject(EmployeeContractProposalVm);
+      vm.load('sub-1');
+
+      expect(vm.state()).toBe('idle');
+      expect(vm.assignment()).toEqual(assignment);
+    });
+
+    it('si falla la consulta de contratos previos, sigue el camino normal (fail-open)', () => {
+      const apis = makeApis({
+        listMyAssignedContracts: () => throwError(() => ({ status: 500, error: {} })),
+      });
+      TestBed.configureTestingModule({
+        providers: [
+          EmployeeContractProposalVm,
+          { provide: CoreBusinessUnitAssignmentsApiService, useValue: { listAvailableProducts: apis.listAvailableProducts } },
+          { provide: CoreEmploymentProfilesApiService, useValue: { getMyProfile: apis.getMyProfile } },
+          {
+            provide: CoreClientContractsApiService,
+            useValue: {
+              createFromProposal: apis.createFromProposal,
+              listMyAssignedContracts: apis.listMyAssignedContracts,
+            },
+          },
+          ELIGIBILITY_STUB,
+          SESSION_STORE_STUB,
+        ],
+      });
+
+      const vm = TestBed.inject(EmployeeContractProposalVm);
+      vm.load('sub-1');
+
+      expect(vm.state()).toBe('idle');
+      expect(vm.assignment()).toEqual(assignment);
+    });
   });
 });

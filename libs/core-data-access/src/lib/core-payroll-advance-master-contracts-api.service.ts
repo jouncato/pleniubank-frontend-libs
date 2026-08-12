@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
@@ -46,6 +46,8 @@ export interface PayrollAdvanceMasterContractCreateRequest {
   enterprise_id: string;
   approved_total_limit: number;
   safety_buffer_amount?: number;
+  /** ADR-023: obligatoria en creación — fuente de fondeo del contrato. */
+  custody_account_id: string;
   /**
    * Opcional -- si se omite, Core lo resuelve y congela contra la política
    * de financiación vigente (`PayrollAdvancePolicyResolver`) en vez de
@@ -71,6 +73,8 @@ export interface PayrollAdvanceMasterContractDto {
   effective_from: string;
   effective_to: string | null;
   contract_template_id?: string | null;
+  /** ADR-023: custodia de fondeo asignada (obligatoria para activar). */
+  custody_account_id?: string | null;
 }
 
 export interface PayrollAdvanceMasterAssignmentCreateRequest {
@@ -239,10 +243,20 @@ export class CorePayrollAdvanceMasterContractsApiService {
     );
   }
 
+  /**
+   * Auditoría 2026-08-11: Core exige `X-Idempotency-Key` en creación (ver
+   * `payroll_advance_master_contracts_router.py`), pero este método nunca lo
+   * enviaba -- confirmado en vivo, 422 `{"loc":["header","X-Idempotency-Key"]}`
+   * al crear/aprobar/asignar desde el portal. Misma convención que
+   * `CorePayrollAdvancesApiService.register()`: clave fresca por llamada, sin
+   * exponerla al caller.
+   */
   createContract(
     body: PayrollAdvanceMasterContractCreateRequest,
   ): Observable<ApiEnvelope<PayrollAdvanceMasterContractDto>> {
-    return this.http.post<ApiEnvelope<PayrollAdvanceMasterContractDto>>(this.base, body);
+    return this.http.post<ApiEnvelope<PayrollAdvanceMasterContractDto>>(this.base, body, {
+      headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }),
+    });
   }
 
   /** Vista previa de solo lectura de la política efectiva para una Empresa Principal. */
@@ -266,10 +280,12 @@ export class CorePayrollAdvanceMasterContractsApiService {
   updateStatus(
     contractId: string,
     status: 'ACTIVE' | 'SUSPENDED' | 'TERMINATED' | 'EXPIRED',
+    custodyAccountId?: string | null,
   ): Observable<ApiEnvelope<PayrollAdvanceMasterContractDto>> {
     return this.http.patch<ApiEnvelope<PayrollAdvanceMasterContractDto>>(
       `${this.base}/${contractId}/status`,
-      { status },
+      custodyAccountId ? { status, custody_account_id: custodyAccountId } : { status },
+      { headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }) },
     );
   }
 
@@ -280,6 +296,7 @@ export class CorePayrollAdvanceMasterContractsApiService {
     return this.http.post<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>>(
       `${this.base}/${contractId}/assignments`,
       body,
+      { headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }) },
     );
   }
 

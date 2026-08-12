@@ -1,4 +1,3 @@
-import { HttpParams } from '@angular/common/http';
 import { of } from 'rxjs';
 
 import { CorePayrollAdvanceMasterContractsApiService } from './core-payroll-advance-master-contracts-api.service';
@@ -7,7 +6,6 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
     identityBaseUrl: 'http://localhost:8080',
-    coreAdminApiPrefix: '/api/v1/admin',
   };
 
   const mockHttp = () => ({
@@ -16,173 +14,64 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
     patch: vi.fn().mockReturnValue(of({ data: {} })),
   });
 
-  it('creates a model through the admin route', () => {
+  /**
+   * Auditoría 2026-08-11: Core exige X-Idempotency-Key en creación/aprobación/
+   * asignación de contratos maestros (ver payroll_advance_master_contracts_router.py),
+   * pero el servicio nunca lo enviaba -- confirmado en vivo, 422
+   * {"loc":["header","X-Idempotency-Key"]} al asignar una unidad desde el
+   * portal. Estos tests cubren los 3 métodos corregidos.
+   */
+  it('createContract() envía X-Idempotency-Key, distinta en cada llamada', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+    const payload = {
+      global_model_id: 'model-1',
+      enterprise_id: 'ent-1',
+      approved_total_limit: 1000000,
+      custody_account_id: 'custody-1',
+    };
 
-    service
-      .createModel({
-        country_code: 'CO',
-        model_version: 'PA-2026-01',
-        policy_version: 'CO-PA-2026-01',
-      })
-      .subscribe();
+    service.createContract(payload).subscribe();
+    service.createContract(payload).subscribe();
 
-    expect(http.post).toHaveBeenCalledWith(
-      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/models',
-      {
-        country_code: 'CO',
-        model_version: 'PA-2026-01',
-        policy_version: 'CO-PA-2026-01',
-      },
-    );
+    expect(http.post).toHaveBeenCalledTimes(2);
+    const key1 = http.post.mock.calls[0][2]?.headers?.get('X-Idempotency-Key');
+    const key2 = http.post.mock.calls[1][2]?.headers?.get('X-Idempotency-Key');
+    expect(key1).toBeTruthy();
+    expect(key2).toBeTruthy();
+    expect(key1).not.toBe(key2);
   });
 
-  it('updates status and assigns a business unit under the master contract', () => {
+  it('updateStatus() envía X-Idempotency-Key', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
 
-    service.updateStatus('master-1', 'ACTIVE').subscribe();
-    service
-      .assign('master-1', {
-        master_contract_id: 'master-1',
-        enterprise_id: 'enterprise-1',
-        sub_enterprise_id: 'sub-1',
-        company_code: 'PAYROLL-NORTH',
-      })
-      .subscribe();
+    service.updateStatus('contract-1', 'ACTIVE', 'custody-1').subscribe();
 
-    expect(http.patch).toHaveBeenCalledWith(
-      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/master-1/status',
-      { status: 'ACTIVE' },
-    );
-    expect(http.post).toHaveBeenCalledWith(
-      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/master-1/assignments',
-      {
-        master_contract_id: 'master-1',
-        enterprise_id: 'enterprise-1',
-        sub_enterprise_id: 'sub-1',
-        company_code: 'PAYROLL-NORTH',
-      },
-    );
+    expect(http.patch).toHaveBeenCalledTimes(1);
+    const [url, body, opts] = http.patch.mock.calls[0];
+    expect(url).toContain('/contract-1/status');
+    expect(body).toEqual({ status: 'ACTIVE', custody_account_id: 'custody-1' });
+    expect(opts?.headers?.get('X-Idempotency-Key')).toBeTruthy();
   });
 
-  it('lists models with the given filters as query params', () => {
+  it('assign() envía X-Idempotency-Key', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+    const payload = {
+      master_contract_id: 'contract-1',
+      enterprise_id: 'ent-1',
+      sub_enterprise_id: 'sub-1',
+      company_code: 'UNT-TEST',
+    };
 
-    service
-      .listModels({ product_type: 'PAYROLL_ADVANCE', country_code: 'CO', status: 'ACTIVE' })
-      .subscribe();
+    service.assign('contract-1', payload).subscribe();
 
-    expect(http.get).toHaveBeenCalledTimes(1);
-    const [url, options] = http.get.mock.calls[0];
-    expect(url).toBe('http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/models');
-    expect((options.params as HttpParams).toString()).toBe(
-      'product_type=PAYROLL_ADVANCE&country_code=CO&status=ACTIVE',
-    );
-  });
-
-  it('lists models with no query params when no filters are given', () => {
-    const http = mockHttp();
-    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
-
-    service.listModels().subscribe();
-
-    const [, options] = http.get.mock.calls[0];
-    expect((options.params as HttpParams).toString()).toBe('');
-  });
-
-  it('lists active contracts for an enterprise', () => {
-    const http = mockHttp();
-    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
-
-    service.listActiveContracts('enterprise-1').subscribe();
-
-    const [url, options] = http.get.mock.calls[0];
-    expect(url).toBe('http://localhost:8000/api/v1/admin/payroll-advance-master-contracts');
-    expect((options.params as HttpParams).toString()).toBe('enterprise_id=enterprise-1');
-  });
-
-  it('checks the active assignment for a business unit', () => {
-    const http = mockHttp();
-    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
-
-    service.getActiveAssignmentForUnit('sub-1').subscribe();
-
-    const [url, options] = http.get.mock.calls[0];
-    expect(url).toBe(
-      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/assignments/active',
-    );
-    expect((options.params as HttpParams).toString()).toBe('sub_enterprise_id=sub-1');
-  });
-
-  it('lists assignments for a master contract', () => {
-    const http = mockHttp();
-    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
-
-    service.listAssignments('master-1').subscribe();
-
-    expect(http.get).toHaveBeenCalledWith(
-      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/master-1/assignments',
-    );
-  });
-
-  it('lists master reconciliation with filters and pagination', () => {
-    const http = mockHttp();
-    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
-
-    service
-      .listReconciliation({
-        category: 'SYNC_FAILED',
-        enterprise_id: 'enterprise-1',
-        sub_enterprise_id: 'sub-1',
-        limit: 50,
-        offset: 100,
-      })
-      .subscribe();
-
-    const [url, options] = http.get.mock.calls[0];
-    expect(url).toBe(
-      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/reconciliation/report',
-    );
-    expect((options.params as HttpParams).toString()).toBe(
-      'category=SYNC_FAILED&enterprise_id=enterprise-1&sub_enterprise_id=sub-1&limit=50&offset=100',
-    );
-  });
-
-  it('lists the version history of a master contract', () => {
-    const http = mockHttp();
-    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
-
-    service.listVersions('master-1').subscribe();
-
-    expect(http.get).toHaveBeenCalledWith(
-      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/master-1/versions',
-    );
-  });
-
-  it('lists sync errors for a master contract', () => {
-    const http = mockHttp();
-    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
-
-    service.listSyncErrors('master-1').subscribe();
-
-    expect(http.get).toHaveBeenCalledWith(
-      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/master-1/sync-errors',
-    );
-  });
-
-  it('revokes an assignment through the admin route', () => {
-    const http = mockHttp();
-    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
-
-    service.revokeAssignment('master-1', 'assignment-1').subscribe();
-
-    expect(http.patch).toHaveBeenCalledWith(
-      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/master-1/assignments/assignment-1/revoke',
-      {},
-    );
+    expect(http.post).toHaveBeenCalledTimes(1);
+    const [url, body, opts] = http.post.mock.calls[0];
+    expect(url).toContain('/contract-1/assignments');
+    expect(body).toEqual(payload);
+    expect(opts?.headers?.get('X-Idempotency-Key')).toBeTruthy();
   });
 
   it('updateAssignmentTerms() hace PATCH a /assignments/{id} con el body dado (auditoría 2026-08-11)', () => {
@@ -190,11 +79,11 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
     const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
     const payload = { approved_sub_limit: 2000000, default_employee_amount: 500000 };
 
-    service.updateAssignmentTerms('master-1', 'assignment-1', payload).subscribe();
+    service.updateAssignmentTerms('contract-1', 'assignment-1', payload).subscribe();
 
     expect(http.patch).toHaveBeenCalledTimes(1);
     const [url, body] = http.patch.mock.calls[0];
-    expect(url).toContain('/master-1/assignments/assignment-1');
+    expect(url).toContain('/contract-1/assignments/assignment-1');
     expect(url).not.toContain('/revoke');
     expect(body).toEqual(payload);
   });

@@ -1,6 +1,14 @@
+.pb-picker,
+.pb-picker *,
+.pb-picker *::before,
+.pb-picker *::after {
+  box-sizing: border-box;
+}
+
 .pb-picker {
   display: grid;
   gap: 0.45rem;
+  width: 100%;
 }
 
 .pb-picker__label {

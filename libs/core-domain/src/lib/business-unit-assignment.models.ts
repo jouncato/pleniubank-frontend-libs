@@ -14,6 +14,15 @@ export interface BusinessUnitAssignmentDto {
   created_at: string;
   updated_at: string | null;
   updated_by: string | null;
+  /**
+   * Linaje de contrato maestro (ADR-008) ya presente en la respuesta real de
+   * `BusinessUnitAssignmentResponse` (`master_assignment_id = id` cuando el
+   * origen es un contrato maestro), pero faltaba en este tipo -- auditoría
+   * 2026-08-11, necesario para detectar si el empleado ya aceptó esta
+   * propuesta (`ClientContractDto.master_assignment_id`).
+   */
+  master_contract_id?: string | null;
+  master_assignment_id?: string | null;
 }
 
 /** Body `POST /api/v1/business-unit-assignments`. */

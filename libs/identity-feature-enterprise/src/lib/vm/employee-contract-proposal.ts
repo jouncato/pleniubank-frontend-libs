@@ -78,8 +78,7 @@ export class EmployeeContractProposalVm {
             return;
           }
           this.assignment.set(active);
-          this.loadEligibility();
-          this.loadProfile();
+          this.checkExistingContract(active);
         },
         error: (err: unknown) => {
           const mapped = mapHttpError(err);
@@ -89,6 +88,42 @@ export class EmployeeContractProposalVm {
           );
         },
       });
+  }
+
+  /**
+   * Auditoría 2026-08-11: esta pantalla nunca comprobaba si el empleado ya
+   * había aceptado la propuesta -- siempre mostraba el formulario de
+   * aceptación, sin importar cuántas veces se hubiera aceptado antes. Un
+   * segundo clic en "Aceptar" no duplicaba nada (Core ya lo bloquea,
+   * `DUPLICATE_ENTITY`/409, confirmado en vivo), pero el empleado veía un
+   * error confuso ("Ya tienes un anticipo de nómina activo") en vez de ser
+   * llevado directo a solicitar su anticipo, que es lo que ya puede hacer.
+   * Se reutiliza el mismo mecanismo de éxito (`state='success'` +
+   * `contract`) que ya dispara la redirección en
+   * `EmployeeContractProposalPanel` -- no se inventa un camino nuevo.
+   */
+  private checkExistingContract(active: BusinessUnitAssignmentDto): void {
+    this.contractsApi.listMyAssignedContracts({ limit: 50 }).subscribe({
+      next: (envelope) => {
+        const existing = (envelope.data ?? []).find(
+          (c) => c.master_assignment_id === active.master_assignment_id && c.status === 'ACTIVE',
+        );
+        if (existing) {
+          this.contract.set(existing);
+          this.state.set('success');
+          return;
+        }
+        this.loadEligibility();
+        this.loadProfile();
+      },
+      error: () => {
+        // Fail-open deliberado: si no se puede confirmar el estado previo,
+        // se sigue el camino normal (mostrar la propuesta) -- Core igual
+        // bloquea una segunda aceptación real con 409.
+        this.loadEligibility();
+        this.loadProfile();
+      },
+    });
   }
 
   private loadEligibility(): void {
