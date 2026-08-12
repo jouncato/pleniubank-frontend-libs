@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type {
   BusinessUnitAssignmentDto,
   ClientContractDto,
@@ -50,6 +51,16 @@ export class EmployeeContractProposalVm {
    * muestra al customer antes de aceptar la propuesta (2026-08-11). */
   readonly feeRate = signal<number | null>(null);
 
+  /**
+   * Auditoría de calidad 2026-08-12 (P2.9): las 4 llamadas HTTP de este VM
+   * (`load` -> `checkExistingContract` -> `loadEligibility`/`loadProfile`)
+   * no cancelaban su suscripción al destruirse el componente que provee
+   * este VM (`providers: [EmployeeContractProposalVm]`) -- inconsistente
+   * con el resto de VMs de este repo. Mismo patrón ya usado en
+   * `pleniubank-customer-portal/.../master-contract-assignments.ts`.
+   */
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private readonly assignmentsApi: CoreBusinessUnitAssignmentsApiService,
     private readonly profilesApi: CoreEmploymentProfilesApiService,
@@ -67,6 +78,7 @@ export class EmployeeContractProposalVm {
 
     this.assignmentsApi
       .listAvailableProducts(subEnterpriseId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (envelope) => {
           const items = envelope.data ?? [];
@@ -103,27 +115,30 @@ export class EmployeeContractProposalVm {
    * `EmployeeContractProposalPanel` -- no se inventa un camino nuevo.
    */
   private checkExistingContract(active: BusinessUnitAssignmentDto): void {
-    this.contractsApi.listMyAssignedContracts({ limit: 50 }).subscribe({
-      next: (envelope) => {
-        const existing = (envelope.data ?? []).find(
-          (c) => c.master_assignment_id === active.master_assignment_id && c.status === 'ACTIVE',
-        );
-        if (existing) {
-          this.contract.set(existing);
-          this.state.set('success');
-          return;
-        }
-        this.loadEligibility();
-        this.loadProfile();
-      },
-      error: () => {
-        // Fail-open deliberado: si no se puede confirmar el estado previo,
-        // se sigue el camino normal (mostrar la propuesta) -- Core igual
-        // bloquea una segunda aceptación real con 409.
-        this.loadEligibility();
-        this.loadProfile();
-      },
-    });
+    this.contractsApi
+      .listMyAssignedContracts({ limit: 50 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (envelope) => {
+          const existing = (envelope.data ?? []).find(
+            (c) => c.master_assignment_id === active.master_assignment_id && c.status === 'ACTIVE',
+          );
+          if (existing) {
+            this.contract.set(existing);
+            this.state.set('success');
+            return;
+          }
+          this.loadEligibility();
+          this.loadProfile();
+        },
+        error: () => {
+          // Fail-open deliberado: si no se puede confirmar el estado previo,
+          // se sigue el camino normal (mostrar la propuesta) -- Core igual
+          // bloquea una segunda aceptación real con 409.
+          this.loadEligibility();
+          this.loadProfile();
+        },
+      });
   }
 
   private loadEligibility(): void {
@@ -131,37 +146,43 @@ export class EmployeeContractProposalVm {
     if (!customerId) {
       return;
     }
-    this.payrollAdvancesApi.getEligibility({ customer_id: customerId }).subscribe({
-      next: (envelope) => {
-        this.eligibility.set(envelope.data?.decision ?? null);
-        this.feeRate.set(envelope.data?.fee_rate ?? null);
-      },
-      error: () => {
-        this.eligibility.set(null);
-        this.feeRate.set(null);
-      },
-    });
+    this.payrollAdvancesApi
+      .getEligibility({ customer_id: customerId })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (envelope) => {
+          this.eligibility.set(envelope.data?.decision ?? null);
+          this.feeRate.set(envelope.data?.fee_rate ?? null);
+        },
+        error: () => {
+          this.eligibility.set(null);
+          this.feeRate.set(null);
+        },
+      });
   }
 
   private loadProfile(): void {
-    this.profilesApi.getMyProfile().subscribe({
-      next: (envelope) => {
-        this.profile.set(envelope.data ?? null);
-        this.state.set('idle');
-      },
-      error: (err: unknown) => {
-        const mapped = mapHttpError(err);
-        if (mapped.status === 404) {
-          this.profile.set(null);
+    this.profilesApi
+      .getMyProfile()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (envelope) => {
+          this.profile.set(envelope.data ?? null);
           this.state.set('idle');
-          return;
-        }
-        this.state.set('error');
-        this.errorMessage.set(
-          mapped.errors[0]?.message ?? 'No se pudo cargar tu perfil laboral.',
-        );
-      },
-    });
+        },
+        error: (err: unknown) => {
+          const mapped = mapHttpError(err);
+          if (mapped.status === 404) {
+            this.profile.set(null);
+            this.state.set('idle');
+            return;
+          }
+          this.state.set('error');
+          this.errorMessage.set(
+            mapped.errors[0]?.message ?? 'No se pudo cargar tu perfil laboral.',
+          );
+        },
+      });
   }
 
   toggleTermsAccepted(accepted: boolean): void {
