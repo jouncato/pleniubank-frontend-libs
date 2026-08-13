@@ -85,40 +85,6 @@
   gap: 16px;
 }
 
-.reg-form label {
-  color: #001528;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 18px;
-  font-family: 'Inter', system-ui, sans-serif;
-}
-
-.reg-form input,
-.reg-form select {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 46px;
-  padding: 0 14px;
-  border: 1px solid #d8d8da;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #001528;
-  font-size: 15px;
-  font-family: inherit;
-  line-height: 20px;
-}
-
-.reg-form input:focus-visible,
-.reg-form select:focus-visible {
-  outline: none;
-  border-color: #0272de;
-  box-shadow: 0 0 0 3px rgba(2, 114, 222, 0.12);
-}
-
-.reg-form input::placeholder {
-  color: #8d8992;
-}
-
 .reg-form__submit {
   min-height: 48px;
   margin-top: 8px;

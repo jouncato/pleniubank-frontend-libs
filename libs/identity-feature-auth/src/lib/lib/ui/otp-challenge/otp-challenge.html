@@ -2,10 +2,11 @@
   <div class="pl-form-card otp-card">
     <h2 class="visually-hidden">{{ title }}</h2>
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <label for="code">Código OTP</label>
+      <label for="code" class="otp-card__label">Código de verificación</label>
       <input
         #codeField
         id="code"
+        class="otp-card__input"
         type="text"
         inputmode="numeric"
         autocomplete="one-time-code"

@@ -113,32 +113,6 @@
   gap: var(--pb-space-8, 0.75rem);
 }
 
-.panel label {
-  color: var(--pl-dark, #111827);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.panel input,
-.panel select {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 10px;
-  background: var(--pl-white, #fff);
-  color: var(--pl-dark, #111827);
-  font-size: 1rem;
-  font-family: inherit;
-}
-
-.panel input:focus-visible,
-.panel select:focus-visible {
-  outline: none;
-  border-color: var(--pl-blue, #0272de);
-}
-
 .password-hints {
   margin: 0;
   padding-left: 1rem;

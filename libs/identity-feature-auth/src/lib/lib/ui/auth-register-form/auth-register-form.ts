@@ -78,6 +78,17 @@ export class AuthRegisterForm implements OnInit {
     return /[^A-Za-z0-9]/.test(this.passwordValue);
   }
 
+  /** Cuenta cuántos criterios de la contraseña se cumplen (0-5), para el medidor visual de fuerza. */
+  get passwordStrength(): number {
+    return [
+      this.hasMinLengthPassword,
+      this.hasUpperPassword,
+      this.hasLowerPassword,
+      this.hasNumberPassword,
+      this.hasSymbolPassword,
+    ].filter(Boolean).length;
+  }
+
   onPasswordInput(): void {
     const confirmControl = this.form.controls.confirmPassword;
     if (!confirmControl.value || !confirmControl.hasError('mismatch')) {

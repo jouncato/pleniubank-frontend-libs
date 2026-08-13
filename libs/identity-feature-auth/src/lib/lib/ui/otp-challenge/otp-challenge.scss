@@ -21,30 +21,44 @@
   gap: 14px;
 }
 
-.otp-card label {
-  color: var(--pl-dark);
-  font-size: 13px;
-  font-weight: 600;
+.otp-card__label {
+  display: block;
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pl-mid);
+  text-align: center;
 }
 
-.otp-card input {
+.otp-card__input {
   width: 100%;
   box-sizing: border-box;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 10px;
-  background: var(--pl-white);
+  height: 68px;
+  padding: 0 14px 0 calc(14px + 0.5em);
+  border: 1.5px solid #d8d8da;
+  border-radius: 14px;
+  background: var(--pl-light, #f9fafb);
   color: var(--pl-dark);
-  font-size: 1.25rem;
+  font-size: 28px;
+  font-weight: 700;
   text-align: center;
-  letter-spacing: 0.35rem;
+  letter-spacing: 0.5em;
   font-family: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
-.otp-card input:focus-visible {
+.otp-card__input:focus-visible {
   outline: none;
   border-color: var(--pl-blue);
+  background: var(--pl-white);
+  box-shadow:
+    0 0 0 3px rgb(2 114 222 / 0.14),
+    0 6px 18px rgb(2 114 222 / 0.12);
 }
 
 .otp-card__submit {

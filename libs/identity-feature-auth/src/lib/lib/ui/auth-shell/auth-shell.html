@@ -1,6 +1,16 @@
 @if (fullBleedOnboarding()) {
-  <div class="auth-shell-fullbleed">
-    <router-outlet />
+  <div class="auth-frame">
+    <aside class="auth-frame__brand" aria-hidden="true">
+      <pb-logo class="auth-frame__logo" variant="auto" size="md" [onDark]="true" />
+      <div class="auth-frame__brand-copy">
+        <h2 class="auth-frame__tagline">Finanzas digitales<br /><span class="auth-frame__tagline-accent">al servicio del talento</span></h2>
+        <p class="auth-frame__brand-sub">Anticipos de nómina para tu equipo, sin filas ni papeleo.</p>
+      </div>
+      <p class="auth-frame__brand-foot">© 2026 Pleniu Colombia S.A.</p>
+    </aside>
+    <div class="auth-frame__content">
+      <router-outlet />
+    </div>
   </div>
 } @else {
   <main class="auth-shell">

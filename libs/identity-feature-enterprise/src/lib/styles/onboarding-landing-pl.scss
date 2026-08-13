@@ -1,4 +1,6 @@
-/* Tokens y layout pl-* compartidos (landing POC). Usar con @use en pantallas de onboarding marketing. */
+/* Tokens y layout pl-* compartidos (landing POC). Usar con @use en pantallas de onboarding marketing.
+ * Mismo lenguaje visual que la landing pública del gateway y el home autenticado:
+ * paleta real de marca + acento "espectro" + hover de icono invertido/título subrayado. */
 
 .pl-root {
   --pl-blue: #0272de;
@@ -14,6 +16,18 @@
   --pl-white: #ffffff;
   --pl-radius: 12px;
   --pl-shadow: 0 4px 24px rgb(2 114 222 / 0.1);
+
+  /* Acento "espectro Pleniu": mismo recorrido de marca que la landing pública
+     y el home autenticado (azul → cian → teal → verde → lima → naranja). */
+  --pl-spectrum: linear-gradient(
+    95deg,
+    var(--pl-blue) 0%,
+    var(--pl-cyan) 24%,
+    var(--pl-teal) 46%,
+    var(--pl-green) 64%,
+    var(--pl-lime) 82%,
+    var(--pl-orange) 100%
+  );
 
   min-height: 100vh;
   display: flex;
@@ -46,7 +60,7 @@
 
 .pl-section__label {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--pl-blue);
@@ -59,6 +73,7 @@
   color: var(--pl-dark);
   line-height: 1.2;
   margin: 0 0 14px;
+  letter-spacing: -0.3px;
 }
 
 .pl-section__sub {
@@ -94,8 +109,34 @@
 }
 
 .pl-btn--primary {
-  background: var(--pl-blue);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--pl-blue) 0%, var(--pl-blue-lt) 100%);
   color: var(--pl-white);
+  box-shadow: 0 6px 18px rgb(2 114 222 / 0.28);
+}
+
+.pl-btn--primary:hover {
+  opacity: 1;
+  box-shadow: 0 10px 26px rgb(2 114 222 / 0.36);
+}
+
+/* Barrido de luz al pasar el mouse — un solo pase, no un loop continuo. */
+.pl-btn--primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.32) 48%, transparent 66%);
+  transform: translateX(-120%);
+  transition: transform 0.5s ease;
+}
+
+.pl-btn--primary:hover::after {
+  transform: translateX(120%);
+}
+
+.pl-btn--primary:disabled::after {
+  display: none;
 }
 
 .pl-btn--outline {
@@ -153,7 +194,7 @@
 }
 
 .pl-hero {
-  background: linear-gradient(135deg, var(--pl-blue) 0%, var(--pl-blue-lt) 100%);
+  background: linear-gradient(135deg, var(--pl-blue) 0%, var(--pl-blue-lt) 62%, var(--pl-cyan) 100%);
   padding: 56px 0 64px;
   color: var(--pl-white);
   position: relative;
@@ -173,6 +214,19 @@
   height: 560px;
   border-radius: 50%;
   background: rgb(255 255 255 / 0.06);
+}
+
+/* Firma de marca: hairline del espectro Pleniu al pie del hero — mismo
+   acento que la landing pública y el home autenticado. */
+.pl-hero::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--pl-spectrum);
+  z-index: 2;
 }
 
 .pl-hero__content {
@@ -199,6 +253,7 @@
   font-weight: 800;
   line-height: 1.1;
   margin: 0 0 20px;
+  letter-spacing: -0.4px;
 }
 
 .pl-hero__sub {
@@ -210,6 +265,7 @@
 }
 
 .pl-form-card {
+  position: relative;
   max-width: 36rem;
   margin: 0 auto;
   padding: 32px 36px 36px;
@@ -217,10 +273,209 @@
   box-shadow: var(--pl-shadow);
   border: 1px solid #e5e7eb;
   background: var(--pl-white);
+  overflow: hidden;
+}
+
+/* Firma de marca: el mismo hairline de espectro de la landing pública,
+   como remate superior de cada tarjeta de formulario. */
+.pl-form-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--pl-spectrum);
 }
 
 .pl-form-card--wide {
   max-width: min(48rem, 100%);
+}
+
+/* ---- Sistema de campos: etiqueta flotante + halo de foco de marca.
+   Reemplaza el patrón genérico "label arriba + input con borde plano" que
+   repetía cada formulario por su cuenta. ---- */
+.pl-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.pl-field--with-action .pl-field__control {
+  padding-right: 46px;
+}
+
+.pl-field__control {
+  order: 1;
+  width: 100%;
+  box-sizing: border-box;
+  height: 54px;
+  padding: 21px 14px 5px;
+  border: 1.5px solid #d8d8da;
+  border-radius: 12px;
+  background: var(--pl-white, #fff);
+  color: var(--pl-dark, #111827);
+  font-size: 15px;
+  font-family: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.pl-field__control::placeholder {
+  color: transparent;
+}
+
+.pl-field__label {
+  order: 2;
+  position: absolute;
+  left: 15px;
+  top: 17px;
+  font-size: 15px;
+  color: var(--pl-mid, #6b7280);
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
+  transform-origin: left top;
+  pointer-events: none;
+}
+
+.pl-field__control:focus ~ .pl-field__label,
+.pl-field__control:not(:placeholder-shown) ~ .pl-field__label {
+  transform: translateY(-10px) scale(0.74);
+  color: var(--pl-blue, #0272de);
+  font-weight: 600;
+}
+
+.pl-field__control:focus {
+  outline: none;
+  border-color: var(--pl-blue, #0272de);
+  /* Halo de dos capas: anillo nítido + resplandor difuso — más profundidad
+     que un box-shadow plano. */
+  box-shadow:
+    0 0 0 3px rgb(2 114 222 / 0.14),
+    0 6px 18px rgb(2 114 222 / 0.12);
+}
+
+.pl-field__control:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.pl-field__action {
+  order: 3;
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  bottom: 6px;
+}
+
+/* Icono guía a la izquierda del campo (correo, contraseña, teléfono...). */
+.pl-field--with-icon .pl-field__control {
+  padding-left: 44px;
+}
+
+.pl-field--with-icon .pl-field__label {
+  left: 44px;
+}
+
+.pl-field__icon {
+  order: 3;
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--pl-mid, #9ca3af);
+  pointer-events: none;
+  transition: color 0.15s ease;
+}
+
+.pl-field__control:focus ~ .pl-field__icon {
+  color: var(--pl-blue, #0272de);
+}
+
+/* Campo con etiqueta estática (selects — no admiten :placeholder-shown). */
+.pl-static-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pl-static-field > label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pl-dark, #111827);
+}
+
+.pl-static-field .pl-field__control {
+  height: 54px;
+  padding: 0 40px 0 14px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.pl-field__hint,
+.pl-field__error {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.pl-field__error {
+  color: #dc2626;
+}
+
+/* Medidor de fuerza de contraseña — 5 segmentos, coloreados con los
+   acentos de marca (naranja/lima/verde) en vez de un simple checklist. */
+.pl-strength {
+  display: flex;
+  gap: 4px;
+  margin: 10px 0 4px;
+}
+
+.pl-strength__seg {
+  height: 4px;
+  flex: 1;
+  border-radius: 4px;
+  background: #e5e7eb;
+  transition: background 0.2s ease;
+}
+
+.pl-strength--weak .pl-strength__seg--fill {
+  background: var(--pl-orange, #fc6936);
+}
+
+.pl-strength--ok .pl-strength__seg--fill {
+  background: var(--pl-lime, #cad215);
+}
+
+.pl-strength--strong .pl-strength__seg--fill {
+  background: var(--pl-green, #02d17b);
+}
+
+.pl-strength__label {
+  display: block;
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pl-mid, #6b7280);
+}
+
+.pl-strength--weak .pl-strength__label {
+  color: var(--pl-orange, #fc6936);
+}
+
+.pl-strength--ok .pl-strength__label {
+  color: #a89a12;
+}
+
+.pl-strength--strong .pl-strength__label {
+  color: #00a05f;
 }
 
 .pl-footer {
@@ -228,6 +483,23 @@
   color: #9ca3af;
   padding: 28px 0;
   margin-top: auto;
+  position: relative;
+}
+
+/* Mismo hairline de espectro que cierra la landing pública, aquí como remate
+   superior del footer (bookend visual con el hero). */
+.pl-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--pl-spectrum);
+}
+
+.pl-footer--compact {
+  padding: 20px 0;
 }
 
 .pl-footer__bottom {
@@ -264,7 +536,8 @@
   border: 1px solid #e5e7eb;
   transition:
     transform 0.18s,
-    box-shadow 0.18s;
+    box-shadow 0.18s,
+    border-color 0.18s;
 }
 
 .pl-card--link {
@@ -279,6 +552,7 @@
 .pl-card--link:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 32px rgb(2 114 222 / 0.14);
+  border-color: rgb(2 114 222 / 0.18);
 }
 
 .pl-card--link:focus-visible {
@@ -295,6 +569,9 @@
   align-items: center;
   justify-content: center;
   font-size: 22px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .pl-card__icon--blue {
@@ -307,11 +584,32 @@
   color: var(--pl-teal);
 }
 
+/* Al pasar el mouse el icono se invierte a color sólido — mismo gesto que la
+   landing pública, en vez de una barra decorativa aparte. */
+.pl-card--link:hover .pl-card__icon--blue {
+  background: var(--pl-blue);
+  color: var(--pl-white);
+}
+
+.pl-card--link:hover .pl-card__icon--teal {
+  background: var(--pl-teal);
+  color: var(--pl-white);
+}
+
 .pl-card__title {
   font-size: 18px;
   font-weight: 700;
   margin: 0 0 10px;
   color: var(--pl-dark);
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.pl-card--link:hover .pl-card__title {
+  text-decoration-color: currentColor;
 }
 
 .pl-card__desc {
@@ -357,6 +655,105 @@
   color: #0056b3;
 }
 
+/* ---- Encabezado simple de página, dentro del panel de contenido del
+   AuthShell (reemplaza el banner azul repetido en cada pantalla). ---- */
+.auth-page {
+  padding: 8px 0 0;
+}
+
+.auth-page__lede {
+  max-width: 36rem;
+  margin: 0 auto 8px;
+}
+
+.auth-page__title {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  color: var(--pl-dark);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin: 0 0 12px;
+}
+
+.auth-page__hint {
+  font-size: 16px;
+  color: var(--pl-mid);
+  max-width: 560px;
+  line-height: 1.6;
+  margin: 0 0 8px;
+}
+
+.auth-page__hint--spaced {
+  margin-bottom: 32px;
+}
+
+/* Acento de texto en degradado — mismo recorrido de marca que la landing
+   pública, reservado para un único énfasis por pantalla. */
+.spectrum-text {
+  background-image: var(--pl-spectrum);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--pl-blue);
+  display: inline-block;
+}
+
+/* ---- Fila de acceso ("elige tu tipo de cuenta"): mismo patrón de la
+   landing pública — lista de filas con icono invertido/título subrayado al
+   hover, en vez de tarjetas genéricas en grilla. ---- */
+.auth-choice-rail {
+  background: var(--pl-white);
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--pl-shadow);
+}
+
+.auth-choice-row.pl-card--link {
+  flex-direction: row;
+  align-items: center;
+  gap: 18px;
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: none;
+  padding: 24px 26px;
+}
+
+.auth-choice-rail > a:first-child.auth-choice-row {
+  border-top: none;
+}
+
+.auth-choice-row.pl-card--link:hover {
+  transform: none;
+  background: #fafbfc;
+  box-shadow: none;
+}
+
+.auth-choice-row .pl-card__icon {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.auth-choice-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.auth-choice-row .pl-card__title,
+.auth-choice-row .pl-card__desc {
+  margin: 0 0 4px;
+}
+
+.auth-choice-row .pl-card__desc {
+  margin-bottom: 0;
+}
+
+.auth-choice-row .pl-card__cta {
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   .pl-section__title {
     font-size: 26px;
@@ -383,5 +780,25 @@
 
   .pl-form-card {
     padding: 24px 20px 28px;
+  }
+
+  .auth-choice-row.pl-card--link {
+    flex-wrap: wrap;
+    padding: 20px;
+  }
+
+  .auth-choice-row .pl-card__cta {
+    margin-left: 62px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pl-card,
+  .pl-card--link,
+  .pl-btn,
+  .pl-btn--primary::after,
+  .pl-field__control,
+  .pl-field__label {
+    transition: none;
   }
 }

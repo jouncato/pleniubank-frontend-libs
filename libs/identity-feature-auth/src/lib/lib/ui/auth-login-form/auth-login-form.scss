@@ -66,45 +66,18 @@
   border: 0;
 }
 
-.login-hero-brand {
-  display: inline-flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
 .login-context-hint {
   margin: 0;
   max-width: 42rem;
 }
 
+.login-form {
+  margin-top: 28px;
+}
+
 .login-form form {
   display: grid;
   gap: 14px;
-}
-
-.login-form label {
-  color: var(--pl-dark);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.login-form input {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 46px;
-  padding: 0 14px;
-  border: 1.5px solid #d8d8da;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #001528;
-  font-size: 15px;
-  font-family: 'Inter', system-ui, sans-serif;
-  transition: border-color 0.15s;
-}
-
-.login-form input:focus-visible {
-  outline: none;
-  border-color: #0272de;
 }
 
 .login-form__submit {

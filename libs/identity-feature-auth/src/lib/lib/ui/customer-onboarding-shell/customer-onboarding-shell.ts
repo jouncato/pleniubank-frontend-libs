@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
-import { CUSTOMER_PORTAL_SIGN_IN_URL, EMBEDDED_PORTAL_IDENTITY_CHROME } from '@pleniu/shared-auth';
-import { PbLogoComponent } from '@pleniu/ui';
+import { EMBEDDED_PORTAL_IDENTITY_CHROME } from '@pleniu/shared-auth';
 
 const CUSTOMER_BASE = '/onboarding/party/customer';
 
@@ -13,13 +12,12 @@ type OnbSegment = 'register' | 'verify-contact' | 'verify-email' | 'verify-phone
 @Component({
   selector: 'lib-customer-onboarding-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, RouterOutlet, PbLogoComponent],
+  imports: [CommonModule, RouterOutlet],
   templateUrl: './customer-onboarding-shell.html',
   styleUrl: './customer-onboarding-shell.scss',
 })
 export class CustomerOnboardingShell {
   private readonly router = inject(Router);
-  readonly customerSignInUrl = inject(CUSTOMER_PORTAL_SIGN_IN_URL);
   readonly embeddedHostShell = inject(EMBEDDED_PORTAL_IDENTITY_CHROME, { optional: true }) === true;
 
   readonly steps = [

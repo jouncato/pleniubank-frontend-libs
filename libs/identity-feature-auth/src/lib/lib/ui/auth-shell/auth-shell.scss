@@ -7,6 +7,150 @@
   background: #ffffff;
 }
 
+/* ---- Split-screen: panel de marca persistente (izquierda) + contenido
+   de la página activa (derecha). Reemplaza el banner azul que cada
+   pantalla repetía por su cuenta. ---- */
+.auth-frame {
+  display: flex;
+  min-height: 100vh;
+}
+
+.auth-frame__brand {
+  flex: 0 0 400px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 48px 40px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    165deg,
+    var(--pb-color-primary-dark, #0056b3) 0%,
+    var(--pb-color-primary, #0272de) 55%,
+    var(--pb-color-accent-cyan, #03d3ff) 100%
+  );
+}
+
+/* Firma de marca: hairline del espectro Pleniu en el borde del panel —
+   mismo acento que la landing pública, aquí en vertical. */
+.auth-frame__brand::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    180deg,
+    var(--pb-color-primary, #0272de) 0%,
+    var(--pb-color-accent-cyan, #03d3ff) 24%,
+    var(--pb-color-accent-teal, #05b9a8) 46%,
+    var(--pb-color-accent-green, #02d17b) 64%,
+    var(--pb-color-accent-lime, #cad215) 82%,
+    var(--pb-color-accent-orange, #fc6936) 100%
+  );
+}
+
+.auth-frame__brand::before {
+  content: '';
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  right: -140px;
+  top: -120px;
+}
+
+.auth-frame__logo,
+.auth-frame__brand-copy,
+.auth-frame__brand-foot {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-frame__tagline {
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+  margin: 0 0 14px;
+}
+
+.auth-frame__tagline-accent {
+  background-image: linear-gradient(
+    95deg,
+    #ffffff 0%,
+    var(--pb-color-accent-lime, #cad215) 60%,
+    var(--pb-color-accent-orange, #fc6936) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-frame__brand-sub {
+  font-size: 15px;
+  line-height: 1.6;
+  opacity: 0.88;
+  max-width: 320px;
+  margin: 0;
+}
+
+.auth-frame__brand-foot {
+  font-size: 12.5px;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.auth-frame__content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  background: #ffffff;
+  padding: 56px 40px;
+}
+
+@media (max-width: 900px) {
+  .auth-frame {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .auth-frame__brand {
+    position: relative;
+    flex: none;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 24px;
+    gap: 0;
+  }
+
+  .auth-frame__brand-copy,
+  .auth-frame__brand-foot {
+    display: none;
+  }
+
+  .auth-frame__content {
+    overflow-y: visible;
+    padding: 32px 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-frame__brand {
+    transition: none;
+  }
+}
+
 .auth-shell {
   min-height: 100vh;
   display: grid;

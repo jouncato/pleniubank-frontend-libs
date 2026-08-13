@@ -3,8 +3,8 @@ import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Va
 import { RouterLink } from '@angular/router';
 import { EconomicSectorPublicDto, EnterpriseDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
-import { CUSTOMER_PORTAL_SIGN_IN_URL, EMBEDDED_PORTAL_IDENTITY_CHROME } from '@pleniu/shared-auth';
-import { PbLogoComponent, PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
+import { EMBEDDED_PORTAL_IDENTITY_CHROME } from '@pleniu/shared-auth';
+import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import { EnterpriseOnboardingStore } from '../../enterprise-onboarding.store';
 import { RegisterEnterpriseVm, type RegisterEnterpriseStep } from '../../vm/register-enterprise';
 
@@ -13,7 +13,7 @@ const ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(
 
 @Component({
   selector: 'lib-enterprise-register-wizard',
-  imports: [ReactiveFormsModule, RouterLink, PbLogoComponent, PbPasswordVisibilityToggleComponent],
+  imports: [ReactiveFormsModule, RouterLink, PbPasswordVisibilityToggleComponent],
   templateUrl: './enterprise-register-wizard.html',
   styleUrl: './enterprise-register-wizard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,7 +23,6 @@ export class EnterpriseRegisterWizard implements OnInit {
   protected readonly vm = inject(RegisterEnterpriseVm);
   readonly showPrincipalPassword = signal(false);
   readonly showAdminPassword = signal(false);
-  readonly customerSignInUrl = inject(CUSTOMER_PORTAL_SIGN_IN_URL);
   readonly embeddedHostShell = inject(EMBEDDED_PORTAL_IDENTITY_CHROME, { optional: true }) === true;
   protected readonly onboarding = inject(EnterpriseOnboardingStore);
   private readonly enterpriseApi = inject(IdentityEnterpriseApiService);
@@ -159,6 +158,17 @@ export class EnterpriseRegisterWizard implements OnInit {
     return /[^A-Za-z0-9]/.test(this.principalPasswordValue);
   }
 
+  /** Cuenta cuántos criterios de la contraseña se cumplen (0-5), para el medidor visual de fuerza. */
+  get principalPasswordStrength(): number {
+    return [
+      this.principalHasMinLengthPassword,
+      this.principalHasUpperPassword,
+      this.principalHasLowerPassword,
+      this.principalHasNumberPassword,
+      this.principalHasSymbolPassword,
+    ].filter(Boolean).length;
+  }
+
   get adminPasswordValue(): string {
     return this.adminForm.controls.password.value;
   }
@@ -181,6 +191,17 @@ export class EnterpriseRegisterWizard implements OnInit {
 
   get adminHasSymbolPassword(): boolean {
     return /[^A-Za-z0-9]/.test(this.adminPasswordValue);
+  }
+
+  /** Cuenta cuántos criterios de la contraseña se cumplen (0-5), para el medidor visual de fuerza. */
+  get adminPasswordStrength(): number {
+    return [
+      this.adminHasMinLengthPassword,
+      this.adminHasUpperPassword,
+      this.adminHasLowerPassword,
+      this.adminHasNumberPassword,
+      this.adminHasSymbolPassword,
+    ].filter(Boolean).length;
   }
 
   isCompanyStep0Invalid(): boolean {

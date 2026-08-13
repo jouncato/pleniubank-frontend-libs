@@ -1,10 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  CUSTOMER_PORTAL_SIGN_IN_URL,
-  EMBEDDED_PORTAL_IDENTITY_CHROME,
-  PORTAL_APP,
-} from '@pleniu/shared-auth';
+import { CUSTOMER_PORTAL_SIGN_IN_URL, PORTAL_APP } from '@pleniu/shared-auth';
 
 /**
  * HU-1 / BIAN Party Reference: elección de tipo de Party antes del registro.
@@ -22,7 +18,6 @@ export class PartyTypeSelector {
   /** Si el host público no tiene login, apunta al portal de cliente (token opcional). */
   readonly customerSignInUrl = inject(CUSTOMER_PORTAL_SIGN_IN_URL);
   private readonly portalApp = inject(PORTAL_APP);
-  readonly embeddedHostShell = inject(EMBEDDED_PORTAL_IDENTITY_CHROME, { optional: true }) === true;
 
   readonly personRegisterLink = computed(() =>
     this.portalApp === 'public'
