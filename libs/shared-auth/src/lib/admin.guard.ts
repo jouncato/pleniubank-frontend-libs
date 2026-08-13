@@ -31,7 +31,22 @@ export const adminGuard: CanActivateFn = (route, state) => {
   // Only enforce role when claims are hydrated. If claims are absent (e.g. a
   // transient validate error on reload) but the admin token is present, allow
   // through—the backend enforces authorization on every API call.
-  const platformRoles = new Set(['admin', 'sre', 'devops']);
+  //
+  // Verificación en vivo 2026-08-12: `employee`/`risk_officer`/`compliance_officer`
+  // son roles staff creables desde "Nuevo staff" (`staff-users-list.component.ts`)
+  // y exigidos explícitamente por pantallas reales (ej. aprobar la política
+  // global de Anticipo de nómina requiere RISK_OFFICER/COMPLIANCE_OFFICER,
+  // `payroll-advance-risk-access.guard.ts`) -- sin ellos aquí, ese staff nunca
+  // pasaba este guard de nivel superior (`/backoffice`) y quedaba sin poder
+  // iniciar sesión pese a tener cuenta activa y válida.
+  const platformRoles = new Set([
+    'admin',
+    'sre',
+    'devops',
+    'employee',
+    'risk_officer',
+    'compliance_officer',
+  ]);
   if (store.claims() !== null && !platformRoles.has(String(store.claims()?.role ?? '').toLowerCase())) {
     void router.navigate(['/auth/forbidden']);
     return false;

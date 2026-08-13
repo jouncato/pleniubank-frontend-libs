@@ -86,5 +86,27 @@ describe('adminGuard', () => {
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/auth/forbidden']);
   });
+
+  // Verificación en vivo 2026-08-12: `employee`/`risk_officer`/`compliance_officer`
+  // son roles staff creables desde "Nuevo staff" en el backoffice, y hay
+  // pantallas reales (aprobación de la política global de Anticipo de
+  // nómina) que EXIGEN risk_officer/compliance_officer -- pero quedaban
+  // fuera de la whitelist de este guard de nivel superior, así que ese staff
+  // nunca lograba pasar de la pantalla de login pese a tener credenciales
+  // válidas.
+  it.each(['employee', 'risk_officer', 'compliance_officer'])(
+    'permite acceso a un usuario staff con role %s',
+    (role) => {
+      const store = TestBed.inject(SessionStore);
+      store.setUserToken('u');
+      store.setAdminToken('a');
+      store.setClaims({ role });
+
+      const result = TestBed.runInInjectionContext(() =>
+        adminGuard({} as never, { url: '/admin/x' } as never),
+      );
+      expect(result).toBe(true);
+    },
+  );
 });
 

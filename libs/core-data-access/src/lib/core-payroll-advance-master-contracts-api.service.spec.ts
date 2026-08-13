@@ -74,6 +74,20 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
     expect(opts?.headers?.get('X-Idempotency-Key')).toBeTruthy();
   });
 
+  it('adjustCapacity() hace PATCH a /{id}/capacity con X-Idempotency-Key', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+    const payload = { new_approved_total_limit: 30000000, reason: 'Reducción por tesorería' };
+
+    service.adjustCapacity('contract-1', payload).subscribe();
+
+    expect(http.patch).toHaveBeenCalledTimes(1);
+    const [url, body, opts] = http.patch.mock.calls[0];
+    expect(url).toContain('/contract-1/capacity');
+    expect(body).toEqual(payload);
+    expect(opts?.headers?.get('X-Idempotency-Key')).toBeTruthy();
+  });
+
   it('updateAssignmentTerms() hace PATCH a /assignments/{id} con el body dado (auditoría 2026-08-11)', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);

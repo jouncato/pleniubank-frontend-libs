@@ -131,10 +131,6 @@ export class IdentityEnterpriseApiService {
     return this.subEnterprises.createEnterpriseUser(enterpriseId, payload);
   }
 
-  createSubEnterpriseUser(subEnterpriseId: string, payload: CreateUserEnterpriseRequest): Observable<CreateUserEnterpriseEnvelope> {
-    return this.subEnterprises.createSubEnterpriseUser(subEnterpriseId, payload);
-  }
-
   listSubEnterpriseUsers(subEnterpriseId: string): Observable<SubEnterpriseUsersListEnvelope> {
     return this.subEnterprises.listSubEnterpriseUsers(subEnterpriseId);
   }

@@ -146,6 +146,33 @@ describe('LoginVm', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/admin/users');
   });
 
+  // Bug en vivo 2026-08-13: `role === 'admin'` como proxy de "es backoffice"
+  // dejaba a risk_officer/compliance_officer/employee/sre/devops cayendo en
+  // '/app/dashboard' -- ruta que no existe en backoffice-portal (solo tiene
+  // '/backoffice/*', con '/admin' como alias) -- y rebotaban al login pese a
+  // autenticar correctamente. Reproducido con Chrome DevTools contra un
+  // risk_officer real.
+  it('staff no-admin en backoffice (risk_officer) cae en /admin/dashboard, no en /app/dashboard', () => {
+    const { service, navigateByUrl } = setup({
+      portal: 'backoffice',
+      validateImpl: () =>
+        of({
+          data: {
+            claims: {
+              role: 'risk_officer',
+              email: 'risk.officer@example.com',
+              enterprise_id: undefined,
+              phone_verified: true,
+            },
+          },
+        }),
+    });
+
+    service.login(payload);
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/admin/dashboard');
+  });
+
   it('hace fallback al dashboard por defecto cuando returnUrl es externa', () => {
     const { service, navigateByUrl } = setup();
 

@@ -46,7 +46,6 @@ describe('IdentityEnterpriseApiService (facade delegation)', () => {
     } as unknown as typeof context;
     subEnterprises = {
       createEnterpriseUser: vi.fn(() => of('createEnterpriseUser-result')),
-      createSubEnterpriseUser: vi.fn(() => of('createSubEnterpriseUser-result')),
       listSubEnterpriseUsers: vi.fn(() => of('listSubEnterpriseUsers-result')),
       createSubEnterprise: vi.fn(() => of('createSubEnterprise-result')),
       listSubEnterprises: vi.fn(() => of('listSubEnterprises-result')),
@@ -162,14 +161,6 @@ describe('IdentityEnterpriseApiService (facade delegation)', () => {
     service.createEnterpriseUser('ent-1', payload).subscribe((res) => (result = res));
     expect(result).toBe('createEnterpriseUser-result');
     expect(subEnterprises.createEnterpriseUser).toHaveBeenCalledWith('ent-1', payload);
-  });
-
-  it('createSubEnterpriseUser() delega en IdentitySubEnterpriseApiService', () => {
-    const payload = { email: 'x@acme.test' } as any;
-    let result: unknown;
-    service.createSubEnterpriseUser('sub-1', payload).subscribe((res) => (result = res));
-    expect(result).toBe('createSubEnterpriseUser-result');
-    expect(subEnterprises.createSubEnterpriseUser).toHaveBeenCalledWith('sub-1', payload);
   });
 
   it('listSubEnterpriseUsers() delega en IdentitySubEnterpriseApiService', () => {

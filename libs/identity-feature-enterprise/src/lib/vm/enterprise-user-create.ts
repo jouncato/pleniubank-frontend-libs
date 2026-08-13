@@ -4,8 +4,6 @@ import { CreateUserEnterpriseRequest } from 'identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 import { mapHttpError } from '@pleniu/shared-http';
 
-export type EnterpriseUserTargetMode = 'enterprise' | 'subEnterprise';
-
 @Injectable()
 export class EnterpriseUserCreateVm {
   readonly state = signal<'idle' | 'submitting' | 'success' | 'error'>('idle');
@@ -33,19 +31,12 @@ export class EnterpriseUserCreateVm {
     if (this.state() === 'submitting') {
       return;
     }
-    const mode = this.route.snapshot.data['mode'] as EnterpriseUserTargetMode;
     const enterpriseId = this.route.snapshot.paramMap.get('enterpriseId');
-    const subId = this.route.snapshot.paramMap.get('subEnterpriseId');
 
     this.state.set('submitting');
     this.errorMessage.set(null);
 
-    const req$ =
-      mode === 'subEnterprise' && subId
-        ? this.api.createSubEnterpriseUser(subId, payload)
-        : enterpriseId
-          ? this.api.createEnterpriseUser(enterpriseId, payload)
-          : null;
+    const req$ = enterpriseId ? this.api.createEnterpriseUser(enterpriseId, payload) : null;
 
     if (!req$) {
       this.state.set('error');

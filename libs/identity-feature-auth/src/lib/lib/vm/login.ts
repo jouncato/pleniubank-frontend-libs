@@ -168,7 +168,7 @@ export class LoginVm {
           });
           return;
         }
-        this.navigateAfterSuccessfulValidate(claims, role, returnUrl);
+        this.navigateAfterSuccessfulValidate(claims, returnUrl);
       },
       error: () => {
         this.sessionStore.clear();
@@ -180,7 +180,6 @@ export class LoginVm {
 
   private navigateAfterSuccessfulValidate(
     claims: { enterprise_id?: string | null },
-    role: string | undefined,
     returnUrl?: string,
   ): void {
     const safeReturnUrl = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
@@ -205,7 +204,14 @@ export class LoginVm {
       return;
     }
 
-    const route = role === 'admin' ? '/admin/dashboard' : '/app/dashboard';
+    // AUDITORÍA 2026-08-13: `role === 'admin'` como proxy de "es backoffice"
+    // dejaba fuera a todo el resto del staff (risk_officer, compliance_officer,
+    // employee, sre, devops) -- backoffice-portal no tiene ninguna ruta '/app/*'
+    // (solo '/backoffice/*', con '/admin' como alias legacy), así que esos
+    // roles caían en el wildcard `**` y rebotaban de vuelta al login pese a
+    // haber iniciado sesión correctamente. `this.portal` (ya inyectado arriba)
+    // es la señal correcta, igual que ya hace `guestGuard` para este mismo caso.
+    const route = this.portal === 'backoffice' ? '/admin/dashboard' : '/app/dashboard';
     void this.router.navigateByUrl(safeReturnUrl ?? route);
   }
 

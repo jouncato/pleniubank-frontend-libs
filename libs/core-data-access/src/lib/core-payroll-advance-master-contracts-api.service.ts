@@ -77,6 +77,14 @@ export interface PayrollAdvanceMasterContractDto {
   custody_account_id?: string | null;
 }
 
+/** Ajusta (sube o baja) el cupo agregado total de un contrato ACTIVE. El
+ * motivo es obligatorio -- se persiste como `change_reason` de la nueva
+ * versión inmutable del contrato. */
+export interface PayrollAdvanceMasterContractCapacityAdjustmentRequest {
+  new_approved_total_limit: number;
+  reason: string;
+}
+
 export interface PayrollAdvanceMasterAssignmentCreateRequest {
   master_contract_id: string;
   enterprise_id: string;
@@ -285,6 +293,20 @@ export class CorePayrollAdvanceMasterContractsApiService {
     return this.http.patch<ApiEnvelope<PayrollAdvanceMasterContractDto>>(
       `${this.base}/${contractId}/status`,
       custodyAccountId ? { status, custody_account_id: custodyAccountId } : { status },
+      { headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }) },
+    );
+  }
+
+  /** Ajusta (sube o baja) el cupo agregado total de un contrato ACTIVE.
+   * Dual control en Core: el creador del contrato no puede ajustar su
+   * propio cupo -- debe hacerlo otro administrador. */
+  adjustCapacity(
+    contractId: string,
+    body: PayrollAdvanceMasterContractCapacityAdjustmentRequest,
+  ): Observable<ApiEnvelope<PayrollAdvanceMasterContractDto>> {
+    return this.http.patch<ApiEnvelope<PayrollAdvanceMasterContractDto>>(
+      `${this.base}/${contractId}/capacity`,
+      body,
       { headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }) },
     );
   }

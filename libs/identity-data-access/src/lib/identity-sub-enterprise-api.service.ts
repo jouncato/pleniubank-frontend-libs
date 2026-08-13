@@ -48,13 +48,6 @@ export class IdentitySubEnterpriseApiService {
     );
   }
 
-  createSubEnterpriseUser(subEnterpriseId: string, payload: CreateUserEnterpriseRequest): Observable<CreateUserEnterpriseEnvelope> {
-    return this.http.post<CreateUserEnterpriseEnvelope>(
-      `${this.apiConfig.identityBaseUrl}/api/v1/sub-enterprise/${encodeURIComponent(subEnterpriseId)}/users`,
-      payload,
-    );
-  }
-
   /** List active users linked to a sub-enterprise (business unit). */
   listSubEnterpriseUsers(subEnterpriseId: string): Observable<SubEnterpriseUsersListEnvelope> {
     return this.http.get<SubEnterpriseUsersListEnvelope>(

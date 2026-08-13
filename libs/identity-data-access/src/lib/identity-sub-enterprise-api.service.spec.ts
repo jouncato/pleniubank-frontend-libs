@@ -53,20 +53,6 @@ describe('IdentitySubEnterpriseApiService', () => {
     req.flush({ data: { user_id: 'u1', user_enterprise_id: 'ue-1', email: payload.email, role_in_enterprise: 'operator', is_active: true } });
   });
 
-  it('createSubEnterpriseUser() llama POST /sub-enterprise/{id}/users con id url-encoded', () => {
-    const payload: CreateUserEnterpriseRequest = {
-      email: 'u@acme.test',
-      password: 'x',
-      full_name: 'Nuevo Usuario',
-      role_in_enterprise: 'viewer',
-    };
-    service.createSubEnterpriseUser('sub 1', payload).subscribe();
-    const req = httpTesting.expectOne('http://localhost:8010/api/v1/sub-enterprise/sub%201/users');
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(payload);
-    req.flush({ data: { user_id: 'u1', user_enterprise_id: 'ue-1', email: payload.email, role_in_enterprise: 'viewer', is_active: true } });
-  });
-
   it('listSubEnterpriseUsers() llama GET /sub-enterprise/{id}/users', () => {
     service.listSubEnterpriseUsers('sub 1').subscribe((res) => {
       expect(res.total).toBe(1);
