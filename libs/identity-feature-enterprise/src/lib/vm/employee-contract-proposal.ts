@@ -46,10 +46,11 @@ export class EmployeeContractProposalVm {
    */
   readonly eligibility = signal<PayrollAdvancePolicyDecision | null>(null);
 
-  /** Comisión flat vigente del anticipo, como fracción -- vive fuera de
+  /** Costo FIJO de desembolso vigente, en moneda local -- vive fuera de
    * `eligibility()` (categoría "pricing" en Core, no elegibilidad). Se
-   * muestra al customer antes de aceptar la propuesta (2026-08-11). */
-  readonly feeRate = signal<number | null>(null);
+   * muestra al customer antes de aceptar la propuesta (2026-08-11).
+   * Requisito de Negocio 2026-08-14: ya no es una tasa/porcentaje. */
+  readonly feeFixedAmount = signal<number | null>(null);
 
   /**
    * Auditoría de calidad 2026-08-12 (P2.9): las 4 llamadas HTTP de este VM
@@ -152,11 +153,11 @@ export class EmployeeContractProposalVm {
       .subscribe({
         next: (envelope) => {
           this.eligibility.set(envelope.data?.decision ?? null);
-          this.feeRate.set(envelope.data?.fee_rate ?? null);
+          this.feeFixedAmount.set(envelope.data?.fee_fixed_amount ?? null);
         },
         error: () => {
           this.eligibility.set(null);
-          this.feeRate.set(null);
+          this.feeFixedAmount.set(null);
         },
       });
   }

@@ -113,7 +113,9 @@ export interface SimulatePayrollAdvanceRequest {
 
 export interface SimulatePayrollAdvanceResponse {
   amount: number;
-  fee_rate: number;
+  /** Costo FIJO de desembolso vigente, en moneda local (Requisito de Negocio
+   * 2026-08-14: ya no es una tasa/porcentaje). */
+  fee_fixed_amount: number;
   commission: number;
   total_deduction: number;
   denomination: string;
@@ -167,6 +169,10 @@ export interface PayrollAdvanceDto {
   customer_name?: string | null;
   estimated_deduction_date?: string | null;
   disbursed_at?: string | null;
+  // Auditoría 2026-08-15 (Fase 3.2): aging de cartera.
+  due_date?: string | null;
+  days_overdue?: number | null;
+  delinquency_bucket?: 'CURRENT' | 'DAYS_1_30' | 'DAYS_31_60' | 'DAYS_61_90' | 'DAYS_91_PLUS' | null;
 }
 
 @Injectable({ providedIn: 'root' })

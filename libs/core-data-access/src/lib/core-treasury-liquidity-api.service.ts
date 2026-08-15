@@ -11,7 +11,10 @@ const TREASURY_LIQUIDITY_MUTATION = {
   requiredFlag: 'treasuryLiquidity' as const,
 };
 
-export type CustodyPurpose = 'DISBURSEMENT' | 'COLLECTION' | 'SETTLEMENT' | 'RESERVE' | 'TREASURY_EXTERNAL' | 'PAYROLL_ADVANCE_DISBURSEMENT';
+// Debe reflejar exactamente `CustodyAccountPurpose` (pleniubank-core,
+// src/account/domain/value_objects/custody_account_purpose.py). Un valor
+// aquí que no exista ahí hace que el backend rechace la creación con 422.
+export type CustodyPurpose = 'PAYROLL_ADVANCE_DISBURSEMENT' | 'LOAN_DISBURSEMENT' | 'CUSTOMER_WALLET' | 'GENERAL' | 'TREASURY_EXTERNAL';
 export type FundingMode = 'AUTOMATIC' | 'MANUAL';
 export type PartyBankAccountKind = 'FBO' | 'TRUST' | 'ESCROW';
 export type SubLedgerKind = 'USER_WALLET' | 'SERVICE_POOL';
@@ -150,6 +153,46 @@ export interface CashMovementListPayload {
   items: TreasuryMovementResponseDto[];
 }
 
+// Auditoría 2026-08-15 (Fase 1.2, doble control de ajustes contables manuales).
+
+export interface ManualAdjustmentLineDto {
+  account_code: string;
+  side: 'DEBIT' | 'CREDIT';
+  amount: string;
+  amount_driver: string;
+}
+
+export interface ManualAdjustmentDto {
+  id: string;
+  country_code: string;
+  reason: string;
+  lines: ManualAdjustmentLineDto[];
+  status: 'PENDING_APPROVAL' | 'APPROVED' | 'POSTED' | 'REJECTED';
+  requested_by: string;
+  approved_by: string | null;
+  approved_at: string | null;
+  rejection_reason: string | null;
+  journal_entry_id: string | null;
+  created_at: string | null;
+}
+
+export interface ManualAdjustmentListPayload {
+  items: ManualAdjustmentDto[];
+}
+
+export interface ManualAdjustmentLineRequestDto {
+  account_code: string;
+  side: 'DEBIT' | 'CREDIT';
+  amount: string;
+  amount_driver?: string;
+}
+
+export interface ManualAdjustmentRequestDto {
+  lines: ManualAdjustmentLineRequestDto[];
+  reason: string;
+  country_code?: string;
+}
+
 export interface SubLedgerAssignmentDto {
   id: string;
   account_id: string;
@@ -265,6 +308,9 @@ export interface GlLedgerLineDto {
   amount: string;
   amount_driver: string;
   running_balance: string;
+  // Auditoría 2026-08-15 (Fase 3.1): drill-down al préstamo/cliente de origen.
+  loan_id: string | null;
+  customer_id: string | null;
 }
 
 export interface GlAccountLedgerPageDto {
@@ -292,6 +338,148 @@ export interface GlTrialBalanceDto {
   total_credit: string;
   is_balanced: boolean;
   accounts: GlTrialBalanceLineDto[];
+}
+
+// Auditoría 2026-08-15 (Fase 2.0): libro diario -- todos los asientos
+// (cualquier cuenta), orden cronológico, cada uno con sus líneas completas.
+
+export interface GlJournalLineDto {
+  line_id: string;
+  account_code: string;
+  side: 'DEBIT' | 'CREDIT';
+  amount: string;
+  amount_driver: string;
+}
+
+export interface GlJournalEntryDto {
+  entry_id: string;
+  entry_date: string;
+  trigger_event: string;
+  template_code: string;
+  source_event_id: string | null;
+  description: string | null;
+  loan_id: string | null;
+  customer_id: string | null;
+  total_amount: string;
+  lines: GlJournalLineDto[];
+}
+
+export interface GlJournalPageDto {
+  country_code: string;
+  has_more: boolean;
+  next_cursor: string | null;
+  entries: GlJournalEntryDto[];
+}
+
+// Auditoría 2026-08-15 (Fase 2.1): Estado de Resultados (P&L) por rango de fechas.
+
+export interface GlIncomeStatementLineDto {
+  account_code: string;
+  account_name: string | null;
+  amount: string;
+}
+
+export interface GlIncomeStatementDto {
+  country_code: string;
+  date_from: string;
+  date_to: string;
+  total_revenue: string;
+  total_expense: string;
+  net_income: string;
+  revenue_lines: GlIncomeStatementLineDto[];
+  expense_lines: GlIncomeStatementLineDto[];
+}
+
+// Auditoría 2026-08-15 (Fase 2.2): Balance General acumulado a una fecha de corte.
+
+export interface GlBalanceSheetLineDto {
+  account_code: string;
+  account_name: string | null;
+  amount: string;
+}
+
+// Auditoría 2026-08-15 (Fase 2.3): Flujo de Caja método directo por rango de fechas.
+
+export interface GlCashFlowCategoryDto {
+  trigger_event: string;
+  label: string;
+  net_amount: string;
+}
+
+export interface GlCashFlowDto {
+  country_code: string;
+  date_from: string;
+  date_to: string;
+  opening_cash: string;
+  closing_cash: string;
+  net_cash_flow: string;
+  is_consistent: boolean;
+  categories: GlCashFlowCategoryDto[];
+}
+
+// Auditoría 2026-08-15 (Fase 2.4): Dashboard ejecutivo financiero agregador.
+
+export interface ExecutiveDashboardTrialBalanceDto {
+  period: string;
+  total_debit: string;
+  total_credit: string;
+  is_balanced: boolean;
+  account_count: number;
+}
+
+export interface ExecutiveDashboardIncomeStatementDto {
+  date_from: string;
+  date_to: string;
+  total_revenue: string;
+  total_expense: string;
+  net_income: string;
+}
+
+export interface ExecutiveDashboardBalanceSheetDto {
+  as_of: string;
+  total_assets: string;
+  total_liabilities: string;
+  total_equity: string;
+  is_accounting_equation_balanced: boolean;
+}
+
+export interface ExecutiveDashboardCustodyPositionDto {
+  custody_master_id: string;
+  name: string;
+  denomination: string;
+  contable: string;
+  disponible: string;
+}
+
+export interface ExecutiveDashboardErrorDto {
+  component: string;
+  code: string;
+  custody_master_id?: string;
+}
+
+export interface ExecutiveDashboardDto {
+  country_code: string;
+  as_of: string;
+  partial: boolean;
+  errors: ExecutiveDashboardErrorDto[];
+  trial_balance: ExecutiveDashboardTrialBalanceDto | null;
+  income_statement: ExecutiveDashboardIncomeStatementDto | null;
+  balance_sheet: ExecutiveDashboardBalanceSheetDto | null;
+  custody_positions: ExecutiveDashboardCustodyPositionDto[];
+}
+
+export interface GlBalanceSheetDto {
+  country_code: string;
+  as_of: string;
+  total_assets: string;
+  total_liabilities: string;
+  total_equity_accounts: string;
+  net_income_to_date: string;
+  total_equity: string;
+  is_accounting_equation_balanced: boolean;
+  asset_lines: GlBalanceSheetLineDto[];
+  liability_lines: GlBalanceSheetLineDto[];
+  equity_lines: GlBalanceSheetLineDto[];
 }
 
 export interface AccountingPeriodDto {
@@ -497,6 +685,62 @@ export class CoreTreasuryLiquidityApiService {
     return this.http.get<ApiEnvelope<GlAccountLedgerPageDto>>(`${this.base}/gl-reporting/ledger`, { params: hp });
   }
 
+  getJournal(params: {
+    from: string;
+    to: string;
+    countryCode?: string;
+    cursor?: string;
+    limit?: number;
+  }): Observable<ApiEnvelope<GlJournalPageDto>> {
+    let hp = new HttpParams()
+      .set('from', params.from)
+      .set('to', params.to)
+      .set('country', params.countryCode ?? 'CO');
+    if (params.cursor) {
+      hp = hp.set('cursor', params.cursor);
+    }
+    if (params.limit != null) {
+      hp = hp.set('limit', String(params.limit));
+    }
+    return this.http.get<ApiEnvelope<GlJournalPageDto>>(`${this.base}/gl-reporting/journal`, { params: hp });
+  }
+
+  getIncomeStatement(params: {
+    from: string;
+    to: string;
+    countryCode?: string;
+  }): Observable<ApiEnvelope<GlIncomeStatementDto>> {
+    const hp = new HttpParams()
+      .set('from', params.from)
+      .set('to', params.to)
+      .set('country', params.countryCode ?? 'CO');
+    return this.http.get<ApiEnvelope<GlIncomeStatementDto>>(`${this.base}/gl-reporting/income-statement`, { params: hp });
+  }
+
+  getBalanceSheet(asOf: string, countryCode = 'CO'): Observable<ApiEnvelope<GlBalanceSheetDto>> {
+    const hp = new HttpParams().set('as_of', asOf).set('country', countryCode);
+    return this.http.get<ApiEnvelope<GlBalanceSheetDto>>(`${this.base}/gl-reporting/balance-sheet`, { params: hp });
+  }
+
+  getCashFlow(params: {
+    from: string;
+    to: string;
+    countryCode?: string;
+  }): Observable<ApiEnvelope<GlCashFlowDto>> {
+    const hp = new HttpParams()
+      .set('from', params.from)
+      .set('to', params.to)
+      .set('country', params.countryCode ?? 'CO');
+    return this.http.get<ApiEnvelope<GlCashFlowDto>>(`${this.base}/gl-reporting/cash-flow`, { params: hp });
+  }
+
+  getExecutiveDashboard(countryCode = 'CO'): Observable<ApiEnvelope<ExecutiveDashboardDto>> {
+    const hp = new HttpParams().set('country', countryCode);
+    return this.http.get<ApiEnvelope<ExecutiveDashboardDto>>(`${this.base}/gl-reporting/executive-dashboard`, {
+      params: hp,
+    });
+  }
+
   getAlertRules(): Observable<ApiEnvelope<AlertRuleDto[]>> {
     return this.http.get<ApiEnvelope<AlertRuleDto[]>>(`${this.base}/treasury-alerts/rules`);
   }
@@ -568,6 +812,45 @@ export class CoreTreasuryLiquidityApiService {
       hp = hp.set('limit', String(params.limit));
     }
     return this.http.get<ApiEnvelope<CashMovementListPayload>>(`${this.base}/gl-reporting/treasury/cash-movements`, { params: hp });
+  }
+
+  // -- Ajustes contables manuales (Fase 1.2, doble control) --
+
+  listManualAdjustments(
+    params: { countryCode?: string; status?: string; limit?: number } = {},
+  ): Observable<ApiEnvelope<ManualAdjustmentListPayload>> {
+    let hp = new HttpParams().set('country', params.countryCode ?? 'CO');
+    if (params.status) {
+      hp = hp.set('status', params.status);
+    }
+    if (params.limit != null) {
+      hp = hp.set('limit', String(params.limit));
+    }
+    return this.http.get<ApiEnvelope<ManualAdjustmentListPayload>>(
+      `${this.base}/gl-reporting/manual-adjustments`,
+      { params: hp },
+    );
+  }
+
+  requestManualAdjustment(payload: ManualAdjustmentRequestDto): Observable<ApiEnvelope<ManualAdjustmentDto>> {
+    return this.http.post<ApiEnvelope<ManualAdjustmentDto>>(
+      `${this.base}/gl-reporting/manual-adjustments`,
+      payload,
+    );
+  }
+
+  approveManualAdjustment(adjustmentId: string): Observable<ApiEnvelope<ManualAdjustmentDto>> {
+    return this.http.post<ApiEnvelope<ManualAdjustmentDto>>(
+      `${this.base}/gl-reporting/manual-adjustments/${encodePathSegment(adjustmentId)}/approve`,
+      {},
+    );
+  }
+
+  rejectManualAdjustment(adjustmentId: string, reason?: string): Observable<ApiEnvelope<ManualAdjustmentDto>> {
+    return this.http.post<ApiEnvelope<ManualAdjustmentDto>>(
+      `${this.base}/gl-reporting/manual-adjustments/${encodePathSegment(adjustmentId)}/reject`,
+      { reason: reason ?? null },
+    );
   }
 
   private runMutation<T>(context: unknown, requestFactory: () => Observable<T>): Observable<T> {

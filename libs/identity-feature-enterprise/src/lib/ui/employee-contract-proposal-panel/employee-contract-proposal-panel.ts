@@ -78,9 +78,9 @@ export class EmployeeContractProposalPanel implements OnInit {
     if (decision.effective_min_amount != null) {
       rows.splice(2, 0, { label: 'Monto mínimo estimado', value: this.formatAmount(decision.effective_min_amount) });
     }
-    const feeRate = this.vm.feeRate();
-    if (feeRate != null) {
-      rows.push({ label: 'Comisión del anticipo', value: this.formatPercent(feeRate) });
+    const feeFixedAmount = this.vm.feeFixedAmount();
+    if (feeFixedAmount != null) {
+      rows.push({ label: 'Costo de desembolso', value: this.formatAmount(feeFixedAmount) });
     }
     return rows;
   });

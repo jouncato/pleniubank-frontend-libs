@@ -41,6 +41,10 @@ export interface PayrollAdvanceGlobalPolicyFieldValues {
    * "pricing" -- 8vo campo canónico, agregado 2026-08-11 (auditoría sobre
    * la comisión del anticipo de nómina). */
   fee_rate: string | null;
+  /** Tasa nominal anual de interés (modo HYBRID/INTEREST), como fracción
+   * (0.0219 = 2.19%). Categoría "pricing" -- 9° campo canónico, agregado
+   * 2026-08-14 (activación HYBRID). */
+  interest_annual_rate: string | null;
 }
 
 export interface PayrollAdvanceGlobalPolicyChangeRequestDto {
@@ -75,6 +79,7 @@ export interface ProposeGlobalPolicyChangeRequestBody {
   max_discount_days?: number;
   employer_daily_limit_amount?: number;
   fee_rate?: number;
+  interest_annual_rate?: number;
 }
 
 export interface DecideGlobalPolicyChangeRequestBody {

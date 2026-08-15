@@ -11,12 +11,13 @@ import { PORTAL_APP } from './portal-app.token';
 import { SessionStore } from './session-store.service';
 import { signInPathForPortal } from './sign-in-path';
 
-export type SessionTerminationCode = 'SESSION_REPLACED' | 'SESSION_REVOKED' | 'SESSION_REQUIRED';
+export type SessionTerminationCode = 'SESSION_REPLACED' | 'SESSION_REVOKED' | 'SESSION_REQUIRED' | 'SESSION_EXPIRED';
 
 const TERMINATION_CODES = new Set<string>([
   'SESSION_REPLACED',
   'SESSION_REVOKED',
   'SESSION_REQUIRED',
+  'SESSION_EXPIRED',
 ]);
 
 const HEARTBEAT_INTERVAL_MS = 15_000;

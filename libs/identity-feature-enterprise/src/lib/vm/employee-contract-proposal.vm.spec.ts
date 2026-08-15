@@ -10,7 +10,7 @@ import { SessionStore } from '@pleniu/shared-auth';
 
 import { EmployeeContractProposalVm } from './employee-contract-proposal';
 
-const ELIGIBILITY_STUB = { provide: CorePayrollAdvancesApiService, useValue: { getEligibility: () => of({ data: { decision: null, fee_rate: 0.05 } }) } };
+const ELIGIBILITY_STUB = { provide: CorePayrollAdvancesApiService, useValue: { getEligibility: () => of({ data: { decision: null, fee_fixed_amount: 5000 } }) } };
 const SESSION_STORE_STUB = { provide: SessionStore, useValue: { claims: () => ({}) } };
 
 describe('EmployeeContractProposalVm', () => {
@@ -101,9 +101,9 @@ describe('EmployeeContractProposalVm', () => {
     expect(vm.profile()).toEqual(profile);
   });
 
-  it('loads feeRate from the eligibility response when customer_id is available (auditoría 2026-08-11)', () => {
+  it('loads feeFixedAmount from the eligibility response when customer_id is available (auditoría 2026-08-11)', () => {
     const apis = makeApis();
-    const getEligibility = vi.fn(() => of({ data: { decision: null, fee_rate: 0.05 } }));
+    const getEligibility = vi.fn(() => of({ data: { decision: null, fee_fixed_amount: 5000 } }));
     TestBed.configureTestingModule({
       providers: [
         EmployeeContractProposalVm,
@@ -125,7 +125,7 @@ describe('EmployeeContractProposalVm', () => {
     vm.load('sub-1');
 
     expect(getEligibility).toHaveBeenCalledWith({ customer_id: 'cust-1' });
-    expect(vm.feeRate()).toBe(0.05);
+    expect(vm.feeFixedAmount()).toBe(5000);
   });
 
   it('loads a master-only assignment (no legacy template) synthesized by available-products', () => {
@@ -309,7 +309,7 @@ describe('EmployeeContractProposalVm', () => {
       const apis = makeApis({
         listMyAssignedContracts: () => of({ data: [existingContract] }),
       });
-      const getEligibility = vi.fn(() => of({ data: { decision: null, fee_rate: 0.05 } }));
+      const getEligibility = vi.fn(() => of({ data: { decision: null, fee_fixed_amount: 5000 } }));
       TestBed.configureTestingModule({
         providers: [
           EmployeeContractProposalVm,

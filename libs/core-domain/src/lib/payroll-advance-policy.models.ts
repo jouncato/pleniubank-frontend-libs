@@ -19,7 +19,7 @@
  *
  * Los campos `Decimal` de Pydantic se serializan como `number` en JSON
  * (mismo criterio ya usado en `SimulatePayrollAdvanceResponse.amount` /
- * `fee_rate` / `commission` de `core-payroll-advances-api.service.ts`).
+ * `fee_fixed_amount` / `commission` de `core-payroll-advances-api.service.ts`).
  *
  * NO renombrar estos campos/valores: son un contrato estable compartido con
  * Rules Engine, Scoring y los portales (design.md Decision 7-11). Añadir un
@@ -242,10 +242,11 @@ export interface PayrollAdvanceEligibilityResponse {
   employer_id: string | null;
   decision: PayrollAdvancePolicyDecision | null;
   unavailable_reason: string | null;
-  /** Comisión flat vigente del anticipo, como fracción (0.05 = 5%). Vive
-   * fuera de `decision.policy` (categoría "pricing", no elegibilidad) --
-   * agregado 2026-08-11 para mostrarla al customer antes de aceptar. */
-  fee_rate: number | null;
+  /** Costo FIJO de desembolso vigente, en moneda local (p. ej. 5000 = COP
+   * 5.000). Requisito de Negocio 2026-08-14: ya no es una tasa/porcentaje.
+   * Vive fuera de `decision.policy` (categoría "pricing", no elegibilidad)
+   * -- agregado 2026-08-11 para mostrarla al customer antes de aceptar. */
+  fee_fixed_amount: number | null;
 }
 
 /**

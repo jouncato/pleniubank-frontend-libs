@@ -8,7 +8,7 @@ const REFRESH_TOKEN_KEY = 'pleniu_refresh_token';
 const REGISTRATION_ID_KEY = 'pleniu_registration_id';
 const SESSION_TERMINATION_KEY = 'pleniu_session_termination';
 
-export type SessionTerminationReason = 'SESSION_REPLACED' | 'SESSION_REVOKED' | 'SESSION_REQUIRED';
+export type SessionTerminationReason = 'SESSION_REPLACED' | 'SESSION_REVOKED' | 'SESSION_REQUIRED' | 'SESSION_EXPIRED';
 
 /** TTL recomendado para claims tras validate (I-07): evita POST /validate en cada navegación. */
 export const SESSION_CLAIMS_TTL_MS = 5 * 60 * 1000;
@@ -173,7 +173,7 @@ export class SessionStore {
 
   private readTerminationReason(): SessionTerminationReason | null {
     const value = sessionStorage.getItem(SESSION_TERMINATION_KEY);
-    return value === 'SESSION_REPLACED' || value === 'SESSION_REVOKED' || value === 'SESSION_REQUIRED'
+    return value === 'SESSION_REPLACED' || value === 'SESSION_REVOKED' || value === 'SESSION_REQUIRED' || value === 'SESSION_EXPIRED'
       ? value
       : null;
   }
