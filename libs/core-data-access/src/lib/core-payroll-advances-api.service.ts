@@ -175,6 +175,110 @@ export interface PayrollAdvanceDto {
   delinquency_bucket?: 'CURRENT' | 'DAYS_1_30' | 'DAYS_31_60' | 'DAYS_61_90' | 'DAYS_91_PLUS' | null;
 }
 
+// Auditoría 2026-08-15 (Reporte y Dashboard de Deuda por Empresa).
+
+export interface DebtByEnterpriseDto {
+  enterprise_id: string;
+  enterprise_name: string | null;
+  active_count: number;
+  total_count: number;
+  outstanding_owed: string;
+  interest_owed: string;
+  late_fee_owed: string;
+  total_owed: string;
+  overdue_count: number;
+}
+
+export interface DebtByBusinessUnitDto {
+  enterprise_id: string;
+  unit_id: string | null;
+  unit_name: string | null;
+  is_direct_to_parent: boolean;
+  active_count: number;
+  total_count: number;
+  outstanding_owed: string;
+  interest_owed: string;
+  late_fee_owed: string;
+  total_owed: string;
+  overdue_count: number;
+}
+
+export interface DebtDetailItemDto {
+  advance_id: string;
+  customer_id: string;
+  customer_name: string | null;
+  employer_id: string;
+  unit_name: string | null;
+  enterprise_id: string;
+  enterprise_name: string | null;
+  amount: string;
+  outstanding_balance: string;
+  principal_outstanding_balance: string | null;
+  commission_outstanding_balance: string | null;
+  accrued_interest: string;
+  accrued_late_fee: string;
+  status: string;
+  due_date: string | null;
+  days_overdue: number | null;
+  delinquency_bucket: 'CURRENT' | 'DAYS_1_30' | 'DAYS_31_60' | 'DAYS_61_90' | 'DAYS_91_PLUS' | null;
+  created_at: string;
+}
+
+export interface DebtDetailPageDto {
+  items: DebtDetailItemDto[];
+  next_cursor: string | null;
+  has_more: boolean;
+}
+
+export interface DebtMovementDto {
+  version: number;
+  movement_type:
+    | 'DESEMBOLSO'
+    | 'ABONO_PARCIAL'
+    | 'ABONO_TOTAL'
+    | 'CANCELACION_SALDO_PENDIENTE'
+    | 'AJUSTE_ANOMALIA'
+    | 'CAMBIO_ESTADO';
+  movement_date: string;
+  status: string;
+  debit: string;
+  credit: string;
+  balance: string;
+}
+
+export interface DebtMovementsDto {
+  advance_id: string;
+  movements: DebtMovementDto[];
+}
+
+export interface DebtSummaryDto {
+  enterprise_id: string | null;
+  partial: boolean;
+  errors: { component: string; code: string }[];
+  enterprise_count: number;
+  active_advance_count: number;
+  overdue_count: number;
+  anomaly_count: number;
+  outstanding_owed: string;
+  interest_owed: string;
+  late_fee_owed: string;
+  total_owed: string;
+}
+
+/** Auditoría 2026-08-15 (cierre de gaps): un anticipo CANCELLED/RETURNED con
+ * saldo fantasma (> 0) -- queda fuera de los 3 KPIs agregados porque esos
+ * estados no están en ACTIVE_RESERVING_STATUS_VALUES, así que se expone
+ * aquí como alerta explícita en vez de desaparecer silenciosamente. */
+export interface DebtAnomalyDto {
+  advance_id: string;
+  customer_name: string | null;
+  enterprise_id: string;
+  enterprise_name: string | null;
+  unit_name: string | null;
+  status: string;
+  outstanding_balance: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CorePayrollAdvancesApiService {
   private readonly base: string;
@@ -279,6 +383,59 @@ export class CorePayrollAdvancesApiService {
     return this.http.patch<ApiEnvelope<UpdatePayrollAdvanceStatusResponse>>(
       `${this.base}/${advanceId}/status`,
       body,
+    );
+  }
+
+  // ── Reporte de deuda por Empresa/Unidad de Negocio/Empleado ──────────────
+
+  getDebtByEnterprise(enterpriseId?: string): Observable<ApiEnvelope<{ items: DebtByEnterpriseDto[] }>> {
+    let hp = new HttpParams();
+    if (enterpriseId) hp = hp.set('enterprise_id', enterpriseId);
+    return this.http.get<ApiEnvelope<{ items: DebtByEnterpriseDto[] }>>(
+      `${this.base}/debt-report/by-enterprise`,
+      { params: hp },
+    );
+  }
+
+  getDebtByBusinessUnit(enterpriseId?: string): Observable<ApiEnvelope<{ items: DebtByBusinessUnitDto[] }>> {
+    let hp = new HttpParams();
+    if (enterpriseId) hp = hp.set('enterprise_id', enterpriseId);
+    return this.http.get<ApiEnvelope<{ items: DebtByBusinessUnitDto[] }>>(
+      `${this.base}/debt-report/by-business-unit`,
+      { params: hp },
+    );
+  }
+
+  getDebtDetail(params: {
+    enterpriseId?: string;
+    subEnterpriseId?: string;
+    cursor?: string;
+    limit?: number;
+  } = {}): Observable<ApiEnvelope<DebtDetailPageDto>> {
+    let hp = new HttpParams();
+    if (params.enterpriseId) hp = hp.set('enterprise_id', params.enterpriseId);
+    if (params.subEnterpriseId) hp = hp.set('sub_enterprise_id', params.subEnterpriseId);
+    if (params.cursor) hp = hp.set('cursor', params.cursor);
+    if (params.limit !== undefined) hp = hp.set('limit', String(params.limit));
+    return this.http.get<ApiEnvelope<DebtDetailPageDto>>(`${this.base}/debt-report/detail`, { params: hp });
+  }
+
+  getDebtMovements(advanceId: string): Observable<ApiEnvelope<DebtMovementsDto>> {
+    return this.http.get<ApiEnvelope<DebtMovementsDto>>(`${this.base}/debt-report/${advanceId}/movements`);
+  }
+
+  getDebtSummary(enterpriseId?: string): Observable<ApiEnvelope<DebtSummaryDto>> {
+    let hp = new HttpParams();
+    if (enterpriseId) hp = hp.set('enterprise_id', enterpriseId);
+    return this.http.get<ApiEnvelope<DebtSummaryDto>>(`${this.base}/debt-report/summary`, { params: hp });
+  }
+
+  getDebtAnomalies(enterpriseId?: string): Observable<ApiEnvelope<{ items: DebtAnomalyDto[] }>> {
+    let hp = new HttpParams();
+    if (enterpriseId) hp = hp.set('enterprise_id', enterpriseId);
+    return this.http.get<ApiEnvelope<{ items: DebtAnomalyDto[] }>>(
+      `${this.base}/debt-report/anomalies`,
+      { params: hp },
     );
   }
 }
