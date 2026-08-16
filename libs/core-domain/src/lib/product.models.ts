@@ -14,6 +14,18 @@ export const PRODUCT_TYPES = [
 
 export type ProductTypeCode = (typeof PRODUCT_TYPES)[number];
 
+/** Product types that are retained for compatibility but not available for new use. */
+export const DISABLED_PRODUCT_TYPES: ReadonlySet<string> = new Set(['LIBRANZA', 'PAYROLL_DEDUCTION']);
+
+/** Product types currently exposed to originations and product selectors. */
+export const ACTIVE_PRODUCT_TYPES = PRODUCT_TYPES.filter(
+  (type) => !DISABLED_PRODUCT_TYPES.has(type),
+);
+
+export function isProductTypeActive(type: string | null | undefined): boolean {
+  return type == null || !DISABLED_PRODUCT_TYPES.has(type.trim().toUpperCase());
+}
+
 /** Respuesta `ProductResponse` en Core. */
 export interface ProductDto {
   id: string;

@@ -13,8 +13,6 @@ export const RULESET_USAGE_PLAIN: Record<string, string> = {
     'Límites de pago y transferencias: disponible para evaluaciones de contexto de pago según configuración del Core.',
   PAYROLL_ADVANCE_POSTING:
     'Reglas de contexto para anticipo de nómina (alineadas con contratos de producto payroll).',
-  LIBRANZA_POSTING:
-    'Reglas de contexto para crédito libranza (alineadas con contratos de producto libranza).',
 };
 
 const DOMAIN_LABELS: Record<string, string> = {
@@ -33,7 +31,6 @@ export function domainLabel(domain: string): string {
 
 const PRODUCT_TYPE_LABELS: Record<string, string> = {
   PAYROLL_ADVANCE: 'Anticipo de nómina',
-  LIBRANZA: 'Libranza',
   CREDIT_CARD: 'Tarjeta de crédito',
   SAVINGS_ACCOUNT: 'Cuenta de ahorros',
   CHECKING_ACCOUNT: 'Cuenta corriente',

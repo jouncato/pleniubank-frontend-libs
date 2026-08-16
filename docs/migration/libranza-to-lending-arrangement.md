@@ -1,5 +1,7 @@
 # Migration Guide: Libranza / PayrollAdvance / ClientContract → LendingArrangement
 
+> **Estado operativo 2026-08-16:** Libranza está deshabilitada temporalmente. No se deben crear nuevas plantillas, contratos o `LendingArrangement` de tipo `LIBRANZA`/`PAYROLL_DEDUCTION`, y los portales filtran esos registros. Esta guía se conserva como referencia de migración; `PAYROLL_ADVANCE` continúa usando su flujo dedicado.
+
 > **Versión:** v0.5.0 — **Sunset:** 2026-12-31
 >
 > Guía de migración frontend desde las APIs pre-BIAN (`/api/v1/loans`, `/api/v1/client-contracts`)
