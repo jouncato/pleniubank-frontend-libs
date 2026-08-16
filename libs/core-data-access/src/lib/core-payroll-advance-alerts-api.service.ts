@@ -45,7 +45,9 @@ export interface PayrollAdvanceAlertDto {
   severity: PayrollAdvanceAlertSeverity | string;
   status: PayrollAdvanceAlertStatus | string;
   customer_id: string | null;
+  customer_name?: string | null;
   employer_id: string | null;
+  employer_name?: string | null;
   advance_id: string | null;
   manual_review_case_id: string | null;
   actor: string;

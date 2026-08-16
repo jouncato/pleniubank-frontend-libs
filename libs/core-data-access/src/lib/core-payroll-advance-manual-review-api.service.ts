@@ -54,7 +54,9 @@ export const PAYROLL_ADVANCE_MANUAL_REVIEW_MANAGE_ROLES = [
 export interface PayrollAdvanceManualReviewCaseDto {
   id: string;
   customer_id: string;
+  customer_name?: string | null;
   employer_id: string;
+  employer_name?: string | null;
   requested_amount: string;
   denomination: string;
   policy_version: string;
