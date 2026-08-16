@@ -49,6 +49,7 @@ export * from './lib/core-employer-payroll-policy-api.service';
 export * from './lib/core-payroll-advance-alerts-api.service';
 export * from './lib/core-payroll-advance-global-policy-api.service';
 export * from './lib/core-payroll-advance-manual-review-api.service';
+export * from './lib/core-payroll-advance-usury-ceiling-api.service';
 export * from './lib/payroll-advance-policy-labels';
 export * from './lib/core-prepayment-ceiling-api.service';
 export * from './lib/core-regulatory-limits-api.service';

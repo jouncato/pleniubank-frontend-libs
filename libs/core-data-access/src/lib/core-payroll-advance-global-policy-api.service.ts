@@ -38,13 +38,22 @@ export interface PayrollAdvanceGlobalPolicyFieldValues {
   max_discount_days: number | null;
   employer_daily_limit_amount: string | null;
   /** Comisión flat del anticipo, como fracción (0.05 = 5%). Categoría
-   * "pricing" -- 8vo campo canónico, agregado 2026-08-11 (auditoría sobre
-   * la comisión del anticipo de nómina). */
+   * "pricing" -- 8vo campo canónico, agregado 2026-08-11. ADR-019
+   * (2026-08-15): RETIRADO de `ProposeGlobalPolicyChangeRequestBody` --
+   * ya no es proponible (el costo real de desembolso es un monto fijo en
+   * COP, gobernado aparte). Se conserva aquí solo para que las propuestas
+   * históricas ya aprobadas sigan mostrando su valor congelado. */
   fee_rate: string | null;
-  /** Tasa nominal anual de interés (modo HYBRID/INTEREST), como fracción
+  /** Tasa nominal ANUAL de interés (modo HYBRID/INTEREST), como fracción
    * (0.0219 = 2.19%). Categoría "pricing" -- 9° campo canónico, agregado
-   * 2026-08-14 (activación HYBRID). */
+   * 2026-08-14 (activación HYBRID). ADR-020 (2026-08-15): RETIRADO --
+   * resultó ser una tasa MENSUAL mal etiquetada, ver `interest_monthly_rate`.
+   * Se conserva aquí solo por las propuestas históricas ya aprobadas. */
   interest_annual_rate: string | null;
+  /** Tasa nominal MENSUAL de interés (modo HYBRID/INTEREST, ADR-020), como
+   * fracción. Categoría "pricing" -- 10° campo canónico, agregado
+   * 2026-08-15, reemplaza a `interest_annual_rate`. */
+  interest_monthly_rate: string | null;
 }
 
 export interface PayrollAdvanceGlobalPolicyChangeRequestDto {
@@ -78,8 +87,9 @@ export interface ProposeGlobalPolicyChangeRequestBody {
   max_active_count?: number;
   max_discount_days?: number;
   employer_daily_limit_amount?: number;
-  fee_rate?: number;
-  interest_annual_rate?: number;
+  /** ADR-020 (2026-08-15): reemplaza a `interest_annual_rate` (retirado,
+   * junto con `fee_rate`/ADR-019, de este cuerpo de propuesta). */
+  interest_monthly_rate?: number;
 }
 
 export interface DecideGlobalPolicyChangeRequestBody {
