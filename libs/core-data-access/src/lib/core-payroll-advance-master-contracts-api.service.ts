@@ -127,7 +127,9 @@ export interface PayrollAdvanceMasterReconciliationDiscrepancyDto {
   category: string;
   core_reference: string;
   enterprise_id: string | null;
+  enterprise_name?: string | null;
   sub_enterprise_id: string | null;
+  sub_enterprise_name?: string | null;
   correlation_id: string | null;
   details: Record<string, unknown>;
 }
