@@ -52,6 +52,7 @@ export interface CreateEmploymentProfileRequest {
 export interface PatchEmploymentProfileRequest {
   job_title?: string;
   department?: string | null;
+  employment_start_date?: string;
   salary_amount?: number;
   contract_type?: ContractType | string;
 }

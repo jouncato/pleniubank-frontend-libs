@@ -6,7 +6,8 @@ export type AdminCreateUserRole =
   | 'admin'
   | 'employee'
   | 'risk_officer'
-  | 'compliance_officer';
+  | 'compliance_officer'
+  | 'legal_admin';
 
 export interface AdminCreateUserRequest {
   email: string;
