@@ -217,6 +217,17 @@ export interface DebtDetailItemDto {
   commission_outstanding_balance: string | null;
   accrued_interest: string;
   accrued_late_fee: string;
+  /** Auditoría 2026-08-18 (export a Excel): mismo criterio que
+   * `DebtByEnterpriseDto.total_owed` -- outstanding_balance + accrued_interest
+   * + accrued_late_fee, calculado en Core (nunca en el frontend), para que la
+   * hoja de Empleado del export cuadre exactamente contra Empresa/Unidad. */
+  total_owed: string;
+  /** `true` si esta fila SÍ está sumada en los 3 KPI agregados
+   * (`/by-enterprise`, `/by-business-unit`, `/summary`) -- `false` para un
+   * anticipo CANCELLED/RETURNED con saldo fantasma, que queda fuera de esos
+   * totales por diseño. Sin este flag, sumar la hoja de Empleado a mano no
+   * cuadra contra el resumen. */
+  included_in_active_totals: boolean;
   status: string;
   due_date: string | null;
   days_overdue: number | null;

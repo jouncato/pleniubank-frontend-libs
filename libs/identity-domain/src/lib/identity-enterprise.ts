@@ -261,6 +261,73 @@ export interface CreateSubEnterpriseResponse {
   created_at: string;
 }
 
+/**
+ * Carga masiva de jerarquía (plan 2026-08-18): una fila del archivo
+ * subido (CSV/Excel, parseado en el navegador) por Unidad de Negocio.
+ * `fila_id` es una clave temporal elegida por quien sube el archivo (ej.
+ * "UN-001") -- correlaciona esta fila con su resultado en la respuesta y
+ * con las filas de empleados del mismo archivo que la referencian; no se
+ * persiste en el backend.
+ */
+export interface BulkCreateSubEnterpriseItem {
+  fila_id: string;
+  business_name: string;
+  document_type: EnterpriseDocumentType;
+  document_number: string;
+  company_code: string;
+  email: string;
+  phone: string;
+  metadata_?: BusinessUnitMetadata;
+}
+
+export interface BulkCreateSubEnterprisesRequest {
+  items: BulkCreateSubEnterpriseItem[];
+}
+
+export interface BulkCreateSubEnterpriseResultEntry {
+  fila_id: string;
+  status: 'created' | 'skipped' | 'error';
+  sub_enterprise_id?: string | null;
+  business_name: string;
+  reason?: string | null;
+}
+
+export interface BulkCreateSubEnterprisesResponse {
+  created: number;
+  skipped: number;
+  errors: number;
+  entries: BulkCreateSubEnterpriseResultEntry[];
+}
+
+/** Una fila de invitación en lote. `sub_enterprise_id` debe ser un id real
+ * -- el frontend resuelve la referencia temporal de unidad del archivo
+ * (`fila_id` del bulk de Unidades) contra el resultado de ese primer paso
+ * antes de construir este request. */
+export interface BulkInviteEmployeeItem {
+  fila_id: string;
+  email: string;
+  sub_enterprise_id: string;
+}
+
+export interface BulkInviteEmployeesRequest {
+  items: BulkInviteEmployeeItem[];
+}
+
+export interface BulkInviteEmployeeResultEntry {
+  fila_id: string;
+  status: 'invited' | 'skipped' | 'error';
+  invite_id?: string | null;
+  email: string;
+  reason?: string | null;
+}
+
+export interface BulkInviteEmployeesResponse {
+  invited: number;
+  skipped: number;
+  errors: number;
+  entries: BulkInviteEmployeeResultEntry[];
+}
+
 export type RegisterEnterpriseEnvelope = ApiEnvelope<RegisterEnterpriseResponse>;
 export type VerifyEnterpriseEmailEnvelope = ApiEnvelope<VerifyEnterpriseEmailResponse>;
 export type ResendEnterpriseEmailOtpEnvelope = ApiEnvelope<ResendEnterpriseEmailOtpResponse>;
@@ -278,6 +345,8 @@ export type AcceptEmployeeInvitationEnvelope = AcceptEmployeeInvitationResponse;
 export type AcceptInviteEnvelope = ApiEnvelope<AcceptInviteResponse>;
 export type CreateUserEnterpriseEnvelope = ApiEnvelope<CreateUserEnterpriseResponse>;
 export type CreateSubEnterpriseEnvelope = ApiEnvelope<CreateSubEnterpriseResponse>;
+export type BulkCreateSubEnterprisesEnvelope = ApiEnvelope<BulkCreateSubEnterprisesResponse>;
+export type BulkInviteEmployeesEnvelope = ApiEnvelope<BulkInviteEmployeesResponse>;
 
 /** Lightweight row used in sub-enterprise (business unit) listings. */
 export interface SubEnterpriseSummaryDto {

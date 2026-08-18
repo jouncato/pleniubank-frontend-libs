@@ -13,6 +13,7 @@ export * from './lib/token-refresh-coordinator.service';
 export * from './lib/csrf.interceptor';
 export * from './lib/auth.guard';
 export * from './lib/admin.guard';
+export * from './lib/customer.guard';
 export * from './lib/role.guard';
 export * from './lib/rules-session.service';
 export * from './lib/rules-role.guard';

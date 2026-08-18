@@ -6,6 +6,10 @@ import {
   AcceptEmployeeInvitationRequest,
   AcceptInviteEnvelope,
   AcceptInviteRequest,
+  BulkCreateSubEnterprisesEnvelope,
+  BulkCreateSubEnterprisesRequest,
+  BulkInviteEmployeesEnvelope,
+  BulkInviteEmployeesRequest,
   CreateSubEnterpriseEnvelope,
   CreateSubEnterpriseRequest,
   CreateUserEnterpriseEnvelope,
@@ -96,6 +100,13 @@ export class IdentityEnterpriseApiService {
     return this.invitations.inviteEmployee(payload);
   }
 
+  bulkInviteEmployees(
+    enterpriseId: string,
+    payload: BulkInviteEmployeesRequest,
+  ): Observable<BulkInviteEmployeesEnvelope> {
+    return this.invitations.bulkInviteEmployees(enterpriseId, payload);
+  }
+
   validateEmployeeInvitation(token: string): Observable<ValidateEmployeeInvitationEnvelope> {
     return this.invitations.validateEmployeeInvitation(token);
   }
@@ -137,6 +148,13 @@ export class IdentityEnterpriseApiService {
 
   createSubEnterprise(enterpriseId: string, payload: CreateSubEnterpriseRequest): Observable<CreateSubEnterpriseEnvelope> {
     return this.subEnterprises.createSubEnterprise(enterpriseId, payload);
+  }
+
+  bulkCreateSubEnterprises(
+    enterpriseId: string,
+    payload: BulkCreateSubEnterprisesRequest,
+  ): Observable<BulkCreateSubEnterprisesEnvelope> {
+    return this.subEnterprises.bulkCreateSubEnterprises(enterpriseId, payload);
   }
 
   listSubEnterprises(

@@ -1,0 +1,318 @@
+<section class="bhu" aria-labelledby="bhu-title">
+
+  <!-- ── Encabezado ──────────────────────────────────────────────────── -->
+  <header class="bhu__head">
+    <span class="bhu__badge" aria-hidden="true"><pb-icon name="network-hub" size="md" [decorative]="true" /></span>
+    <div>
+      <p class="bhu__eyebrow">Carga masiva de jerarquía</p>
+      <h2 id="bhu-title" class="bhu__title">Unidades de Negocio y Empleados</h2>
+      <p class="bhu__lead">
+        Sube un Excel con 2 hojas ("Unidades de Negocio" y "Empleados") para crear varias unidades
+        e invitar a sus empleados en un solo paso. Los empleados quedan invitados por correo — su
+        registro y validación de identidad siguen siendo self-service, igual que una invitación
+        individual.
+      </p>
+    </div>
+  </header>
+
+  <!-- ── Riel de progreso ────────────────────────────────────────────── -->
+  <ol class="bhu-rail" [style.--bhu-rail-progress]="activeStage() / (stages.length - 1)">
+    @for (stage of stages; track stage.label; let i = $index) {
+      <li
+        class="bhu-rail__item"
+        [class.bhu-rail__item--done]="i < activeStage()"
+        [class.bhu-rail__item--active]="i === activeStage()"
+      >
+        <span class="bhu-rail__node">
+          @if (i < activeStage()) {
+            <pb-icon name="check" size="xs" [decorative]="true" />
+          } @else {
+            <pb-icon [name]="stage.icon" size="xs" [decorative]="true" />
+          }
+        </span>
+        <span class="bhu-rail__copy">
+          <span class="bhu-rail__label">{{ stage.label }}</span>
+          <span class="bhu-rail__hint">{{ stage.hint }}</span>
+        </span>
+      </li>
+    }
+  </ol>
+
+  <!-- ── Paso 1: plantilla + carga ───────────────────────────────────── -->
+  @if (vm.state() === 'idle' || vm.state() === 'invalid') {
+    <div class="bhu-import">
+      <div class="bhu-import__card bhu-import__card--template">
+        <span class="bhu-import__icon" aria-hidden="true"><pb-icon name="download" size="sm" [decorative]="true" /></span>
+        <div class="bhu-import__copy">
+          <h3>Plantilla oficial</h3>
+          <p>Trae las 2 hojas con las columnas exactas y un ejemplo ya diligenciado.</p>
+        </div>
+        <button type="button" class="bhu-btn bhu-btn--ghost" (click)="downloadTemplate()">
+          <pb-icon name="download" size="xs" [decorative]="true" /> Descargar plantilla
+        </button>
+      </div>
+
+      <label
+        class="bhu-dropzone"
+        [class.bhu-dropzone--dragging]="dragging()"
+        [class.bhu-dropzone--filled]="vm.fileName()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave()"
+        (drop)="onDrop($event)"
+      >
+        <span class="bhu-dropzone__icon" aria-hidden="true"><pb-icon name="upload" size="md" [decorative]="true" /></span>
+        <span class="bhu-dropzone__title">Arrastra tu archivo aquí</span>
+        <span class="bhu-dropzone__hint">o haz clic para buscarlo · .xlsx o .csv</span>
+        @if (vm.fileName(); as name) {
+          <span class="bhu-dropzone__file"><pb-icon name="statement" size="xs" [decorative]="true" /> {{ name }}</span>
+        }
+        <input type="file" accept=".xlsx,.csv" (change)="onFileSelected($event)" hidden />
+      </label>
+
+      @if (vm.state() === 'invalid') {
+        <div class="bhu-issues" role="alert">
+          <header class="bhu-issues__head">
+            <pb-icon name="warning" size="sm" [decorative]="true" />
+            <span>{{ vm.parseIssues().length }} problema(s) de formato detectados antes de continuar</span>
+          </header>
+          <ul class="bhu-issues__list">
+            @for (issue of vm.parseIssues(); track issue.rowNumber + issue.sheet + issue.message) {
+              <li>
+                <span class="bhu-issues__sheet">{{ issue.sheet }}</span>
+                <span class="bhu-issues__row">fila {{ issue.rowNumber }}</span>
+                <span class="bhu-issues__msg">{{ issue.message }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Paso 2: vista previa ────────────────────────────────────────── -->
+  @if (vm.state() === 'parsed' || vm.state() === 'submitting') {
+    <div class="bhu-preview" [class.bhu-preview--busy]="vm.state() === 'submitting'">
+      <div class="bhu-preview__toolbar">
+        <div class="bhu-kpis">
+          <div class="bhu-kpi bhu-kpi--blue">
+            <span class="bhu-kpi__value">{{ totalUnits() }}</span>
+            <span class="bhu-kpi__label">Unidades de Negocio</span>
+          </div>
+          <div class="bhu-kpi bhu-kpi--teal">
+            <span class="bhu-kpi__value">{{ totalEmployees() }}</span>
+            <span class="bhu-kpi__label">Empleados</span>
+          </div>
+        </div>
+        <button type="button" class="bhu-link" (click)="startOver()" [disabled]="vm.state() === 'submitting'">
+          <pb-icon name="undo" size="xs" [decorative]="true" /> Elegir otro archivo
+        </button>
+      </div>
+
+      @if (totalUnits() > 0) {
+        <div class="bhu-ledger">
+          <p class="bhu-ledger__caption">Unidades de Negocio</p>
+          <div class="bhu-ledger__scroll">
+            <table>
+              <thead>
+                <tr><th>Referencia</th><th>Nombre</th><th>Documento</th><th>Código</th><th>Correo</th></tr>
+              </thead>
+              <tbody>
+                @for (u of vm.units(); track u.fila_id) {
+                  <tr>
+                    <td><span class="bhu-tag">{{ u.fila_id }}</span></td>
+                    <td class="bhu-ledger__strong">{{ u.business_name }}</td>
+                    <td>{{ u.document_type }} {{ u.document_number }}</td>
+                    <td><span class="bhu-tag bhu-tag--code">{{ u.company_code }}</span></td>
+                    <td>{{ u.email }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      @if (totalEmployees() > 0) {
+        <div class="bhu-ledger">
+          <p class="bhu-ledger__caption">Empleados</p>
+          <div class="bhu-ledger__scroll">
+            <table>
+              <thead>
+                <tr><th>Referencia</th><th>Unidad (referencia o ID existente)</th><th>Correo</th></tr>
+              </thead>
+              <tbody>
+                @for (e of vm.employees(); track e.fila_id) {
+                  <tr>
+                    <td><span class="bhu-tag">{{ e.fila_id }}</span></td>
+                    <td><span class="bhu-tag bhu-tag--code">{{ e.unit_ref }}</span></td>
+                    <td>{{ e.email }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      <div class="bhu-actions bhu-actions--end">
+        <button type="button" class="bhu-btn bhu-btn--primary" (click)="confirm()" [disabled]="vm.state() === 'submitting'">
+          @if (vm.state() === 'submitting') {
+            <span class="bhu-spinner" aria-hidden="true"></span> Procesando…
+          } @else {
+            <pb-icon name="check" size="xs" [decorative]="true" /> Confirmar y cargar
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Error de envío ──────────────────────────────────────────────── -->
+  @if (vm.state() === 'error') {
+    <div class="bhu-alert bhu-alert--error" role="alert">
+      <pb-icon name="error" size="sm" [decorative]="true" />
+      <p>{{ vm.errorMessage() }}</p>
+    </div>
+    <div class="bhu-actions">
+      <button type="button" class="bhu-btn bhu-btn--ghost" (click)="startOver()">
+        <pb-icon name="undo" size="xs" [decorative]="true" /> Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- ── Paso 3: resultado (trazabilidad de negocio) ──────────────────── -->
+  @if (vm.state() === 'done') {
+    <div class="bhu-outcome" [class.bhu-outcome--warn]="vm.exceptionRows().length > 0">
+      <span class="bhu-outcome__icon" aria-hidden="true">
+        <pb-icon [name]="vm.exceptionRows().length > 0 ? 'warning' : 'shield-check'" size="lg" [decorative]="true" />
+      </span>
+      <div>
+        <p class="bhu-outcome__title">
+          @if (vm.exceptionRows().length > 0) {
+            Carga procesada con excepciones
+          } @else {
+            Carga procesada sin novedades
+          }
+        </p>
+        <p class="bhu-outcome__sub">
+          Archivo <strong>{{ vm.fileName() }}</strong> · resultado fila por fila disponible más abajo.
+        </p>
+      </div>
+    </div>
+
+    @if (vm.unitResults().length > 0) {
+      <div class="bhu-kpi-row">
+        <p class="bhu-kpi-row__title">Unidades de Negocio</p>
+        <div class="bhu-kpis bhu-kpis--triad">
+          <div class="bhu-kpi bhu-kpi--accent-teal">
+            <span class="bhu-kpi__value">{{ countBy(vm.unitResults(), 'created') }}</span>
+            <span class="bhu-kpi__label">Creadas</span>
+          </div>
+          <div class="bhu-kpi bhu-kpi--accent-amber">
+            <span class="bhu-kpi__value">{{ countBy(vm.unitResults(), 'skipped') }}</span>
+            <span class="bhu-kpi__label">Omitidas</span>
+          </div>
+          <div class="bhu-kpi bhu-kpi--accent-red">
+            <span class="bhu-kpi__value">{{ countBy(vm.unitResults(), 'error') }}</span>
+            <span class="bhu-kpi__label">Con error</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (vm.employeeResults().length > 0) {
+      <div class="bhu-kpi-row">
+        <p class="bhu-kpi-row__title">Empleados</p>
+        <div class="bhu-kpis bhu-kpis--triad">
+          <div class="bhu-kpi bhu-kpi--accent-teal">
+            <span class="bhu-kpi__value">{{ countBy(vm.employeeResults(), 'invited') }}</span>
+            <span class="bhu-kpi__label">Invitados</span>
+          </div>
+          <div class="bhu-kpi bhu-kpi--accent-amber">
+            <span class="bhu-kpi__value">{{ countBy(vm.employeeResults(), 'skipped') }}</span>
+            <span class="bhu-kpi__label">Omitidos</span>
+          </div>
+          <div class="bhu-kpi bhu-kpi--accent-red">
+            <span class="bhu-kpi__value">{{ countBy(vm.employeeResults(), 'error') }}</span>
+            <span class="bhu-kpi__label">Con error</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (vm.exceptionRows().length > 0) {
+      <div class="bhu-exceptions" role="status">
+        <pb-icon name="fraud-alert" size="sm" [decorative]="true" />
+        <span>
+          <strong>{{ vm.exceptionRows().length }} fila(s)</strong> requieren tu atención — revisa el motivo en el
+          detalle de abajo o descarga el reporte completo.
+        </span>
+        <button type="button" class="bhu-btn bhu-btn--ghost bhu-btn--sm" (click)="downloadExceptions()">
+          <pb-icon name="download" size="xs" [decorative]="true" /> Reporte de excepciones
+        </button>
+      </div>
+    }
+
+    @if (vm.unitResults().length > 0) {
+      <div class="bhu-ledger">
+        <p class="bhu-ledger__caption">Detalle — Unidades de Negocio</p>
+        <div class="bhu-ledger__scroll">
+          <table>
+            <thead><tr><th>Referencia</th><th>Nombre</th><th>Estado</th><th>Motivo</th></tr></thead>
+            <tbody>
+              @for (e of vm.unitResults(); track e.fila_id) {
+                <tr [class.bhu-ledger__row--error]="e.status === 'error'" [class.bhu-ledger__row--skipped]="e.status === 'skipped'">
+                  <td><span class="bhu-tag">{{ e.fila_id }}</span></td>
+                  <td class="bhu-ledger__strong">{{ e.business_name }}</td>
+                  <td>
+                    <span class="bhu-status-chip" [class]="'bhu-status-chip--' + e.status">
+                      <span class="bhu-status-chip__dot"></span>
+                      {{ e.status === 'created' ? 'Creada' : e.status === 'skipped' ? 'Omitida' : 'Con error' }}
+                    </span>
+                  </td>
+                  <td class="bhu-ledger__reason">{{ e.reason || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    @if (vm.employeeResults().length > 0) {
+      <div class="bhu-ledger">
+        <p class="bhu-ledger__caption">Detalle — Empleados</p>
+        <div class="bhu-ledger__scroll">
+          <table>
+            <thead><tr><th>Referencia</th><th>Correo</th><th>Estado</th><th>Motivo</th></tr></thead>
+            <tbody>
+              @for (e of vm.employeeResults(); track e.fila_id) {
+                <tr [class.bhu-ledger__row--error]="e.status === 'error'" [class.bhu-ledger__row--skipped]="e.status === 'skipped'">
+                  <td><span class="bhu-tag">{{ e.fila_id }}</span></td>
+                  <td class="bhu-ledger__strong">{{ e.email }}</td>
+                  <td>
+                    <span class="bhu-status-chip" [class]="'bhu-status-chip--' + e.status">
+                      <span class="bhu-status-chip__dot"></span>
+                      {{ e.status === 'invited' ? 'Invitado' : e.status === 'skipped' ? 'Omitido' : 'Con error' }}
+                    </span>
+                  </td>
+                  <td class="bhu-ledger__reason">{{ e.reason || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <div class="bhu-actions">
+      @if (vm.exceptionRows().length > 0) {
+        <button type="button" class="bhu-btn bhu-btn--ghost" (click)="downloadExceptions()">
+          <pb-icon name="download" size="xs" [decorative]="true" /> Descargar reporte de excepciones
+        </button>
+      }
+      <button type="button" class="bhu-btn bhu-btn--primary" (click)="startOver()">
+        <pb-icon name="upload" size="xs" [decorative]="true" /> Cargar otro archivo
+      </button>
+    </div>
+  }
+</section>

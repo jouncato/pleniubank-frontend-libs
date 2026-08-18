@@ -103,6 +103,37 @@ export interface PayrollAdvanceMasterAssignmentCreateRequest {
   effective_to?: string | null;
 }
 
+/** Una fila de la asignación masiva (plan "Carga masiva de jerarquía",
+ * 2026-08-18). `fila_id` correlaciona esta fila con su resultado en la
+ * respuesta -- no se persiste. */
+export interface BulkMasterAssignmentItem {
+  fila_id: string;
+  sub_enterprise_id: string;
+  company_code: string;
+}
+
+export interface BulkAssignMasterContractRequest {
+  enterprise_id: string;
+  items: BulkMasterAssignmentItem[];
+  approved_sub_limit?: number | null;
+  default_employee_amount?: number | null;
+}
+
+export interface BulkMasterAssignmentResultEntry {
+  fila_id: string;
+  sub_enterprise_id: string;
+  status: 'assigned' | 'skipped' | 'error';
+  assignment_id?: string | null;
+  reason?: string | null;
+}
+
+export interface BulkAssignMasterContractResponse {
+  assigned: number;
+  skipped: number;
+  errors: number;
+  entries: BulkMasterAssignmentResultEntry[];
+}
+
 export interface PayrollAdvanceMasterAssignmentDto {
   id: string;
   master_contract_id: string;
@@ -319,6 +350,21 @@ export class CorePayrollAdvanceMasterContractsApiService {
   ): Observable<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>> {
     return this.http.post<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>>(
       `${this.base}/${contractId}/assignments`,
+      body,
+      { headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }) },
+    );
+  }
+
+  /** Asignación masiva de Unidades de Negocio a un Contrato Maestro ya
+   * activo (plan "Carga masiva de jerarquía", 2026-08-18) -- reutiliza el
+   * mismo control dual que `assign()` (evaluado una vez para todo el
+   * lote, no por fila, en el backend). */
+  bulkAssign(
+    contractId: string,
+    body: BulkAssignMasterContractRequest,
+  ): Observable<ApiEnvelope<BulkAssignMasterContractResponse>> {
+    return this.http.post<ApiEnvelope<BulkAssignMasterContractResponse>>(
+      `${this.base}/${contractId}/assignments/bulk`,
       body,
       { headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }) },
     );

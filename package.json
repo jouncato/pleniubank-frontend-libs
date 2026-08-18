@@ -35,7 +35,8 @@
     "@sentry/browser": "^10.48.0",
     "@sentry/core": "^10.48.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@angular/build": "^21.2.4",

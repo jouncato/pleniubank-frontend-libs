@@ -1,12 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { API_CONFIG, ApiConfig } from '@pleniu/shared-http';
+import { map } from 'rxjs/operators';
+import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 import {
   AcceptEmployeeInvitationEnvelope,
   AcceptEmployeeInvitationRequest,
   AcceptInviteEnvelope,
   AcceptInviteRequest,
+  BulkInviteEmployeesEnvelope,
+  BulkInviteEmployeesRequest,
+  BulkInviteEmployeesResponse,
   EmployeeInvitationsListEnvelope,
   InviteEmployeeEnvelope,
   InviteEmployeeRequest,
@@ -15,6 +19,20 @@ import {
   ListEmployeeInvitationsParams,
   ValidateEmployeeInvitationEnvelope,
 } from 'identity-domain';
+
+/** Identity devuelve muchos POST como cuerpo plano; Core usa `{ data, meta }`.
+ * Mismo helper que `IdentitySubEnterpriseApiService` (duplicado a propósito --
+ * cada servicio por subdominio se mantiene independiente, sin un import
+ * cruzado solo por 6 líneas). */
+function asApiEnvelope<T>(body: ApiEnvelope<T> | T): ApiEnvelope<T> {
+  if (body !== null && typeof body === 'object' && 'data' in (body as object)) {
+    const env = body as ApiEnvelope<T>;
+    if (env.data !== undefined && env.data !== null) {
+      return env;
+    }
+  }
+  return { data: body as T };
+}
 
 /**
  * Invitaciones de usuario dentro de una empresa (B2B): crear invitación y
@@ -40,6 +58,22 @@ export class IdentityEnterpriseInvitationApiService {
       `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/invite-employee`,
       payload,
     );
+  }
+
+  /** Carga masiva de invitaciones (plan 2026-08-18), hasta 500 por llamada.
+   * `enterpriseId` va en el path (a diferencia del invite individual, que lo
+   * deriva del propio actor) porque este endpoint también admite un token de
+   * staff de plataforma invitando en nombre de una empresa explícita. */
+  bulkInviteEmployees(
+    enterpriseId: string,
+    payload: BulkInviteEmployeesRequest,
+  ): Observable<BulkInviteEmployeesEnvelope> {
+    return this.http
+      .post<BulkInviteEmployeesEnvelope | BulkInviteEmployeesResponse>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/${encodeURIComponent(enterpriseId)}/invite-employee/bulk`,
+        payload,
+      )
+      .pipe(map((body) => asApiEnvelope<BulkInviteEmployeesResponse>(body)));
   }
 
   validateEmployeeInvitation(token: string): Observable<ValidateEmployeeInvitationEnvelope> {

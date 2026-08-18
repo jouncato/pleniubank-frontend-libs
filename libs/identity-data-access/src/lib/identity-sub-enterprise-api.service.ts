@@ -4,6 +4,9 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 import {
+  BulkCreateSubEnterprisesEnvelope,
+  BulkCreateSubEnterprisesRequest,
+  BulkCreateSubEnterprisesResponse,
   CreateSubEnterpriseEnvelope,
   CreateSubEnterpriseRequest,
   CreateUserEnterpriseEnvelope,
@@ -62,6 +65,20 @@ export class IdentitySubEnterpriseApiService {
         payload,
       )
       .pipe(map((body) => asApiEnvelope<CreateSubEnterpriseEnvelope['data']>(body)));
+  }
+
+  /** Carga masiva de Unidades de Negocio (plan 2026-08-18), hasta 200 por
+   * llamada -- misma respuesta plana normalizada que `createSubEnterprise`. */
+  bulkCreateSubEnterprises(
+    enterpriseId: string,
+    payload: BulkCreateSubEnterprisesRequest,
+  ): Observable<BulkCreateSubEnterprisesEnvelope> {
+    return this.http
+      .post<BulkCreateSubEnterprisesEnvelope | BulkCreateSubEnterprisesResponse>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/${encodeURIComponent(enterpriseId)}/sub-enterprises/bulk`,
+        payload,
+      )
+      .pipe(map((body) => asApiEnvelope<BulkCreateSubEnterprisesResponse>(body)));
   }
 
   /** List business units (sub-enterprises) under a parent enterprise. */
