@@ -11,6 +11,8 @@ import {
   LoginEnvelope,
   LoginRequest,
   LoginResponse,
+  LoginTwoFactorChallengeResponse,
+  LoginTwoFactorVerifyRequest,
   CustomerMfaPatchRequest,
   StaffChangePasswordRequest,
   StaffPatchProfileRequest,
@@ -239,8 +241,18 @@ export class IdentityAuthApiService {
     );
   }
 
-  login(payload: LoginRequest): Observable<LoginEnvelope> {
-    return this.http.post<LoginEnvelope>(`${this.apiConfig.identityBaseUrl}/api/v1/auth/login`, payload);
+  login(payload: LoginRequest): Observable<LoginEnvelope | LoginTwoFactorChallengeResponse> {
+    return this.http.post<LoginEnvelope | LoginTwoFactorChallengeResponse>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/login`,
+      payload,
+    );
+  }
+
+  verifyLoginTwoFactor(payload: LoginTwoFactorVerifyRequest): Observable<LoginEnvelope> {
+    return this.http.post<LoginEnvelope>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/auth/login/2fa/verify`,
+      payload,
+    );
   }
 
   logout(): Observable<unknown> {

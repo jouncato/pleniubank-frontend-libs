@@ -39,6 +39,7 @@ const KNOWN_ERROR_CODE_MESSAGES: Readonly<Record<string, string>> = {
   RATE_LIMIT_EXCEEDED: 'Demasiados intentos. Espera un momento antes de volver a intentarlo.',
   CUSTOM_KEY_FORMAT_NOT_ALLOWED:
     'Ese alias no es válido. Usa solo letras y números, sin espacios, y evita palabras reservadas.',
+  ENTERPRISE_EMAIL_MISMATCH: 'El correo del representante y el del administrador deben ser diferentes.',
 };
 
 const GENERIC_FALLBACK_MESSAGE = 'Ocurrió un error inesperado.';

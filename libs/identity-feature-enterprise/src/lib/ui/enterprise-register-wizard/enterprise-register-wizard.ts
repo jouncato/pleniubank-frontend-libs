@@ -23,6 +23,8 @@ export class EnterpriseRegisterWizard implements OnInit {
   protected readonly vm = inject(RegisterEnterpriseVm);
   readonly showPrincipalPassword = signal(false);
   readonly showAdminPassword = signal(false);
+  readonly showPrincipalConfirmPassword = signal(false);
+  readonly showAdminConfirmPassword = signal(false);
   readonly embeddedHostShell = inject(EMBEDDED_PORTAL_IDENTITY_CHROME, { optional: true }) === true;
   protected readonly onboarding = inject(EnterpriseOnboardingStore);
   private readonly enterpriseApi = inject(IdentityEnterpriseApiService);
@@ -60,6 +62,7 @@ export class EnterpriseRegisterWizard implements OnInit {
         Validators.pattern(ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN),
       ],
     ],
+    confirmPassword: ['', [Validators.required]],
   });
 
   readonly adminForm = this.fb.nonNullable.group({
@@ -73,6 +76,7 @@ export class EnterpriseRegisterWizard implements OnInit {
         Validators.pattern(ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN),
       ],
     ],
+    confirmPassword: ['', [Validators.required]],
   });
 
   confirmCorrect = false;
@@ -204,6 +208,30 @@ export class EnterpriseRegisterWizard implements OnInit {
     ].filter(Boolean).length;
   }
 
+  onPrincipalPasswordInput(): void {
+    const confirmControl = this.principalForm.controls.confirmPassword;
+    if (!confirmControl.value || !confirmControl.hasError('mismatch')) {
+      return;
+    }
+    if (this.principalPasswordValue === confirmControl.value) {
+      const nextErrors = { ...(confirmControl.errors ?? {}) };
+      delete nextErrors['mismatch'];
+      confirmControl.setErrors(Object.keys(nextErrors).length > 0 ? nextErrors : null);
+    }
+  }
+
+  onAdminPasswordInput(): void {
+    const confirmControl = this.adminForm.controls.confirmPassword;
+    if (!confirmControl.value || !confirmControl.hasError('mismatch')) {
+      return;
+    }
+    if (this.adminPasswordValue === confirmControl.value) {
+      const nextErrors = { ...(confirmControl.errors ?? {}) };
+      delete nextErrors['mismatch'];
+      confirmControl.setErrors(Object.keys(nextErrors).length > 0 ? nextErrors : null);
+    }
+  }
+
   isCompanyStep0Invalid(): boolean {
     return this.companyStep0Fields.some((field) => this.companyForm.controls[field].invalid);
   }
@@ -237,6 +265,11 @@ export class EnterpriseRegisterWizard implements OnInit {
       this.principalForm.markAllAsTouched();
       return;
     }
+    if (this.principalForm.controls.password.value !== this.principalForm.controls.confirmPassword.value) {
+      this.principalForm.controls.confirmPassword.setErrors({ mismatch: true });
+      this.principalForm.markAllAsTouched();
+      return;
+    }
     const v = this.principalForm.getRawValue();
     this.onboarding.patch({
       wizardStep: 2,
@@ -250,6 +283,11 @@ export class EnterpriseRegisterWizard implements OnInit {
 
   nextFromAdmin(): void {
     if (this.adminForm.invalid) {
+      this.adminForm.markAllAsTouched();
+      return;
+    }
+    if (this.adminForm.controls.password.value !== this.adminForm.controls.confirmPassword.value) {
+      this.adminForm.controls.confirmPassword.setErrors({ mismatch: true });
       this.adminForm.markAllAsTouched();
       return;
     }
@@ -350,6 +388,10 @@ export class EnterpriseRegisterWizard implements OnInit {
         passwordErrors.push(`Contraseña del representante: falta ${missing.join(', ')}`);
       }
       failedFields.push('Contraseña del representante');
+    } else if (this.principalPasswordValue !== this.principalForm.controls.confirmPassword.value) {
+      this.principalForm.controls.confirmPassword.setErrors({ mismatch: true });
+      passwordErrors.push('Contraseña del representante: las contraseñas no coinciden');
+      failedFields.push('Confirmar contraseña del representante');
     }
 
     if (this.adminForm.controls.email.invalid) failedFields.push('Correo del administrador');
@@ -367,6 +409,10 @@ export class EnterpriseRegisterWizard implements OnInit {
         passwordErrors.push(`Contraseña del administrador: falta ${missing.join(', ')}`);
       }
       failedFields.push('Contraseña del administrador');
+    } else if (this.adminPasswordValue !== this.adminForm.controls.confirmPassword.value) {
+      this.adminForm.controls.confirmPassword.setErrors({ mismatch: true });
+      passwordErrors.push('Contraseña del administrador: las contraseñas no coinciden');
+      failedFields.push('Confirmar contraseña del administrador');
     }
 
     if (failedFields.length > 0) {

@@ -41,6 +41,7 @@ describe('LoginVm', () => {
     };
     loginImpl?: () => unknown;
     validateImpl?: () => unknown;
+    verifyTwoFactorImpl?: () => unknown;
   }) {
     TestBed.resetTestingModule();
     sessionStorage.clear();
@@ -93,6 +94,17 @@ describe('LoginVm', () => {
                   enterprise_id: enterpriseId,
                   phone_verified: phoneVerified,
                 },
+              },
+            })),
+      ),
+      verifyLoginTwoFactor: vi.fn(
+        options?.verifyTwoFactorImpl ??
+          (() =>
+            of({
+              data: {
+                access_token: 'a',
+                refresh_token: 'r',
+                admin_access_token: role === 'admin' ? 'admin-token' : null,
               },
             })),
       ),
@@ -397,6 +409,78 @@ describe('LoginVm', () => {
 
     expect(service.state()).toBe('error');
     expect(service.errorMessage()).toBe('Correo o contrasena incorrectos.');
+  });
+
+  it('entra en requires_2fa cuando el backend devuelve un challenge en vez de tokens, sin tocar sessionStore', () => {
+    const { service, identityApi, navigateByUrl } = setup({
+      loginImpl: () =>
+        of({
+          data: { requires_2fa: true, user_id: 'user-123', expires_in_seconds: 600 },
+        }),
+    });
+
+    service.login(payload, '/app/personal/loans/list');
+
+    expect(service.state()).toBe('requires_2fa');
+    expect(service.pendingTwoFactorUserId()).toBe('user-123');
+    expect(navigateByUrl).not.toHaveBeenCalled();
+    expect(identityApi.validate).not.toHaveBeenCalled();
+  });
+
+  it('verifyTwoFactor completa el login (mismo destino que un login directo) tras el challenge', () => {
+    const { service, navigateByUrl } = setup({
+      loginImpl: () =>
+        of({ data: { requires_2fa: true, user_id: 'user-123', expires_in_seconds: 600 } }),
+      enterpriseId: undefined,
+    });
+
+    service.login(payload, '/app/personal/loans/list');
+    expect(service.state()).toBe('requires_2fa');
+
+    service.verifyTwoFactor('123456');
+
+    expect(service.state()).toBe('success');
+    expect(navigateByUrl).toHaveBeenCalledWith('/app/personal/loans/list');
+    expect(service.pendingTwoFactorUserId()).toBeNull();
+  });
+
+  it('verifyTwoFactor en error mantiene requires_2fa y muestra el mensaje curado', () => {
+    const { service, identityApi } = setup({
+      loginImpl: () =>
+        of({ data: { requires_2fa: true, user_id: 'user-123', expires_in_seconds: 600 } }),
+      verifyTwoFactorImpl: () =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 422,
+              error: { errors: [{ code: 'HTTP_ERROR', message: 'nope' }] },
+            }),
+        ),
+    });
+    service.login(payload);
+
+    service.verifyTwoFactor('000000');
+
+    expect(identityApi.verifyLoginTwoFactor).toHaveBeenCalledWith({
+      user_id: 'user-123',
+      code: '000000',
+    });
+    expect(service.state()).toBe('requires_2fa');
+    expect(service.errorMessage()).toBeTruthy();
+  });
+
+  it('cancelTwoFactor limpia el challenge pendiente y vuelve a idle', () => {
+    const { service } = setup({
+      loginImpl: () =>
+        of({ data: { requires_2fa: true, user_id: 'user-123', expires_in_seconds: 600 } }),
+    });
+    service.login(payload);
+    expect(service.state()).toBe('requires_2fa');
+
+    service.cancelTwoFactor();
+
+    expect(service.state()).toBe('idle');
+    expect(service.pendingTwoFactorUserId()).toBeNull();
   });
 
   it('usa copy por defecto en 401 sin mensaje usable del sobre', () => {

@@ -92,6 +92,13 @@ export interface PayrollAdvanceListDto {
   total_active: number;
 }
 
+/** GET /payroll-advances/customer/{customer_id}/active — visibilidad de deuda al aprobar/desembolsar. */
+export interface PayrollAdvanceActiveSummaryDto {
+  items: PayrollAdvanceDto[];
+  count: number;
+  total_outstanding_balance: number;
+}
+
 export interface SimulatePayrollAdvanceRequest {
   contract_id: string;
   amount: number;
@@ -173,6 +180,8 @@ export interface PayrollAdvanceDto {
   due_date?: string | null;
   days_overdue?: number | null;
   delinquency_bucket?: 'CURRENT' | 'DAYS_1_30' | 'DAYS_31_60' | 'DAYS_61_90' | 'DAYS_91_PLUS' | null;
+  /** Solo poblado por `GET /payroll-advances/customer/{id}/active`. */
+  outstanding_balance?: number | null;
 }
 
 // Auditoría 2026-08-15 (Reporte y Dashboard de Deuda por Empresa).
@@ -326,6 +335,18 @@ export class CorePayrollAdvancesApiService {
   ): Observable<ApiEnvelope<PayrollAdvanceRepaymentBreakdownDto>> {
     return this.http.get<ApiEnvelope<PayrollAdvanceRepaymentBreakdownDto>>(
       `${this.base}/${advanceId}/breakdown`,
+    );
+  }
+
+  /**
+   * Anticipos activos + deuda pendiente de un cliente puntual (cierra el gap
+   * de visibilidad del reporte QA 18-ago-2026 "doble desembolso": la política
+   * ya permite hasta `max_active_count` anticipos simultáneos a propósito,
+   * pero el operador no veía la deuda activa antes de aprobar uno nuevo).
+   */
+  getActiveByCustomer(customerId: string): Observable<ApiEnvelope<PayrollAdvanceActiveSummaryDto>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceActiveSummaryDto>>(
+      `${this.base}/customer/${customerId}/active`,
     );
   }
 

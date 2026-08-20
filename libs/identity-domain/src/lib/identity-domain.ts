@@ -107,6 +107,20 @@ export interface LoginResponse {
   password_must_change?: boolean;
 }
 
+/** POST /api/v1/auth/login cuando `users.two_factor_enabled` aplica: no trae token todavía. */
+export interface LoginTwoFactorChallengeResponse {
+  requires_2fa: true;
+  user_id: string;
+  expires_in_seconds: number;
+  debug_otp?: string | null;
+}
+
+/** POST /api/v1/auth/login/2fa/verify */
+export interface LoginTwoFactorVerifyRequest {
+  user_id: string;
+  code: string;
+}
+
 export interface StaffChangePasswordRequest {
   current_password: string;
   new_password: string;

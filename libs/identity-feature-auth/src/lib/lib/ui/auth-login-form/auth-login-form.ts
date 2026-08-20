@@ -26,6 +26,10 @@ export class AuthLoginForm {
     password: ['', [Validators.required]],
   });
 
+  readonly twoFactorForm = this.fb.group({
+    code: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(12)]],
+  });
+
   constructor(protected readonly vm: LoginVm) {}
 
   protected readonly sessionTermination = this.sessionStore.terminationReason;
@@ -45,5 +49,18 @@ export class AuthLoginForm {
       email: email ?? '',
       password: password ?? '',
     }, returnUrl);
+  }
+
+  submitTwoFactor(): void {
+    if (this.twoFactorForm.invalid) {
+      this.twoFactorForm.markAllAsTouched();
+      return;
+    }
+    this.vm.verifyTwoFactor(this.twoFactorForm.controls.code.value ?? '');
+  }
+
+  backToCredentials(): void {
+    this.twoFactorForm.reset();
+    this.vm.cancelTwoFactor();
   }
 }

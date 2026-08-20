@@ -169,6 +169,7 @@
                     formControlName="password"
                     autocomplete="new-password"
                     placeholder=" "
+                    (input)="onPrincipalPasswordInput()"
                   />
                   <label for="pp" class="pl-field__label">Contraseña (mín. 12 caracteres)</label>
                   <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -199,6 +200,27 @@
                   <li [class.valid]="principalHasNumberPassword">Al menos un número</li>
                   <li [class.valid]="principalHasSymbolPassword">Al menos un símbolo</li>
                 </ul>
+
+                <div class="pl-field pl-field--with-icon pl-field--with-action">
+                  <input
+                    id="ppc"
+                    class="pl-field__control"
+                    [type]="showPrincipalConfirmPassword() ? 'text' : 'password'"
+                    formControlName="confirmPassword"
+                    autocomplete="new-password"
+                    placeholder=" "
+                    (input)="onPrincipalPasswordInput()"
+                  />
+                  <label for="ppc" class="pl-field__label">Confirmar contraseña</label>
+                  <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="5" y="11" width="14" height="9" rx="2" />
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  </svg>
+                  <pb-password-visibility-toggle [(visible)]="showPrincipalConfirmPassword" />
+                </div>
+                @if (principalForm.controls.confirmPassword.hasError('mismatch')) {
+                  <p class="field-error">Las contraseñas no coinciden.</p>
+                }
 
                 <div class="actions">
                   <button type="button" class="pl-btn pl-btn--outline" (click)="prev()">Atrás</button>
@@ -245,6 +267,7 @@
                     formControlName="password"
                     autocomplete="new-password"
                     placeholder=" "
+                    (input)="onAdminPasswordInput()"
                   />
                   <label for="ap" class="pl-field__label">Contraseña (mín. 12 caracteres)</label>
                   <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -275,6 +298,27 @@
                   <li [class.valid]="adminHasNumberPassword">Al menos un número</li>
                   <li [class.valid]="adminHasSymbolPassword">Al menos un símbolo</li>
                 </ul>
+
+                <div class="pl-field pl-field--with-icon pl-field--with-action">
+                  <input
+                    id="apc"
+                    class="pl-field__control"
+                    [type]="showAdminConfirmPassword() ? 'text' : 'password'"
+                    formControlName="confirmPassword"
+                    autocomplete="new-password"
+                    placeholder=" "
+                    (input)="onAdminPasswordInput()"
+                  />
+                  <label for="apc" class="pl-field__label">Confirmar contraseña</label>
+                  <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="5" y="11" width="14" height="9" rx="2" />
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  </svg>
+                  <pb-password-visibility-toggle [(visible)]="showAdminConfirmPassword" />
+                </div>
+                @if (adminForm.controls.confirmPassword.hasError('mismatch')) {
+                  <p class="field-error">Las contraseñas no coinciden.</p>
+                }
 
                 <div class="actions">
                   <button type="button" class="pl-btn pl-btn--outline" (click)="prev()">Atrás</button>

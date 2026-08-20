@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginEnvelope, LoginRequest, LoginResponse } from 'identity-domain';
+import { LoginEnvelope, LoginRequest, LoginResponse, LoginTwoFactorChallengeResponse } from 'identity-domain';
 import { IdentityAuthApiService, unwrapValidateResponse } from '@pleniu/identity-data-access';
 import {
   isValidReturnUrl,
@@ -17,19 +17,32 @@ import { ApiHttpError, mapHttpError, resolveUserFacingApiError } from '@pleniu/s
 
 import { AuthRateLimitService } from './auth-rate-limit.service';
 
-function unwrapLoginPayload(body: LoginEnvelope | LoginResponse): LoginResponse {
+function unwrapLoginPayload(
+  body: LoginEnvelope | LoginResponse | LoginTwoFactorChallengeResponse,
+): LoginResponse | LoginTwoFactorChallengeResponse {
   if (body && typeof body === 'object' && 'data' in body && (body as LoginEnvelope).data) {
     return (body as LoginEnvelope).data;
   }
-  return body as LoginResponse;
+  return body as LoginResponse | LoginTwoFactorChallengeResponse;
+}
+
+function isTwoFactorChallenge(
+  data: LoginResponse | LoginTwoFactorChallengeResponse,
+): data is LoginTwoFactorChallengeResponse {
+  return (data as LoginTwoFactorChallengeResponse).requires_2fa === true;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginVm {
-  readonly state = signal<'idle' | 'submitting' | 'success' | 'locked' | 'rate_limited' | 'error'>('idle');
+  readonly state = signal<
+    'idle' | 'submitting' | 'success' | 'locked' | 'rate_limited' | 'error' | 'requires_2fa'
+  >('idle');
   readonly errorMessage = signal<string | null>(null);
+  /** Set solo mientras `state() === 'requires_2fa'`: identifica el challenge pendiente. */
+  readonly pendingTwoFactorUserId = signal<string | null>(null);
+  private pendingReturnUrl: string | undefined;
 
   private readonly identityApi = inject(IdentityAuthApiService);
   private readonly sessionStore = inject(SessionStore);
@@ -72,22 +85,66 @@ export class LoginVm {
 
     this.identityApi.login(payload).subscribe({
       next: (response) => {
-        this.rateLimit.reset();
-        const data = unwrapLoginPayload(response as LoginEnvelope | LoginResponse);
-        this.sessionStore.clearTerminationReason();
-        if (this.sessionStrategy === 'httpOnlyCookie') {
-          this.sessionStore.setUserToken(null);
-          this.sessionStore.setRefreshToken(null);
-          this.sessionStore.setAdminToken(null);
-        } else {
-          this.sessionStore.setUserToken(data.access_token);
-          this.sessionStore.setRefreshToken(data.refresh_token ?? null);
-          this.sessionStore.setAdminToken(data.admin_access_token ?? null);
+        const data = unwrapLoginPayload(response);
+        if (isTwoFactorChallenge(data)) {
+          this.rateLimit.reset();
+          this.pendingTwoFactorUserId.set(data.user_id);
+          this.pendingReturnUrl = returnUrl;
+          this.state.set('requires_2fa');
+          return;
         }
-        this.hydrateSession(returnUrl);
+        this.rateLimit.reset();
+        this.applySuccessfulLogin(data, returnUrl);
       },
       error: (error: unknown) => this.applyLoginHttpError(mapHttpError(error)),
     });
+  }
+
+  /** Completa el login tras `POST /auth/login/2fa/verify` (mismo código que llega por email). */
+  verifyTwoFactor(code: string): void {
+    const userId = this.pendingTwoFactorUserId();
+    if (!userId || this.state() === 'submitting') {
+      return;
+    }
+    this.state.set('submitting');
+    this.errorMessage.set(null);
+
+    this.identityApi.verifyLoginTwoFactor({ user_id: userId, code }).subscribe({
+      next: (response) => {
+        const data = unwrapLoginPayload(response) as LoginResponse;
+        this.pendingTwoFactorUserId.set(null);
+        this.applySuccessfulLogin(data, this.pendingReturnUrl);
+      },
+      error: (error: unknown) => {
+        this.state.set('requires_2fa');
+        this.errorMessage.set(
+          resolveUserFacingApiError(mapHttpError(error), {
+            fallback: 'Código incorrecto o expirado. Intenta de nuevo.',
+          }),
+        );
+      },
+    });
+  }
+
+  cancelTwoFactor(): void {
+    this.pendingTwoFactorUserId.set(null);
+    this.pendingReturnUrl = undefined;
+    this.errorMessage.set(null);
+    this.state.set('idle');
+  }
+
+  private applySuccessfulLogin(data: LoginResponse, returnUrl?: string): void {
+    this.sessionStore.clearTerminationReason();
+    if (this.sessionStrategy === 'httpOnlyCookie') {
+      this.sessionStore.setUserToken(null);
+      this.sessionStore.setRefreshToken(null);
+      this.sessionStore.setAdminToken(null);
+    } else {
+      this.sessionStore.setUserToken(data.access_token);
+      this.sessionStore.setRefreshToken(data.refresh_token ?? null);
+      this.sessionStore.setAdminToken(data.admin_access_token ?? null);
+    }
+    this.hydrateSession(returnUrl);
   }
 
   private applyLoginHttpError(mappedError: ApiHttpError): void {

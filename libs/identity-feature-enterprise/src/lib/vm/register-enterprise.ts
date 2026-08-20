@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { RegisterEnterprisePersonRequest } from 'identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
-import { mapHttpError } from '@pleniu/shared-http';
+import { mapHttpError, resolveUserFacingApiError } from '@pleniu/shared-http';
 import { EnterpriseOnboardingStore } from '../enterprise-onboarding.store';
 
 export type RegisterEnterpriseStep = 0 | 1 | 2 | 3;
@@ -112,7 +112,9 @@ export class RegisterEnterpriseVm {
           return;
         }
         if (mapped.status === 422) {
-          this.errorMessage.set(mapped.errors[0]?.message ?? 'Revisa los datos ingresados.');
+          this.errorMessage.set(
+            resolveUserFacingApiError(mapped, { fallback: 'Revisa los datos ingresados.' }),
+          );
           return;
         }
         this.errorMessage.set('No fue posible registrar la empresa. Intenta de nuevo.');

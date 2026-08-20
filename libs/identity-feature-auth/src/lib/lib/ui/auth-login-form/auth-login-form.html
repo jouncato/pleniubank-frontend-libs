@@ -32,60 +32,103 @@
         }
       </div>
 
-      <h2 class="visually-hidden">Credenciales</h2>
-      <div class="pl-form-card login-form">
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-          <div class="pl-field pl-field--with-icon">
-            <input id="email" class="pl-field__control" type="email" autocomplete="email" formControlName="email" placeholder=" " />
-            <label for="email" class="pl-field__label" i18n="@@auth.login.emailLabel">Correo electrónico</label>
-            <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3" y="5" width="18" height="14" rx="2" />
-              <path d="m3 7 9 6 9-6" />
-            </svg>
-          </div>
+      @if (vm.state() === 'requires_2fa') {
+        <h2 class="visually-hidden">Verificación en dos pasos</h2>
+        <div class="pl-form-card login-form">
+          <p class="auth-page__hint login-context-hint" role="note">
+            Te enviamos un código por correo. Ingrésalo para completar el inicio de sesión.
+          </p>
+          <form [formGroup]="twoFactorForm" (ngSubmit)="submitTwoFactor()" novalidate>
+            <div class="pl-field pl-field--with-icon">
+              <input
+                id="twoFactorCode"
+                class="pl-field__control"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                formControlName="code"
+                placeholder=" "
+              />
+              <label for="twoFactorCode" class="pl-field__label">Código de verificación</label>
+              <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="10" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </div>
 
-          <div class="pl-field pl-field--with-icon pl-field--with-action">
-            <input
-              id="password"
-              class="pl-field__control"
-              [type]="showPassword() ? 'text' : 'password'"
-              autocomplete="current-password"
-              formControlName="password"
-              placeholder=" "
-            />
-            <label for="password" class="pl-field__label" i18n="@@auth.login.passwordLabel">Contraseña</label>
-            <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="5" y="11" width="14" height="9" rx="2" />
-              <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-            </svg>
-            <pb-password-visibility-toggle [(visible)]="showPassword" />
-          </div>
+            <p class="error" *ngIf="vm.errorMessage() as error" role="alert" aria-live="polite">{{ error }}</p>
 
-          <p class="error" *ngIf="vm.rateLimitMessage as message" role="status" aria-live="polite">{{ message }}</p>
-          <p class="error" *ngIf="vm.errorMessage() as error" role="alert" aria-live="polite">{{ error }}</p>
+            <button
+              type="submit"
+              class="pl-btn pl-btn--primary pl-btn--block login-form__submit"
+              [disabled]="twoFactorForm.invalid || vm.state() === 'submitting'"
+            >
+              {{ vm.state() === 'submitting' ? 'Verificando...' : 'Verificar' }}
+            </button>
+          </form>
 
-          <button
-            type="submit"
-            class="pl-btn pl-btn--primary pl-btn--block login-form__submit"
-            [disabled]="form.invalid || vm.state() === 'submitting' || vm.isRateLimited"
-          >
-            {{ vm.state() === 'submitting' ? 'Ingresando...' : 'Ingresar' }}
-          </button>
-        </form>
-
-        @if (portal === 'public' || portal === 'customer') {
-          <nav class="login-footer" aria-label="Enlaces de acceso">
-            <a routerLink="/onboarding/party/access/forgot-password">¿Olvidaste tu contraseña?</a>
-            <span class="login-footer__sep" aria-hidden="true">·</span>
-            <a routerLink="/onboarding/party/register">Crear cuenta</a>
+          <nav class="login-footer" aria-label="Volver al inicio de sesión">
+            <button type="button" class="login-footer__link-button" (click)="backToCredentials()">
+              Usar otra cuenta
+            </button>
           </nav>
-        }
-        @if (portal === 'backoffice') {
-          <nav class="login-footer" aria-label="Recuperacion de acceso">
-            <a routerLink="/onboarding/party/access/forgot-password">¿Olvidaste tu contraseña?</a>
-          </nav>
-        }
-      </div>
+        </div>
+      } @else {
+        <h2 class="visually-hidden">Credenciales</h2>
+        <div class="pl-form-card login-form">
+          <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+            <div class="pl-field pl-field--with-icon">
+              <input id="email" class="pl-field__control" type="email" autocomplete="email" formControlName="email" placeholder=" " />
+              <label for="email" class="pl-field__label" i18n="@@auth.login.emailLabel">Correo electrónico</label>
+              <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
+            </div>
+
+            <div class="pl-field pl-field--with-icon pl-field--with-action">
+              <input
+                id="password"
+                class="pl-field__control"
+                [type]="showPassword() ? 'text' : 'password'"
+                autocomplete="current-password"
+                formControlName="password"
+                placeholder=" "
+              />
+              <label for="password" class="pl-field__label" i18n="@@auth.login.passwordLabel">Contraseña</label>
+              <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="5" y="11" width="14" height="9" rx="2" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+              <pb-password-visibility-toggle [(visible)]="showPassword" />
+            </div>
+
+            <p class="error" *ngIf="vm.rateLimitMessage as message" role="status" aria-live="polite">{{ message }}</p>
+            <p class="error" *ngIf="vm.errorMessage() as error" role="alert" aria-live="polite">{{ error }}</p>
+
+            <button
+              type="submit"
+              class="pl-btn pl-btn--primary pl-btn--block login-form__submit"
+              [disabled]="form.invalid || vm.state() === 'submitting' || vm.isRateLimited"
+            >
+              {{ vm.state() === 'submitting' ? 'Ingresando...' : 'Ingresar' }}
+            </button>
+          </form>
+
+          @if (portal === 'public' || portal === 'customer') {
+            <nav class="login-footer" aria-label="Enlaces de acceso">
+              <a routerLink="/onboarding/party/access/forgot-password">¿Olvidaste tu contraseña?</a>
+              <span class="login-footer__sep" aria-hidden="true">·</span>
+              <a routerLink="/onboarding/party/register">Crear cuenta</a>
+            </nav>
+          }
+          @if (portal === 'backoffice') {
+            <nav class="login-footer" aria-label="Recuperacion de acceso">
+              <a routerLink="/onboarding/party/access/forgot-password">¿Olvidaste tu contraseña?</a>
+            </nav>
+          }
+        </div>
+      }
     </div>
   </section>
 </div>
