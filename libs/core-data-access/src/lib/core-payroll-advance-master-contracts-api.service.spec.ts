@@ -88,6 +88,21 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
     expect(opts?.headers?.get('X-Idempotency-Key')).toBeTruthy();
   });
 
+  it('listPendingApprovals() consulta los pendientes directamente desde Core', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+
+    service.listPendingApprovals(25, 50).subscribe();
+
+    expect(http.get).toHaveBeenCalledWith(
+      'http://localhost:8000/api/v1/admin/payroll-advance-master-contracts/pending-approval',
+      { params: expect.anything() },
+    );
+    const params = http.get.mock.calls[0][1].params;
+    expect(params.get('limit')).toBe('25');
+    expect(params.get('offset')).toBe('50');
+  });
+
   it('updateAssignmentTerms() hace PATCH a /assignments/{id} con el body dado (auditoría 2026-08-11)', () => {
     const http = mockHttp();
     const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);

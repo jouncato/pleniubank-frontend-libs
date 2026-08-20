@@ -274,6 +274,17 @@ export class CorePayrollAdvanceMasterContractsApiService {
     });
   }
 
+  /**
+   * Lista pendientes directamente desde Core, sin depender de una
+   * notificación histórica (incluye contratos legacy en PENDING_APPROVAL).
+   */
+  listPendingApprovals(limit = 100, offset = 0): Observable<ApiEnvelope<PayrollAdvanceMasterContractDto[]>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceMasterContractDto[]>>(
+      `${this.base}/pending-approval`,
+      { params: this.toHttpParams({ limit, offset }) },
+    );
+  }
+
   /** Read-only preflight for the single active payroll assignment of a BU. */
   getActiveAssignmentForUnit(
     subEnterpriseId: string,
