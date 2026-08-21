@@ -177,6 +177,42 @@ describe('InviteEmployeeVm', () => {
     expect(vm.errorMessage()).toContain('invitación activa');
   });
 
+  it('mapea el 422 de empresa sin KYB completo a un mensaje de negocio en español (hallazgo E2E 2026-08-20)', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        InviteEmployeeVm,
+        {
+          provide: SessionStore,
+          useValue: { claims: () => ({ enterprise_id: 'ent-1' }) },
+        },
+        {
+          provide: IdentityEnterpriseApiService,
+          useValue: {
+            inviteEmployee: () =>
+              throwError(() => ({
+                status: 422,
+                url: '/api/v1/enterprise/invite-employee',
+                error: {
+                  errors: [
+                    {
+                      code: 'VALIDATION_ERROR',
+                      message: 'Invitations are only available for active enterprises',
+                    },
+                  ],
+                },
+              })),
+          },
+        },
+      ],
+    });
+    const vm = TestBed.inject(InviteEmployeeVm);
+    vm.selectSubEnterprise(subEnterprises[0]);
+    vm.submit({ email: 'emp@empresa.com', sub_enterprise_id: '' });
+    expect(vm.state()).toBe('error');
+    expect(vm.errorMessage()).toContain('verificación (KYB)');
+    expect(vm.errorMessage()).not.toContain('active enterprises');
+  });
+
   // ── Rediseño 2026-08-07: evidencia de invitaciones ──────────────────────
 
   it('éxito: registra la invitación con unidad, referencia y vencimiento, y refresca pendientes', () => {

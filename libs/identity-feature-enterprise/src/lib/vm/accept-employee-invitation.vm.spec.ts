@@ -9,8 +9,7 @@ describe('AcceptEmployeeInvitationVm', () => {
   const validValidation = {
     enterprise_id: 'ent-1',
     sub_enterprise_id: 'sub-1',
-    business_name: 'Empresa SAS',
-    sub_enterprise_name: 'Unidad Norte',
+    business_name: 'Unidad Norte',
     email: 'emp@acme.test',
     status: 'pending',
     expires_at: '2026-08-01T00:00:00Z',

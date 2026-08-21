@@ -176,6 +176,12 @@ export class InviteEmployeeVm {
             this.errorMessage.set('No tienes permiso para invitar empleados.');
             return;
           }
+          if (mapped.errors[0]?.message === 'Invitations are only available for active enterprises') {
+            this.errorMessage.set(
+              'Tu empresa aún no completó la verificación (KYB). Termina la verificación para poder invitar colaboradores.',
+            );
+            return;
+          }
           this.errorMessage.set(mapped.errors[0]?.message ?? 'No se pudo enviar la invitación.');
         },
       });

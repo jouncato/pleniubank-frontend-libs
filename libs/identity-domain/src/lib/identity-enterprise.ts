@@ -146,11 +146,15 @@ export interface ListEmployeeInvitationsParams {
   status?: 'pending' | 'accepted' | 'revoked' | 'expired';
 }
 
+/** Espejo de `ValidateEmployeeInviteResponse` (identity-service, schemas.py) — ese
+ *  contrato nunca tuvo `sub_enterprise_name`; solo `business_name` (nombre de la
+ *  unidad/sub-empresa a la que se invita). Un `sub_enterprise_name` fantasma aquí
+ *  causó que la ficha de aceptación de invitación mostrara literalmente el label
+ *  "Unidad de negocio" como si fuera el valor (hallazgo E2E 2026-08-20). */
 export interface ValidateEmployeeInvitationResponse {
   enterprise_id: string;
   sub_enterprise_id: string;
   business_name: string | null;
-  sub_enterprise_name: string | null;
   email: string;
   status: string;
   expires_at: string;
