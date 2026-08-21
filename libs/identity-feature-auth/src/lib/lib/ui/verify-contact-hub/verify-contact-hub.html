@@ -8,12 +8,13 @@
       >
         Usar código del correo
       </a>
-      <a
-        routerLink="/onboarding/party/customer/verify-phone"
-        class="pl-btn pl-btn--primary pl-btn--block"
-      >
-        Usar código del SMS
-      </a>
+      <!-- Opción "Usar código del SMS" retirada (QA 2026-08-18): el backend
+           (SmtpNotificationProvider.send_sms_otp) nunca envía el SMS -- es un
+           stub sin proveedor real conectado. Ofrecer un canal que nunca
+           entrega el código es peor que no ofrecerlo. La ruta
+           /verify-phone y el envío de SMS en otros flujos (cambio de
+           teléfono, 2FA) no se tocan aquí: requieren decisión de negocio
+           sobre qué proveedor contratar. -->
     </nav>
     <a routerLink="/onboarding/party/customer/register" class="verify-contact-card__back">
       Volver al registro
