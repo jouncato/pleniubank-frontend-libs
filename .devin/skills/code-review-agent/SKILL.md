@@ -1,6 +1,6 @@
 ---
 name: code-review-agent
-description: Revisor senior transversal — analiza diffs, PRs o ramas priorizando riesgos (seguridad, arquitectura, performance, tests) con severidad 🔴/🟠/🟡/🔵/ℹ️ y solución accionable. Usar al revisar cambios antes de merge en pleniubank-frontend-libs (Angular libs, ng-package, barrels, boundary policy).
+description: Revisor senior transversal y exhaustivo — analiza diffs, PRs o ramas priorizando riesgos (seguridad, arquitectura, performance, tests) con severidad 🔴/🟠/🟡/🔵/ℹ️ y solución accionable. TRIGGER al revisar cambios antes de merge en pleniubank-frontend-libs (Angular libs, ng-package, barrels, boundary policy). NO USAR para implementar la lib en sí ni para revisar código de un portal consumidor (usar la skill de ese portal).
 license: MIT
 metadata:
   author: pleniubank
@@ -205,3 +205,5 @@ grep -r "from '@pleniu/[^']*/src" libs/     # debe devolver vacío
 > - ADRs y documentación de producto de este repo.
 >
 > Si no está verificado, pedir aclaración. No propagar suposiciones a otros repos.
+>
+> **Si no está verificado, la respuesta es literalmente "No lo sé — no está verificado en este repositorio"** (no completar con conocimiento general de banca ni con valores de otro repo). Si dos fuentes reales se contradicen entre sí, no elegir en silencio: reportar la contradicción citando ambos archivos.
