@@ -49,6 +49,12 @@ export interface ApiConfig {
    * Usado para configuración de servicios de infraestructura en desarrollo.
    */
   mockServicesBaseUrl?: string;
+  /**
+   * Manuals Service (pleniubank-manuals-service), sin barra final.
+   * Ej.: `/api/manuals` (proxy same-origin) o `http://localhost:8035` (directo).
+   * Servicio independiente de Core: catálogo de manuales de usuario por proyecto.
+   */
+  manualsServiceBaseUrl?: string;
 }
 
 export const API_CONFIG = new InjectionToken<ApiConfig>('API_CONFIG');
