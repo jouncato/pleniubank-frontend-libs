@@ -117,7 +117,7 @@
                   <td class="bpu-ledger__strong">{{ r.full_name }}</td>
                   <td>{{ r.document_type }} {{ r.document_number }}</td>
                   <td>{{ r.email }}</td>
-                  <td><span class="bpu-tag bpu-tag--code">{{ r.sub_enterprise_id }}</span></td>
+                  <td><span class="bpu-tag">{{ vm.subEnterpriseLabel(r.sub_enterprise_id) }}</span></td>
                 </tr>
               }
             </tbody>

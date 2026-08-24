@@ -59,8 +59,33 @@ export class BulkPayrollUserUploadVm {
   readonly rows = signal<ParsedPayrollUserRow[]>([]);
   readonly errorMessage = signal<string | null>(null);
   readonly results = signal<BulkCreatePayrollUserResultEntry[]>([]);
+  /** `sub_enterprise_id` -> `business_name`, para nunca mostrar el UUID crudo
+   * en la vista previa (regla del proyecto, auditoría 2026-08-01). */
+  readonly subEnterpriseNames = signal<Record<string, string>>({});
 
   constructor(private readonly api: IdentityEnterpriseApiService) {}
+
+  /** Carga las Unidades de Negocio de la empresa para resolver nombres en la
+   * vista previa -- reutiliza el mismo endpoint dual-canal (staff u
+   * `enterprise_admin`/`principal` en su propia empresa) que ya autoriza el
+   * envío del lote, así que nunca falla por permisos donde el submit no
+   * fallaría. */
+  loadSubEnterpriseNames(enterpriseId: string): void {
+    this.api.listSubEnterprises(enterpriseId, { limit: 200 }).subscribe({
+      next: (env) => {
+        const map: Record<string, string> = {};
+        for (const s of env.data ?? []) map[s.sub_enterprise_id] = s.business_name;
+        this.subEnterpriseNames.set(map);
+      },
+      error: () => this.subEnterpriseNames.set({}),
+    });
+  }
+
+  /** Nunca muestra el UUID crudo: si el nombre no se pudo resolver, indica
+   * que la unidad no fue encontrada en vez de exponer el ID interno. */
+  subEnterpriseLabel(subEnterpriseId: string): string {
+    return this.subEnterpriseNames()[subEnterpriseId] ?? 'Unidad no encontrada';
+  }
 
   downloadTemplate(): void {
     const workbook = XLSX.utils.book_new();

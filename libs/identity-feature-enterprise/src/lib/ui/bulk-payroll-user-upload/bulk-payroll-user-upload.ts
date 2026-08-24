@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, computed, inject, signal } from '@angular/core';
 import { PbIconComponent } from '@pleniu/ui';
 import { BulkPayrollUserUploadVm } from '../../vm/bulk-payroll-user-upload';
 
@@ -34,7 +34,7 @@ export const BULK_PAYROLL_USER_STAGES = [
   styleUrl: './bulk-payroll-user-upload.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BulkPayrollUserUploadForm {
+export class BulkPayrollUserUploadForm implements OnInit {
   protected readonly vm = inject(BulkPayrollUserUploadVm);
   protected readonly stages = BULK_PAYROLL_USER_STAGES;
 
@@ -42,6 +42,10 @@ export class BulkPayrollUserUploadForm {
   @Output() completed = new EventEmitter<BulkPayrollUserUploadCompletedEvent>();
 
   protected readonly dragging = signal(false);
+
+  ngOnInit(): void {
+    this.vm.loadSubEnterpriseNames(this.enterpriseId);
+  }
 
   protected readonly activeStage = computed(() => {
     switch (this.vm.state()) {

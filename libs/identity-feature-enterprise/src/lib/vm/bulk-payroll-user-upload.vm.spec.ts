@@ -178,6 +178,28 @@ describe('BulkPayrollUserUploadVm', () => {
     expect(rows[0].fila_id).toBe('P-002');
   });
 
+  it('loadSubEnterpriseNames(): resolves sub_enterprise_id to business_name for the preview', () => {
+    const listSubEnterprises = vi.fn(() =>
+      of({ data: [{ sub_enterprise_id: VALID_SUB_ENTERPRISE_ID, business_name: 'Unidad Norte' }] }),
+    );
+    const vm = setup({ listSubEnterprises });
+
+    vm.loadSubEnterpriseNames('ent-1');
+
+    expect(listSubEnterprises).toHaveBeenCalledWith('ent-1', { limit: 200 });
+    expect(vm.subEnterpriseLabel(VALID_SUB_ENTERPRISE_ID)).toBe('Unidad Norte');
+  });
+
+  it('subEnterpriseLabel(): never falls back to the raw UUID when unresolved', () => {
+    const listSubEnterprises = vi.fn(() => throwError(() => new Error('network error')));
+    const vm = setup({ listSubEnterprises });
+
+    vm.loadSubEnterpriseNames('ent-1');
+
+    expect(vm.subEnterpriseLabel(VALID_SUB_ENTERPRISE_ID)).toBe('Unidad no encontrada');
+    expect(vm.subEnterpriseLabel(VALID_SUB_ENTERPRISE_ID)).not.toContain('-');
+  });
+
   it('reset() clears parsed data and results', async () => {
     const vm = setup();
     const file = buildWorkbookFile([
