@@ -332,6 +332,47 @@ export interface BulkInviteEmployeesResponse {
   entries: BulkInviteEmployeeResultEntry[];
 }
 
+/** Documento de persona natural (distinto de `EnterpriseDocumentType`, que es de empresa/NIT). */
+export type CustomerDocumentType = 'CC' | 'CE' | 'PP' | 'TI';
+
+/**
+ * Una fila de la carga masiva de cuentas de usuario para Anticipo de
+ * Nómina. A diferencia de `BulkInviteEmployeeItem` (solo invita por
+ * correo, sin password/rol), esta fila crea el `User` directamente con
+ * una contraseña temporal -- exclusiva del módulo payroll-advances.
+ * `sub_enterprise_id` debe ser un id real, mismo criterio que
+ * `BulkInviteEmployeeItem`.
+ */
+export interface BulkCreatePayrollUserItem {
+  fila_id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  document_type: CustomerDocumentType;
+  document_number: string;
+  sub_enterprise_id: string;
+  country_code?: string | null;
+}
+
+export interface BulkCreatePayrollUsersRequest {
+  items: BulkCreatePayrollUserItem[];
+}
+
+export interface BulkCreatePayrollUserResultEntry {
+  fila_id: string;
+  status: 'created' | 'skipped' | 'error';
+  user_id?: string | null;
+  email: string;
+  reason?: string | null;
+}
+
+export interface BulkCreatePayrollUsersResponse {
+  created: number;
+  skipped: number;
+  errors: number;
+  entries: BulkCreatePayrollUserResultEntry[];
+}
+
 export type RegisterEnterpriseEnvelope = ApiEnvelope<RegisterEnterpriseResponse>;
 export type VerifyEnterpriseEmailEnvelope = ApiEnvelope<VerifyEnterpriseEmailResponse>;
 export type ResendEnterpriseEmailOtpEnvelope = ApiEnvelope<ResendEnterpriseEmailOtpResponse>;
@@ -351,6 +392,7 @@ export type CreateUserEnterpriseEnvelope = ApiEnvelope<CreateUserEnterpriseRespo
 export type CreateSubEnterpriseEnvelope = ApiEnvelope<CreateSubEnterpriseResponse>;
 export type BulkCreateSubEnterprisesEnvelope = ApiEnvelope<BulkCreateSubEnterprisesResponse>;
 export type BulkInviteEmployeesEnvelope = ApiEnvelope<BulkInviteEmployeesResponse>;
+export type BulkCreatePayrollUsersEnvelope = ApiEnvelope<BulkCreatePayrollUsersResponse>;
 
 /** Lightweight row used in sub-enterprise (business unit) listings. */
 export interface SubEnterpriseSummaryDto {

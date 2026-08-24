@@ -6,6 +6,8 @@ import {
   AcceptEmployeeInvitationRequest,
   AcceptInviteEnvelope,
   AcceptInviteRequest,
+  BulkCreatePayrollUsersEnvelope,
+  BulkCreatePayrollUsersRequest,
   BulkCreateSubEnterprisesEnvelope,
   BulkCreateSubEnterprisesRequest,
   BulkInviteEmployeesEnvelope,
@@ -105,6 +107,13 @@ export class IdentityEnterpriseApiService {
     payload: BulkInviteEmployeesRequest,
   ): Observable<BulkInviteEmployeesEnvelope> {
     return this.invitations.bulkInviteEmployees(enterpriseId, payload);
+  }
+
+  bulkCreatePayrollUsers(
+    enterpriseId: string,
+    payload: BulkCreatePayrollUsersRequest,
+  ): Observable<BulkCreatePayrollUsersEnvelope> {
+    return this.invitations.bulkCreatePayrollUsers(enterpriseId, payload);
   }
 
   validateEmployeeInvitation(token: string): Observable<ValidateEmployeeInvitationEnvelope> {

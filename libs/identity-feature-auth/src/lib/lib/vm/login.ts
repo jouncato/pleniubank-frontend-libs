@@ -212,6 +212,17 @@ export class LoginVm {
           });
           return;
         }
+        if (this.portal === 'customer' && claims.password_must_change === true) {
+          // Cuentas creadas por carga masiva de Anticipo de Nómina (contraseña
+          // temporal) -- se pide el cambio ANTES de la verificación de
+          // teléfono/identidad, mismo orden que el portal backoffice.
+          const safeReturn = isValidReturnUrl(returnUrl) ? returnUrl : undefined;
+          const changePwdPath = this.postLoginCustomerPortal.customerChangePasswordPath ?? '/app/change-password';
+          void this.router.navigate([changePwdPath], {
+            queryParams: safeReturn ? { returnUrl: safeReturn } : {},
+          });
+          return;
+        }
         if (
           this.portal === 'customer' &&
           !claims.enterprise_id &&

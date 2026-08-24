@@ -20,6 +20,7 @@ function configureTest(portal: PortalAppKind): Router {
   });
   const router = TestBed.inject(Router);
   vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+  vi.spyOn(router, 'navigate').mockResolvedValue(true);
   return router;
 }
 
@@ -72,5 +73,33 @@ describe('guestGuard', () => {
     );
     expect(result).toBe(false);
     expect(router.navigateByUrl).toHaveBeenCalledWith('/admin/dashboard');
+  });
+
+  it('redirects backoffice sessions with password_must_change to the staff change-password page', () => {
+    const router = configureTest('backoffice');
+    const store = TestBed.inject(SessionStore);
+    store.setUserToken('token');
+    store.setClaims({ password_must_change: true } as never);
+
+    const result = TestBed.runInInjectionContext(() => guestGuard(makeRoute(), {} as never));
+    expect(result).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/staff/access/change-password']);
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  // Carga masiva de usuarios (Anticipo de Nómina, 2026-08-24): antes de este
+  // fix, un customer con password_must_change=true que navegaba a una ruta
+  // de invitado (ej. /login) no era enrutado a cambiar su contraseña temporal
+  // -- solo el portal backoffice tenía esta rama.
+  it('redirects customer sessions with password_must_change to the customer change-password page', () => {
+    const router = configureTest('customer');
+    const store = TestBed.inject(SessionStore);
+    store.setUserToken('token');
+    store.setClaims({ password_must_change: true } as never);
+
+    const result = TestBed.runInInjectionContext(() => guestGuard(makeRoute(), {} as never));
+    expect(result).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/app/change-password']);
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 });

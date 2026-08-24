@@ -173,6 +173,7 @@ export class IdentityAdminApiService {
       email: params.email,
       role: params.role,
       enterprise_id: params.enterprise_id,
+      sub_enterprise_id: params.sub_enterprise_id,
       status: params.status,
       cursor: params.cursor,
       limit: params.limit,

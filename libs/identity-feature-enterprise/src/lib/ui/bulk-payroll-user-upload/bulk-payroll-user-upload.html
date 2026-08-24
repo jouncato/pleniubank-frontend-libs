@@ -1,0 +1,236 @@
+<section class="bpu" aria-labelledby="bpu-title">
+
+  <!-- ── Encabezado ──────────────────────────────────────────────────── -->
+  <header class="bpu__head">
+    <span class="bpu__badge" aria-hidden="true"><pb-icon name="key" size="md" [decorative]="true" /></span>
+    <div>
+      <p class="bpu__eyebrow">Anticipo de Nómina</p>
+      <h2 id="bpu-title" class="bpu__title">Carga masiva de usuarios</h2>
+      <p class="bpu__lead">
+        Sube un Excel con varios usuarios en un solo paso, ya asociados a su Unidad de Negocio.
+        Cada cuenta se crea con una contraseña temporal enviada por correo — el titular debe
+        cambiarla en su primer acceso y completar su propia verificación de identidad antes de
+        poder solicitar un anticipo.
+      </p>
+    </div>
+  </header>
+
+  <!-- ── Riel de progreso ────────────────────────────────────────────── -->
+  <ol class="bpu-rail" [style.--bpu-rail-progress]="activeStage() / (stages.length - 1)">
+    @for (stage of stages; track stage.label; let i = $index) {
+      <li
+        class="bpu-rail__item"
+        [class.bpu-rail__item--done]="i < activeStage()"
+        [class.bpu-rail__item--active]="i === activeStage()"
+      >
+        <span class="bpu-rail__node">
+          @if (i < activeStage()) {
+            <pb-icon name="check" size="xs" [decorative]="true" />
+          } @else {
+            <pb-icon [name]="stage.icon" size="xs" [decorative]="true" />
+          }
+        </span>
+        <span class="bpu-rail__copy">
+          <span class="bpu-rail__label">{{ stage.label }}</span>
+          <span class="bpu-rail__hint">{{ stage.hint }}</span>
+        </span>
+      </li>
+    }
+  </ol>
+
+  <!-- ── Paso 1: plantilla + carga ───────────────────────────────────── -->
+  @if (vm.state() === 'idle' || vm.state() === 'invalid') {
+    <div class="bpu-import">
+      <div class="bpu-import__card bpu-import__card--template">
+        <span class="bpu-import__icon" aria-hidden="true"><pb-icon name="download" size="sm" [decorative]="true" /></span>
+        <div class="bpu-import__copy">
+          <h3>Plantilla oficial</h3>
+          <p>Trae las columnas exactas y un ejemplo ya diligenciado. El ID de Unidad de Negocio debe ser real.</p>
+        </div>
+        <button type="button" class="bpu-btn bpu-btn--ghost" (click)="downloadTemplate()">
+          <pb-icon name="download" size="xs" [decorative]="true" /> Descargar plantilla
+        </button>
+      </div>
+
+      <label
+        class="bpu-dropzone"
+        [class.bpu-dropzone--dragging]="dragging()"
+        [class.bpu-dropzone--filled]="vm.fileName()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave()"
+        (drop)="onDrop($event)"
+      >
+        <span class="bpu-dropzone__icon" aria-hidden="true"><pb-icon name="upload" size="md" [decorative]="true" /></span>
+        <span class="bpu-dropzone__title">Arrastra tu archivo aquí</span>
+        <span class="bpu-dropzone__hint">o haz clic para buscarlo · .xlsx o .csv</span>
+        @if (vm.fileName(); as name) {
+          <span class="bpu-dropzone__file"><pb-icon name="statement" size="xs" [decorative]="true" /> {{ name }}</span>
+        }
+        <input type="file" accept=".xlsx,.csv" (change)="onFileSelected($event)" hidden />
+      </label>
+
+      @if (vm.state() === 'invalid') {
+        <div class="bpu-issues" role="alert">
+          <header class="bpu-issues__head">
+            <pb-icon name="warning" size="sm" [decorative]="true" />
+            <span>{{ vm.parseIssues().length }} problema(s) de formato detectados antes de continuar</span>
+          </header>
+          <ul class="bpu-issues__list">
+            @for (issue of vm.parseIssues(); track issue.rowNumber + issue.message) {
+              <li>
+                <span class="bpu-issues__row">fila {{ issue.rowNumber }}</span>
+                <span class="bpu-issues__msg">{{ issue.message }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Paso 2: vista previa ────────────────────────────────────────── -->
+  @if (vm.state() === 'parsed' || vm.state() === 'submitting') {
+    <div class="bpu-preview" [class.bpu-preview--busy]="vm.state() === 'submitting'">
+      <div class="bpu-preview__toolbar">
+        <div class="bpu-kpis">
+          <div class="bpu-kpi bpu-kpi--blue">
+            <span class="bpu-kpi__value">{{ totalRows() }}</span>
+            <span class="bpu-kpi__label">Usuarios a crear</span>
+          </div>
+        </div>
+        <button type="button" class="bpu-link" (click)="startOver()" [disabled]="vm.state() === 'submitting'">
+          <pb-icon name="undo" size="xs" [decorative]="true" /> Elegir otro archivo
+        </button>
+      </div>
+
+      <div class="bpu-ledger">
+        <p class="bpu-ledger__caption">Usuarios</p>
+        <div class="bpu-ledger__scroll">
+          <table>
+            <thead>
+              <tr><th>Referencia</th><th>Nombre</th><th>Documento</th><th>Correo</th><th>Unidad de Negocio</th></tr>
+            </thead>
+            <tbody>
+              @for (r of vm.rows(); track r.fila_id) {
+                <tr>
+                  <td><span class="bpu-tag">{{ r.fila_id }}</span></td>
+                  <td class="bpu-ledger__strong">{{ r.full_name }}</td>
+                  <td>{{ r.document_type }} {{ r.document_number }}</td>
+                  <td>{{ r.email }}</td>
+                  <td><span class="bpu-tag bpu-tag--code">{{ r.sub_enterprise_id }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bpu-actions bpu-actions--end">
+        <button type="button" class="bpu-btn bpu-btn--primary" (click)="confirm()" [disabled]="vm.state() === 'submitting'">
+          @if (vm.state() === 'submitting') {
+            <span class="bpu-spinner" aria-hidden="true"></span> Procesando…
+          } @else {
+            <pb-icon name="check" size="xs" [decorative]="true" /> Confirmar y crear cuentas
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Error de envío ──────────────────────────────────────────────── -->
+  @if (vm.state() === 'error') {
+    <div class="bpu-alert bpu-alert--error" role="alert">
+      <pb-icon name="error" size="sm" [decorative]="true" />
+      <p>{{ vm.errorMessage() }}</p>
+    </div>
+    <div class="bpu-actions">
+      <button type="button" class="bpu-btn bpu-btn--ghost" (click)="startOver()">
+        <pb-icon name="undo" size="xs" [decorative]="true" /> Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- ── Paso 3: resultado (trazabilidad de negocio) ──────────────────── -->
+  @if (vm.state() === 'done') {
+    <div class="bpu-outcome" [class.bpu-outcome--warn]="vm.exceptionRows().length > 0">
+      <span class="bpu-outcome__icon" aria-hidden="true">
+        <pb-icon [name]="vm.exceptionRows().length > 0 ? 'warning' : 'shield-check'" size="lg" [decorative]="true" />
+      </span>
+      <div>
+        <p class="bpu-outcome__title">
+          @if (vm.exceptionRows().length > 0) {
+            Carga procesada con excepciones
+          } @else {
+            Carga procesada sin novedades
+          }
+        </p>
+        <p class="bpu-outcome__sub">
+          Archivo <strong>{{ vm.fileName() }}</strong> · cada cuenta creada recibió su contraseña temporal por correo.
+        </p>
+      </div>
+    </div>
+
+    <div class="bpu-kpis bpu-kpis--triad">
+      <div class="bpu-kpi bpu-kpi--accent-teal">
+        <span class="bpu-kpi__value">{{ countBy(vm.results(), 'created') }}</span>
+        <span class="bpu-kpi__label">Creadas</span>
+      </div>
+      <div class="bpu-kpi bpu-kpi--accent-amber">
+        <span class="bpu-kpi__value">{{ countBy(vm.results(), 'skipped') }}</span>
+        <span class="bpu-kpi__label">Omitidas</span>
+      </div>
+      <div class="bpu-kpi bpu-kpi--accent-red">
+        <span class="bpu-kpi__value">{{ countBy(vm.results(), 'error') }}</span>
+        <span class="bpu-kpi__label">Con error</span>
+      </div>
+    </div>
+
+    @if (vm.exceptionRows().length > 0) {
+      <div class="bpu-exceptions" role="status">
+        <pb-icon name="fraud-alert" size="sm" [decorative]="true" />
+        <span>
+          <strong>{{ vm.exceptionRows().length }} fila(s)</strong> requieren tu atención — revisa el motivo en el
+          detalle de abajo o descarga el reporte completo.
+        </span>
+        <button type="button" class="bpu-btn bpu-btn--ghost bpu-btn--sm" (click)="downloadExceptions()">
+          <pb-icon name="download" size="xs" [decorative]="true" /> Reporte de excepciones
+        </button>
+      </div>
+    }
+
+    <div class="bpu-ledger">
+      <p class="bpu-ledger__caption">Detalle — Usuarios</p>
+      <div class="bpu-ledger__scroll">
+        <table>
+          <thead><tr><th>Referencia</th><th>Correo</th><th>Estado</th><th>Motivo</th></tr></thead>
+          <tbody>
+            @for (e of vm.results(); track e.fila_id) {
+              <tr [class.bpu-ledger__row--error]="e.status === 'error'" [class.bpu-ledger__row--skipped]="e.status === 'skipped'">
+                <td><span class="bpu-tag">{{ e.fila_id }}</span></td>
+                <td class="bpu-ledger__strong">{{ e.email }}</td>
+                <td>
+                  <span class="bpu-status-chip" [class]="'bpu-status-chip--' + e.status">
+                    <span class="bpu-status-chip__dot"></span>
+                    {{ e.status === 'created' ? 'Creada' : e.status === 'skipped' ? 'Omitida' : 'Con error' }}
+                  </span>
+                </td>
+                <td class="bpu-ledger__reason">{{ e.reason || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bpu-actions">
+      @if (vm.exceptionRows().length > 0) {
+        <button type="button" class="bpu-btn bpu-btn--ghost" (click)="downloadExceptions()">
+          <pb-icon name="download" size="xs" [decorative]="true" /> Descargar reporte de excepciones
+        </button>
+      }
+      <button type="button" class="bpu-btn bpu-btn--primary" (click)="startOver()">
+        <pb-icon name="upload" size="xs" [decorative]="true" /> Cargar otro archivo
+      </button>
+    </div>
+  }
+</section>

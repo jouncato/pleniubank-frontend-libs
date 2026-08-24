@@ -13,8 +13,11 @@ export interface PostLoginCustomerPortalConfig {
   b2bPath: string;
   /** Path al que se redirige cuando el teléfono aún no está verificado tras el login. */
   verifyPhonePath?: string;
-  /** Path al que se redirige cuando el staff debe cambiar su contraseña antes de continuar. */
+  /** Path al que se redirige (portal backoffice) cuando el staff debe cambiar su contraseña antes de continuar. */
   changePasswordPath?: string;
+  /** Path al que se redirige (portal customer) cuando el usuario debe cambiar una contraseña
+   * temporal antes de continuar -- ej. cuentas creadas por carga masiva de Anticipo de Nómina. */
+  customerChangePasswordPath?: string;
 }
 
 export const POST_LOGIN_CUSTOMER_PORTAL = new InjectionToken<PostLoginCustomerPortalConfig>(
@@ -28,6 +31,7 @@ export const POST_LOGIN_CUSTOMER_PORTAL = new InjectionToken<PostLoginCustomerPo
       b2bPath: '/app/dashboard',
       verifyPhonePath: '/app/verify-phone',
       changePasswordPath: '/staff/access/change-password',
+      customerChangePasswordPath: '/app/change-password',
     }),
   },
 );

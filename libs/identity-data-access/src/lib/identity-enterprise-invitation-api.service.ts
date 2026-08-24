@@ -8,6 +8,9 @@ import {
   AcceptEmployeeInvitationRequest,
   AcceptInviteEnvelope,
   AcceptInviteRequest,
+  BulkCreatePayrollUsersEnvelope,
+  BulkCreatePayrollUsersRequest,
+  BulkCreatePayrollUsersResponse,
   BulkInviteEmployeesEnvelope,
   BulkInviteEmployeesRequest,
   BulkInviteEmployeesResponse,
@@ -74,6 +77,22 @@ export class IdentityEnterpriseInvitationApiService {
         payload,
       )
       .pipe(map((body) => asApiEnvelope<BulkInviteEmployeesResponse>(body)));
+  }
+
+  /** Carga masiva de cuentas de usuario para Anticipo de Nómina (crea el
+   * `User` directamente con contraseña temporal, no solo invita), hasta 500
+   * por llamada -- exclusiva del módulo payroll-advances. Mismo criterio de
+   * `enterpriseId` en el path que `bulkInviteEmployees`. */
+  bulkCreatePayrollUsers(
+    enterpriseId: string,
+    payload: BulkCreatePayrollUsersRequest,
+  ): Observable<BulkCreatePayrollUsersEnvelope> {
+    return this.http
+      .post<BulkCreatePayrollUsersEnvelope | BulkCreatePayrollUsersResponse>(
+        `${this.apiConfig.identityBaseUrl}/api/v1/enterprise/${encodeURIComponent(enterpriseId)}/payroll-users/bulk`,
+        payload,
+      )
+      .pipe(map((body) => asApiEnvelope<BulkCreatePayrollUsersResponse>(body)));
   }
 
   validateEmployeeInvitation(token: string): Observable<ValidateEmployeeInvitationEnvelope> {

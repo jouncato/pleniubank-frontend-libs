@@ -5,6 +5,7 @@ export * from './lib/lib/ui/customer-onboarding-shell/customer-onboarding-shell'
 export * from './lib/lib/ui/customer-onboarding-complete/customer-onboarding-complete';
 export * from './lib/lib/ui/otp-challenge/otp-challenge';
 export * from './lib/lib/ui/phone-verify-post-login/phone-verify-post-login';
+export * from './lib/lib/ui/change-password-post-login/change-password-post-login';
 export * from './lib/lib/ui/verify-contact-hub/verify-contact-hub';
 export * from './lib/lib/ui/auth-login-form/auth-login-form';
 export * from './lib/lib/ui/party-type-selector/party-type-selector';

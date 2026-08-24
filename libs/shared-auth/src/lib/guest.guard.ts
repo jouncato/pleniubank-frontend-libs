@@ -18,6 +18,11 @@ export const guestGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
     return false;
   }
 
+  if (portal === 'customer' && sessionStore.claims()?.password_must_change) {
+    void router.navigate(['/app/change-password']);
+    return false;
+  }
+
   const returnUrl = route.queryParamMap.get('returnUrl');
   const defaultDest = portal === 'backoffice' ? '/admin/dashboard' : '/app/dashboard';
   void router.navigateByUrl(isValidReturnUrl(returnUrl) ? returnUrl : defaultDest);

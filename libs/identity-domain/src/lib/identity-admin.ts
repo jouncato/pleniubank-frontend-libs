@@ -33,6 +33,7 @@ export interface AdminUserDto {
   status: 'active' | 'inactive';
   created_at: string;
   enterprise_id?: string | null;
+  sub_enterprise_id?: string | null;
   password_must_change?: boolean;
   email_verified?: boolean;
   phone_verified?: boolean;
@@ -103,6 +104,7 @@ export interface AdminUsersListParams {
   email?: string;
   role?: string;
   enterprise_id?: string;
+  sub_enterprise_id?: string;
   status?: 'active' | 'inactive';
   cursor?: string;
   limit?: number;

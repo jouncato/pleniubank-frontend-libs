@@ -38,6 +38,7 @@ describe('LoginVm', () => {
       allowCrossOriginTokenHandoff?: boolean;
       b2cPath?: string;
       b2bPath?: string;
+      customerChangePasswordPath?: string;
     };
     loginImpl?: () => unknown;
     validateImpl?: () => unknown;
@@ -57,6 +58,9 @@ describe('LoginVm', () => {
       allowCrossOriginTokenHandoff: options?.postLoginPortal?.allowCrossOriginTokenHandoff ?? false,
       b2cPath: options?.postLoginPortal?.b2cPath ?? '/app/dashboard',
       b2bPath: options?.postLoginPortal?.b2bPath ?? '/app/dashboard',
+      ...(options?.postLoginPortal?.customerChangePasswordPath
+        ? { customerChangePasswordPath: options.postLoginPortal.customerChangePasswordPath }
+        : {}),
     };
 
     const navigateByUrl = vi.fn(() => Promise.resolve(true));
@@ -239,6 +243,81 @@ describe('LoginVm', () => {
     service.login(payload, '/onboarding/party/access/login');
 
     expect(navigateByUrl).toHaveBeenCalledWith('/app/dashboard');
+  });
+
+  // Carga masiva de usuarios (Anticipo de Nómina, 2026-08-24): cuentas creadas
+  // con contraseña temporal traen password_must_change=true. Antes de este
+  // fix, el redirect de cambio de contraseña obligatorio solo existía para
+  // portal==='backoffice' -- un customer con el flag en true nunca era
+  // enrutado a cambiarla.
+  it('customer con password_must_change navega a /app/change-password y conserva returnUrl valida', () => {
+    const { service, navigate, navigateByUrl } = setup({
+      validateImpl: () =>
+        of({
+          data: {
+            claims: {
+              role: 'customer',
+              email: 'nuevo@example.com',
+              enterprise_id: undefined,
+              phone_verified: true,
+              password_must_change: true,
+            },
+          },
+        }),
+    });
+
+    service.login(payload, '/app/personal/loans/list');
+
+    expect(navigate).toHaveBeenCalledWith(['/app/change-password'], {
+      queryParams: { returnUrl: '/app/personal/loans/list' },
+    });
+    expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it('customer con password_must_change Y telefono sin verificar va primero a cambiar contraseña, no a verify-phone', () => {
+    const { service, navigate } = setup({
+      validateImpl: () =>
+        of({
+          data: {
+            claims: {
+              role: 'customer',
+              email: 'nuevo@example.com',
+              enterprise_id: undefined,
+              phone_verified: false,
+              password_must_change: true,
+            },
+          },
+        }),
+    });
+
+    service.login(payload, '/app/dashboard');
+
+    expect(navigate).toHaveBeenCalledWith(['/app/change-password'], {
+      queryParams: { returnUrl: '/app/dashboard' },
+    });
+    expect(navigate).not.toHaveBeenCalledWith(['/app/verify-phone'], expect.anything());
+  });
+
+  it('respeta customerChangePasswordPath cuando se provee en la config de portal', () => {
+    const { service, navigate } = setup({
+      postLoginPortal: { customerChangePasswordPath: '/app/onboarding/set-password' },
+      validateImpl: () =>
+        of({
+          data: {
+            claims: {
+              role: 'customer',
+              email: 'nuevo@example.com',
+              enterprise_id: undefined,
+              phone_verified: true,
+              password_must_change: true,
+            },
+          },
+        }),
+    });
+
+    service.login(payload, undefined);
+
+    expect(navigate).toHaveBeenCalledWith(['/app/onboarding/set-password'], { queryParams: {} });
   });
 
   it('portal publico con customerPortalOrigin redirige al customer B2C con location.assign', () => {
