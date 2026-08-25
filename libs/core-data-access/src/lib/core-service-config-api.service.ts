@@ -5,7 +5,7 @@ import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
 
 import { coreAdminV1Base } from './core-api-base';
 
-export type CoreServiceName = 'aml' | 'fcm' | 'smtp' | 'breb';
+export type CoreServiceName = 'aml' | 'fcm' | 'smtp' | 'breb' | 'funding_accounts' | 'ai_llm';
 
 export interface CoreServiceConfigResponse {
   service_name: CoreServiceName;
