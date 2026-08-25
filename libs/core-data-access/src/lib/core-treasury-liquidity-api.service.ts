@@ -272,6 +272,15 @@ export interface CustodyMovementDto {
   is_credit: boolean;
   journal_entry_id: string | null;
   has_gl_backing: boolean;
+  /**
+   * Contraparte del movimiento (2026-08-25, QA #20 — doble desembolso):
+   * leída del `metadata` del batch de postings en Core. `null` para
+   * movimientos que no se originan en un anticipo de nómina (p.ej. fondeo
+   * manual) o para filas anteriores a este fix.
+   */
+  advance_id: string | null;
+  customer_id: string | null;
+  employer_id: string | null;
 }
 
 export interface CustodyAccountDetailDto {

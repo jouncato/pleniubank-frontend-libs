@@ -315,14 +315,26 @@ export class CorePayrollAdvancesApiService {
    * `X-Idempotency-Key`. Core la exige (422 `IDEMPOTENCY_KEY_REQUIRED`) para
    * todo anticipo con linaje maestro (`master_contract_id`/`master_assignment_id`),
    * lo que bloqueaba el desembolso a cualquier empleado vinculado por
-   * jerarquía maestra. Se genera una fresca por llamada, sin exponerla al
-   * caller, igual que `CoreBrebKeysSelfServiceApiService.register()`: cada
-   * invocación es una acción explícita distinta del cliente, no un reintento
-   * de red que deba reutilizar la misma clave.
+   * jerarquía maestra.
+   *
+   * `idempotencyKey` es OPCIONAL (2026-08-25, QA #20 -- doble desembolso):
+   * el diseño original generaba una clave fresca en cada llamada asumiendo
+   * que "cada invocación es una acción explícita distinta del cliente,
+   * nunca un reintento de red". Eso era el propio hueco: si la petición SÍ
+   * llegó a Core pero la respuesta se perdió (timeout/error de red
+   * percibido), un reintento del usuario (doble clic, recarga) generaba una
+   * clave NUEVA y creaba un segundo anticipo independiente. El caller
+   * (`PayrollAdvanceVm`) ahora genera la clave una sola vez al llegar a
+   * confirmación y la reutiliza en reintentos -- si no se pasa ninguna
+   * (callers que no necesitan esta protección todavía), cae al
+   * comportamiento anterior sin romper compatibilidad.
    */
-  register(body: RegisterPayrollAdvanceRequest): Observable<ApiEnvelope<RegisterPayrollAdvanceResponse>> {
+  register(
+    body: RegisterPayrollAdvanceRequest,
+    idempotencyKey?: string,
+  ): Observable<ApiEnvelope<RegisterPayrollAdvanceResponse>> {
     return this.http.post<ApiEnvelope<RegisterPayrollAdvanceResponse>>(this.base, body, {
-      headers: new HttpHeaders({ 'X-Idempotency-Key': crypto.randomUUID() }),
+      headers: new HttpHeaders({ 'X-Idempotency-Key': idempotencyKey ?? crypto.randomUUID() }),
     });
   }
 

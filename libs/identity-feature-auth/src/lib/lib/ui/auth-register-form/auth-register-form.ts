@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Injector,
+  OnInit,
+  afterNextRender,
+  inject,
+  signal,
+} from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RegisterDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
@@ -7,6 +15,13 @@ import { RegisterVm } from '../../vm/register';
 
 const PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
 const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
+
+export type LegalModalSection = 'terms' | 'data';
+
+const LEGAL_SECTION_ELEMENT_ID: Record<LegalModalSection, string> = {
+  terms: 'legal-section-terms',
+  data: 'legal-section-data',
+};
 
 @Component({
   selector: 'lib-auth-register-form',
@@ -18,7 +33,9 @@ const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
 export class AuthRegisterForm implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  private readonly injector = inject(Injector);
   readonly legalModalOpen = signal(false);
+  readonly legalModalSection = signal<LegalModalSection | null>(null);
   readonly showPassword = signal(false);
   readonly showConfirmPassword = signal(false);
 
@@ -112,12 +129,22 @@ export class AuthRegisterForm implements OnInit {
     }
   }
 
-  openLegalModal(): void {
+  openLegalModal(section: LegalModalSection): void {
+    this.legalModalSection.set(section);
     this.legalModalOpen.set(true);
+    afterNextRender(
+      () => {
+        document
+          .getElementById(LEGAL_SECTION_ELEMENT_ID[section])
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      { injector: this.injector },
+    );
   }
 
   closeLegalModal(): void {
     this.legalModalOpen.set(false);
+    this.legalModalSection.set(null);
   }
 
   submit(): void {

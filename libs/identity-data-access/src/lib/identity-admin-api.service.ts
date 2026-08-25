@@ -29,6 +29,8 @@ import {
   AdminUsersListEnvelope,
   AdminUsersListParams,
   AdminUserDto,
+  AdminUserCountsEnvelope,
+  AdminUserCountsParams,
 } from 'identity-domain';
 import { API_CONFIG, ApiConfig, ApiEnvelope, ApiMeta } from '@pleniu/shared-http';
 
@@ -64,6 +66,27 @@ export class IdentityAdminApiService {
         { params: this.buildAdminUsersQueryParams(params) },
       )
       .pipe(map((raw) => this.normalizeCursorListEnvelope(raw)));
+  }
+
+  /**
+   * `GET /admin/users/counts` (2026-08-25, QA #12): conteos
+   * Todos/Clientes/Empresas independientes del filtro de tipo activo -- ver
+   * `AdminUserCountsDto`. Registrado en el backend ANTES de
+   * `/users/{user_id}` para que Starlette no intente parsear `"counts"`
+   * como UUID.
+   */
+  getUserCounts(params: AdminUserCountsParams = {}): Observable<AdminUserCountsEnvelope> {
+    return this.http.get<AdminUserCountsEnvelope>(
+      `${this.apiConfig.identityBaseUrl}/api/v1/admin/users/counts`,
+      {
+        params: this.toHttpParams({
+          email: params.email,
+          enterprise_id: params.enterprise_id,
+          sub_enterprise_id: params.sub_enterprise_id,
+          status: params.status,
+        }),
+      },
+    );
   }
 
   getUserById(userId: string): Observable<AdminUserDetailEnvelope> {

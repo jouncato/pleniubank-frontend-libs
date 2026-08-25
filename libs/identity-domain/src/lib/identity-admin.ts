@@ -119,6 +119,22 @@ export interface CursorPaginationMeta {
 export type AdminUsersListEnvelope = ApiEnvelope<AdminUserDto[]>;
 export type AdminUserDetailEnvelope = ApiEnvelope<AdminUserDetailDto>;
 
+/**
+ * `GET /api/v1/admin/users/counts` (2026-08-25, QA #12): conteos
+ * independientes del filtro de tipo persona/empresa -- solo respeta
+ * email/status/enterprise_id/sub_enterprise_id, nunca `role`, para que las
+ * tarjetas "Todos/Clientes/Empresas" del backoffice se mantengan estables
+ * al cambiar de pestaña.
+ */
+export interface AdminUserCountsDto {
+  total: number;
+  customers: number;
+  enterprises: number;
+}
+
+export type AdminUserCountsParams = Omit<AdminUsersListParams, 'role' | 'cursor' | 'limit'>;
+export type AdminUserCountsEnvelope = ApiEnvelope<AdminUserCountsDto>;
+
 /** Body de `POST /api/v1/admin/enterprises` (Identity `CreateEnterpriseRequest`). */
 export interface AdminCreateEnterpriseRequest {
   business_name: string;

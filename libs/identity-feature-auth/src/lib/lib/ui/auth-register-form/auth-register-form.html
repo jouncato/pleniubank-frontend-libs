@@ -144,11 +144,11 @@
         <input type="checkbox" formControlName="acceptedTerms" />
         <span>
           Acepto los
-          <button type="button" class="terms__link" (click)="openLegalModal()">
+          <button type="button" class="terms__link" (click)="openLegalModal('terms')">
             términos y condiciones
           </button>
           y autorizo el
-          <button type="button" class="terms__link" (click)="openLegalModal()">
+          <button type="button" class="terms__link" (click)="openLegalModal('data')">
             tratamiento de datos
           </button>.
         </span>
@@ -191,7 +191,7 @@
       </header>
 
       <div class="legal-modal__content">
-        <section>
+        <section id="legal-section-terms">
           <h3>Términos y condiciones de uso</h3>
           <p>
             Al crear una cuenta aceptas usar los servicios digitales de forma responsable, entregar
@@ -201,7 +201,7 @@
           </p>
         </section>
 
-        <section>
+        <section id="legal-section-data">
           <h3>Autorización para tratamiento de datos</h3>
           <p>
             Autorizas el tratamiento de los datos personales suministrados para gestionar tu registro,

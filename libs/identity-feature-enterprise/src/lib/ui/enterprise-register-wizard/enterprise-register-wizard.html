@@ -77,6 +77,9 @@
                     <path d="M9 18v.01" />
                   </svg>
                 </div>
+                @if (companyForm.controls.business_name.invalid && companyForm.controls.business_name.touched) {
+                  <p class="field-error">Debe tener al menos 3 caracteres.</p>
+                }
 
                 <div class="pl-static-field">
                   <label for="dt">Tipo de documento</label>
