@@ -21,6 +21,44 @@
   gap: 14px;
 }
 
+.required-note {
+  margin: 0;
+  color: #6b6672;
+  font-size: 12px;
+  text-align: center;
+}
+
+.required-note span,
+.otp-card__label span {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.validation-summary {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid #f1b4b4;
+  border-radius: 10px;
+  padding: 0.75rem;
+  color: #7f1d1d;
+  background: #fff5f5;
+  font-size: 13px;
+  text-align: left;
+}
+
+.field-hint {
+  color: #6b6672;
+  font-size: 12px;
+  text-align: center;
+}
+
+.field-error {
+  margin: 0;
+  color: #b42318;
+  font-size: 13px;
+  text-align: center;
+}
+
 .otp-card__label {
   display: block;
   margin: 0 0 10px;

@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, isDevMode, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { RegisterEnvelope, RegisterRequest, RegisterResponse } from 'identity-domain';
@@ -21,6 +20,7 @@ function unwrapRegisterPayload(body: RegisterEnvelope | RegisterResponse): Regis
 export class RegisterVm {
   readonly state = signal<'idle' | 'submitting' | 'success' | 'error' | 'rate_limited'>('idle');
   readonly errorMessage = signal<string | null>(null);
+  readonly fieldErrors = signal<Record<string, string>>({});
   readonly inviteToken = signal<string | null>(null);
   readonly inviteEmail = signal<string | null>(null);
   readonly inviteSubEnterpriseId = signal<string | null>(null);
@@ -44,6 +44,7 @@ export class RegisterVm {
 
     this.state.set('submitting');
     this.errorMessage.set(null);
+    this.fieldErrors.set({});
 
     if (isDevMode()) {
       console.debug(REGISTER_LOG, 'POST /api/v1/auth/register (sin contraseña en logs)');
@@ -77,17 +78,18 @@ export class RegisterVm {
       },
       error: (error: unknown) => {
         const mappedError = mapHttpError(error);
-        const detail: Record<string, unknown> = {
-          status: mappedError.status,
-          correlationId: mappedError.correlationId ?? null,
-          apiErrors: mappedError.errors,
-        };
-        if (error instanceof HttpErrorResponse) {
-          detail['requestUrl'] = error.url;
-          detail['statusText'] = error.statusText;
-          detail['responseBody'] = error.error;
+        const fieldErrors = mappedError.errors.reduce<Record<string, string>>((errors, apiError) => {
+          if (apiError.field) errors[apiError.field] = apiError.message;
+          return errors;
+        }, {});
+        this.fieldErrors.set(fieldErrors);
+        if (isDevMode()) {
+          console.warn(REGISTER_LOG, 'Error en registro', {
+            status: mappedError.status,
+            correlationId: mappedError.correlationId ?? null,
+            apiErrors: mappedError.errors.map(({ code, field }) => ({ code, field })),
+          });
         }
-        console.warn(REGISTER_LOG, 'Error en registro', detail);
 
         if (mappedError.status === 429) {
           this.errorMessage.set('Demasiados intentos. Espera un minuto e intenta nuevamente.');
@@ -97,7 +99,7 @@ export class RegisterVm {
 
         const generic = 'No fue posible completar el registro. Intenta nuevamente.';
         if (mappedError.status === 422) {
-          const validationFb = 'Revisa los datos ingresados e intenta nuevamente.';
+          const validationFb = 'Revisa los campos ingresados e intenta nuevamente.';
           this.errorMessage.set(
             resolveUserFacingApiError(mappedError, {
               fallback: validationFb,

@@ -12,7 +12,7 @@ export interface RegisterRequest {
   employee_invitation_token?: string | null;
 }
 
-export type RegisterDocumentType = 'CC' | 'CE' | 'NIT' | 'PP' | 'TI';
+export type RegisterDocumentType = 'CC' | 'CE' | 'PP' | 'TI';
 
 export interface RegisterResponse {
   registration_id: string;

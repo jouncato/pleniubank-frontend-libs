@@ -6,7 +6,8 @@ import {
   BulkCreatePayrollUserResultEntry,
   CustomerDocumentType,
   PayrollUserContractType,
-} from 'identity-domain';
+  validateCountryDocument,
+} from '@pleniu/identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 import { mapHttpError } from '@pleniu/shared-http';
 
@@ -54,6 +55,9 @@ const VALID_CONTRACT_TYPES: readonly PayrollUserContractType[] = ['INDEFINIDO', 
 const FIXED_TERM_CONTRACT_TYPE: PayrollUserContractType = 'FIJO';
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
+const DOCUMENT_NUMBER_PATTERN = /^[A-Za-z0-9-]{5,32}$/;
 
 /** Valida que `value` sea una fecha ISO `YYYY-MM-DD` real (rechaza
  * desbordes como "2026-13-45" que `Date.parse` normaliza silenciosamente
@@ -192,6 +196,8 @@ export class BulkPayrollUserUploadVm {
     }
     const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' });
     const seenFilaIds = new Set<string>();
+    const seenEmails = new Set<string>();
+    const seenDocuments = new Set<string>();
     const parsed: ParsedPayrollUserRow[] = [];
     rawRows.forEach((row, index) => {
       const rowNumber = index + 2;
@@ -206,6 +212,21 @@ export class BulkPayrollUserUploadVm {
         return;
       }
       seenFilaIds.add(filaId);
+      const email = String(row['email']).trim().toLowerCase();
+      if (!EMAIL_PATTERN.test(email)) {
+        issues.push({ rowNumber, message: 'email no tiene un formato válido (ejemplo: persona@empresa.com).' });
+        return;
+      }
+      const phone = String(row['phone']).trim();
+      if (!PHONE_PATTERN.test(phone) || !/\d/.test(phone)) {
+        issues.push({ rowNumber, message: 'phone debe tener un formato válido de 7 a 20 caracteres.' });
+        return;
+      }
+      const documentNumber = String(row['document_number']).trim().toUpperCase();
+      if (!DOCUMENT_NUMBER_PATTERN.test(documentNumber)) {
+        issues.push({ rowNumber, message: 'document_number debe tener entre 5 y 32 caracteres alfanuméricos o guiones.' });
+        return;
+      }
       const documentType = String(row['document_type']).trim().toUpperCase();
       if (!VALID_DOCUMENT_TYPES.includes(documentType as CustomerDocumentType)) {
         issues.push({
@@ -214,6 +235,25 @@ export class BulkPayrollUserUploadVm {
         });
         return;
       }
+      const documentResult = validateCountryDocument({
+        country: 'CO',
+        documentType: documentType as CustomerDocumentType,
+        documentNumber,
+      });
+      if (!documentResult.valid) {
+        issues.push({ rowNumber, message: 'document_number no coincide con el formato del tipo de documento para Colombia.' });
+        return;
+      }
+      if (seenEmails.has(email)) {
+        issues.push({ rowNumber, message: `email "${email}" está repetido en esta hoja.` });
+        return;
+      }
+      if (seenDocuments.has(documentNumber)) {
+        issues.push({ rowNumber, message: `document_number "${documentNumber}" está repetido en esta hoja.` });
+        return;
+      }
+      seenEmails.add(email);
+      seenDocuments.add(documentNumber);
       const subEnterpriseId = String(row['sub_enterprise_id']).trim();
       if (!UUID_PATTERN.test(subEnterpriseId)) {
         issues.push({ rowNumber, message: `sub_enterprise_id "${subEnterpriseId}" no es un ID de unidad válido.` });
@@ -275,10 +315,10 @@ export class BulkPayrollUserUploadVm {
         rowNumber,
         fila_id: filaId,
         full_name: String(row['full_name']).trim(),
-        email: String(row['email']).trim(),
-        phone: String(row['phone']).trim(),
+        email,
+        phone,
         document_type: documentType as CustomerDocumentType,
-        document_number: String(row['document_number']).trim(),
+        document_number: documentNumber,
         sub_enterprise_id: subEnterpriseId,
         country_code: countryCode || null,
         job_title: String(row['job_title']).trim(),

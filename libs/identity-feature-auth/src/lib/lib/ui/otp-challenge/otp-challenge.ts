@@ -114,6 +114,15 @@ export class OtpChallenge implements AfterViewInit, OnDestroy {
     return this.channel === 'phone' ? this.verifyPhoneVm.resendSecondsLeft() : 0;
   }
 
+  get validationSummary(): string[] {
+    return this.form.controls.code.invalid ? ['Código de verificación'] : [];
+  }
+
+  codeErrorMessage(): string {
+    if (this.form.controls.code.hasError('required')) return 'El código de verificación es obligatorio.';
+    return 'El código debe tener exactamente 6 dígitos.';
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

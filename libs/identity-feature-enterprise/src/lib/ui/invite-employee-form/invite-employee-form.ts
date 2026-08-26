@@ -100,6 +100,13 @@ export class InviteEmployeeForm implements OnInit {
     }).format(new Date(iso));
   }
 
+  protected get validationSummary(): string[] {
+    const errors: string[] = [];
+    if (!this.vm.selectedSubEnterprise()) errors.push('Unidad de negocio');
+    if (this.form.controls.email.invalid) errors.push('Correo del colaborador');
+    return errors;
+  }
+
   cooldownActive(): boolean {
     return this.vm.cooldownUntil() > Date.now();
   }

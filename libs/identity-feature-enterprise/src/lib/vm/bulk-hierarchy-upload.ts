@@ -7,7 +7,8 @@ import {
   BulkInviteEmployeeItem,
   BulkInviteEmployeeResultEntry,
   EnterpriseDocumentType,
-} from 'identity-domain';
+  validateCountryDocument,
+} from '@pleniu/identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 import { mapHttpError } from '@pleniu/shared-http';
 
@@ -28,6 +29,9 @@ const EMPLOYEE_REQUIRED_COLUMNS = ['fila_id', 'unit_ref', 'email'] as const;
 // backend nunca aceptó (bug H9, 2026-08-26).
 const VALID_DOCUMENT_TYPES: readonly EnterpriseDocumentType[] = ['CE', 'NIT', 'PASSPORT'];
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
+const DOCUMENT_NUMBER_PATTERN = /^[A-Za-z0-9-]{5,32}$/;
 
 export interface ParsedUnitRow extends BulkCreateSubEnterpriseItem {
   rowNumber: number;
@@ -138,6 +142,9 @@ export class BulkHierarchyUploadVm {
     }
     const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' });
     const seenFilaIds = new Set<string>();
+    const seenEmails = new Set<string>();
+    const seenDocuments = new Set<string>();
+    const seenCompanyCodes = new Set<string>();
     const parsed: ParsedUnitRow[] = [];
     rows.forEach((row, index) => {
       const rowNumber = index + 2; // +1 por encabezado, +1 por índice 0-based
@@ -152,6 +159,21 @@ export class BulkHierarchyUploadVm {
         return;
       }
       seenFilaIds.add(filaId);
+      const email = String(row['email']).trim().toLowerCase();
+      if (!EMAIL_PATTERN.test(email)) {
+        issues.push({ sheet: UNITS_SHEET, rowNumber, message: 'email no tiene un formato válido (ejemplo: empresa@dominio.com).' });
+        return;
+      }
+      const phone = String(row['phone']).trim();
+      if (!PHONE_PATTERN.test(phone) || !/\d/.test(phone)) {
+        issues.push({ sheet: UNITS_SHEET, rowNumber, message: 'phone debe tener un formato válido de 7 a 20 caracteres.' });
+        return;
+      }
+      const documentNumber = String(row['document_number']).trim().toUpperCase();
+      if (!DOCUMENT_NUMBER_PATTERN.test(documentNumber)) {
+        issues.push({ sheet: UNITS_SHEET, rowNumber, message: 'document_number debe tener entre 5 y 32 caracteres alfanuméricos o guiones.' });
+        return;
+      }
       const documentType = String(row['document_type']).trim().toUpperCase();
       if (!VALID_DOCUMENT_TYPES.includes(documentType as EnterpriseDocumentType)) {
         issues.push({
@@ -160,15 +182,40 @@ export class BulkHierarchyUploadVm {
         });
         return;
       }
+      const documentResult = validateCountryDocument({
+        country: 'CO',
+        documentType: (documentType === 'PASSPORT' ? 'PP' : documentType) as 'CE' | 'NIT' | 'PP',
+        documentNumber,
+      });
+      if (!documentResult.valid) {
+        issues.push({ sheet: UNITS_SHEET, rowNumber, message: 'document_number no coincide con el formato del tipo de documento para Colombia.' });
+        return;
+      }
+      const companyCode = String(row['company_code']).trim().toUpperCase();
+      if (seenEmails.has(email)) {
+        issues.push({ sheet: UNITS_SHEET, rowNumber, message: `email "${email}" está repetido en esta hoja.` });
+        return;
+      }
+      if (seenDocuments.has(documentNumber)) {
+        issues.push({ sheet: UNITS_SHEET, rowNumber, message: `document_number "${documentNumber}" está repetido en esta hoja.` });
+        return;
+      }
+      if (seenCompanyCodes.has(companyCode)) {
+        issues.push({ sheet: UNITS_SHEET, rowNumber, message: `company_code "${companyCode}" está repetido en esta hoja.` });
+        return;
+      }
+      seenEmails.add(email);
+      seenDocuments.add(documentNumber);
+      seenCompanyCodes.add(companyCode);
       parsed.push({
         rowNumber,
         fila_id: filaId,
         business_name: String(row['business_name']).trim(),
         document_type: documentType as EnterpriseDocumentType,
-        document_number: String(row['document_number']).trim(),
-        company_code: String(row['company_code']).trim().toUpperCase(),
-        email: String(row['email']).trim(),
-        phone: String(row['phone']).trim(),
+        document_number: documentNumber,
+        company_code: companyCode,
+        email,
+        phone,
       });
     });
     return parsed;
@@ -181,6 +228,8 @@ export class BulkHierarchyUploadVm {
       return [];
     }
     const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' });
+    const seenEmails = new Set<string>();
+    const seenFilaIds = new Set<string>();
     const parsed: ParsedEmployeeRow[] = [];
     rows.forEach((row, index) => {
       const rowNumber = index + 2;
@@ -189,11 +238,27 @@ export class BulkHierarchyUploadVm {
         issues.push({ sheet: EMPLOYEES_SHEET, rowNumber, message: `Faltan columnas: ${missing.join(', ')}.` });
         return;
       }
+      const filaId = String(row['fila_id']).trim();
+      if (seenFilaIds.has(filaId)) {
+        issues.push({ sheet: EMPLOYEES_SHEET, rowNumber, message: `fila_id "${filaId}" repetido en esta hoja.` });
+        return;
+      }
+      seenFilaIds.add(filaId);
+      const email = String(row['email']).trim().toLowerCase();
+      if (!EMAIL_PATTERN.test(email)) {
+        issues.push({ sheet: EMPLOYEES_SHEET, rowNumber, message: 'email no tiene un formato válido (ejemplo: colaborador@empresa.com).' });
+        return;
+      }
+      if (seenEmails.has(email)) {
+        issues.push({ sheet: EMPLOYEES_SHEET, rowNumber, message: `email "${email}" está repetido en esta hoja.` });
+        return;
+      }
+      seenEmails.add(email);
       parsed.push({
         rowNumber,
         fila_id: String(row['fila_id']).trim(),
         unit_ref: String(row['unit_ref']).trim(),
-        email: String(row['email']).trim(),
+        email,
       });
     });
     return parsed;

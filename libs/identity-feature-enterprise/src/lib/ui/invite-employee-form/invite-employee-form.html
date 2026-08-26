@@ -33,6 +33,11 @@
           Elige la unidad que administra su nómina y el correo donde recibirá el enlace.
           La invitación expira por seguridad.
         </p>
+        <p class="ie-required-note"><span aria-hidden="true">*</span> Campos obligatorios</p>
+        <div class="ie-validation-summary" role="status" aria-live="polite" *ngIf="validationSummary.length > 0">
+          <strong>Completa o corrige estos campos:</strong>
+          <span>{{ validationSummary.join(', ') }}</span>
+        </div>
       </header>
 
       @if (showAdminHierarchyHint()) {
@@ -71,7 +76,7 @@
         <form class="ie-form" [formGroup]="form" (ngSubmit)="submit()">
           <!-- Unidad de negocio -->
           <div class="ie-field">
-            <span class="ie-label" id="ie-unit-label">Unidad de negocio</span>
+            <span class="ie-label" id="ie-unit-label">Unidad de negocio <span aria-hidden="true">*</span></span>
 
             @if (vm.selectedSubEnterprise(); as sub) {
               <div class="ie-unit" [class.ie-unit--readonly]="!!preselectedSubEnterpriseId">
@@ -116,6 +121,9 @@
                       [attr.aria-expanded]="vm.searchQuery().length > 0"
                       placeholder="Busca por nombre o código de la unidad…"
                       autocomplete="off"
+                      aria-required="true"
+                      [attr.aria-invalid]="!vm.selectedSubEnterprise()"
+                      aria-describedby="ie-unit-help ie-unit-error"
                       [value]="vm.searchQuery()"
                       (input)="onSearchInput($any($event.target).value)"
                     />
@@ -161,10 +169,14 @@
               }
             }
           </div>
+          <p id="ie-unit-help" class="ie-field-hint">Busca por nombre o código; escribe al menos 2 caracteres.</p>
+          <p id="ie-unit-error" class="ie-field-hint ie-field-hint--error" *ngIf="!vm.selectedSubEnterprise()" role="alert">
+            Selecciona una unidad de negocio antes de enviar la invitación.
+          </p>
 
           <!-- Correo -->
           <div class="ie-field">
-            <label class="ie-label" for="emp-em">Correo del colaborador</label>
+            <label class="ie-label" for="emp-em">Correo del colaborador <span aria-hidden="true">*</span></label>
             <div class="ie-input-wrap">
               <pb-icon name="beneficiary" size="sm" aria-hidden="true" />
               <input
@@ -174,10 +186,14 @@
                 formControlName="email"
                 autocomplete="email"
                 placeholder="nombre@empresa.com"
+                aria-required="true"
+                [attr.aria-invalid]="form.controls.email.invalid"
+                aria-describedby="emp-em-help emp-em-error"
               />
             </div>
-            <p class="ie-field-hint ie-field-hint--error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
-              Ingresa un correo electrónico válido.
+            <p id="emp-em-help" class="ie-field-hint">Ejemplo: colaborador@empresa.com</p>
+            <p id="emp-em-error" class="ie-field-hint ie-field-hint--error" *ngIf="form.controls.email.invalid && form.controls.email.touched" role="alert">
+              {{ form.controls.email.hasError('required') ? 'El correo del colaborador es obligatorio.' : 'Ingresa un correo electrónico válido.' }}
             </p>
           </div>
 
@@ -186,6 +202,9 @@
             <p>{{ vm.errorMessage() }}</p>
           </div>
 
+          @if (cooldownActive()) {
+            <p class="ie-field-hint ie-field-hint--error" role="status">Espera a que termine el tiempo de seguridad antes de enviar otra invitación.</p>
+          }
           <div class="ie-form__footer">
             <button
               type="submit"

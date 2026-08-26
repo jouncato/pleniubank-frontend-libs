@@ -65,6 +65,39 @@
   line-height: 20px;
 }
 
+.required-note {
+  margin-top: 10px !important;
+  color: #6b6672 !important;
+  font-size: 12px !important;
+}
+
+.required-note span,
+.reg-form__head label span,
+.reg-form__field label span {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.validation-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 16px;
+  border: 1px solid #f1b4b4;
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #7f1d1d;
+  background: #fff5f5;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.field-hint {
+  color: #6b6672;
+  font-size: 12px;
+  line-height: 16px;
+}
+
 .reg-form form,
 .reg-form__field {
   display: flex;

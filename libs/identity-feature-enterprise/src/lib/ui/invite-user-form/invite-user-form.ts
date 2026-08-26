@@ -91,6 +91,14 @@ export class InviteUserForm {
     }).format(new Date(iso));
   }
 
+  protected get validationSummary(): string[] {
+    const fields = [
+      ['email', 'Correo del invitado'],
+      ['role_hint', 'Rol en la plataforma'],
+    ] as const;
+    return fields.filter(([field]) => this.form.controls[field].invalid).map(([, label]) => label);
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

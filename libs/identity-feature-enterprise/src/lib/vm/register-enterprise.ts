@@ -14,6 +14,7 @@ export class RegisterEnterpriseVm {
   readonly currentStep = signal<RegisterEnterpriseStep>(0);
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly fieldErrors = signal<Record<string, string>>({});
   readonly conflictError = signal(false);
   /** Tras POST exitoso: pantalla de éxito antes de ir a verificación por correo. */
   readonly registrationSucceeded = signal(false);
@@ -57,6 +58,7 @@ export class RegisterEnterpriseVm {
     }
     this.submitting.set(true);
     this.errorMessage.set(null);
+    this.fieldErrors.set({});
     this.conflictError.set(false);
 
     // Store passwords in memory for the request
@@ -92,22 +94,21 @@ export class RegisterEnterpriseVm {
       error: (err: unknown) => {
         const mapped = mapHttpError(err);
         this.submitting.set(false);
+        const fieldErrors = mapped.errors.reduce<Record<string, string>>((errors, apiError) => {
+          if (apiError.field) errors[apiError.field] = apiError.message;
+          return errors;
+        }, {});
+        this.fieldErrors.set(fieldErrors);
+
         if (mapped.status === 409) {
           this.conflictError.set(true);
-          const raw = (mapped.errors[0]?.message ?? '').toLowerCase();
-          console.error('[RegisterEnterpriseVm] 409 Conflict error:', mapped.errors);
-          if (raw.includes('enterprise document')) {
-            this.errorMessage.set(
-              'El NIT/documento de la empresa ya está registrado. Usa otro número de documento.',
-            );
-          } else if (raw.includes('email')) {
-            this.errorMessage.set(
-              'El correo del representante o del administrador ya está registrado. Usa otros correos o inicia sesión.',
-            );
+          const firstError = mapped.errors[0];
+          if (firstError?.code === 'ENTERPRISE_DOCUMENT_ALREADY_REGISTERED' || firstError?.field === 'document_number') {
+            this.errorMessage.set('El NIT o documento de la empresa ya está registrado. Usa otro número de documento.');
+          } else if (firstError?.code === 'EMAIL_ALREADY_REGISTERED' || firstError?.field === 'email' || firstError?.field === 'admin.email') {
+            this.errorMessage.set('El correo del representante o del administrador ya está registrado. Usa otros correos o inicia sesión.');
           } else {
-            this.errorMessage.set(
-              'Los datos coinciden con un registro existente. Revisa correos y NIT, o continúa la verificación si ya registraste la empresa.',
-            );
+            this.errorMessage.set('Los datos coinciden con un registro existente. Revisa los campos marcados.');
           }
           return;
         }

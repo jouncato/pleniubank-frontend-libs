@@ -16,6 +16,43 @@
   color: var(--pb-gray-600, #4b5563);
 }
 
+.required-note {
+  margin: -0.5rem 0 1rem;
+  color: var(--pb-gray-600, #4b5563);
+  font-size: var(--pb-font-size-xs, 0.75rem);
+}
+
+.required-note span,
+.verify-enterprise-email label span {
+  color: var(--pb-status-error, #f91c50);
+  font-weight: 700;
+}
+
+.validation-summary {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0 0 0.75rem;
+  border: 1px solid rgb(249 28 80 / 0.25);
+  border-radius: 0.6rem;
+  padding: 0.75rem;
+  color: #8f1239;
+  background: rgb(249 28 80 / 0.06);
+  font-size: var(--pb-font-size-xs, 0.75rem);
+}
+
+.field-hint {
+  display: block;
+  margin: -0.25rem 0 0.5rem;
+  color: var(--pb-gray-600, #4b5563);
+  font-size: var(--pb-font-size-xs, 0.75rem);
+}
+
+.field-error {
+  margin: -0.25rem 0 0.5rem;
+  color: var(--pb-status-error, #f91c50);
+  font-size: var(--pb-font-size-sm, 0.875rem);
+}
+
 .verify-enterprise-email label {
   display: block;
   margin-bottom: var(--pb-space-4, 4px);

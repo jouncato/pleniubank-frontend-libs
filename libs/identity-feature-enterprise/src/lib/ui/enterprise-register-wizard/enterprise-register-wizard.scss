@@ -108,6 +108,48 @@
   color: var(--pl-mid, #6b7280);
 }
 
+.required-note {
+  margin: -0.5rem 0 1rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.required-note span,
+.pl-field__label span,
+.pl-static-field label span,
+.confirm-terms span span {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.validation-summary {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0 0 1rem;
+  border: 1px solid #f1b4b4;
+  border-radius: 10px;
+  padding: 0.75rem 0.875rem;
+  color: #7f1d1d;
+  background: #fff5f5;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.field-hint {
+  display: block;
+  margin-top: -0.35rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.field-error {
+  margin: -0.25rem 0 0;
+  color: #b42318;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
 .panel form {
   display: grid;
   gap: var(--pb-space-8, 0.75rem);

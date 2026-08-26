@@ -1,4 +1,9 @@
 <h2>Alta de usuario en empresa</h2>
+<p class="required-note"><span aria-hidden="true">*</span> Campos obligatorios</p>
+<div class="validation-summary" role="status" aria-live="polite" *ngIf="form.invalid">
+  <strong>Completa o corrige estos campos:</strong>
+  <span>{{ validationSummary.join(', ') }}</span>
+</div>
 
 <p class="hint" *ngIf="showAdminHierarchyHint()">
   Como administrador de empresa puedes crear usuarios para el tenant. No puedes modificar la cuenta del usuario
@@ -6,13 +11,19 @@
 </p>
 
 <form [formGroup]="form" (ngSubmit)="submit()">
-  <label for="e">Correo</label>
-  <input id="e" type="email" formControlName="email" autocomplete="email" />
+  <label for="e">Correo <span aria-hidden="true">*</span></label>
+  <input id="e" type="email" formControlName="email" autocomplete="email" aria-required="true" [attr.aria-invalid]="form.controls.email.invalid" aria-describedby="e-error" />
+  <p id="e-error" class="field-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">
+    {{ form.controls.email.hasError('required') ? 'El correo electrónico es obligatorio.' : 'El correo electrónico no tiene un formato válido.' }}
+  </p>
 
-  <label for="n">Nombre completo</label>
-  <input id="n" type="text" formControlName="full_name" autocomplete="name" />
+  <label for="n">Nombre completo <span aria-hidden="true">*</span></label>
+  <input id="n" type="text" formControlName="full_name" autocomplete="name" aria-required="true" [attr.aria-invalid]="form.controls.full_name.invalid" aria-describedby="n-error" />
+  <p id="n-error" class="field-error" *ngIf="form.controls.full_name.touched && form.controls.full_name.invalid">
+    {{ form.controls.full_name.hasError('required') ? 'El nombre completo es obligatorio.' : 'El nombre debe tener entre 3 y 255 caracteres.' }}
+  </p>
 
-  <label for="p">Contraseña (mín. 12)</label>
+  <label for="p">Contraseña <span aria-hidden="true">*</span></label>
   <div style="position: relative;">
     <input
       id="p"
@@ -20,22 +31,31 @@
       formControlName="password"
       autocomplete="new-password"
       style="padding-right: 40px;"
+      aria-required="true"
+      [attr.aria-invalid]="form.controls.password.invalid"
+      aria-describedby="p-help p-error"
     />
     <pb-password-visibility-toggle [(visible)]="showPassword" />
   </div>
+  <p id="p-help" class="hint">Mínimo 12 caracteres, una mayúscula, una minúscula, un número y un símbolo.</p>
+  <p id="p-error" class="field-error" *ngIf="form.controls.password.touched && form.controls.password.invalid">
+    {{ passwordErrorMessage() }}
+  </p>
 
-  <label for="r">Rol en empresa</label>
-  <select id="r" formControlName="role_in_enterprise">
-    <option value="admin">admin</option>
-    <option value="operator">operator</option>
-    <option value="viewer">viewer</option>
+  <label for="r">Rol en empresa <span aria-hidden="true">*</span></label>
+  <select id="r" formControlName="role_in_enterprise" aria-required="true" [attr.aria-invalid]="form.controls.role_in_enterprise.invalid" aria-describedby="r-help">
+    <option value="admin">Administrador</option>
+    <option value="operator">Operador</option>
+    <option value="viewer">Solo lectura</option>
   </select>
+  <p id="r-help" class="hint">El rol determina las acciones disponibles en la empresa.</p>
 
-  <label for="pj">Permisos (JSON objeto)</label>
-  <textarea id="pj" rows="5" formControlName="permissionsJson" aria-label="Permisos JSON"></textarea>
-  <p class="hint" *ngIf="form.controls.permissionsJson.errors?.['json']">JSON inválido.</p>
+  <label for="pj">Permisos (objeto JSON) <span aria-hidden="true">*</span></label>
+  <textarea id="pj" rows="5" formControlName="permissionsJson" aria-label="Permisos JSON" aria-required="true" [attr.aria-invalid]="form.controls.permissionsJson.invalid" aria-describedby="pj-help pj-error"></textarea>
+  <p id="pj-help" class="hint">Usa un objeto JSON válido, por ejemplo un conjunto de permisos.</p>
+  <p id="pj-error" class="field-error" *ngIf="form.controls.permissionsJson.touched && form.controls.permissionsJson.invalid">Los permisos deben ser un objeto JSON válido.</p>
 
-  <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
+  <p class="error" *ngIf="vm.errorMessage()" role="alert" aria-live="polite">{{ vm.errorMessage() }}</p>
   <p class="ok" *ngIf="vm.state() === 'success'">Usuario creado.</p>
 
   <button type="submit" [disabled]="form.invalid || vm.state() === 'submitting'">

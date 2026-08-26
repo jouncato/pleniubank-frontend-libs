@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { RegisterDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
+import { normalizeCountryDocument, RegisterDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
 import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import { RegisterVm } from '../../vm/register';
 
@@ -42,7 +42,6 @@ export class AuthRegisterForm implements OnInit {
   readonly documentTypeOptions: ReadonlyArray<{ value: RegisterDocumentType; label: string }> = [
     { value: 'CC', label: 'Cedula de ciudadania (CC)' },
     { value: 'CE', label: 'Cedula de extranjeria (CE)' },
-    { value: 'NIT', label: 'NIT' },
     { value: 'PP', label: 'Pasaporte (PP)' },
     { value: 'TI', label: 'Tarjeta de identidad (TI)' },
   ];
@@ -106,6 +105,42 @@ export class AuthRegisterForm implements OnInit {
     ].filter(Boolean).length;
   }
 
+  get validationSummary(): string[] {
+    const fields = [
+      ['fullName', 'Nombre completo'],
+      ['email', 'Correo electrónico'],
+      ['phone', 'Teléfono celular'],
+      ['documentType', 'Tipo de documento'],
+      ['documentNumber', 'Número de documento'],
+      ['password', 'Contraseña'],
+      ['confirmPassword', 'Confirmar contraseña'],
+      ['acceptedTerms', 'Términos y tratamiento de datos'],
+    ] as const;
+    return fields
+      .filter(([control]) => this.form.controls[control].invalid)
+      .map(([, label]) => label);
+  }
+
+  documentNumberErrorMessage(): string {
+    const control = this.form.controls.documentNumber;
+    if (control.hasError('required')) return 'El número de documento es obligatorio.';
+    if (control.hasError('minlength')) return 'El número de documento debe tener al menos 5 caracteres.';
+    if (control.hasError('maxlength')) return 'El número de documento no puede superar 32 caracteres.';
+    if (this.form.controls.documentType.value === 'CC' || this.form.controls.documentType.value === 'TI') {
+      return 'Para este tipo usa entre 5 y 12 dígitos.';
+    }
+    if (this.form.controls.documentType.value === 'CE') {
+      return 'Para este tipo usa entre 5 y 12 caracteres alfanuméricos.';
+    }
+    return 'Para pasaporte usa entre 5 y 16 caracteres alfanuméricos.';
+  }
+
+  passwordErrorMessage(): string {
+    const control = this.form.controls.password;
+    if (control.hasError('required')) return 'La contraseña es obligatoria.';
+    return 'Debe tener mínimo 12 caracteres, una mayúscula, una minúscula, un número y un símbolo.';
+  }
+
   onPasswordInput(): void {
     const confirmControl = this.form.controls.confirmPassword;
     if (!confirmControl.value || !confirmControl.hasError('mismatch')) {
@@ -165,7 +200,7 @@ export class AuthRegisterForm implements OnInit {
       password: raw.password,
       full_name: raw.fullName.trim(),
       document_type: raw.documentType,
-      document_number: raw.documentNumber.trim(),
+      document_number: normalizeCountryDocument(raw.documentNumber),
       consent: raw.acceptedTerms,
     });
   }

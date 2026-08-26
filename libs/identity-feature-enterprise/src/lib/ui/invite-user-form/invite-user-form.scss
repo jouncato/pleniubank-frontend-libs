@@ -228,6 +228,30 @@
   color: var(--pb-danger, #f91c50);
 }
 
+.iu-required-note {
+  margin: 0.75rem 0 0;
+  color: var(--pb-text-muted, #6b7280);
+  font-size: var(--pb-font-size-xs, 11px);
+}
+
+.iu-required-note span,
+.iu-label span {
+  color: var(--pb-danger, #f91c50);
+  font-weight: 700;
+}
+
+.iu-validation-summary {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+  border: 1px solid rgb(249 28 80 / 0.25);
+  border-radius: 0.6rem;
+  padding: 0.75rem;
+  color: #8f1239;
+  background: rgb(249 28 80 / 0.06);
+  font-size: var(--pb-font-size-xs, 11px);
+}
+
 /* ── Tarjetas de rol ──────────────────────────────────────────────────── */
 
 .iu-roles {

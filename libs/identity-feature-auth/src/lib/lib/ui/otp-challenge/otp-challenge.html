@@ -2,7 +2,12 @@
   <div class="pl-form-card otp-card">
     <h2 class="visually-hidden">{{ title }}</h2>
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <label for="code" class="otp-card__label">Código de verificación</label>
+      <p class="required-note"><span aria-hidden="true">*</span> Campo obligatorio</p>
+      <div class="validation-summary" role="status" aria-live="polite" *ngIf="form.invalid">
+        <strong>Completa o corrige estos campos:</strong>
+        <span>{{ validationSummary.join(', ') }}</span>
+      </div>
+      <label for="code" class="otp-card__label">Código de verificación <span aria-hidden="true">*</span></label>
       <input
         #codeField
         id="code"
@@ -12,9 +17,14 @@
         autocomplete="one-time-code"
         maxlength="6"
         formControlName="code"
+        aria-required="true"
+        [attr.aria-invalid]="form.controls.code.invalid"
+        aria-describedby="code-help code-error"
       />
+      <span id="code-help" class="field-hint">Escribe los 6 dígitos que recibiste por {{ channel === 'phone' ? 'SMS' : 'correo' }}.</span>
+      <p id="code-error" class="field-error" *ngIf="form.controls.code.touched && form.controls.code.invalid" role="alert">{{ codeErrorMessage() }}</p>
 
-      <p class="error" *ngIf="errorMessage as error" aria-live="polite">{{ error }}</p>
+      <p class="error" *ngIf="errorMessage as error" role="alert" aria-live="polite">{{ error }}</p>
 
       <button
         type="submit"

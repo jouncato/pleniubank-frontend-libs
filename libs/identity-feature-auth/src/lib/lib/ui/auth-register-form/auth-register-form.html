@@ -5,72 +5,109 @@
       <p class="reg-form__eyebrow">Registro persona natural</p>
       <h2>Crea tu cuenta</h2>
       <p>Completa tus datos para iniciar de forma segura.</p>
+      <p class="required-note"><span aria-hidden="true">*</span> Campos obligatorios</p>
     </header>
+    @if (form.invalid) {
+      <div class="validation-summary" role="status" aria-live="polite">
+        <strong>Completa o corrige estos campos:</strong>
+        <span>{{ validationSummary.join(', ') }}</span>
+      </div>
+    }
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <div class="reg-form__field">
         <div class="pl-field pl-field--with-icon">
-          <input id="fullName" class="pl-field__control" type="text" autocomplete="name" formControlName="fullName" placeholder=" " />
-          <label for="fullName" class="pl-field__label" i18n="@@auth.register.fullNameLabel">Nombre completo</label>
+          <input id="fullName" class="pl-field__control" type="text" autocomplete="name" formControlName="fullName" placeholder=" " aria-required="true" [attr.aria-invalid]="form.controls.fullName.invalid" aria-describedby="fullName-help fullName-error" />
+          <label for="fullName" class="pl-field__label" i18n="@@auth.register.fullNameLabel">Nombre completo <span aria-hidden="true">*</span></label>
           <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="8" r="4" />
             <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
           </svg>
         </div>
+        <span id="fullName-help" class="field-hint">Mínimo 3 caracteres.</span>
         @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
-          <p class="field-error">Ingresa tu nombre completo (minimo 3 caracteres).</p>
+          <p id="fullName-error" class="field-error" role="alert">
+            @if (form.controls.fullName.hasError('required')) { El nombre completo es obligatorio. }
+            @else if (form.controls.fullName.hasError('minlength')) { El nombre debe tener al menos 3 caracteres. }
+            @else { El nombre no puede superar 255 caracteres. }
+          </p>
+        }
+        @if (vm.fieldErrors()['full_name']; as serverError) {
+          <p class="field-error" role="alert">{{ serverError }}</p>
         }
       </div>
 
       <div class="reg-form__field">
         <div class="pl-field pl-field--with-icon">
-          <input id="email" class="pl-field__control" type="email" autocomplete="email" formControlName="email" placeholder=" " />
-          <label for="email" class="pl-field__label" i18n="@@auth.register.emailLabel">Correo electrónico</label>
+          <input id="email" class="pl-field__control" type="email" autocomplete="email" formControlName="email" placeholder=" " aria-required="true" [attr.aria-invalid]="form.controls.email.invalid" aria-describedby="email-help email-error" />
+          <label for="email" class="pl-field__label" i18n="@@auth.register.emailLabel">Correo electrónico <span aria-hidden="true">*</span></label>
           <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="3" y="5" width="18" height="14" rx="2" />
             <path d="m3 7 9 6 9-6" />
           </svg>
         </div>
+        <span id="email-help" class="field-hint">Ejemplo: nombre@dominio.com</span>
+        @if (vm.inviteEmail(); as inviteEmail) {
+          <span class="field-hint">Este correo viene de una invitación y no se puede cambiar en este registro.</span>
+        }
         @if (form.controls.email.touched && form.controls.email.invalid) {
-          <p class="field-error">Ingresa un correo válido.</p>
+          <p id="email-error" class="field-error" role="alert">
+            @if (form.controls.email.hasError('required')) { El correo electrónico es obligatorio. }
+            @else { El correo electrónico no tiene un formato válido. }
+          </p>
+        }
+        @if (vm.fieldErrors()['email']; as serverError) {
+          <p class="field-error" role="alert">{{ serverError }}</p>
         }
       </div>
 
       <div class="reg-form__field">
         <div class="pl-field pl-field--with-icon">
-          <input id="phone" class="pl-field__control" type="tel" autocomplete="tel" formControlName="phone" placeholder=" " />
-          <label for="phone" class="pl-field__label" i18n="@@auth.register.phoneLabel">Teléfono celular</label>
+          <input id="phone" class="pl-field__control" type="tel" autocomplete="tel" formControlName="phone" placeholder=" " aria-required="true" [attr.aria-invalid]="form.controls.phone.invalid" aria-describedby="phone-help phone-error" />
+          <label for="phone" class="pl-field__label" i18n="@@auth.register.phoneLabel">Teléfono celular <span aria-hidden="true">*</span></label>
           <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
           </svg>
         </div>
+        <span id="phone-help" class="field-hint">Usa 7 a 20 caracteres: números, espacios, +, guiones o paréntesis.</span>
         @if (form.controls.phone.touched && form.controls.phone.invalid) {
-          <p class="field-error">Ingresa un teléfono válido (7 a 20 caracteres).</p>
+          <p id="phone-error" class="field-error" role="alert">
+            @if (form.controls.phone.hasError('required')) { El teléfono celular es obligatorio. }
+            @else { El teléfono debe tener un formato válido de 7 a 20 caracteres. }
+          </p>
+        }
+        @if (vm.fieldErrors()['phone']; as serverError) {
+          <p class="field-error" role="alert">{{ serverError }}</p>
         }
       </div>
 
       <div class="reg-form__row">
         <div class="reg-form__field">
           <div class="pl-static-field">
-            <label for="documentType" i18n="@@auth.register.documentTypeLabel">Tipo de documento</label>
-            <select id="documentType" class="pl-field__control" formControlName="documentType">
+            <label for="documentType" i18n="@@auth.register.documentTypeLabel">Tipo de documento <span aria-hidden="true">*</span></label>
+            <select id="documentType" class="pl-field__control" formControlName="documentType" aria-required="true" [attr.aria-invalid]="form.controls.documentType.invalid" aria-describedby="documentType-help">
               @for (option of documentTypeOptions; track option.value) {
                 <option [value]="option.value">{{ option.label }}</option>
               }
             </select>
           </div>
+          <span id="documentType-help" class="field-hint">Selecciona el documento de la persona.</span>
         </div>
 
         <div class="reg-form__field">
           <div class="pl-field pl-field--with-icon">
-            <input id="documentNumber" class="pl-field__control" type="text" autocomplete="off" formControlName="documentNumber" placeholder=" " />
-            <label for="documentNumber" class="pl-field__label" i18n="@@auth.register.documentNumberLabel">Número de documento</label>
+            <input id="documentNumber" class="pl-field__control" type="text" autocomplete="off" formControlName="documentNumber" placeholder=" " aria-required="true" [attr.aria-invalid]="form.controls.documentNumber.invalid" aria-describedby="documentNumber-help documentNumber-error" />
+            <label for="documentNumber" class="pl-field__label" i18n="@@auth.register.documentNumberLabel">Número de documento <span aria-hidden="true">*</span></label>
             <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect width="20" height="14" x="2" y="5" rx="2" />
               <line x1="2" x2="22" y1="10" y2="10" />
             </svg>
           </div>
+          <span id="documentNumber-help" class="field-hint">{{ form.controls.documentType.value === 'CC' || form.controls.documentType.value === 'TI' ? '5 a 12 dígitos.' : form.controls.documentType.value === 'CE' ? '5 a 12 caracteres alfanuméricos.' : '5 a 16 caracteres alfanuméricos.' }}</span>
           @if (form.controls.documentNumber.touched && form.controls.documentNumber.invalid) {
-            <p class="field-error">Ingresa un documento válido (5 a 32 caracteres).</p>
+            <p id="documentNumber-error" class="field-error" role="alert">{{ documentNumberErrorMessage() }}</p>
+          }
+          @if (vm.fieldErrors()['document_number']; as serverError) {
+            <p class="field-error" role="alert">{{ serverError }}</p>
           }
         </div>
       </div>
@@ -84,9 +121,12 @@
             autocomplete="new-password"
             formControlName="password"
             placeholder=" "
+            aria-required="true"
+            [attr.aria-invalid]="form.controls.password.invalid"
+            aria-describedby="password-help password-error"
             (input)="onPasswordInput()"
           />
-          <label for="password" class="pl-field__label">Contraseña</label>
+          <label for="password" class="pl-field__label">Contraseña <span aria-hidden="true">*</span></label>
           <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="5" y="11" width="14" height="9" rx="2" />
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
@@ -108,13 +148,16 @@
             {{ passwordStrength === 5 ? 'Fuerte' : passwordStrength >= 3 ? 'Aceptable' : 'Débil' }}
           </span>
         }
-        <ul class="password-hints" aria-live="polite">
+        <ul id="password-help" class="password-hints" aria-live="polite">
           <li [class.valid]="hasMinLengthPassword">Mínimo 12 caracteres</li>
           <li [class.valid]="hasUpperPassword">Al menos una letra mayúscula</li>
           <li [class.valid]="hasLowerPassword">Al menos una letra minúscula</li>
           <li [class.valid]="hasNumberPassword">Al menos un número</li>
           <li [class.valid]="hasSymbolPassword">Al menos un símbolo</li>
         </ul>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <p id="password-error" class="field-error" role="alert">{{ passwordErrorMessage() }}</p>
+        }
       </div>
 
       <div class="reg-form__field">
@@ -126,22 +169,28 @@
             autocomplete="new-password"
             formControlName="confirmPassword"
             placeholder=" "
+            aria-required="true"
+            [attr.aria-invalid]="form.controls.confirmPassword.invalid"
+            aria-describedby="confirmPassword-error"
             (input)="onPasswordInput()"
           />
-          <label for="confirmPassword" class="pl-field__label">Confirmar contraseña</label>
+          <label for="confirmPassword" class="pl-field__label">Confirmar contraseña <span aria-hidden="true">*</span></label>
           <svg class="pl-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="5" y="11" width="14" height="9" rx="2" />
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
           </svg>
           <pb-password-visibility-toggle [(visible)]="showConfirmPassword" />
         </div>
-        @if (form.controls.confirmPassword.hasError('mismatch')) {
-          <p class="field-error">Las contraseñas no coinciden.</p>
+        @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.invalid) {
+          <p id="confirmPassword-error" class="field-error" role="alert">
+            @if (form.controls.confirmPassword.hasError('required')) { Confirma tu contraseña. }
+            @else { Las contraseñas no coinciden. }
+          </p>
         }
       </div>
 
       <label class="terms">
-        <input type="checkbox" formControlName="acceptedTerms" />
+        <input id="acceptedTerms" type="checkbox" formControlName="acceptedTerms" aria-required="true" [attr.aria-invalid]="form.controls.acceptedTerms.invalid" aria-describedby="acceptedTerms-error" />
         <span>
           Acepto los
           <button type="button" class="terms__link" (click)="openLegalModal('terms')">
@@ -151,14 +200,15 @@
           <button type="button" class="terms__link" (click)="openLegalModal('data')">
             tratamiento de datos
           </button>.
+          <span aria-hidden="true"> *</span>
         </span>
       </label>
       @if (form.controls.acceptedTerms.touched && form.controls.acceptedTerms.invalid) {
-        <p class="field-error">Debes aceptar los términos para continuar.</p>
+        <p id="acceptedTerms-error" class="field-error" role="alert">Debes aceptar los términos para continuar.</p>
       }
 
       @if (vm.errorMessage(); as error) {
-        <p class="error" aria-live="polite">{{ error }}</p>
+        <p class="error" role="alert" aria-live="polite">{{ error }}</p>
       }
 
       <button

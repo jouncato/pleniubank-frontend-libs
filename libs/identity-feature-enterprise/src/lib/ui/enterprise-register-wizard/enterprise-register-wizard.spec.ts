@@ -18,6 +18,7 @@ const TEST_SECTOR: EconomicSectorPublicDto = {
 
 describe('EnterpriseRegisterWizard (a11y smoke)', () => {
   let fixture: ComponentFixture<EnterpriseRegisterWizard>;
+  let component: EnterpriseRegisterWizard;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -33,6 +34,7 @@ describe('EnterpriseRegisterWizard (a11y smoke)', () => {
             setStep: () => {},
             submit: () => {},
             errorMessage: () => null,
+            fieldErrors: () => ({}),
             conflictError: () => false,
             submitting: () => false,
             registrationSucceeded: () => false,
@@ -54,6 +56,7 @@ describe('EnterpriseRegisterWizard (a11y smoke)', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(EnterpriseRegisterWizard);
+    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
@@ -62,5 +65,19 @@ describe('EnterpriseRegisterWizard (a11y smoke)', () => {
     expect(steps.length).toBe(4);
     expect(steps[0].getAttribute('aria-current')).toBe('step');
     expect(steps[1].getAttribute('aria-current')).toBeNull();
+  });
+
+  it('muestra un resumen de campos obligatorios y exige el correo de la empresa', () => {
+    const summary = fixture.nativeElement.querySelector('.validation-summary');
+    expect(summary.textContent).toContain('Correo de la empresa');
+    expect(component.companyValidationSummary).toContain('Correo de la empresa');
+  });
+
+  it('aplica formato y mensaje de teléfono corporativo', () => {
+    component.companyForm.controls.company_phone.setValue('abc');
+    component.companyForm.controls.company_phone.markAsTouched();
+    fixture.detectChanges();
+    expect(component.companyForm.controls.company_phone.invalid).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('teléfono de la empresa debe tener un formato válido');
   });
 });

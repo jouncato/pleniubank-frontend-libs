@@ -5,6 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import { AcceptInviteVm } from '../../vm/accept-invite';
 
+const PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
+
 @Component({
   selector: 'lib-accept-invite-panel',
   imports: [CommonModule, ReactiveFormsModule, PbPasswordVisibilityToggleComponent],
@@ -20,8 +22,21 @@ export class AcceptInvitePanel implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     token: ['', [Validators.required, Validators.minLength(20)]],
-    password: ['', [Validators.required, Validators.minLength(12)]],
+    password: ['', [Validators.required, Validators.minLength(12), Validators.pattern(PASSWORD_COMPLEXITY_PATTERN)]],
   });
+
+  get validationSummary(): string[] {
+    const fields: Array<[keyof typeof this.form.controls, string]> = [
+      ['token', 'Enlace de invitación'],
+      ['password', 'Contraseña'],
+    ];
+    return fields.filter(([field]) => this.form.controls[field].invalid).map(([, label]) => label);
+  }
+
+  passwordErrorMessage(): string {
+    if (this.form.controls.password.hasError('required')) return 'La contraseña es obligatoria.';
+    return 'Debe tener mínimo 12 caracteres, una mayúscula, una minúscula, un número y un símbolo.';
+  }
 
   ngOnInit(): void {
     const t = this.route.snapshot.queryParamMap.get('token');

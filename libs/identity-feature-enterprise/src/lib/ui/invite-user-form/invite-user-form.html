@@ -33,6 +33,11 @@
           La invitación llega por correo y expira por seguridad. El rol define exactamente
           qué puede hacer la persona una vez dentro.
         </p>
+        <p class="iu-required-note"><span aria-hidden="true">*</span> Campos obligatorios</p>
+        <div class="iu-validation-summary" role="status" aria-live="polite" *ngIf="form.invalid">
+          <strong>Completa o corrige estos campos:</strong>
+          <span>{{ validationSummary.join(', ') }}</span>
+        </div>
       </header>
 
       @if (showAdminHierarchyHint()) {
@@ -70,7 +75,7 @@
       } @else {
         <form class="iu-form" [formGroup]="form" (ngSubmit)="submit()">
           <div class="iu-field">
-            <label class="iu-label" for="inv-em">Correo del invitado</label>
+            <label class="iu-label" for="inv-em">Correo del invitado <span aria-hidden="true">*</span></label>
             <div class="iu-input-wrap">
               <pb-icon name="premium-profile" size="sm" aria-hidden="true" />
               <input
@@ -80,15 +85,19 @@
                 formControlName="email"
                 autocomplete="email"
                 placeholder="nombre@empresa.com"
+                aria-required="true"
+                [attr.aria-invalid]="form.controls.email.invalid"
+                aria-describedby="inv-em-help inv-em-error"
               />
             </div>
-            <p class="iu-field-hint iu-field-hint--error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
-              Ingresa un correo electrónico válido.
+            <p id="inv-em-help" class="iu-field-hint">Ejemplo: persona@empresa.com</p>
+            <p id="inv-em-error" class="iu-field-hint iu-field-hint--error" *ngIf="form.controls.email.invalid && form.controls.email.touched" role="alert">
+              {{ form.controls.email.hasError('required') ? 'El correo del invitado es obligatorio.' : 'Ingresa un correo electrónico válido.' }}
             </p>
           </div>
 
-          <fieldset class="iu-field iu-field--roles">
-            <legend class="iu-label">Rol en la plataforma</legend>
+          <fieldset class="iu-field iu-field--roles" aria-required="true">
+            <legend class="iu-label">Rol en la plataforma <span aria-hidden="true">*</span></legend>
             <div class="iu-roles" role="radiogroup" aria-label="Rol en la plataforma">
               @for (role of roleCards; track role.value) {
                 <button
@@ -126,6 +135,9 @@
             <p>{{ vm.errorMessage() }}</p>
           </div>
 
+          @if (cooldownActive()) {
+            <p class="iu-field-hint iu-field-hint--error" role="status">Espera a que termine el tiempo de seguridad antes de enviar otra invitación.</p>
+          }
           <div class="iu-form__footer">
             <button
               type="submit"

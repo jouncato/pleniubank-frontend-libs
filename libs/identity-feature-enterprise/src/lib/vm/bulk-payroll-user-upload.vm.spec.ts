@@ -121,6 +121,31 @@ describe('BulkPayrollUserUploadVm', () => {
     expect(vm.parseIssues()[0].message).toContain('document_type');
   });
 
+  it('rejects invalid email, phone and document formats before submit', async () => {
+    const vm = setup();
+    const file = buildWorkbookFile([
+      ['P-001', 'Ana Gómez', 'correo-invalido', 'abc', 'CC', 'ABC', VALID_SUB_ENTERPRISE_ID, ...VALID_EMPLOYMENT_VALUES],
+    ]);
+
+    await vm.loadFile(file);
+
+    expect(vm.state()).toBe('invalid');
+    expect(vm.parseIssues()[0].message).toMatch(/email|phone|document_number/);
+  });
+
+  it('rejects duplicate email or document within the same file', async () => {
+    const vm = setup();
+    const file = buildWorkbookFile([
+      baseRow(),
+      ['P-002', 'Otra Persona', 'ana@empresa.com', '+573000000001', 'CC', '1020304051', VALID_SUB_ENTERPRISE_ID, ...VALID_EMPLOYMENT_VALUES],
+    ]);
+
+    await vm.loadFile(file);
+
+    expect(vm.state()).toBe('invalid');
+    expect(vm.parseIssues().some((issue) => issue.message.includes('repetido'))).toBe(true);
+  });
+
   it('rejects a sub_enterprise_id that is not a valid UUID', async () => {
     const vm = setup();
     const file = buildWorkbookFile([

@@ -95,6 +95,26 @@ describe('RegisterVm', () => {
     expect(vm.errorMessage()).toContain('Demasiados intentos');
   });
 
+  it('maps field-level validation errors without exposing backend details globally', () => {
+    api.register.mockReturnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 422,
+            error: {
+              errors: [{ code: 'VALIDATION_ERROR', field: 'document_number', message: 'Formato inválido' }],
+            },
+          }),
+      ),
+    );
+    const vm = TestBed.inject(RegisterVm);
+
+    vm.submit(registerPayload);
+
+    expect(vm.fieldErrors()).toEqual({ document_number: 'Formato inválido' });
+    expect(vm.errorMessage()).toBe('Revisa los campos ingresados e intenta nuevamente.');
+  });
+
   it('shows Spanish message on 409 when backend says Document already registered', () => {
     api.register.mockReturnValue(
       throwError(

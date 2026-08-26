@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { EconomicSectorPublicDto, EnterpriseDocumentType, validateCountryDocument } from '@pleniu/identity-domain';
+import { EconomicSectorPublicDto, EnterpriseDocumentType, normalizeCountryDocument, validateCountryDocument } from '@pleniu/identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 import { EMBEDDED_PORTAL_IDENTITY_CHROME } from '@pleniu/shared-auth';
 import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
@@ -10,6 +10,7 @@ import { RegisterEnterpriseVm, type RegisterEnterpriseStep } from '../../vm/regi
 
 const ENTERPRISE_PASSWORD_MIN_LENGTH = 12;
 const ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
+const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
 
 @Component({
   selector: 'lib-enterprise-register-wizard',
@@ -46,6 +47,7 @@ export class EnterpriseRegisterWizard implements OnInit {
     'business_name',
     'document_type',
     'document_number',
+    'company_email',
     'company_phone',
     'economic_sector_id',
   ] as const;
@@ -55,7 +57,10 @@ export class EnterpriseRegisterWizard implements OnInit {
     document_type: this.fb.nonNullable.control<EnterpriseDocumentType>('NIT', Validators.required),
     document_number: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(32)]],
     company_email: ['', [Validators.required, Validators.email]],
-    company_phone: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(64)]],
+    company_phone: [
+      '',
+      [Validators.required, Validators.minLength(7), Validators.maxLength(64), Validators.pattern(PHONE_PATTERN)],
+    ],
     economic_sector_id: ['', Validators.required],
   });
 
@@ -221,6 +226,63 @@ export class EnterpriseRegisterWizard implements OnInit {
     ].filter(Boolean).length;
   }
 
+  get companyValidationSummary(): string[] {
+    const fields = [
+      ['business_name', 'Razón social'],
+      ['document_type', 'Tipo de documento'],
+      ['document_number', 'Número de documento'],
+      ['company_email', 'Correo de la empresa'],
+      ['company_phone', 'Teléfono de la empresa'],
+      ['economic_sector_id', 'Sector económico'],
+    ] as const;
+    return fields.filter(([field]) => this.companyForm.controls[field].invalid).map(([, label]) => label);
+  }
+
+  get principalValidationSummary(): string[] {
+    const fields = [
+      ['email', 'Correo del representante'],
+      ['full_name', 'Nombre del representante'],
+      ['password', 'Contraseña del representante'],
+      ['confirmPassword', 'Confirmar contraseña del representante'],
+    ] as const;
+    return fields.filter(([field]) => this.principalForm.controls[field].invalid).map(([, label]) => label);
+  }
+
+  get adminValidationSummary(): string[] {
+    const fields = [
+      ['email', 'Correo del administrador'],
+      ['full_name', 'Nombre del administrador'],
+      ['password', 'Contraseña del administrador'],
+      ['confirmPassword', 'Confirmar contraseña del administrador'],
+    ] as const;
+    return fields.filter(([field]) => this.adminForm.controls[field].invalid).map(([, label]) => label);
+  }
+
+  get emailsMatch(): boolean {
+    const principalEmail = this.principalForm.controls.email.value.trim().toLowerCase();
+    const adminEmail = this.adminForm.controls.email.value.trim().toLowerCase();
+    return principalEmail.length > 0 && principalEmail === adminEmail;
+  }
+
+  companyDocumentNumberErrorMessage(): string {
+    const control = this.companyForm.controls.document_number;
+    if (control.hasError('required')) return 'El número de documento es obligatorio.';
+    if (control.hasError('minlength')) return 'El número de documento debe tener al menos 5 caracteres.';
+    if (control.hasError('maxlength')) return 'El número de documento no puede superar 32 caracteres.';
+    if (control.hasError('countryDocument')) {
+      if (this.companyForm.controls.document_type.value === 'NIT') return 'El NIT debe tener un formato válido para Colombia.';
+      if (this.companyForm.controls.document_type.value === 'CE') return 'La cédula de extranjería debe tener entre 5 y 12 caracteres alfanuméricos.';
+      return 'El pasaporte debe tener entre 5 y 16 caracteres alfanuméricos.';
+    }
+    return 'El número de documento no tiene un formato válido.';
+  }
+
+  passwordErrorMessage(role: 'principal' | 'admin'): string {
+    const control = role === 'principal' ? this.principalForm.controls.password : this.adminForm.controls.password;
+    if (control.hasError('required')) return 'La contraseña es obligatoria.';
+    return 'Debe tener mínimo 12 caracteres, una mayúscula, una minúscula, un número y un símbolo.';
+  }
+
   onPrincipalPasswordInput(): void {
     const confirmControl = this.principalForm.controls.confirmPassword;
     if (!confirmControl.value || !confirmControl.hasError('mismatch')) {
@@ -263,7 +325,7 @@ export class EnterpriseRegisterWizard implements OnInit {
       company: {
         business_name: v.business_name,
         document_type: v.document_type,
-        document_number: v.document_number,
+        document_number: normalizeCountryDocument(v.document_number),
         company_email: v.company_email,
         company_phone: v.company_phone,
         economic_sector_id: v.economic_sector_id,
@@ -342,7 +404,7 @@ export class EnterpriseRegisterWizard implements OnInit {
       company: {
         business_name: cv.business_name,
         document_type: cv.document_type,
-        document_number: cv.document_number,
+        document_number: normalizeCountryDocument(cv.document_number),
         company_email: cv.company_email,
         company_phone: cv.company_phone,
         economic_sector_id: cv.economic_sector_id,
@@ -360,7 +422,6 @@ export class EnterpriseRegisterWizard implements OnInit {
 
   submit(): void {
     if (!this.confirmCorrect) {
-      console.warn('[EnterpriseRegisterWizard] Submit blocked: confirmCorrect is false');
       this.vm.errorMessage.set('Debes confirmar que los datos son correctos.');
       return;
     }
@@ -370,7 +431,6 @@ export class EnterpriseRegisterWizard implements OnInit {
     // Check for missing company_email (old sessionStorage data)
     const companyEmailValue = this.companyForm.controls.company_email.value;
     if (!companyEmailValue || !companyEmailValue.trim()) {
-      console.error('[EnterpriseRegisterWizard] Missing company_email - likely old sessionStorage data');
       this.vm.errorMessage.set('Falta el correo de la empresa. Vuelve al paso 1 para completarlo.');
       return;
     }
@@ -428,11 +488,16 @@ export class EnterpriseRegisterWizard implements OnInit {
       failedFields.push('Confirmar contraseña del administrador');
     }
 
+    if (this.emailsMatch) {
+      const emailErrors = this.adminForm.controls.email.errors ?? {};
+      this.adminForm.controls.email.setErrors({ ...emailErrors, sameAsPrincipal: true });
+      failedFields.push('Correo del administrador');
+    }
+
     if (failedFields.length > 0) {
       this.companyForm.markAllAsTouched();
       this.principalForm.markAllAsTouched();
       this.adminForm.markAllAsTouched();
-      console.warn('[EnterpriseRegisterWizard] Submit blocked: validation failed for fields:', failedFields, 'Password errors:', passwordErrors);
       // Show specific password errors if any, otherwise generic message
       const errorMsg = passwordErrors.length > 0
         ? passwordErrors.join('. ')

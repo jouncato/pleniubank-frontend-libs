@@ -1,3 +1,23 @@
-.error {
+.error,
+.field-error {
   color: #b00020;
+}
+.required-note,
+.hint {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+.required-note span {
+  color: #b42318;
+  font-weight: 700;
+}
+.validation-summary {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.75rem 0;
+  border: 1px solid #f1b4b4;
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: #7f1d1d;
+  background: #fff5f5;
 }

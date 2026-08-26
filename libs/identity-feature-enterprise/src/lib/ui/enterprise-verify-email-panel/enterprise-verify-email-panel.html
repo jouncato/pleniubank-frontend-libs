@@ -4,9 +4,14 @@
     Introduce el código que enviamos al correo del <strong>{{ roleLabel }}</strong>:
     <strong>{{ vm.maskedEmail() }}</strong>
   </p>
+  <p class="required-note"><span aria-hidden="true">*</span> Campo obligatorio</p>
 
   <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-    <label for="otp">Código de verificación (OTP)</label>
+    <div class="validation-summary" role="status" aria-live="polite" *ngIf="form.invalid">
+      <strong>Completa o corrige estos campos:</strong>
+      <span>{{ validationSummary.join(', ') }}</span>
+    </div>
+    <label for="otp">Código de verificación (OTP) <span aria-hidden="true">*</span></label>
     <input
       id="otp"
       type="text"
@@ -14,9 +19,14 @@
       autocomplete="one-time-code"
       maxlength="12"
       formControlName="code"
+      aria-required="true"
+      [attr.aria-invalid]="form.controls.code.invalid"
+      aria-describedby="otp-help otp-error"
     />
+    <span id="otp-help" class="field-hint">Escribe entre 4 y 12 dígitos, sin espacios.</span>
+    <p id="otp-error" class="field-error" *ngIf="form.controls.code.touched && form.controls.code.invalid" role="alert">{{ codeErrorMessage() }}</p>
 
-    <p class="error" *ngIf="vm.errorMessage()" aria-live="polite">{{ vm.errorMessage() }}</p>
+    <p class="error" *ngIf="vm.errorMessage()" role="alert" aria-live="polite">{{ vm.errorMessage() }}</p>
     <p class="resend-info" *ngIf="vm.resendInfo()" aria-live="polite">{{ vm.resendInfo() }}</p>
 
     <button type="submit" [disabled]="form.invalid || vm.state() === 'submitting'">

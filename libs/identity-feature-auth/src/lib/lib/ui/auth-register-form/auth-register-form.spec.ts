@@ -15,6 +15,7 @@ describe('AuthRegisterForm', () => {
   const vm = {
     state: signal<'idle' | 'submitting' | 'success' | 'error' | 'rate_limited'>('idle'),
     errorMessage: signal<string | null>(null),
+    fieldErrors: signal<Record<string, string>>({}),
     inviteToken: signal<string | null>(null),
     inviteEmail: signal<string | null>(null),
     inviteSubEnterpriseId: signal<string | null>(null),
@@ -80,5 +81,18 @@ describe('AuthRegisterForm', () => {
 
     expect(vm.submit).not.toHaveBeenCalled();
     expect(component.form.controls.confirmPassword.hasError('mismatch')).toBe(true);
+  });
+
+  it('no ofrece NIT para el registro de persona y muestra el resumen inválido', () => {
+    expect(component.documentTypeOptions.map((option) => option.value)).not.toContain('NIT');
+    expect(component.validationSummary).toEqual([
+      'Nombre completo',
+      'Correo electrónico',
+      'Teléfono celular',
+      'Número de documento',
+      'Contraseña',
+      'Confirmar contraseña',
+      'Términos y tratamiento de datos',
+    ]);
   });
 });
