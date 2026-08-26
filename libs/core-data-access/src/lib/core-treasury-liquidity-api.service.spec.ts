@@ -73,6 +73,21 @@ describe('CoreTreasuryLiquidityApiService — GL financial reporting', () => {
     httpTesting.expectNone('http://localhost:8000/api/v1/sub-ledgers');
   });
 
+  it('sends a stable idempotency key for repeated sub-ledger assignment requests', () => {
+    service.createSubLedgerAssignment({
+      account_id: 'account-1',
+      custody_master_id: 'custody-1',
+      ledger_kind: 'USER_WALLET',
+    }).subscribe();
+
+    const request = httpTesting.expectOne('http://localhost:8000/api/v1/sub-ledgers');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('X-Idempotency-Key')).toBe(
+      'sub-ledger:account-1:custody-1:USER_WALLET',
+    );
+    request.flush({ data: {}, meta: {} });
+  });
+
   it('gets the accounting periods for a country', () => {
     service.getAccountingPeriods('CO').subscribe();
 

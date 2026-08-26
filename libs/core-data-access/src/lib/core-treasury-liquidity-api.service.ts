@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig, ApiEnvelope } from '@pleniu/shared-http';
@@ -620,12 +620,25 @@ export class CoreTreasuryLiquidityApiService {
     return this.http.get<ApiEnvelope<SubLedgerAssignmentListPayload>>(`${this.base}/sub-ledgers`, { params: hp });
   }
 
-  createSubLedgerAssignment(payload: SubLedgerAssignmentCreateRequest): Observable<ApiEnvelope<SubLedgerAssignmentDto>> {
+  createSubLedgerAssignment(
+    payload: SubLedgerAssignmentCreateRequest,
+    idempotencyKey?: string,
+  ): Observable<ApiEnvelope<SubLedgerAssignmentDto>> {
+    const key = idempotencyKey ?? [
+      'sub-ledger',
+      payload.account_id,
+      payload.custody_master_id,
+      payload.ledger_kind,
+    ].join(':');
     return this.runMutation({
       accountId: payload.account_id,
       custodyMasterId: payload.custody_master_id,
       ledgerKind: payload.ledger_kind,
-    }, () => this.http.post<ApiEnvelope<SubLedgerAssignmentDto>>(`${this.base}/sub-ledgers`, payload));
+    }, () => this.http.post<ApiEnvelope<SubLedgerAssignmentDto>>(
+      `${this.base}/sub-ledgers`,
+      payload,
+      { headers: new HttpHeaders({ 'X-Idempotency-Key': key }) },
+    ));
   }
 
   getSubLedgersBalance(custodyMasterId: string, denomination = 'COP'): Observable<ApiEnvelope<SubLedgerBalanceDto>> {
