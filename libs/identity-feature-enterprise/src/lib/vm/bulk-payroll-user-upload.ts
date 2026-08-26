@@ -5,11 +5,16 @@ import {
   BulkCreatePayrollUserItem,
   BulkCreatePayrollUserResultEntry,
   CustomerDocumentType,
+  PayrollUserContractType,
 } from 'identity-domain';
 import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 import { mapHttpError } from '@pleniu/shared-http';
 
 const SHEET_NAME = 'Usuarios';
+/** Siempre obligatorias -- se validan como "no vacía" en el barrido genérico
+ * de `parseSheet()`. `department` y `fixed_term_end_date` son
+ * condicionalmente opcionales y tienen su propia regla más abajo
+ * (`country_code` también es opcional, validado aparte desde siempre). */
 const REQUIRED_COLUMNS = [
   'fila_id',
   'full_name',
@@ -18,9 +23,47 @@ const REQUIRED_COLUMNS = [
   'document_type',
   'document_number',
   'sub_enterprise_id',
+  'job_title',
+  'employment_start_date',
+  'salary_amount',
+  'contract_type',
+] as const;
+/** Orden y set completo de columnas de la plantilla descargable -- incluye
+ * las condicionalmente opcionales (`department`, `fixed_term_end_date`)
+ * intercaladas en su lugar natural dentro del bloque de empleo. */
+const TEMPLATE_COLUMNS = [
+  'fila_id',
+  'full_name',
+  'email',
+  'phone',
+  'document_type',
+  'document_number',
+  'sub_enterprise_id',
+  'job_title',
+  'department',
+  'employment_start_date',
+  'salary_amount',
+  'contract_type',
+  'fixed_term_end_date',
 ] as const;
 const VALID_DOCUMENT_TYPES: readonly CustomerDocumentType[] = ['CC', 'CE', 'PP', 'TI'];
+/** Mismo enum que Core (`party.customer_employment_profiles.contract_type`),
+ * ver `PayrollUserContractType` en `identity-domain`. */
+const VALID_CONTRACT_TYPES: readonly PayrollUserContractType[] = ['INDEFINIDO', 'FIJO', 'OBRA_LABOR', 'PRESTACION'];
+/** Único valor de `contract_type` que exige `fixed_term_end_date`. */
+const FIXED_TERM_CONTRACT_TYPE: PayrollUserContractType = 'FIJO';
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Valida que `value` sea una fecha ISO `YYYY-MM-DD` real (rechaza
+ * desbordes como "2026-13-45" que `Date.parse` normaliza silenciosamente
+ * en vez de fallar). */
+function isValidIsoDate(value: string): boolean {
+  if (!ISO_DATE_PATTERN.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
 
 export interface ParsedPayrollUserRow extends BulkCreatePayrollUserItem {
   rowNumber: number;
@@ -92,7 +135,7 @@ export class BulkPayrollUserUploadVm {
     XLSX.utils.book_append_sheet(
       workbook,
       XLSX.utils.aoa_to_sheet([
-        [...REQUIRED_COLUMNS],
+        [...TEMPLATE_COLUMNS],
         [
           'P-001',
           'Ana María Gómez',
@@ -101,6 +144,12 @@ export class BulkPayrollUserUploadVm {
           'CC',
           '1020304050',
           '00000000-0000-0000-0000-000000000000',
+          'Ejecutiva de Ventas',
+          'Ventas',
+          '2024-03-01',
+          2500000,
+          'INDEFINIDO',
+          '',
         ],
       ]),
       SHEET_NAME,
@@ -170,7 +219,58 @@ export class BulkPayrollUserUploadVm {
         issues.push({ rowNumber, message: `sub_enterprise_id "${subEnterpriseId}" no es un ID de unidad válido.` });
         return;
       }
+
+      const salaryRaw = String(row['salary_amount']).trim();
+      const salaryAmount = Number(salaryRaw.replace(/,/g, ''));
+      if (!Number.isFinite(salaryAmount) || salaryAmount <= 0) {
+        issues.push({ rowNumber, message: `salary_amount "${salaryRaw}" debe ser un número mayor a 0.` });
+        return;
+      }
+
+      const employmentStartDate = String(row['employment_start_date']).trim();
+      if (!isValidIsoDate(employmentStartDate)) {
+        issues.push({
+          rowNumber,
+          message: `employment_start_date "${employmentStartDate}" no es una fecha válida (formato esperado AAAA-MM-DD).`,
+        });
+        return;
+      }
+
+      const contractType = String(row['contract_type']).trim().toUpperCase();
+      if (!VALID_CONTRACT_TYPES.includes(contractType as PayrollUserContractType)) {
+        issues.push({
+          rowNumber,
+          message: `contract_type "${contractType}" inválido (debe ser ${VALID_CONTRACT_TYPES.join('/')}).`,
+        });
+        return;
+      }
+
+      const fixedTermEndDate = String(row['fixed_term_end_date'] ?? '').trim();
+      if (contractType === FIXED_TERM_CONTRACT_TYPE) {
+        if (!fixedTermEndDate) {
+          issues.push({
+            rowNumber,
+            message: `fixed_term_end_date es obligatorio cuando contract_type es "${FIXED_TERM_CONTRACT_TYPE}".`,
+          });
+          return;
+        }
+        if (!isValidIsoDate(fixedTermEndDate)) {
+          issues.push({
+            rowNumber,
+            message: `fixed_term_end_date "${fixedTermEndDate}" no es una fecha válida (formato esperado AAAA-MM-DD).`,
+          });
+          return;
+        }
+      } else if (fixedTermEndDate) {
+        issues.push({
+          rowNumber,
+          message: `fixed_term_end_date solo aplica cuando contract_type es "${FIXED_TERM_CONTRACT_TYPE}" (esta fila tiene contract_type "${contractType}").`,
+        });
+        return;
+      }
+
       const countryCode = String(row['country_code'] ?? '').trim();
+      const department = String(row['department'] ?? '').trim();
       parsed.push({
         rowNumber,
         fila_id: filaId,
@@ -181,6 +281,12 @@ export class BulkPayrollUserUploadVm {
         document_number: String(row['document_number']).trim(),
         sub_enterprise_id: subEnterpriseId,
         country_code: countryCode || null,
+        job_title: String(row['job_title']).trim(),
+        department: department || null,
+        employment_start_date: employmentStartDate,
+        salary_amount: salaryAmount,
+        contract_type: contractType as PayrollUserContractType,
+        fixed_term_end_date: fixedTermEndDate || null,
       });
     });
     return parsed;
@@ -201,6 +307,12 @@ export class BulkPayrollUserUploadVm {
         document_number: r.document_number,
         sub_enterprise_id: r.sub_enterprise_id,
         country_code: r.country_code,
+        job_title: r.job_title,
+        department: r.department,
+        employment_start_date: r.employment_start_date,
+        salary_amount: r.salary_amount,
+        contract_type: r.contract_type,
+        fixed_term_end_date: r.fixed_term_end_date,
       }));
       const res = await firstValueFrom(this.api.bulkCreatePayrollUsers(enterpriseId, { items }));
       this.results.set(res.data?.entries ?? []);

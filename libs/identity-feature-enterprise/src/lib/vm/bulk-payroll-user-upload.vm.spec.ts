@@ -6,6 +6,10 @@ import { IdentityEnterpriseApiService } from '@pleniu/identity-data-access';
 import { BulkPayrollUserUploadVm } from './bulk-payroll-user-upload';
 
 const VALID_SUB_ENTERPRISE_ID = '3f9e4b0a-9d2e-4c1a-8b7a-1a2b3c4d5e6f';
+/** Valores válidos de los 4 campos de empleo obligatorios (B1) para no
+ * repetirlos en cada fila de prueba -- ver bulk-payroll-user-upload.ts. */
+const EMPLOYMENT_COLUMNS = ['job_title', 'employment_start_date', 'salary_amount', 'contract_type'];
+const VALID_EMPLOYMENT_VALUES: (string | number)[] = ['Analista', '2025-01-15', 2500000, 'INDEFINIDO'];
 
 function buildWorkbookFile(rows: (string | number)[][], opts: { skipSheet?: boolean } = {}): File {
   const workbook = XLSX.utils.book_new();
@@ -18,7 +22,10 @@ function buildWorkbookFile(rows: (string | number)[][], opts: { skipSheet?: bool
     XLSX.utils.book_append_sheet(
       workbook,
       XLSX.utils.aoa_to_sheet([
-        ['fila_id', 'full_name', 'email', 'phone', 'document_type', 'document_number', 'sub_enterprise_id'],
+        [
+          'fila_id', 'full_name', 'email', 'phone', 'document_type', 'document_number', 'sub_enterprise_id',
+          ...EMPLOYMENT_COLUMNS,
+        ],
         ...rows,
       ]),
       'Usuarios',
@@ -26,6 +33,17 @@ function buildWorkbookFile(rows: (string | number)[][], opts: { skipSheet?: bool
   }
   const buffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
   return new File([buffer], 'carga.xlsx');
+}
+
+/** Fila base con los 4 campos de empleo obligatorios ya completos -- los
+ * tests que ejercen otra validación (document_type, UUID, etc.) parten de
+ * aquí para no bloquearse antes por "faltan columnas". */
+function baseRow(overrides: (string | number)[] = []): (string | number)[] {
+  return [
+    'P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID,
+    ...VALID_EMPLOYMENT_VALUES,
+    ...overrides,
+  ];
 }
 
 describe('BulkPayrollUserUploadVm', () => {
@@ -41,9 +59,7 @@ describe('BulkPayrollUserUploadVm', () => {
 
   it('parses a valid file into rows, state -> parsed', async () => {
     const vm = setup();
-    const file = buildWorkbookFile([
-      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID],
-    ]);
+    const file = buildWorkbookFile([baseRow()]);
 
     await vm.loadFile(file);
 
@@ -52,13 +68,15 @@ describe('BulkPayrollUserUploadVm', () => {
     expect(vm.rows()[0]).toMatchObject({
       fila_id: 'P-001', full_name: 'Ana Gómez', email: 'ana@empresa.com',
       document_type: 'CC', document_number: '1020304050', sub_enterprise_id: VALID_SUB_ENTERPRISE_ID,
+      job_title: 'Analista', employment_start_date: '2025-01-15', salary_amount: 2500000,
+      contract_type: 'INDEFINIDO', department: null, fixed_term_end_date: null,
     });
   });
 
   it('flags missing required column as a parse issue, state -> invalid', async () => {
     const vm = setup();
     const file = buildWorkbookFile([
-      ['P-001', 'Ana Gómez', '', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID], // email vacío
+      ['P-001', 'Ana Gómez', '', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID, ...VALID_EMPLOYMENT_VALUES], // email vacío
     ]);
 
     await vm.loadFile(file);
@@ -81,8 +99,8 @@ describe('BulkPayrollUserUploadVm', () => {
   it('flags a duplicate fila_id within the sheet', async () => {
     const vm = setup();
     const file = buildWorkbookFile([
-      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID],
-      ['P-001', 'Otra Persona', 'otra@empresa.com', '+573000000001', 'CC', '1020304051', VALID_SUB_ENTERPRISE_ID],
+      baseRow(),
+      ['P-001', 'Otra Persona', 'otra@empresa.com', '+573000000001', 'CC', '1020304051', VALID_SUB_ENTERPRISE_ID, ...VALID_EMPLOYMENT_VALUES],
     ]);
 
     await vm.loadFile(file);
@@ -94,7 +112,7 @@ describe('BulkPayrollUserUploadVm', () => {
   it('rejects an invalid document_type', async () => {
     const vm = setup();
     const file = buildWorkbookFile([
-      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'NIT', '1020304050', VALID_SUB_ENTERPRISE_ID],
+      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'NIT', '1020304050', VALID_SUB_ENTERPRISE_ID, ...VALID_EMPLOYMENT_VALUES],
     ]);
 
     await vm.loadFile(file);
@@ -106,13 +124,59 @@ describe('BulkPayrollUserUploadVm', () => {
   it('rejects a sub_enterprise_id that is not a valid UUID', async () => {
     const vm = setup();
     const file = buildWorkbookFile([
-      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', 'UN-001'],
+      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', 'UN-001', ...VALID_EMPLOYMENT_VALUES],
     ]);
 
     await vm.loadFile(file);
 
     expect(vm.state()).toBe('invalid');
     expect(vm.parseIssues()[0].message).toContain('sub_enterprise_id');
+  });
+
+  it('rejects a salary_amount that is not greater than 0', async () => {
+    const vm = setup();
+    const file = buildWorkbookFile([baseRow().map((v, i) => (i === 9 ? 0 : v))]);
+
+    await vm.loadFile(file);
+
+    expect(vm.state()).toBe('invalid');
+    expect(vm.parseIssues()[0].message).toContain('salary_amount');
+  });
+
+  it('rejects an invalid employment_start_date', async () => {
+    const vm = setup();
+    const file = buildWorkbookFile([
+      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID, 'Analista', '2026-13-45', 2500000, 'INDEFINIDO'],
+    ]);
+
+    await vm.loadFile(file);
+
+    expect(vm.state()).toBe('invalid');
+    expect(vm.parseIssues()[0].message).toContain('employment_start_date');
+  });
+
+  it('rejects an invalid contract_type', async () => {
+    const vm = setup();
+    const file = buildWorkbookFile([
+      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID, 'Analista', '2025-01-15', 2500000, 'TEMPORAL'],
+    ]);
+
+    await vm.loadFile(file);
+
+    expect(vm.state()).toBe('invalid');
+    expect(vm.parseIssues()[0].message).toContain('contract_type');
+  });
+
+  it('requires fixed_term_end_date when contract_type is FIJO', async () => {
+    const vm = setup();
+    const file = buildWorkbookFile([
+      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID, 'Analista', '2025-01-15', 2500000, 'FIJO'],
+    ]);
+
+    await vm.loadFile(file);
+
+    expect(vm.state()).toBe('invalid');
+    expect(vm.parseIssues()[0].message).toContain('fixed_term_end_date');
   });
 
   it('submit(): sends parsed rows and reports results, state -> done', async () => {
@@ -125,9 +189,7 @@ describe('BulkPayrollUserUploadVm', () => {
       }),
     );
     const vm = setup({ bulkCreatePayrollUsers });
-    const file = buildWorkbookFile([
-      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID],
-    ]);
+    const file = buildWorkbookFile([baseRow()]);
     await vm.loadFile(file);
 
     await vm.submit('ent-1');
@@ -138,6 +200,8 @@ describe('BulkPayrollUserUploadVm', () => {
           fila_id: 'P-001', full_name: 'Ana Gómez', email: 'ana@empresa.com', phone: '+573000000000',
           document_type: 'CC', document_number: '1020304050', sub_enterprise_id: VALID_SUB_ENTERPRISE_ID,
           country_code: null,
+          job_title: 'Analista', department: null, employment_start_date: '2025-01-15',
+          salary_amount: 2500000, contract_type: 'INDEFINIDO', fixed_term_end_date: null,
         },
       ],
     });
@@ -154,9 +218,7 @@ describe('BulkPayrollUserUploadVm', () => {
       })),
     );
     const vm = setup({ bulkCreatePayrollUsers });
-    const file = buildWorkbookFile([
-      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID],
-    ]);
+    const file = buildWorkbookFile([baseRow()]);
     await vm.loadFile(file);
 
     await vm.submit('ent-1');
@@ -202,9 +264,7 @@ describe('BulkPayrollUserUploadVm', () => {
 
   it('reset() clears parsed data and results', async () => {
     const vm = setup();
-    const file = buildWorkbookFile([
-      ['P-001', 'Ana Gómez', 'ana@empresa.com', '+573000000000', 'CC', '1020304050', VALID_SUB_ENTERPRISE_ID],
-    ]);
+    const file = buildWorkbookFile([baseRow()]);
     await vm.loadFile(file);
     expect(vm.rows()).toHaveLength(1);
 

@@ -31,7 +31,15 @@ export class EnterpriseRegisterWizard implements OnInit {
 
   readonly stepLabels = ['Empresa', 'Principal', 'Administrador', 'Confirmar'] as const;
 
-  readonly documentTypes: EnterpriseDocumentType[] = ['NIT', 'CC', 'CE', 'PP', 'TI'];
+  // Solo NIT/CE/PASSPORT -- `EnterpriseDocumentType` (Identity) para la
+  // empresa que se registra. CC/PP/TI eran valores fantasma que el backend
+  // nunca aceptó, y "PP" tampoco calzaba con "PASSPORT" (bug H9, 2026-08-26).
+  readonly documentTypes: EnterpriseDocumentType[] = ['NIT', 'CE', 'PASSPORT'];
+  readonly documentTypeLabels: Record<EnterpriseDocumentType, string> = {
+    NIT: 'NIT',
+    CE: 'Cédula de extranjería',
+    PASSPORT: 'Pasaporte',
+  };
   readonly sectors = signal<EconomicSectorPublicDto[]>([]);
   readonly sectorsError = signal<string | null>(null);
   private readonly companyStep0Fields = [
@@ -114,9 +122,14 @@ export class EnterpriseRegisterWizard implements OnInit {
   }
 
   private companyDocumentNumberValidator(control: AbstractControl<string>): ValidationErrors | null {
+    // `validateCountryDocument` es un validador genérico compartido (también
+    // usado para documentos de persona natural) cuya abreviatura de
+    // pasaporte es 'PP' en todos los países -- distinta de 'PASSPORT', el
+    // valor real de `EnterpriseDocumentType` que se envía al backend.
+    const enterpriseDocType = this.companyForm.controls.document_type.value;
     const result = validateCountryDocument({
       country: 'CO',
-      documentType: this.companyForm.controls.document_type.value,
+      documentType: enterpriseDocType === 'PASSPORT' ? 'PP' : enterpriseDocType,
       documentNumber: control.value,
     });
     return result.valid ? null : { countryDocument: result.error };

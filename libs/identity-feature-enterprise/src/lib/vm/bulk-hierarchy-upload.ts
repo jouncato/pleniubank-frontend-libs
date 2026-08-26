@@ -23,7 +23,10 @@ const UNIT_REQUIRED_COLUMNS = [
   'phone',
 ] as const;
 const EMPLOYEE_REQUIRED_COLUMNS = ['fila_id', 'unit_ref', 'email'] as const;
-const VALID_DOCUMENT_TYPES: readonly EnterpriseDocumentType[] = ['CC', 'CE', 'NIT', 'PP', 'TI'];
+// Solo NIT/CE/PASSPORT -- `EnterpriseDocumentType` (Identity) para una
+// sub-empresa/Unidad de Negocio. CC/PP/TI eran valores fantasma que el
+// backend nunca aceptó (bug H9, 2026-08-26).
+const VALID_DOCUMENT_TYPES: readonly EnterpriseDocumentType[] = ['CE', 'NIT', 'PASSPORT'];
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export interface ParsedUnitRow extends BulkCreateSubEnterpriseItem {

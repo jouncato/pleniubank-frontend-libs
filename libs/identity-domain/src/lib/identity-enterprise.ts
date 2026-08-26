@@ -1,7 +1,15 @@
 import { ApiEnvelope } from '@pleniu/shared-http';
 
-/** Matches Identity `DocumentType` */
-export type EnterpriseDocumentType = 'CC' | 'CE' | 'NIT' | 'PP' | 'TI';
+/**
+ * Matches Identity `EnterpriseDocumentType` (schemas.py / domain/models.py) --
+ * ONLY NIT/CE/PASSPORT are valid for an enterprise or sub-enterprise
+ * (business unit). Distinct from `CustomerDocumentType` below (CC/CE/PP/TI),
+ * which is for natural-person documents; do not merge the two unions --
+ * doing so previously caused a 422 for CC/PP/TI (H9, 2026-08-26): the
+ * frontend offered those as enterprise document types but the backend enum
+ * never accepted them, and 'PP' never matched the backend's 'PASSPORT'.
+ */
+export type EnterpriseDocumentType = 'NIT' | 'CE' | 'PASSPORT';
 
 export interface RegisterEnterprisePersonRequest {
   email: string;
@@ -336,12 +344,29 @@ export interface BulkInviteEmployeesResponse {
 export type CustomerDocumentType = 'CC' | 'CE' | 'PP' | 'TI';
 
 /**
+ * Tipo de contrato real del empleado -- mismo enum que `party.
+ * customer_employment_profiles.contract_type` en Core (ver
+ * `ContractType` en `pleniubank-core/src/party/domain/entities/
+ * customer_employment_profile.py`, ya confirmado también en este
+ * frontend en `core-domain`'s `ContractType`). `FIJO` es el único valor
+ * que exige `fixed_term_end_date` en la carga masiva.
+ */
+export type PayrollUserContractType = 'INDEFINIDO' | 'FIJO' | 'OBRA_LABOR' | 'PRESTACION';
+
+/**
  * Una fila de la carga masiva de cuentas de usuario para Anticipo de
  * Nómina. A diferencia de `BulkInviteEmployeeItem` (solo invita por
  * correo, sin password/rol), esta fila crea el `User` directamente con
  * una contraseña temporal -- exclusiva del módulo payroll-advances.
  * `sub_enterprise_id` debe ser un id real, mismo criterio que
  * `BulkInviteEmployeeItem`.
+ *
+ * Los 6 campos de empleo (`job_title`.."fixed_term_end_date`) capturan el
+ * perfil de trabajo real del empleado en el mismo Excel -- antes de esto,
+ * `CustomerEmploymentProfile` se creaba con datos ficticios (cargo
+ * genérico, salario $0) porque nadie los capturaba en el enrolamiento
+ * masivo. `department` y `fixed_term_end_date` son condicionalmente
+ * opcionales (ver `BulkPayrollUserUploadVm.parseSheet`).
  */
 export interface BulkCreatePayrollUserItem {
   fila_id: string;
@@ -352,6 +377,14 @@ export interface BulkCreatePayrollUserItem {
   document_number: string;
   sub_enterprise_id: string;
   country_code?: string | null;
+  job_title: string;
+  department?: string | null;
+  /** ISO `YYYY-MM-DD`. */
+  employment_start_date: string;
+  salary_amount: number;
+  contract_type: PayrollUserContractType;
+  /** Obligatorio solo si `contract_type === 'FIJO'`. ISO `YYYY-MM-DD`. */
+  fixed_term_end_date?: string | null;
 }
 
 export interface BulkCreatePayrollUsersRequest {
