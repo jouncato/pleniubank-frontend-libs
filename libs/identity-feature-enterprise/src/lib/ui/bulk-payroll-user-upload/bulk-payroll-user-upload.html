@@ -1,38 +1,48 @@
-<section class="bpu" aria-labelledby="bpu-title">
+<section class="bpu" [class.bpu--compact]="compact" aria-labelledby="bpu-title">
 
-  <!-- ── Encabezado ──────────────────────────────────────────────────── -->
-  <header class="bpu__head">
-    <span class="bpu__badge" aria-hidden="true"><pb-icon name="key" size="md" [decorative]="true" /></span>
-    <div>
-      <p class="bpu__eyebrow">Anticipo de Nómina</p>
-      <h2 id="bpu-title" class="bpu__title">Carga masiva de usuarios</h2>
-      <p class="bpu__lead">
-        Sube un Excel con varios usuarios en un solo paso, ya asociados a su Unidad de Negocio.
-        Cada cuenta se crea con una contraseña temporal enviada por correo — el titular debe
-        cambiarla en su primer acceso y completar su propia verificación de identidad antes de
-        poder solicitar un anticipo.
-      </p>
-    </div>
-  </header>
+  <!-- ── Encabezado (omitido en modo compacto, ver Input `compact`) ────── -->
+  @if (!compact) {
+    <header class="bpu__head">
+      <span class="bpu__badge" aria-hidden="true"><pb-icon name="key" size="md" [decorative]="true" /></span>
+      <div>
+        <p class="bpu__eyebrow">Anticipo de Nómina</p>
+        <h2 id="bpu-title" class="bpu__title">Carga masiva de usuarios</h2>
+        <p class="bpu__lead">
+          Sube un Excel con varios usuarios en un solo paso, ya asociados a su Unidad de Negocio.
+          Cada cuenta se crea con una contraseña temporal enviada por correo — el titular debe
+          cambiarla en su primer acceso y completar su propia verificación de identidad antes de
+          poder solicitar un anticipo.
+        </p>
+      </div>
+    </header>
+  }
 
-  <!-- ── Riel de progreso ────────────────────────────────────────────── -->
-  <ol class="bpu-rail" [style.--bpu-rail-progress]="activeStage() / (stages.length - 1)">
+  <!-- ── Dock de la operación ────────────────────────────────────────── -->
+  <ol class="bpu-dock" [style.--bpu-dock-progress]="activeStage() / (stages.length - 1)">
     @for (stage of stages; track stage.label; let i = $index) {
       <li
-        class="bpu-rail__item"
-        [class.bpu-rail__item--done]="i < activeStage()"
-        [class.bpu-rail__item--active]="i === activeStage()"
+        class="bpu-dock__node"
+        [class.bpu-dock__node--done]="i < activeStage()"
+        [class.bpu-dock__node--active]="i === activeStage()"
       >
-        <span class="bpu-rail__node">
+        <span class="bpu-dock__marker">
           @if (i < activeStage()) {
             <pb-icon name="check" size="xs" [decorative]="true" />
           } @else {
-            <pb-icon [name]="stage.icon" size="xs" [decorative]="true" />
+            <span class="bpu-dock__index">{{ i + 1 }}</span>
           }
         </span>
-        <span class="bpu-rail__copy">
-          <span class="bpu-rail__label">{{ stage.label }}</span>
-          <span class="bpu-rail__hint">{{ stage.hint }}</span>
+        <span class="bpu-dock__copy">
+          <span class="bpu-dock__label">{{ stage.label }}</span>
+          @if (i === 1 && (vm.state() === 'parsed' || vm.state() === 'submitting')) {
+            <span class="bpu-dock__stat">{{ totalRows() }} usuario(s) listos</span>
+          } @else if (i === 2 && vm.state() === 'done') {
+            <span class="bpu-dock__stat">
+              {{ resultCounts().created }} creada(s)@if (resultCounts().total !== resultCounts().created) {, {{ resultCounts().total - resultCounts().created }} con novedad}
+            </span>
+          } @else {
+            <span class="bpu-dock__hint">{{ stage.hint }}</span>
+          }
         </span>
       </li>
     }
@@ -41,16 +51,32 @@
   <!-- ── Paso 1: plantilla + carga ───────────────────────────────────── -->
   @if (vm.state() === 'idle' || vm.state() === 'invalid') {
     <div class="bpu-import">
-      <div class="bpu-import__card bpu-import__card--template">
-        <span class="bpu-import__icon" aria-hidden="true"><pb-icon name="download" size="sm" [decorative]="true" /></span>
-        <div class="bpu-import__copy">
-          <h3>Plantilla oficial</h3>
-          <p>Trae las columnas exactas y un ejemplo ya diligenciado. El ID de Unidad de Negocio debe ser real.</p>
-        </div>
-        <button type="button" class="bpu-btn bpu-btn--ghost" (click)="downloadTemplate()">
-          <pb-icon name="download" size="xs" [decorative]="true" /> Descargar plantilla
-        </button>
-      </div>
+      <ol class="bpu-import__steps">
+        <li>
+          <span class="bpu-import__step-index">1</span>
+          <div>
+            <strong>Descarga la plantilla</strong>
+            <p>Trae las columnas exactas y un ejemplo ya diligenciado.</p>
+            <button type="button" class="bpu-btn bpu-btn--ghost bpu-btn--sm" (click)="downloadTemplate()">
+              <pb-icon name="download" size="xs" [decorative]="true" /> Descargar plantilla
+            </button>
+          </div>
+        </li>
+        <li>
+          <span class="bpu-import__step-index">2</span>
+          <div>
+            <strong>Complétala</strong>
+            <p>Un usuario por fila. El ID de Unidad de Negocio debe ser real — no se crean unidades nuevas aquí.</p>
+          </div>
+        </li>
+        <li>
+          <span class="bpu-import__step-index">3</span>
+          <div>
+            <strong>Sube el archivo</strong>
+            <p>Revisamos formato y datos antes de crear ninguna cuenta.</p>
+          </div>
+        </li>
+      </ol>
 
       <label
         class="bpu-dropzone"
@@ -60,7 +86,7 @@
         (dragleave)="onDragLeave()"
         (drop)="onDrop($event)"
       >
-        <span class="bpu-dropzone__icon" aria-hidden="true"><pb-icon name="upload" size="md" [decorative]="true" /></span>
+        <span class="bpu-dropzone__icon" aria-hidden="true"><pb-icon name="upload" size="lg" [decorative]="true" /></span>
         <span class="bpu-dropzone__title">Arrastra tu archivo aquí</span>
         <span class="bpu-dropzone__hint">o haz clic para buscarlo · .xlsx o .csv</span>
         @if (vm.fileName(); as name) {
@@ -68,6 +94,29 @@
         }
         <input type="file" accept=".xlsx,.csv" (change)="onFileSelected($event)" hidden />
       </label>
+
+      <details class="bpu-fields-explain">
+        <summary>
+          <pb-icon name="info" size="xs" [decorative]="true" />
+          ¿Qué información trae el archivo y por qué la pedimos?
+        </summary>
+        <table class="bpu-fields-explain__table">
+          <thead>
+            <tr><th>Columna</th><th>Por qué la pide negocio</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>fila_id</code></td><td>Referencia de la fila para rastrear su resultado sin exponer datos personales en el reporte.</td></tr>
+            <tr><td><code>full_name</code>, <code>document_type</code>, <code>document_number</code></td><td>Identidad legal de la persona — requerida para KYC antes de que pueda solicitar un anticipo.</td></tr>
+            <tr><td><code>email</code>, <code>phone</code></td><td>Canal de entrega de la contraseña temporal y de verificación (OTP) del titular.</td></tr>
+            <tr><td><code>sub_enterprise_id</code></td><td>Vincula la cuenta a una Unidad de Negocio <strong>ya existente</strong> — se obtiene primero de la carga de Unidades, nunca se inventa.</td></tr>
+            <tr><td><code>job_title</code>, <code>department</code></td><td>Cargo real y área del empleado — sin esto el perfil de trabajo queda con un cargo genérico en vez del real.</td></tr>
+            <tr><td><code>employment_start_date</code></td><td>Fecha real de ingreso — sin esto el sistema tendría que asumir "hoy", perdiendo la antigüedad real.</td></tr>
+            <tr><td><code>salary_amount</code></td><td>Salario real — es la base con la que se calcula cuánto puede anticipar el empleado. Sin este dato no hay nada que anticipar.</td></tr>
+            <tr><td><code>contract_type</code>, <code>fixed_term_end_date</code></td><td>Tipo de contrato real (y su fecha de fin si es a término fijo) — usado para evaluar el riesgo del anticipo.</td></tr>
+            <tr><td><code>country_code</code> <em>(opcional)</em></td><td>Solo si la unidad opera en un país distinto al que la plataforma asume por defecto.</td></tr>
+          </tbody>
+        </table>
+      </details>
 
       @if (vm.state() === 'invalid') {
         <div class="bpu-issues" role="alert">
@@ -88,7 +137,7 @@
     </div>
   }
 
-  <!-- ── Paso 2: vista previa ────────────────────────────────────────── -->
+  <!-- ── Paso 2: vista previa (agrupada por Unidad de Negocio) ────────── -->
   @if (vm.state() === 'parsed' || vm.state() === 'submitting') {
     <div class="bpu-preview" [class.bpu-preview--busy]="vm.state() === 'submitting'">
       <div class="bpu-preview__toolbar">
@@ -97,36 +146,66 @@
             <span class="bpu-kpi__value">{{ totalRows() }}</span>
             <span class="bpu-kpi__label">Usuarios a crear</span>
           </div>
+          <div class="bpu-kpi bpu-kpi--violet">
+            <span class="bpu-kpi__value">{{ rowsBySubEnterprise().length }}</span>
+            <span class="bpu-kpi__label">Unidad(es) de Negocio</span>
+          </div>
         </div>
         <button type="button" class="bpu-link" (click)="startOver()" [disabled]="vm.state() === 'submitting'">
           <pb-icon name="undo" size="xs" [decorative]="true" /> Elegir otro archivo
         </button>
       </div>
 
-      <div class="bpu-ledger">
-        <p class="bpu-ledger__caption">Usuarios</p>
-        <div class="bpu-ledger__scroll">
-          <table>
-            <thead>
-              <tr><th>Referencia</th><th>Nombre</th><th>Documento</th><th>Correo</th><th>Unidad de Negocio</th></tr>
-            </thead>
-            <tbody>
-              @for (r of vm.rows(); track r.fila_id) {
-                <tr>
-                  <td><span class="bpu-tag">{{ r.fila_id }}</span></td>
-                  <td class="bpu-ledger__strong">{{ r.full_name }}</td>
-                  <td>{{ r.document_type }} {{ r.document_number }}</td>
-                  <td>{{ r.email }}</td>
-                  <td><span class="bpu-tag">{{ vm.subEnterpriseLabel(r.sub_enterprise_id) }}</span></td>
-                </tr>
-              }
-            </tbody>
-          </table>
+      @for (group of rowsBySubEnterprise(); track group.subEnterpriseId) {
+        <div class="bpu-ledger" [class.bpu-ledger--unresolved]="group.label === 'Unidad no encontrada'">
+          <p class="bpu-ledger__caption">
+            <pb-icon name="sectors" size="xs" [decorative]="true" />
+            {{ group.label }}
+            <span class="bpu-ledger__caption-count">{{ group.rows.length }} usuario(s)</span>
+          </p>
+          @if (group.label === 'Unidad no encontrada') {
+            <p class="bpu-ledger__unresolved-warning" role="alert">
+              <pb-icon name="warning" size="xs" [decorative]="true" />
+              Este ID de Unidad de Negocio no existe o no pertenece a esta empresa. Corrige el archivo antes de confirmar — estas filas no se pueden crear.
+            </p>
+          }
+          <div class="bpu-ledger__scroll">
+            <table>
+              <thead>
+                <tr><th>Referencia</th><th>Usuario</th><th>Documento</th><th>Correo</th></tr>
+              </thead>
+              <tbody>
+                @for (r of group.rows; track r.fila_id) {
+                  <tr>
+                    <td><span class="bpu-tag">{{ r.fila_id }}</span></td>
+                    <td class="bpu-ledger__person">
+                      <span class="bpu-avatar" aria-hidden="true">{{ initials(r.full_name) }}</span>
+                      <span class="bpu-ledger__strong">{{ r.full_name }}</span>
+                    </td>
+                    <td>{{ r.document_type }} {{ r.document_number }}</td>
+                    <td>{{ r.email }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      }
+
+      @if (hasUnresolvedSubEnterprise()) {
+        <div class="bpu-alert bpu-alert--error" role="alert">
+          <pb-icon name="error" size="sm" [decorative]="true" />
+          <p>Hay filas con una Unidad de Negocio que no existe. Corrige el archivo y vuelve a subirlo antes de confirmar.</p>
+        </div>
+      }
 
       <div class="bpu-actions bpu-actions--end">
-        <button type="button" class="bpu-btn bpu-btn--primary" (click)="confirm()" [disabled]="vm.state() === 'submitting'">
+        <button
+          type="button"
+          class="bpu-btn bpu-btn--primary"
+          (click)="confirm()"
+          [disabled]="vm.state() === 'submitting' || hasUnresolvedSubEnterprise()"
+        >
           @if (vm.state() === 'submitting') {
             <span class="bpu-spinner" aria-hidden="true"></span> Procesando…
           } @else {
@@ -150,79 +229,128 @@
     </div>
   }
 
-  <!-- ── Paso 3: resultado (trazabilidad de negocio) ──────────────────── -->
+  <!-- ── Paso 3: informe de carga (trazabilidad de negocio) ───────────── -->
   @if (vm.state() === 'done') {
-    <div class="bpu-outcome" [class.bpu-outcome--warn]="vm.exceptionRows().length > 0">
-      <span class="bpu-outcome__icon" aria-hidden="true">
-        <pb-icon [name]="vm.exceptionRows().length > 0 ? 'warning' : 'shield-check'" size="lg" [decorative]="true" />
-      </span>
-      <div>
-        <p class="bpu-outcome__title">
-          @if (vm.exceptionRows().length > 0) {
-            Carga procesada con excepciones
-          } @else {
-            Carga procesada sin novedades
-          }
-        </p>
-        <p class="bpu-outcome__sub">
-          Archivo <strong>{{ vm.fileName() }}</strong> · cada cuenta creada recibió su contraseña temporal por correo.
-        </p>
+    <div class="bpu-report" id="bpu-print-report">
+      <header class="bpu-report__letterhead" [class.bpu-report__letterhead--warn]="vm.exceptionRows().length > 0">
+        <div class="bpu-report__letterhead-main">
+          <span class="bpu-report__icon" aria-hidden="true">
+            <pb-icon [name]="vm.exceptionRows().length > 0 ? 'warning' : 'shield-check'" size="lg" [decorative]="true" />
+          </span>
+          <div>
+            <p class="bpu-report__eyebrow">Informe de carga masiva · Anticipo de Nómina</p>
+            <p class="bpu-report__title">
+              @if (vm.exceptionRows().length > 0) {
+                Carga procesada con excepciones
+              } @else {
+                Carga procesada sin novedades
+              }
+            </p>
+          </div>
+        </div>
+        <dl class="bpu-report__meta">
+          <div>
+            <dt>Archivo</dt>
+            <dd>{{ vm.fileName() }}</dd>
+          </div>
+          <div>
+            <dt>Fecha</dt>
+            <dd>{{ completedAt() | date: "d 'de' MMMM, y · HH:mm" }}</dd>
+          </div>
+          <div>
+            <dt>Canal</dt>
+            <dd>{{ compact ? 'Ops-asistido (Backoffice)' : 'Autoservicio' }}</dd>
+          </div>
+        </dl>
+      </header>
+
+      <div class="bpu-report__summary">
+        <div class="bpu-ring" [style]="resultRingStyle()" role="img" [attr.aria-label]="resultRingPercent() + '% de las filas se crearon correctamente'">
+          <div class="bpu-ring__hole">
+            <span class="bpu-ring__value">{{ resultRingPercent() }}%</span>
+            <span class="bpu-ring__label">creadas</span>
+          </div>
+        </div>
+
+        <div class="bpu-kpis bpu-kpis--triad">
+          <button type="button" class="bpu-kpi bpu-kpi--accent-teal" [class.bpu-kpi--selected]="resultFilter() === 'created'" (click)="setResultFilter(resultFilter() === 'created' ? 'all' : 'created')">
+            <span class="bpu-kpi__value">{{ resultCounts().created }}</span>
+            <span class="bpu-kpi__label">Creadas</span>
+          </button>
+          <button type="button" class="bpu-kpi bpu-kpi--accent-amber" [class.bpu-kpi--selected]="resultFilter() === 'skipped'" (click)="setResultFilter(resultFilter() === 'skipped' ? 'all' : 'skipped')">
+            <span class="bpu-kpi__value">{{ resultCounts().skipped }}</span>
+            <span class="bpu-kpi__label">Omitidas</span>
+          </button>
+          <button type="button" class="bpu-kpi bpu-kpi--accent-red" [class.bpu-kpi--selected]="resultFilter() === 'error'" (click)="setResultFilter(resultFilter() === 'error' ? 'all' : 'error')">
+            <span class="bpu-kpi__value">{{ resultCounts().error }}</span>
+            <span class="bpu-kpi__label">Con error</span>
+          </button>
+        </div>
       </div>
+
+      @if (vm.exceptionRows().length > 0) {
+        <div class="bpu-exceptions" role="status">
+          <pb-icon name="fraud-alert" size="sm" [decorative]="true" />
+          <span>
+            <strong>{{ vm.exceptionRows().length }} fila(s)</strong> requieren tu atención — filtra por estado abajo o
+            descarga el reporte completo.
+          </span>
+          <button type="button" class="bpu-btn bpu-btn--ghost bpu-btn--sm" (click)="downloadExceptions()">
+            <pb-icon name="download" size="xs" [decorative]="true" /> Reporte de excepciones
+          </button>
+        </div>
+      }
+
+      <div class="bpu-ledger bpu-ledger--report">
+        <div class="bpu-ledger__toolbar">
+          <p class="bpu-ledger__caption bpu-ledger__caption--flush">Detalle — Usuarios</p>
+          <div class="bpu-log-filters" role="group" aria-label="Filtrar por estado">
+            <button type="button" class="bpu-log-filters__chip" [class.bpu-log-filters__chip--active]="resultFilter() === 'all'" (click)="setResultFilter('all')">Todas</button>
+            <button type="button" class="bpu-log-filters__chip" [class.bpu-log-filters__chip--active]="resultFilter() === 'created'" (click)="setResultFilter('created')">Creadas</button>
+            <button type="button" class="bpu-log-filters__chip" [class.bpu-log-filters__chip--active]="resultFilter() === 'skipped'" (click)="setResultFilter('skipped')">Omitidas</button>
+            <button type="button" class="bpu-log-filters__chip" [class.bpu-log-filters__chip--active]="resultFilter() === 'error'" (click)="setResultFilter('error')">Con error</button>
+          </div>
+          <label class="bpu-log-search">
+            <pb-icon name="search" size="xs" [decorative]="true" />
+            <input type="search" placeholder="Buscar por referencia o correo…" [value]="resultQuery()" (input)="resultQuery.set($any($event.target).value)" />
+          </label>
+        </div>
+        <div class="bpu-ledger__scroll">
+          <table>
+            <thead><tr><th>Referencia</th><th>Correo</th><th>Estado</th><th>Motivo</th></tr></thead>
+            <tbody>
+              @for (e of filteredResults(); track e.fila_id) {
+                <tr [class.bpu-ledger__row--error]="e.status === 'error'" [class.bpu-ledger__row--skipped]="e.status === 'skipped'">
+                  <td><span class="bpu-tag">{{ e.fila_id }}</span></td>
+                  <td class="bpu-ledger__strong">{{ e.email }}</td>
+                  <td>
+                    <span class="bpu-status-chip" [class]="'bpu-status-chip--' + e.status">
+                      <span class="bpu-status-chip__dot"></span>
+                      {{ e.status === 'created' ? 'Creada' : e.status === 'skipped' ? 'Omitida' : 'Con error' }}
+                    </span>
+                  </td>
+                  <td class="bpu-ledger__reason">{{ e.reason || '—' }}</td>
+                </tr>
+              } @empty {
+                <tr class="bpu-ledger__empty-row">
+                  <td colspan="4">Ningún registro coincide con el filtro o la búsqueda actual.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="bpu-report__footnote">
+        Informe generado por Pleniu · uso interno y para la Empresa Principal titular de la carga.
+        Cada cuenta creada recibió su contraseña temporal por correo.
+      </p>
     </div>
 
-    <div class="bpu-kpis bpu-kpis--triad">
-      <div class="bpu-kpi bpu-kpi--accent-teal">
-        <span class="bpu-kpi__value">{{ countBy(vm.results(), 'created') }}</span>
-        <span class="bpu-kpi__label">Creadas</span>
-      </div>
-      <div class="bpu-kpi bpu-kpi--accent-amber">
-        <span class="bpu-kpi__value">{{ countBy(vm.results(), 'skipped') }}</span>
-        <span class="bpu-kpi__label">Omitidas</span>
-      </div>
-      <div class="bpu-kpi bpu-kpi--accent-red">
-        <span class="bpu-kpi__value">{{ countBy(vm.results(), 'error') }}</span>
-        <span class="bpu-kpi__label">Con error</span>
-      </div>
-    </div>
-
-    @if (vm.exceptionRows().length > 0) {
-      <div class="bpu-exceptions" role="status">
-        <pb-icon name="fraud-alert" size="sm" [decorative]="true" />
-        <span>
-          <strong>{{ vm.exceptionRows().length }} fila(s)</strong> requieren tu atención — revisa el motivo en el
-          detalle de abajo o descarga el reporte completo.
-        </span>
-        <button type="button" class="bpu-btn bpu-btn--ghost bpu-btn--sm" (click)="downloadExceptions()">
-          <pb-icon name="download" size="xs" [decorative]="true" /> Reporte de excepciones
-        </button>
-      </div>
-    }
-
-    <div class="bpu-ledger">
-      <p class="bpu-ledger__caption">Detalle — Usuarios</p>
-      <div class="bpu-ledger__scroll">
-        <table>
-          <thead><tr><th>Referencia</th><th>Correo</th><th>Estado</th><th>Motivo</th></tr></thead>
-          <tbody>
-            @for (e of vm.results(); track e.fila_id) {
-              <tr [class.bpu-ledger__row--error]="e.status === 'error'" [class.bpu-ledger__row--skipped]="e.status === 'skipped'">
-                <td><span class="bpu-tag">{{ e.fila_id }}</span></td>
-                <td class="bpu-ledger__strong">{{ e.email }}</td>
-                <td>
-                  <span class="bpu-status-chip" [class]="'bpu-status-chip--' + e.status">
-                    <span class="bpu-status-chip__dot"></span>
-                    {{ e.status === 'created' ? 'Creada' : e.status === 'skipped' ? 'Omitida' : 'Con error' }}
-                  </span>
-                </td>
-                <td class="bpu-ledger__reason">{{ e.reason || '—' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="bpu-actions">
+    <div class="bpu-actions bpu-actions--no-print">
+      <button type="button" class="bpu-btn bpu-btn--ghost" (click)="printReport()">
+        <pb-icon name="statement" size="xs" [decorative]="true" /> Imprimir informe
+      </button>
       @if (vm.exceptionRows().length > 0) {
         <button type="button" class="bpu-btn bpu-btn--ghost" (click)="downloadExceptions()">
           <pb-icon name="download" size="xs" [decorative]="true" /> Descargar reporte de excepciones
