@@ -14,7 +14,10 @@ import { PbPasswordVisibilityToggleComponent } from '@pleniu/ui';
 import { RegisterVm } from '../../vm/register';
 
 const PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
-const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
+// Code review externo 2026-08-26: alineado al contrato real del backend
+// (_PHONE_RE en pleniubank-identity-service) -- exige al menos un digito y
+// permite hasta 64 caracteres, no 20.
+const PHONE_PATTERN = /^(?=.*\d)[0-9+\-\s()]{7,64}$/;
 
 export type LegalModalSection = 'terms' | 'data';
 

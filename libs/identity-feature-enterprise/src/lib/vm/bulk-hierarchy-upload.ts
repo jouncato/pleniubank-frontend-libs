@@ -30,7 +30,10 @@ const EMPLOYEE_REQUIRED_COLUMNS = ['fila_id', 'unit_ref', 'email'] as const;
 const VALID_DOCUMENT_TYPES: readonly EnterpriseDocumentType[] = ['CE', 'NIT', 'PASSPORT'];
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
+// Code review externo 2026-08-26: alineado al contrato real del backend
+// (_PHONE_RE en pleniubank-identity-service) -- exige al menos un digito y
+// permite hasta 64 caracteres, no 20.
+const PHONE_PATTERN = /^(?=.*\d)[0-9+\-\s()]{7,64}$/;
 const DOCUMENT_NUMBER_PATTERN = /^[A-Za-z0-9-]{5,32}$/;
 
 export interface ParsedUnitRow extends BulkCreateSubEnterpriseItem {

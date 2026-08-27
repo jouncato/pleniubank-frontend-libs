@@ -10,7 +10,12 @@ import { RegisterEnterpriseVm, type RegisterEnterpriseStep } from '../../vm/regi
 
 const ENTERPRISE_PASSWORD_MIN_LENGTH = 12;
 const ENTERPRISE_PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
-const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
+// Code review externo 2026-08-26: debe calzar con el contrato real del
+// backend (_PHONE_RE en pleniubank-identity-service/src/api/schemas.py) --
+// exige al menos un digito y permite hasta 64 caracteres, no 20. Antes un
+// telefono de solo espacios pasaba el frontend y fallaba en el backend con
+// un 422 inesperado.
+const PHONE_PATTERN = /^(?=.*\d)[0-9+\-\s()]{7,64}$/;
 
 @Component({
   selector: 'lib-enterprise-register-wizard',
