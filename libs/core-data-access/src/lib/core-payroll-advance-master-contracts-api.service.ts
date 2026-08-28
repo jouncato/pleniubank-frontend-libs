@@ -169,6 +169,21 @@ export interface PayrollAdvanceCycleReportLineDto {
   status: string;
 }
 
+export interface PayrollAdvanceCycleDiscrepancyDto {
+  id: string;
+  report_id: string | null;
+  master_contract_id: string;
+  enterprise_id: string;
+  scheduled_cycle_date: string | null;
+  category: string;
+  status: string;
+  details: Record<string, unknown>;
+  correlation_id: string | null;
+  created_at: string;
+  resolved_at: string | null;
+  resolved_by: string | null;
+}
+
 export interface PayrollAdvanceCycleDocumentDto {
   id: string;
   report_id: string;
@@ -187,6 +202,7 @@ export interface PayrollAdvanceCycleDocumentDto {
 export interface PayrollAdvanceCycleReportDetailDto {
   report: PayrollAdvanceCycleReportDto;
   documents: PayrollAdvanceCycleDocumentDto[];
+  discrepancies: PayrollAdvanceCycleDiscrepancyDto[];
   lines: PayrollAdvanceCycleReportLineDto[];
 }
 
@@ -792,6 +808,25 @@ export class CorePayrollAdvanceMasterContractsApiService {
     return this.http.post<ApiEnvelope<PayrollAdvanceCycleChangeRequestDto>>(
       `${this.base}/${contractId}/cycle-change-requests/${requestId}/decide`,
       body,
+    );
+  }
+
+  listCycleDiscrepancies(params: {
+    enterprise_id?: string;
+    master_contract_id?: string;
+    status?: string;
+    limit?: number;
+  } = {}): Observable<ApiEnvelope<PayrollAdvanceCycleDiscrepancyDto[]>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceCycleDiscrepancyDto[]>>(
+      `${this.reportsBase}/discrepancies`,
+      {
+        params: this.toHttpParams({
+          enterprise_id: params.enterprise_id,
+          master_contract_id: params.master_contract_id,
+          status: params.status,
+          limit: params.limit,
+        }),
+      },
     );
   }
 
