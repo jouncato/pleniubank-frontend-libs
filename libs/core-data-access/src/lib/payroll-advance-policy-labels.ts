@@ -70,6 +70,8 @@ export const PAYROLL_ADVANCE_POLICY_REASON_LABELS: Record<PayrollAdvancePolicyRe
     'El monto solicitado supera el máximo efectivo permitido por la política vigente.',
   PAYROLL_ADVANCE_SALARY_PERCENTAGE_EXCEEDED:
     'El monto solicitado supera el porcentaje máximo permitido del salario verificado.',
+  PAYROLL_ADVANCE_ASSIGNMENT_CONCENTRATION_EXCEEDED:
+    'El monto solicitado supera el cupo acumulado disponible para tu unidad de negocio.',
   PAYROLL_ADVANCE_MIN_TENURE_NOT_MET:
     'La antigüedad laboral verificada no cumple el mínimo requerido por la política vigente.',
   PAYROLL_ADVANCE_MONTHLY_FREQUENCY_EXCEEDED:
@@ -85,6 +87,8 @@ export const PAYROLL_ADVANCE_POLICY_REASON_LABELS: Record<PayrollAdvancePolicyRe
   PAYROLL_ADVANCE_DISCOUNT_DATE_INVALID:
     'La fecha de descuento propuesta no es válida o excede el máximo vigente.',
   PAYROLL_ADVANCE_RECENT_DEFAULT: 'El historial crediticio reciente no cumple la política vigente.',
+  PAYROLL_ADVANCE_FIXED_TERM_CONTRACT_ENDING_SOON:
+    'El contrato laboral a término fijo está próximo a finalizar y no permite un nuevo anticipo.',
   PAYROLL_ADVANCE_KYC_AML_BLOCKED: 'La verificación de identidad/AML bloqueó la solicitud.',
   PAYROLL_ADVANCE_SCORING_REJECTED:
     'La evaluación de riesgo no aprobó la exposición total solicitada.',
@@ -147,6 +151,10 @@ export function payrollAdvancePolicyPrimaryReasonLabel(
 
 export const PAYROLL_ADVANCE_ALERT_TYPE_LABELS: Record<PayrollAdvanceAlertType, string> = {
   PAYROLL_ADVANCE_PERCENTAGE_EXCEEDED: 'Intento de solicitud sobre el porcentaje efectivo permitido',
+  PAYROLL_ADVANCE_ASSIGNMENT_CONCENTRATION_EXCEEDED:
+    'Solicitud sobre el cupo acumulado de concentración de la unidad',
+  PAYROLL_ADVANCE_MASTER_CONTRACT_UTILIZATION_OVER_85:
+    'Utilización del contrato matriz superior al 85%',
   PAYROLL_ADVANCE_EMPLOYER_POLICY_WEAKENING_ATTEMPT:
     'Intento de configurar una política empresarial menos restrictiva que la global',
   PAYROLL_ADVANCE_EMPLOYER_DAILY_LIMIT_EXCEEDED:

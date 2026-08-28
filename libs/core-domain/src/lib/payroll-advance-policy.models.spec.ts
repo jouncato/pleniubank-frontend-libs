@@ -18,12 +18,13 @@ describe('payroll-advance-policy.models', () => {
     ]);
   });
 
-  it('expone los 28 reason_codes espejo del enum Python PayrollAdvancePolicyReasonCode', () => {
-    // OpenSpec reconcile-risk-engines-aggregator-co: +1
-    // (PAYROLL_ADVANCE_RISK_ENGINE_DISAGREEMENT) sobre los 27 anteriores.
-    expect(PAYROLL_ADVANCE_POLICY_REASON_CODES).toHaveLength(28);
+  it('expone los 30 reason_codes espejo del enum Python PayrollAdvancePolicyReasonCode', () => {
+    // OpenSpec enforce-payroll-shared-unit-concentration-caps: +1
+    // (PAYROLL_ADVANCE_ASSIGNMENT_CONCENTRATION_EXCEEDED) y se incluye el
+    // código de contrato a término fijo ya emitido por Core.
+    expect(PAYROLL_ADVANCE_POLICY_REASON_CODES).toHaveLength(30);
     // Sin duplicados.
-    expect(new Set(PAYROLL_ADVANCE_POLICY_REASON_CODES).size).toBe(28);
+    expect(new Set(PAYROLL_ADVANCE_POLICY_REASON_CODES).size).toBe(30);
   });
 
   it('MANUAL_REVIEW y UNAVAILABLE reason_codes son subconjuntos de la lista completa y no se solapan', () => {

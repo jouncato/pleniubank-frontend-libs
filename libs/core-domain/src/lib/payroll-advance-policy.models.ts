@@ -47,13 +47,14 @@ export const PAYROLL_ADVANCE_POLICY_DECISION_TYPES: readonly PayrollAdvancePolic
  * Códigos de motivo estables, sin PII, uno por causa (design.md Decision 8-10).
  * Prefijo `PAYROLL_ADVANCE_*` para causas del producto; `POLICY_*` para
  * conflictos de configuración de política — idéntico al enum Python
- * `PayrollAdvancePolicyReasonCode` (25 valores).
+ * `PayrollAdvancePolicyReasonCode` (30 valores).
  */
 export type PayrollAdvancePolicyReasonCode =
   // ── Rechazos duros (REJECTED) ──────────────────────────────────────────
   | 'PAYROLL_ADVANCE_AMOUNT_BELOW_MIN'
   | 'PAYROLL_ADVANCE_AMOUNT_ABOVE_MAX'
   | 'PAYROLL_ADVANCE_SALARY_PERCENTAGE_EXCEEDED'
+  | 'PAYROLL_ADVANCE_ASSIGNMENT_CONCENTRATION_EXCEEDED'
   | 'PAYROLL_ADVANCE_MIN_TENURE_NOT_MET'
   | 'PAYROLL_ADVANCE_MONTHLY_FREQUENCY_EXCEEDED'
   | 'PAYROLL_ADVANCE_ACTIVE_EXISTS'
@@ -63,6 +64,7 @@ export type PayrollAdvancePolicyReasonCode =
   | 'PAYROLL_ADVANCE_EMPLOYMENT_PROFILE_NOT_VERIFIED'
   | 'PAYROLL_ADVANCE_DISCOUNT_DATE_INVALID'
   | 'PAYROLL_ADVANCE_RECENT_DEFAULT'
+  | 'PAYROLL_ADVANCE_FIXED_TERM_CONTRACT_ENDING_SOON'
   | 'PAYROLL_ADVANCE_KYC_AML_BLOCKED'
   | 'PAYROLL_ADVANCE_SCORING_REJECTED'
   | 'PAYROLL_ADVANCE_CONSENT_MISSING'
@@ -91,6 +93,7 @@ export const PAYROLL_ADVANCE_POLICY_REASON_CODES: readonly PayrollAdvancePolicyR
   'PAYROLL_ADVANCE_AMOUNT_BELOW_MIN',
   'PAYROLL_ADVANCE_AMOUNT_ABOVE_MAX',
   'PAYROLL_ADVANCE_SALARY_PERCENTAGE_EXCEEDED',
+  'PAYROLL_ADVANCE_ASSIGNMENT_CONCENTRATION_EXCEEDED',
   'PAYROLL_ADVANCE_MIN_TENURE_NOT_MET',
   'PAYROLL_ADVANCE_MONTHLY_FREQUENCY_EXCEEDED',
   'PAYROLL_ADVANCE_ACTIVE_EXISTS',
@@ -100,6 +103,7 @@ export const PAYROLL_ADVANCE_POLICY_REASON_CODES: readonly PayrollAdvancePolicyR
   'PAYROLL_ADVANCE_EMPLOYMENT_PROFILE_NOT_VERIFIED',
   'PAYROLL_ADVANCE_DISCOUNT_DATE_INVALID',
   'PAYROLL_ADVANCE_RECENT_DEFAULT',
+  'PAYROLL_ADVANCE_FIXED_TERM_CONTRACT_ENDING_SOON',
   'PAYROLL_ADVANCE_KYC_AML_BLOCKED',
   'PAYROLL_ADVANCE_SCORING_REJECTED',
   'PAYROLL_ADVANCE_CONSENT_MISSING',
@@ -242,11 +246,13 @@ export interface PayrollAdvanceEligibilityResponse {
   employer_id: string | null;
   decision: PayrollAdvancePolicyDecision | null;
   unavailable_reason: string | null;
+  /** Campo legacy aceptado por fixtures/consumidores antiguos; el costo vigente es fee_fixed_amount. */
+  fee_rate?: number | null;
   /** Costo FIJO de desembolso vigente, en moneda local (p. ej. 5000 = COP
    * 5.000). Requisito de Negocio 2026-08-14: ya no es una tasa/porcentaje.
    * Vive fuera de `decision.policy` (categoría "pricing", no elegibilidad)
    * -- agregado 2026-08-11 para mostrarla al customer antes de aceptar. */
-  fee_fixed_amount: number | null;
+  fee_fixed_amount?: number | null;
 }
 
 /**

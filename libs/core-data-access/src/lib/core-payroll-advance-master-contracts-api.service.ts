@@ -57,6 +57,11 @@ export interface PayrollAdvanceMasterContractCreateRequest {
   policy_version?: string;
   effective_from?: string | null;
   effective_to?: string | null;
+  cutoff_day?: number | null;
+  payment_day?: number | null;
+  enterprise_due_day?: number | null;
+  cycle_timezone?: string | null;
+  cycle_denomination?: string;
 }
 
 export interface PayrollAdvanceMasterContractDto {
@@ -72,9 +77,18 @@ export interface PayrollAdvanceMasterContractDto {
   status: string;
   effective_from: string;
   effective_to: string | null;
+  cutoff_day?: number | null;
+  payment_day?: number | null;
+  enterprise_due_day?: number | null;
+  cycle_timezone?: string | null;
+  cycle_denomination?: string;
   contract_template_id?: string | null;
   /** ADR-023: custodia de fondeo asignada (obligatoria para activar). */
   custody_account_id?: string | null;
+  /** openspec add-payroll-advance-partner-commission: % sobre
+   * payroll_advance_disbursement_fee_amount, default "0" -- solo lectura,
+   * editable exclusivamente vía el maker-checker de commission-change-requests. */
+  partner_commission_percentage?: string;
 }
 
 /** Ajusta (sube o baja) el cupo agregado total de un contrato ACTIVE. El
@@ -83,6 +97,103 @@ export interface PayrollAdvanceMasterContractDto {
 export interface PayrollAdvanceMasterContractCapacityAdjustmentRequest {
   new_approved_total_limit: number;
   reason: string;
+}
+
+export type PayrollAdvanceCycleReportType = 'PRE_CYCLE' | 'POST_CYCLE';
+
+export interface PayrollAdvanceCycleReportListParams {
+  enterprise_id?: string;
+  master_contract_id?: string;
+  master_contract_version_id?: string;
+  master_assignment_id?: string;
+  report_type?: PayrollAdvanceCycleReportType;
+  status?: string;
+  scheduled_cycle_date?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PayrollAdvanceCycleReportDto {
+  id: string;
+  master_contract_id: string;
+  master_contract_version_id: string | null;
+  enterprise_id: string;
+  report_type: PayrollAdvanceCycleReportType;
+  status: string;
+  schema_version: string;
+  cutoff_date: string;
+  enterprise_due_date: string;
+  payment_day: number | null;
+  cycle_timezone: string | null;
+  scheduled_cycle_date: string;
+  generated_at: string;
+  retention_until: string | null;
+  total_lines: number;
+  total_principal: string;
+  total_commission: string;
+  total_interest: string;
+  total_late_fee: string;
+  total_owed: string;
+  denomination: string;
+  content_hash: string | null;
+  error_details: Record<string, unknown> | null;
+  correlation_id: string | null;
+  trigger_source: string;
+}
+
+export interface PayrollAdvanceCycleReportLineDto {
+  id: string;
+  advance_id: string;
+  advance_version: number;
+  master_assignment_id: string | null;
+  employer_id: string;
+  customer_id: string;
+  amount: string;
+  principal_outstanding: string;
+  commission_outstanding: string;
+  accrued_interest: string;
+  accrued_late_fee: string;
+  total_owed: string;
+  payment_day: number | null;
+  b2b_amount_received: string;
+  b2b_amount_applied: string;
+  document_status: string;
+  ledger_status: string;
+  gl_status: string;
+  reservation_status: string;
+  reconciliation_status: string;
+  posting_batch_id: string | null;
+  journal_entry_id: string | null;
+  discrepancy_details: Record<string, unknown> | null;
+  status: string;
+}
+
+export interface PayrollAdvanceCycleDocumentDto {
+  id: string;
+  report_id: string;
+  master_contract_id: string;
+  enterprise_id: string;
+  document_type: 'OPERATIONAL_REPORT' | 'COLLECTION_NOTICE';
+  status: string;
+  schema_version: string;
+  scheduled_cycle_date: string;
+  denomination: string;
+  total_owed: string;
+  snapshot_content_hash: string | null;
+  retention_until: string | null;
+}
+
+export interface PayrollAdvanceCycleReportDetailDto {
+  report: PayrollAdvanceCycleReportDto;
+  documents: PayrollAdvanceCycleDocumentDto[];
+  lines: PayrollAdvanceCycleReportLineDto[];
+}
+
+export interface PayrollAdvanceCycleReportPageDto {
+  items: PayrollAdvanceCycleReportDto[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export interface PayrollAdvanceMasterAssignmentCreateRequest {
@@ -145,6 +256,14 @@ export interface PayrollAdvanceMasterAssignmentDto {
   status: string;
   effective_from: string;
   effective_to: string | null;
+  /** Derived concentration evidence returned by Core for active assignments. */
+  allocation_mode?: 'EXPLICIT' | 'SHARED_POOL' | null;
+  master_available_headroom?: number | null;
+  shared_units_count?: number | null;
+  explicit_capacity?: number | null;
+  shared_unit_cap?: number | null;
+  unit_exposure?: number | null;
+  unit_concentration_headroom?: number | null;
 }
 
 /** Edita el cupo agregado y/o el monto por empleado de una asignación ACTIVE ya existente. */
@@ -228,15 +347,101 @@ export interface PayrollAdvanceMasterDocumentVersionDto {
   created_by: string;
 }
 
+/**
+ * openspec/changes/add-payroll-advance-partner-commission (sección 5): gobernanza
+ * maker-checker del porcentaje de comisión por alianza estratégica y de la
+ * cuenta de pago destino -- creador != aprobador, aplicado por Core.
+ */
+export type CommissionChangeRequestStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
+
+export interface CommissionChangeRequestDto {
+  id: string;
+  master_contract_id: string;
+  status: CommissionChangeRequestStatus | string;
+  proposed_by: string;
+  proposed_partner_commission_percentage: string | null;
+  proposed_payout_account_id: string | null;
+  change_reason: string;
+  decided_by: string | null;
+  decision_reason: string | null;
+  decided_at: string | null;
+  created_at: string;
+}
+
+export interface ProposeCommissionChangeRequestBody {
+  proposed_partner_commission_percentage?: number;
+  proposed_payout_account_id?: string;
+  change_reason: string;
+}
+
+export interface DecideCommissionChangeRequestBody {
+  decision: 'approve' | 'reject';
+  decision_reason: string;
+}
+
+/** openspec add-payroll-advance-partner-commission (sección 6): cuenta bancaria
+ * de pago de la Empresa Principal. Se crea en PENDING_APPROVAL -- solo se
+ * activa vía el maker-checker de arriba, nunca por un endpoint de escritura
+ * directa. */
+export type EnterprisePayoutAccountStatus = 'PENDING_APPROVAL' | 'ACTIVE' | 'INACTIVE';
+
+export interface EnterprisePayoutAccountDto {
+  id: string;
+  enterprise_id: string;
+  bank_code: string;
+  masked_account_number: string;
+  account_type: string;
+  holder_name: string;
+  status: EnterprisePayoutAccountStatus | string;
+  verified_at: string | null;
+  verified_by: string | null;
+  created_at: string;
+}
+
+export interface CreateEnterprisePayoutAccountRequest {
+  bank_code: string;
+  account_number: string;
+  account_type: string;
+  holder_name: string;
+  holder_document_type: string;
+  holder_document_number: string;
+}
+
+/** openspec add-payroll-advance-partner-commission (sección 7): historial de
+ * liquidaciones (payouts) -- ejecución MOCKEADA, nunca dinero real, hasta que
+ * se reemplace el adaptador del gateway en Core. */
+export type PartnerCommissionPayoutStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+
+export interface PartnerCommissionPayoutDto {
+  id: string;
+  master_contract_id: string;
+  enterprise_id: string;
+  payout_account_id: string;
+  gross_amount: string;
+  tax_amount: string;
+  net_amount: string;
+  currency: string;
+  status: PartnerCommissionPayoutStatus | string;
+  gateway_reference: string | null;
+  period_start: string;
+  period_end: string;
+  failure_reason: string | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CorePayrollAdvanceMasterContractsApiService {
   private readonly base: string;
+  private readonly reportsBase: string;
 
   constructor(
     private readonly http: HttpClient,
     @Inject(API_CONFIG) apiConfig: ApiConfig,
   ) {
-    this.base = `${coreAdminV1Base(apiConfig)}/payroll-advance-master-contracts`;
+    const coreBase = coreAdminV1Base(apiConfig);
+    this.base = `${coreBase}/payroll-advance-master-contracts`;
+    this.reportsBase = `${coreBase}/payroll-advance-cycle-reports`;
   }
 
   createModel(
@@ -456,6 +661,105 @@ export class CorePayrollAdvanceMasterContractsApiService {
     return this.http.patch<ApiEnvelope<PayrollAdvanceMasterAssignmentDto>>(
       `${this.base}/${contractId}/assignments/${assignmentId}`,
       body,
+    );
+  }
+
+  // ── openspec add-payroll-advance-partner-commission (sección 5): gobernanza ──
+
+  proposeCommissionChange(
+    contractId: string,
+    body: ProposeCommissionChangeRequestBody,
+  ): Observable<ApiEnvelope<CommissionChangeRequestDto>> {
+    return this.http.post<ApiEnvelope<CommissionChangeRequestDto>>(
+      `${this.base}/${contractId}/commission-change-requests`,
+      body,
+    );
+  }
+
+  listCommissionChangeRequests(
+    contractId: string,
+    status?: CommissionChangeRequestStatus | string,
+  ): Observable<ApiEnvelope<CommissionChangeRequestDto[]>> {
+    return this.http.get<ApiEnvelope<CommissionChangeRequestDto[]>>(
+      `${this.base}/${contractId}/commission-change-requests`,
+      { params: this.toHttpParams({ status }) },
+    );
+  }
+
+  decideCommissionChange(
+    contractId: string,
+    requestId: string,
+    body: DecideCommissionChangeRequestBody,
+  ): Observable<ApiEnvelope<CommissionChangeRequestDto>> {
+    return this.http.post<ApiEnvelope<CommissionChangeRequestDto>>(
+      `${this.base}/${contractId}/commission-change-requests/${requestId}/decide`,
+      body,
+    );
+  }
+
+  // ── openspec add-payroll-advance-partner-commission (sección 6): cuenta de pago ──
+
+  createPayoutAccount(
+    contractId: string,
+    body: CreateEnterprisePayoutAccountRequest,
+  ): Observable<ApiEnvelope<EnterprisePayoutAccountDto>> {
+    return this.http.post<ApiEnvelope<EnterprisePayoutAccountDto>>(
+      `${this.base}/${contractId}/payout-accounts`,
+      body,
+    );
+  }
+
+  listPayoutAccounts(contractId: string): Observable<ApiEnvelope<EnterprisePayoutAccountDto[]>> {
+    return this.http.get<ApiEnvelope<EnterprisePayoutAccountDto[]>>(
+      `${this.base}/${contractId}/payout-accounts`,
+    );
+  }
+
+  // ── openspec add-payroll-advance-partner-commission (sección 7): liquidaciones ──
+
+  listPartnerCommissionPayouts(
+    contractId: string,
+    status?: PartnerCommissionPayoutStatus | string,
+  ): Observable<ApiEnvelope<PartnerCommissionPayoutDto[]>> {
+    return this.http.get<ApiEnvelope<PartnerCommissionPayoutDto[]>>(
+      `${this.base}/${contractId}/partner-commission-payouts`,
+      { params: this.toHttpParams({ status }) },
+    );
+  }
+
+  listCycleReports(
+    params: PayrollAdvanceCycleReportListParams = {},
+  ): Observable<ApiEnvelope<PayrollAdvanceCycleReportPageDto>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceCycleReportPageDto>>(
+      this.reportsBase,
+      {
+        params: this.toHttpParams({
+          enterprise_id: params.enterprise_id,
+          master_contract_id: params.master_contract_id,
+          master_contract_version_id: params.master_contract_version_id,
+          master_assignment_id: params.master_assignment_id,
+          report_type: params.report_type,
+          status: params.status,
+          scheduled_cycle_date: params.scheduled_cycle_date,
+          limit: params.limit,
+          offset: params.offset,
+        }),
+      },
+    );
+  }
+
+  getCycleReport(
+    reportId: string,
+  ): Observable<ApiEnvelope<PayrollAdvanceCycleReportDetailDto>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceCycleReportDetailDto>>(
+      `${this.reportsBase}/${reportId}`,
+    );
+  }
+
+  downloadCycleReport(reportId: string): Observable<Blob> {
+    return this.http.get(
+      `${this.reportsBase}/${reportId}/download.csv`,
+      { responseType: 'blob' },
     );
   }
 

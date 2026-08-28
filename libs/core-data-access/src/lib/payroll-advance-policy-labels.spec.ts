@@ -77,10 +77,13 @@ describe('payroll-advance-policy-labels', () => {
     expect(payrollAdvancePolicyPrimaryReasonLabel(undefined, 'MANUAL_REVIEW')).toMatch(/revisión manual/);
   });
 
-  it('las 3 alertas de riesgo (design.md Decision 10) tienen label', () => {
-    expect(Object.keys(PAYROLL_ADVANCE_ALERT_TYPE_LABELS)).toHaveLength(3);
+  it('las alertas de riesgo tienen label', () => {
+    expect(Object.keys(PAYROLL_ADVANCE_ALERT_TYPE_LABELS)).toHaveLength(5);
     expect(payrollAdvanceAlertTypeLabel('PAYROLL_ADVANCE_EMPLOYER_DAILY_LIMIT_EXCEEDED')).toContain(
       'diaria',
+    );
+    expect(payrollAdvanceAlertTypeLabel('PAYROLL_ADVANCE_MASTER_CONTRACT_UTILIZATION_OVER_85')).toContain(
+      '85%',
     );
   });
 

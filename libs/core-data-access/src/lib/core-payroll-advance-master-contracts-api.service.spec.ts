@@ -5,6 +5,7 @@ import { CorePayrollAdvanceMasterContractsApiService } from './core-payroll-adva
 describe('CorePayrollAdvanceMasterContractsApiService', () => {
   const apiConfig = {
     coreBaseUrl: 'http://localhost:8000',
+    coreAdminApiPrefix: '/api/v1/admin',
     identityBaseUrl: 'http://localhost:8080',
   };
 
@@ -115,5 +116,43 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
     expect(url).toContain('/contract-1/assignments/assignment-1');
     expect(url).not.toContain('/revoke');
     expect(body).toEqual(payload);
+  });
+
+  it('listCycleReports() serializa los filtros contractuales y de ciclo', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+
+    service
+      .listCycleReports({
+        enterprise_id: 'enterprise-1',
+        master_contract_id: 'contract-1',
+        master_contract_version_id: 'version-1',
+        master_assignment_id: 'assignment-1',
+        report_type: 'POST_CYCLE',
+        status: 'REQUIRES_REVIEW',
+        scheduled_cycle_date: '2026-08-31',
+        limit: 200,
+        offset: 20,
+      })
+      .subscribe();
+
+    const [url, options] = http.get.mock.calls[0];
+    expect(url).toBe('http://localhost:8000/api/v1/admin/payroll-advance-cycle-reports');
+    expect(options.params.get('master_contract_version_id')).toBe('version-1');
+    expect(options.params.get('master_assignment_id')).toBe('assignment-1');
+    expect(options.params.get('report_type')).toBe('POST_CYCLE');
+    expect(options.params.get('status')).toBe('REQUIRES_REVIEW');
+  });
+
+  it('getCycleReport() y downloadCycleReport() usan el endpoint de snapshots', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+
+    service.getCycleReport('report-1').subscribe();
+    service.downloadCycleReport('report-1').subscribe();
+
+    expect(http.get.mock.calls[0][0]).toContain('/payroll-advance-cycle-reports/report-1');
+    expect(http.get.mock.calls[1][0]).toContain('/payroll-advance-cycle-reports/report-1/download.csv');
+    expect(http.get.mock.calls[1][1]).toEqual({ responseType: 'blob' });
   });
 });
