@@ -82,6 +82,7 @@ export interface PayrollAdvanceMasterContractDto {
   enterprise_due_day?: number | null;
   cycle_timezone?: string | null;
   cycle_denomination?: string;
+  cycle_configuration_status?: string;
   contract_template_id?: string | null;
   /** ADR-023: custodia de fondeo asignada (obligatoria para activar). */
   custody_account_id?: string | null;
@@ -194,6 +195,42 @@ export interface PayrollAdvanceCycleReportPageDto {
   total: number;
   limit: number;
   offset: number;
+}
+
+export type PayrollAdvanceCycleChangeRequestStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
+
+export interface PayrollAdvanceCycleChangeRequestBody {
+  cutoff_day: number;
+  payment_day: number;
+  enterprise_due_day: number;
+  cycle_timezone: string;
+  cycle_denomination: string;
+  effective_from: string;
+  change_reason: string;
+}
+
+export interface PayrollAdvanceCycleChangeDecisionBody {
+  decision: 'approve' | 'reject';
+  decision_reason: string;
+}
+
+export interface PayrollAdvanceCycleChangeRequestDto {
+  id: string;
+  master_contract_id: string;
+  proposed_by: string;
+  cutoff_day: number;
+  payment_day: number;
+  enterprise_due_day: number;
+  cycle_timezone: string;
+  cycle_denomination: string;
+  effective_from: string;
+  change_reason: string;
+  status: PayrollAdvanceCycleChangeRequestStatus | string;
+  decided_by: string | null;
+  decision_reason: string | null;
+  decided_at: string | null;
+  correlation_id: string | null;
+  created_at: string;
 }
 
 export interface PayrollAdvanceMasterAssignmentCreateRequest {
@@ -724,6 +761,37 @@ export class CorePayrollAdvanceMasterContractsApiService {
     return this.http.get<ApiEnvelope<PartnerCommissionPayoutDto[]>>(
       `${this.base}/${contractId}/partner-commission-payouts`,
       { params: this.toHttpParams({ status }) },
+    );
+  }
+
+  proposeCycleChange(
+    contractId: string,
+    body: PayrollAdvanceCycleChangeRequestBody,
+  ): Observable<ApiEnvelope<PayrollAdvanceCycleChangeRequestDto>> {
+    return this.http.post<ApiEnvelope<PayrollAdvanceCycleChangeRequestDto>>(
+      `${this.base}/${contractId}/cycle-change-requests`,
+      body,
+    );
+  }
+
+  listCycleChangeRequests(
+    contractId: string,
+    status?: PayrollAdvanceCycleChangeRequestStatus | string,
+  ): Observable<ApiEnvelope<PayrollAdvanceCycleChangeRequestDto[]>> {
+    return this.http.get<ApiEnvelope<PayrollAdvanceCycleChangeRequestDto[]>>(
+      `${this.base}/${contractId}/cycle-change-requests`,
+      { params: this.toHttpParams({ status }) },
+    );
+  }
+
+  decideCycleChange(
+    contractId: string,
+    requestId: string,
+    body: PayrollAdvanceCycleChangeDecisionBody,
+  ): Observable<ApiEnvelope<PayrollAdvanceCycleChangeRequestDto>> {
+    return this.http.post<ApiEnvelope<PayrollAdvanceCycleChangeRequestDto>>(
+      `${this.base}/${contractId}/cycle-change-requests/${requestId}/decide`,
+      body,
     );
   }
 

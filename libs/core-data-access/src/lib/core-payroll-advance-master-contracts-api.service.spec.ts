@@ -155,4 +155,28 @@ describe('CorePayrollAdvanceMasterContractsApiService', () => {
     expect(http.get.mock.calls[1][0]).toContain('/payroll-advance-cycle-reports/report-1/download.csv');
     expect(http.get.mock.calls[1][1]).toEqual({ responseType: 'blob' });
   });
+
+  it('proposeCycleChange() y decideCycleChange() usan el workflow administrativo', () => {
+    const http = mockHttp();
+    const service = new CorePayrollAdvanceMasterContractsApiService(http as never, apiConfig);
+    const proposal = {
+      cutoff_day: 1,
+      payment_day: 10,
+      enterprise_due_day: 5,
+      cycle_timezone: 'America/Bogota',
+      cycle_denomination: 'COP',
+      effective_from: '2026-09-01T00:00:00Z',
+      change_reason: 'Cambio aprobado por operación',
+    };
+
+    service.proposeCycleChange('contract-1', proposal).subscribe();
+    service.decideCycleChange('contract-1', 'request-1', {
+      decision: 'approve',
+      decision_reason: 'Validado por otro administrador',
+    }).subscribe();
+
+    expect(http.post.mock.calls[0][0]).toContain('/contract-1/cycle-change-requests');
+    expect(http.post.mock.calls[0][1]).toEqual(proposal);
+    expect(http.post.mock.calls[1][0]).toContain('/contract-1/cycle-change-requests/request-1/decide');
+  });
 });
