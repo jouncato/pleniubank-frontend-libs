@@ -13,7 +13,7 @@ export interface RegisterPayrollAdvanceRequest {
   product_id: string;
   customer_id: string;
   employer_id: string;
-  amount: number;
+  amount: string | number;
   customer_account_id: string;
   disbursement_source_account_id: string;
   denomination?: string;
@@ -51,7 +51,7 @@ export interface DisbursePayrollAdvanceResponse {
 export interface RepayPayrollAdvanceRequest {
   account_id: string;
   payment_source_account_id: string;
-  repayment_amount: number;
+  repayment_amount: string | number;
   repayment_is_full: boolean;
   denomination?: string;
   effective_date?: string | null;
@@ -101,8 +101,8 @@ export interface PayrollAdvanceActiveSummaryDto {
 
 export interface SimulatePayrollAdvanceRequest {
   contract_id: string;
-  amount: number;
-  salary_amount?: number | null;
+  amount: string | number;
+  salary_amount?: string | number | null;
   denomination?: string;
   /**
    * OpenSpec centralize-payroll-advance-policy-co (fase 4, tarea 4.3 /
@@ -153,7 +153,7 @@ export interface PayrollAdvanceEligibilityParams {
   master_contract_id?: string | null;
   master_assignment_id?: string | null;
   /** Monto hipotético a evaluar. Si se omite, se evalúa contra el propio techo efectivo. */
-  requested_amount?: number | null;
+  requested_amount?: string | number | null;
 }
 
 export interface PayrollAdvanceDto {

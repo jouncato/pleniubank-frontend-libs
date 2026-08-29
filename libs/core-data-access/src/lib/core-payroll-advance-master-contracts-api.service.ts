@@ -44,8 +44,8 @@ export interface PayrollAdvanceMasterModelDto {
 export interface PayrollAdvanceMasterContractCreateRequest {
   global_model_id: string;
   enterprise_id: string;
-  approved_total_limit: number;
-  safety_buffer_amount?: number;
+  approved_total_limit: string | number;
+  safety_buffer_amount?: string | number;
   /** ADR-023: obligatoria en creación — fuente de fondeo del contrato. */
   custody_account_id: string;
   /**
@@ -96,7 +96,7 @@ export interface PayrollAdvanceMasterContractDto {
  * motivo es obligatorio -- se persiste como `change_reason` de la nueva
  * versión inmutable del contrato. */
 export interface PayrollAdvanceMasterContractCapacityAdjustmentRequest {
-  new_approved_total_limit: number;
+  new_approved_total_limit: string | number;
   reason: string;
 }
 
@@ -254,14 +254,14 @@ export interface PayrollAdvanceMasterAssignmentCreateRequest {
   enterprise_id: string;
   sub_enterprise_id: string;
   company_code: string;
-  approved_sub_limit?: number | null;
+  approved_sub_limit?: string | number | null;
   /**
    * Monto individual ofrecido a cada empleado de la unidad al aceptar la
    * propuesta -- distinto de `approved_sub_limit` (techo agregado de toda
    * la unidad). Sin este valor, Core rechaza la activación del anticipo de
    * cualquier empleado bajo esta unidad (auditoría 2026-08-11).
    */
-  default_employee_amount?: number | null;
+  default_employee_amount?: string | number | null;
   terms_override?: Record<string, unknown>;
   effective_from?: string | null;
   effective_to?: string | null;
@@ -279,8 +279,8 @@ export interface BulkMasterAssignmentItem {
 export interface BulkAssignMasterContractRequest {
   enterprise_id: string;
   items: BulkMasterAssignmentItem[];
-  approved_sub_limit?: number | null;
-  default_employee_amount?: number | null;
+  approved_sub_limit?: string | number | null;
+  default_employee_amount?: string | number | null;
 }
 
 export interface BulkMasterAssignmentResultEntry {
@@ -321,8 +321,8 @@ export interface PayrollAdvanceMasterAssignmentDto {
 
 /** Edita el cupo agregado y/o el monto por empleado de una asignación ACTIVE ya existente. */
 export interface PayrollAdvanceMasterAssignmentTermsUpdateRequest {
-  approved_sub_limit?: number | null;
-  default_employee_amount?: number | null;
+  approved_sub_limit?: string | number | null;
+  default_employee_amount?: string | number | null;
   terms_override?: Record<string, unknown> | null;
 }
 

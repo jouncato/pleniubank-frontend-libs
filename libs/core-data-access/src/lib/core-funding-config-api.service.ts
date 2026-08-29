@@ -25,7 +25,7 @@ export interface FundingProfileDto {
   gl_transit_account_code: string;
   gl_counterparty_account_code: string | null;
   reconciliation_rule_code: string;
-  reconciliation_tolerance_amount: number;
+  reconciliation_tolerance_amount: string | number;
   reconciliation_auto_apply: boolean;
   risk_rule_code: string | null;
   risk_exposure_account_code: string | null;

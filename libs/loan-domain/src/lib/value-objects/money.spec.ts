@@ -1,4 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import {
+  formatMoneyInput,
+  isMoneyInputValid,
+  moneyInputToNumberString,
+  normalizeMoneyInput,
+} from './currency-profile';
 import { formatMoney, money, type Money } from './money';
 
 describe('money()', () => {
@@ -48,6 +54,27 @@ describe('money()', () => {
   it('should accept integer string without decimals', () => {
     const m = money('100', 'MXN');
     expect(m.amount).toBe('100');
+  });
+});
+
+describe('currency profiles and money input', () => {
+  it('normalizes localized input without grouping separators', () => {
+    expect(normalizeMoneyInput('1.234.567,89', 'COP', 'es-CO')).toBe('1234567.89');
+    expect(normalizeMoneyInput('1,234,567.89', 'MXN', 'es-MX')).toBe('1234567.89');
+    expect(normalizeMoneyInput('1000000.0000', 'COP', 'es-CO')).toBe('1000000.0000');
+    expect(normalizeMoneyInput('-1500000.0000', 'COP', 'es-CO')).toBe('-1500000.0000');
+    expect(moneyInputToNumberString('1.234.567,89', 'COP', 'es-CO')).toBe('1234567.89');
+  });
+
+  it('formats integer entry with grouping and two decimals', () => {
+    expect(formatMoneyInput('1', 'COP', 'es-CO')).toBe('1,00');
+    expect(formatMoneyInput('1000', 'COP', 'es-CO')).toBe('1.000,00');
+    expect(formatMoneyInput('1234567.89', 'MXN', 'es-MX')).toBe('1,234,567.89');
+  });
+
+  it('does not truncate values with too many decimal places', () => {
+    expect(isMoneyInputValid('1,234', 'COP', 'es-CO')).toBe(false);
+    expect(moneyInputToNumberString('1,234', 'COP', 'es-CO')).toBe(null);
   });
 });
 

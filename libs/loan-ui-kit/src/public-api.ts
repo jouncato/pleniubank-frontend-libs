@@ -1,4 +1,6 @@
 export { MoneyDisplayComponent } from './lib/money-display/money-display.component';
+export { MoneyInputDirective } from './lib/money-input/money-input.directive';
+export { MoneyPipe } from './lib/money-pipe';
 export { LendingStatusBadgeComponent } from './lib/lending-status-badge/lending-status-badge.component';
 export { AmortizationScheduleTableComponent } from './lib/amortization-schedule-table/amortization-schedule-table.component';
 export { LoanPaginationComponent } from './lib/amortization-schedule-table/loan-pagination.component';

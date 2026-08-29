@@ -25,6 +25,16 @@ describe('TenantContextService', () => {
     expect(service.selectedCountry()).toBe('MX');
   });
 
+  it('deriva moneda y locale del tenant activo', () => {
+    expect(service.selectedCurrency()).toBe('COP');
+    expect(service.selectedLocale()).toBe('es-CO');
+
+    service.setCountry('MX');
+
+    expect(service.selectedCurrency()).toBe('MXN');
+    expect(service.selectedLocale()).toBe('es-MX');
+  });
+
   it("setCountry('PE') no es soportado → fallback a CO", () => {
     service.setCountry('PE');
     expect(service.selectedCountry()).toBe('CO');

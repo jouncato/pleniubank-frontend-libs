@@ -1,3 +1,7 @@
+import { currencyFractionDigits } from './currency-profile';
+
+export type MoneyValue = string | number;
+
 export interface Money {
   readonly amount: string;
   readonly currency: string;
@@ -27,11 +31,12 @@ export function formatMoney(m: Money, locale = 'es-CO', options: FormatMoneyOpti
   const value = Number(m.amount);
   const isNegative = value < 0;
   const magnitude = negativeStyle === 'parentheses' ? Math.abs(value) : value;
+  const fractionDigits = currencyFractionDigits(currency, locale);
   const formatter = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   });
   const formatted = formatter.format(magnitude);
   const currencyPart = formatter.formatToParts(magnitude).find((p) => p.type === 'currency')?.value ?? '';

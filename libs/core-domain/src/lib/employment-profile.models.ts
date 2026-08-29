@@ -44,7 +44,7 @@ export interface CreateEmploymentProfileRequest {
   job_title: string;
   department?: string | null;
   employment_start_date: string;
-  salary_amount: number;
+  salary_amount: string | number;
   salary_currency?: string;
   contract_type?: ContractType | string;
 }
@@ -53,7 +53,7 @@ export interface PatchEmploymentProfileRequest {
   job_title?: string;
   department?: string | null;
   employment_start_date?: string;
-  salary_amount?: number;
+  salary_amount?: string | number;
   contract_type?: ContractType | string;
 }
 

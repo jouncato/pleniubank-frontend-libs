@@ -1,8 +1,9 @@
-import { Injectable, isDevMode, signal } from '@angular/core';
+import { Injectable, computed, isDevMode, signal } from '@angular/core';
 import {
   DEFAULT_TENANT,
   SupportedTenant,
   isSupportedTenant,
+  tenantMoneyProfile,
 } from './tenant-country.types';
 
 /**
@@ -18,6 +19,9 @@ export class TenantContextService {
 
   /** Signal readonly del tenant actualmente seleccionado. */
   readonly selectedCountry = this._selected.asReadonly();
+  readonly selectedMoneyProfile = computed(() => tenantMoneyProfile(this._selected()));
+  readonly selectedCurrency = computed(() => this.selectedMoneyProfile().currency);
+  readonly selectedLocale = computed(() => this.selectedMoneyProfile().locale);
 
   /**
    * Actualiza el tenant seleccionado.
