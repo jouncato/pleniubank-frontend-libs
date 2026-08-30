@@ -92,7 +92,7 @@ describe('AuthRegisterForm', () => {
       'Número de documento',
       'Contraseña',
       'Confirmar contraseña',
-      'Términos y tratamiento de datos',
+      'Términos y condiciones',
     ]);
   });
 });
