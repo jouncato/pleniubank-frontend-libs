@@ -63,8 +63,17 @@ export function initPleniuOtel(config: PleniuObservabilityConfig): void {
     ],
   });
 
+  // Zone.js es opcional: varios portales Pleniu son zoneless (signals +
+  // OnPush, sin `zone.js` en polyfills). `ZoneContextManager` solo funciona
+  // si `Zone` existe globalmente -- instanciarlo sin eso revienta con
+  // "ReferenceError: Zone is not defined" antes de que Angular arranque.
+  // Sin contextManager, el SDK usa su manejador por defecto: los spans se
+  // siguen creando y exportando igual, solo se pierde la propagación
+  // automática de contexto entre callbacks async (no crítico para trazas
+  // de request/response).
+  const hasZone = typeof (globalThis as { Zone?: unknown }).Zone !== 'undefined';
   tracerProvider.register({
-    contextManager: new ZoneContextManager(),
+    contextManager: hasZone ? new ZoneContextManager() : undefined,
     propagator: new W3CTraceContextPropagator(),
   });
 

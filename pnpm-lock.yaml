@@ -32,6 +32,9 @@ importers:
       '@opentelemetry/api':
         specifier: ^1.9.1
         version: 1.9.1
+      '@opentelemetry/api-logs':
+        specifier: ^0.221.0
+        version: 0.221.0
       '@opentelemetry/auto-instrumentations-web':
         specifier: ^0.66.0
         version: 0.66.0(@opentelemetry/api@1.9.1)(zone.js@0.16.2)
@@ -65,6 +68,12 @@ importers:
       '@opentelemetry/instrumentation-user-interaction':
         specifier: ^0.65.0
         version: 0.65.0(@opentelemetry/api@1.9.1)(zone.js@0.16.2)
+      '@opentelemetry/otlp-exporter-base':
+        specifier: ^0.221.0
+        version: 0.221.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/otlp-transformer':
+        specifier: ^0.221.0
+        version: 0.221.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/resources':
         specifier: ^2.10.0
         version: 2.10.0(@opentelemetry/api@1.9.1)
@@ -72,6 +81,9 @@ importers:
         specifier: ^0.221.0
         version: 0.221.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-metrics':
+        specifier: ^2.10.0
+        version: 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-base':
         specifier: ^2.10.0
         version: 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace-web':
