@@ -2,17 +2,39 @@
     "name":  "@pleniu/shared-observability",
     "version":  "0.0.1",
     "peerDependencies":  {
-                             "@angular/core":  "^21.2.0",
-                             "@angular/router":  "^21.2.0",
-                             "@sentry/angular":  "^10.0.0",
-                             "@sentry/browser":  "^10.0.0",
-                             "@sentry/core":  "^10.0.0"
-                         },
+                            "@angular/core":  "^21.2.0",
+                            "@angular/router":  "^21.2.0",
+                            "@sentry/angular":  "^10.0.0",
+                            "@sentry/browser":  "^10.0.0",
+                            "@sentry/core":  "^10.0.0",
+                            "@opentelemetry/api":  "^1.9.0",
+                            "@opentelemetry/api-logs":  "^0.221.0",
+                            "@opentelemetry/auto-instrumentations-web":  "^0.66.0",
+                            "@opentelemetry/context-zone-peer-dep":  "^2.10.0",
+                            "@opentelemetry/core":  "^2.10.0",
+                            "@opentelemetry/exporter-logs-otlp-http":  "^0.221.0",
+                            "@opentelemetry/exporter-metrics-otlp-http":  "^0.221.0",
+                            "@opentelemetry/exporter-trace-otlp-http":  "^0.221.0",
+                            "@opentelemetry/instrumentation":  "^0.221.0",
+                            "@opentelemetry/instrumentation-document-load":  "^0.66.0",
+                            "@opentelemetry/instrumentation-fetch":  "^0.221.0",
+                            "@opentelemetry/instrumentation-user-interaction":  "^0.65.0",
+                            "@opentelemetry/otlp-exporter-base":  "^0.221.0",
+                            "@opentelemetry/otlp-transformer":  "^0.221.0",
+                            "@opentelemetry/resources":  "^2.10.0",
+                            "@opentelemetry/sdk-logs":  "^0.221.0",
+                            "@opentelemetry/sdk-metrics":  "^2.10.0",
+                            "@opentelemetry/sdk-trace-base":  "^2.10.0",
+                            "@opentelemetry/sdk-trace-web":  "^2.10.0",
+                            "@opentelemetry/semantic-conventions":  "^1.43.0"
+                        },
     "dependencies":  {
                          "tslib":  "^2.3.0"
                      },
     "sideEffects":  [
-                        "**/init-pleniu-sentry.ts"
+                        "**/init-pleniu-sentry.ts",
+                        "**/pleniu-glitchtip.ts",
+                        "**/pleniu-otel.ts"
                     ],
     "main":  "./src/public-api.ts",
     "module":  "./src/public-api.ts",
