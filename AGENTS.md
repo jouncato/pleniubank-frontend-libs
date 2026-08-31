@@ -1,5 +1,9 @@
 # Pleniubank — Notas técnicas para agentes
 
+## Política obligatoria de ramas y GitOps
+
+Antes de crear ramas, hacer commit, abrir o fusionar PRs, o modificar CI/CD/publicación, leer `.devin/skills/pleniubank-git-governance/SKILL.md` y la política canónica `docs-proyecto-plenibank/guides/DEVOPS_BRANCHING_AND_GITOPS_POLICY.md`. `main` es la SSOT; `qa` solo recibe promoción desde `dev`; no hacer push directo a `main` ni `qa` ni saltar etapas. `feat/*`, `fix/*`, `audit/*` y `claude/*` son legacy-only.
+
 ## ⚠️ Regla obligatoria — Manual de Usuario (no omitir jamás)
 
 Este proyecto usa el skill **`manual-usuario-experto`** (`.devin/skills/manual-usuario-experto/SKILL.md`).

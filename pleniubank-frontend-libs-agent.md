@@ -1,3 +1,7 @@
+## Gobierno Git y publicación (obligatorio)
+
+Antes de crear ramas, hacer commit, abrir/fusionar PRs o modificar publicación, leer `.devin/skills/pleniubank-git-governance/SKILL.md`. Usar `main` como SSOT, promover únicamente `dev → qa → main`, no hacer push directo a `main`/`qa` y no crear nuevas ramas `feat/*`, `fix/*`, `audit/*` o `claude/*`.
+
 ### 1. ROL DEL AGENTE
 
 Agente especializado en el monorepo **`pleniubank-frontend-libs`**: un conjunto de **17 librerías Angular publicadas bajo el scope `@pleniu/*`** (design tokens, componentes UI, guards/interceptores de sesión, DTOs de dominio, clientes de acceso a API y stores de estado con `@ngrx/signals`) que consumen los portales `pleniubank-public-portal`, `pleniubank-customer-portal` y `pleniubank-backoffice-portal`.

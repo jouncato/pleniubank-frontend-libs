@@ -1,5 +1,9 @@
 # Windsurf — pleniubank-frontend-libs
 
+## Gobierno Git y publicación
+
+Regla transversal: antes de cualquier rama, commit, PR, merge o cambio de publicación, leer `.devin/skills/pleniubank-git-governance/SKILL.md`. `main` es SSOT, `qa` solo recibe `dev`, `main` solo recibe `qa`; no hacer push directo a ramas protegidas ni crear nuevos prefijos legacy (`feat/*`, `fix/*`, `audit/*`, `claude/*`). Política completa: `docs-proyecto-plenibank/guides/DEVOPS_BRANCHING_AND_GITOPS_POLICY.md`.
+
 ## Fuente de verdad
 
 - [README.md](README.md)
