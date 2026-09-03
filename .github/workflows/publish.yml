@@ -13,11 +13,21 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify release commit is reachable from main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --depth=1
+          git merge-base --is-ancestor "$GITHUB_SHA" "origin/main" || {
+            echo "::error::Library release tags must point to a commit reachable from main."
+            exit 1
+          }
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
           registry-url: https://npm.pkg.github.com
       - run: corepack enable
       - run: corepack pnpm install --frozen-lockfile

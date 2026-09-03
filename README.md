@@ -1,5 +1,9 @@
 # PleniuBank Frontend Libraries
 
+## Gobierno Git y publicación
+
+La política operativa de ramas y releases está en `docs-proyecto-plenibank/guides/DEVOPS_BRANCHING_AND_GITOPS_POLICY.md`. Antes de crear una rama, commit, PR o tag de publicación, consulta `.devin/skills/pleniubank-git-governance/SKILL.md`.
+
 Monorepo de librerías Angular compartidas para los portales de PleniuBank.
 
 > **Nota**: Este proyecto es una librería Angular, no una aplicación. No requiere Docker ni contenerización. Las librerías se publican a GitHub Packages y se consumen desde los portales.

@@ -1,0 +1,55 @@
+name: Branch policy
+
+on:
+  pull_request:
+    branches: [dev, qa, main]
+  push:
+    branches: [dev, qa, main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-branch-flow:
+    name: Validate branch flow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate source and target branches
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          REF_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            case "$BASE_REF" in
+              qa)
+                [[ "$HEAD_REF" == "dev" ]] || {
+                  echo "::error::Solo dev puede promover a qa. Origen recibido: $HEAD_REF"
+                  exit 1
+                }
+                ;;
+              main)
+                [[ "$HEAD_REF" == "qa" ]] || {
+                  echo "::error::Solo qa puede promover a main. Origen recibido: $HEAD_REF"
+                  exit 1
+                }
+                ;;
+              dev)
+                [[ "$HEAD_REF" =~ ^(feature|bugfix|hotfix|chore|release)/[^/]+$ ]] || {
+                  echo "::error::La entrada a dev requiere feature/*, bugfix/*, hotfix/*, chore/* o release/*. Origen recibido: $HEAD_REF"
+                  exit 1
+                }
+                ;;
+            esac
+          else
+            [[ "$REF_NAME" =~ ^(dev|qa|main)$ ]] || {
+              echo "::error::Push fuera de las ramas de ambiente permitidas: $REF_NAME"
+              exit 1
+            }
+          fi
+
+          echo "Branch policy OK: event=$EVENT_NAME base=${BASE_REF:-none} head=${HEAD_REF:-none} ref=${REF_NAME:-none}"
