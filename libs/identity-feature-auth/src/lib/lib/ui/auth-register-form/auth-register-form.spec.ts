@@ -92,7 +92,14 @@ describe('AuthRegisterForm', () => {
       'Número de documento',
       'Contraseña',
       'Confirmar contraseña',
-      'Términos y condiciones',
+      'Autorización para tratamiento de datos',
     ]);
+  });
+
+  it('muestra únicamente la autorización para tratamiento de datos', () => {
+    const consentLink = fixture.nativeElement.querySelector('.terms__link') as HTMLButtonElement;
+
+    expect(consentLink.textContent.trim()).toBe('Autorizo el tratamiento de datos.');
+    expect(fixture.nativeElement.textContent).not.toContain('términos y condiciones');
   });
 });

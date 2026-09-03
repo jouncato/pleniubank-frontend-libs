@@ -192,15 +192,14 @@
       <label class="terms">
         <input id="acceptedTerms" type="checkbox" formControlName="acceptedTerms" aria-required="true" [attr.aria-invalid]="form.controls.acceptedTerms.invalid" aria-describedby="acceptedTerms-error" />
         <span>
-          Acepto los
-          <button type="button" class="terms__link" (click)="openLegalModal('terms')">
-            términos y condiciones
-          </button>.
+          <button type="button" class="terms__link" (click)="openLegalModal('data')">
+            Autorizo el tratamiento de datos.
+          </button>
           <span aria-hidden="true"> *</span>
         </span>
       </label>
       @if (form.controls.acceptedTerms.touched && form.controls.acceptedTerms.invalid) {
-        <p id="acceptedTerms-error" class="field-error" role="alert">Debes aceptar los términos para continuar.</p>
+        <p id="acceptedTerms-error" class="field-error" role="alert">Debes autorizar el tratamiento de datos para continuar.</p>
       }
 
       @if (vm.errorMessage(); as error) {
@@ -231,19 +230,18 @@
       <header class="legal-modal__header">
         <div>
           <p class="legal-modal__eyebrow">Información legal</p>
-          <h2 id="legal-modal-title">Términos y condiciones</h2>
+          <h2 id="legal-modal-title">Autorización para tratamiento de datos</h2>
         </div>
         <button type="button" class="legal-modal__close" aria-label="Cerrar" (click)="closeLegalModal()">×</button>
       </header>
 
       <div class="legal-modal__content">
-        <section id="legal-section-terms">
-          <h3>Términos y condiciones de uso</h3>
+        <section id="legal-section-data">
+          <h3>Autorización para tratamiento de datos</h3>
           <p>
-            Al crear una cuenta aceptas usar los servicios digitales de forma responsable, entregar
-            información veraz y mantener protegidas tus credenciales de acceso. La disponibilidad de
-            productos, funcionalidades y canales puede variar según validaciones internas, requisitos
-            operativos y políticas vigentes de la plataforma.
+            Autorizas el tratamiento de los datos personales suministrados para gestionar tu registro,
+            validar tu identidad, operar los servicios solicitados, prevenir fraude, atender solicitudes
+            de soporte y cumplir obligaciones legales o contractuales aplicables.
           </p>
         </section>
 
