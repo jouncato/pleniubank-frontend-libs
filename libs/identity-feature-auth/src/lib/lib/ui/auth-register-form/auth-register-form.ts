@@ -19,10 +19,10 @@ const PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-
 // permite hasta 64 caracteres, no 20.
 const PHONE_PATTERN = /^(?=.*\d)[0-9+\-\s()]{7,64}$/;
 
-export type LegalModalSection = 'terms';
+export type LegalModalSection = 'data';
 
 const LEGAL_SECTION_ELEMENT_ID: Record<LegalModalSection, string> = {
-  terms: 'legal-section-terms',
+  data: 'legal-section-data',
 };
 
 @Component({
@@ -116,7 +116,7 @@ export class AuthRegisterForm implements OnInit {
       ['documentNumber', 'Número de documento'],
       ['password', 'Contraseña'],
       ['confirmPassword', 'Confirmar contraseña'],
-      ['acceptedTerms', 'Términos y condiciones'],
+      ['acceptedTerms', 'Autorización para tratamiento de datos'],
     ] as const;
     return fields
       .filter(([control]) => this.form.controls[control].invalid)
